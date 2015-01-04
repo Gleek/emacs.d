@@ -5,6 +5,7 @@ places
 session.*
 tramp-autosave
 tramp
+elpa/*.txt
 emms
 .emacs.desktop*
 .DS_Store
