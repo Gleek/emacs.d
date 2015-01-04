@@ -1,0 +1,15 @@
+auto-save-list
+backups
+*~
+places
+session.*
+tramp-autosave
+tramp
+emms
+.emacs.desktop*
+.DS_Store
+.yas-compiled-snippets.el
+.cask
+/url/
+/var/
+/.sx/
