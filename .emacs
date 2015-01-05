@@ -4,6 +4,7 @@
 (when (fboundp 'scroll-bar-mode)
   (scroll-bar-mode -1))
 
+(set-default-font "Consolas 13")
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including ARGth occurrence of CHAR." t)
 
@@ -137,6 +138,13 @@
   (setq web-mode-markup-indent-offset 2))
 
 (add-to-list 'auto-mode-alist '("\\.php$" . my-setup-php))
+
+
+(global-set-key (kbd "C-x <right>") 'windmove-right)
+(global-set-key (kbd "C-x <left>") 'windmove-left)
+(global-set-key (kbd "C-x <up>") 'windmove-up)
+(global-set-key (kbd "C-x <down>") 'windmove-down)
+
 
 
 (custom-set-faces
