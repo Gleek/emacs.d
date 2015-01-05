@@ -4,7 +4,9 @@ backups
 places
 session.*
 tramp-autosave
+ac-comphist.dat
 tramp
+ido.last
 elpa/*.txt
 emms
 .emacs.desktop*

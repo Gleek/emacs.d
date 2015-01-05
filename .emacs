@@ -110,9 +110,12 @@
                              (setq-default frame-title-format '(buffer-file-name "%b"))
                              ))
 
+(setq is-mac (equal system-type 'darwin))
+
 ;;MAC peculiar keyboard
+(when is-mac
 (setq mac-command-modifier 'meta
-      mac-option-modifier 'control)
+      mac-option-modifier 'control))
 
 
 (add-hook 'python-mode-hook 'jedi:setup)
@@ -134,21 +137,6 @@
   (setq web-mode-markup-indent-offset 2))
 
 (add-to-list 'auto-mode-alist '("\\.php$" . my-setup-php))
-
-
-(defun fullscreen ()
-       (interactive)
-       (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
-                              '(2 "_NET_WM_STATE_FULLSCREEN" 0)))
-(global-set-key (kbd "<f11>") 'fullscreen)
-
-(defun maximized (&optional f)
-  (interactive)
-  (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
-             '(2 "_NET_WM_STATE_MAXIMIZED_VERT" 0))
-  (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
-             '(2 "_NET_WM_STATE_MAXIMIZED_HORZ" 0)))
-(maximized)
 
 
 (custom-set-faces
@@ -180,3 +168,21 @@
  '(vc-annotate-color-map (quote ((20 . "#F92672") (40 . "#CF4F1F") (60 . "#C26C0F") (80 . "#E6DB74") (100 . "#AB8C00") (120 . "#A18F00") (140 . "#989200") (160 . "#8E9500") (180 . "#A6E22E") (200 . "#729A1E") (220 . "#609C3C") (240 . "#4E9D5B") (260 . "#3C9F79") (280 . "#A1EFE4") (300 . "#299BA6") (320 . "#2896B5") (340 . "#2790C3") (360 . "#66D9EF"))))
  '(vc-annotate-very-old-color nil)
  '(weechat-color-list (unspecified "#272822" "#49483E" "#A20C41" "#F92672" "#67930F" "#A6E22E" "#968B26" "#E6DB74" "#21889B" "#66D9EF" "#A41F99" "#FD5FF0" "#349B8D" "#A1EFE4" "#F8F8F2" "#F8F8F0")))
+
+
+(if (not is-mac)
+    
+    (defun fullscreen ()
+      (interactive)
+      (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
+                             '(2 "_NET_WM_STATE_FULLSCREEN" 0)))
+  (global-set-key (kbd "<f11>") 'fullscreen)
+
+  (defun maximized (&optional f)
+    (interactive)
+    (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
+                           '(2 "_NET_WM_STATE_MAXIMIZED_VERT" 0))
+    (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
+                           '(2 "_NET_WM_STATE_MAXIMIZED_HORZ" 0)))
+  (maximized)
+ )
