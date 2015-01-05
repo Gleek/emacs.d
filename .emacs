@@ -76,6 +76,17 @@
     (next-line)))
 (global-set-key (kbd "M-;") 'comment-or-uncomment-region-or-line)
 
+
+
+(defun beginning-of-line-or-indentation ()
+  "move to beginning of line, or indentation"
+  (interactive)
+  (let ((pt (point)))
+    (beginning-of-line-text)
+    (when (eq pt (point))
+      (beginning-of-line))))
+(global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
+
 ;; toggel shell escape using C-c C-t C-x
 (defun TeX-toggle-escape nil (interactive)
 "Toggle Shell Escape"
@@ -116,7 +127,8 @@
 ;;MAC peculiar keyboard
 (when is-mac
 (setq mac-command-modifier 'meta
-      mac-option-modifier 'control))
+      mac-option-modifier 'control
+      ns-function-modifier 'super))
 
 
 (add-hook 'python-mode-hook 'jedi:setup)
@@ -128,14 +140,16 @@
   (web-mode)
 
   ;; make these variables local
-  (make-local-variable 'web-mode-code-indent-offset)
-  (make-local-variable 'web-mode-markup-indent-offset)
-  (make-local-variable 'web-mode-css-indent-offset)
+  ;; (make-local-variable 'web-mode-code-indent-offset)
+  ;; (make-local-variable 'web-mode-markup-indent-offset)
+  ;; (make-local-variable 'web-mode-css-indent-offset)
 
   ;; set indentation, can set different indentation level for different code type
-  (setq web-mode-code-indent-offset 4)
-  (setq web-mode-css-indent-offset 2)
-  (setq web-mode-markup-indent-offset 2))
+  ;; (setq web-mode-code-indent-offset 4)
+  ;; (setq web-mode-css-indent-offset 2)
+  ;; (setq web-mode-markup-indent-offset 2)
+  )
+
 
 (add-to-list 'auto-mode-alist '("\\.php$" . my-setup-php))
 
