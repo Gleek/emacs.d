@@ -1,9 +1,10 @@
 ;;; php-mode-autoloads.el --- automatically extracted autoloads
 ;;
 ;;; Code:
-(add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
+
 
-;;;### (autoloads nil "php-mode" "php-mode.el" (21674 30965 0 0))
+;;;### (autoloads (php-mode php-extra-constants php) "php-mode" "php-mode.el"
+;;;;;;  (21677 9308 357268 212000))
 ;;; Generated autoloads from php-mode.el
 
 (let ((loads (get 'php 'custom-loads))) (if (member '"php-mode" loads) nil (put 'php 'custom-loads (cons '"php-mode" loads))))
@@ -26,9 +27,16 @@ Major mode for editing PHP code.
 
 ;;;***
 
+;;;### (autoloads nil nil ("php-mode-pkg.el") (21677 9308 460453
+;;;;;;  9000))
+
+;;;***
+
+(provide 'php-mode-autoloads)
 ;; Local Variables:
 ;; version-control: never
 ;; no-byte-compile: t
 ;; no-update-autoloads: t
+;; coding: utf-8
 ;; End:
 ;;; php-mode-autoloads.el ends here

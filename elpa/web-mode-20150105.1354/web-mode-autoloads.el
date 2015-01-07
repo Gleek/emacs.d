@@ -1,9 +1,10 @@
 ;;; web-mode-autoloads.el --- automatically extracted autoloads
 ;;
 ;;; Code:
-(add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
+
 
-;;;### (autoloads nil "web-mode" "web-mode.el" (21674 30958 0 0))
+;;;### (autoloads (web-mode) "web-mode" "web-mode.el" (21677 7968
+;;;;;;  957805 665000))
 ;;; Generated autoloads from web-mode.el
 
 (autoload 'web-mode "web-mode" "\
@@ -13,9 +14,15 @@ Major mode for editing web templates.
 
 ;;;***
 
+;;;### (autoloads nil nil ("web-mode-pkg.el") (21677 7969 47215 215000))
+
+;;;***
+
+(provide 'web-mode-autoloads)
 ;; Local Variables:
 ;; version-control: never
 ;; no-byte-compile: t
 ;; no-update-autoloads: t
+;; coding: utf-8
 ;; End:
 ;;; web-mode-autoloads.el ends here

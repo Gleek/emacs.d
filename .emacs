@@ -57,7 +57,7 @@
 (setq ring-bell-function 'ignore)
 (global-auto-revert-mode 1)
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))) 
-
+(setq-default line-spacing 0)
 (defun linum-format-func (line)
   (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
     (propertize (format (format " %%%dd " w) line) 'face 'linum)))
@@ -109,7 +109,10 @@
 
 (setq inhibit-startup-screen t)
 (add-hook 'after-init-hook (lambda () 
-                             (load-theme 'zenburn t)
+                             (if is-mac
+                                 (load-theme 'zenburn t)
+                               (load-theme 'monokai t))
+                             
                              (global-auto-complete-mode t)
                              (require 'flx-ido)
                              (ido-mode 1)
@@ -166,8 +169,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(linum-highlight-face ((t (:inherit default :background "dim gray" :foreground "dark gray"))))
- '(paren-face-match ((t (:background "#FFFFFF" :foreground "#272822" :inverse-video t :underline t :weight normal))) t))
+ '(linum-highlight-face ((t (:inherit default :background "#39382e" :foreground "#75715E"))))
+ '(paren-face-match ((t (:background "#FFFFFF" :foreground "#272822" :inverse-video t :underline t :weight normal))) t)
+ '(show-paren-match ((t (:background "#FFFFFF" :foreground "#272822" :inverse-video t :underline t :weight normal)))))
 
 
 
