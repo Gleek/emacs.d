@@ -13,6 +13,7 @@
 
 (require 'saveplace)
 (setq-default save-place t)
+(add-to-list 'load-path "~/.emacs.d/custom/")
 
 
 ;; Emacs server
@@ -49,14 +50,14 @@
       ediff-window-setup-function 'ediff-setup-windows-plain
       save-place-file (concat user-emacs-directory "places")
       backup-directory-alist `(("." . ,(concat user-emacs-directory
-					       "backups"))))
+                                               "backups"))))
 
 
 (setq tramp-default-method "ssh")
 (setq tramp-auto-save-directory "~/.emacs.d/tramp-autosave/")
 (setq ring-bell-function 'ignore)
 (global-auto-revert-mode 1)
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))) 
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
 (setq-default line-spacing 0)
 (defun linum-format-func (line)
   (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
@@ -89,35 +90,36 @@
 
 ;; toggel shell escape using C-c C-t C-x
 (defun TeX-toggle-escape nil (interactive)
-"Toggle Shell Escape"
-(setq LaTeX-command
-  (if (string= LaTeX-command "latex") "latex -shell-escape"
-    "latex"))
-(message (concat "shell escape "
-         (if (string= LaTeX-command "latex -shell-escape")
-         "enabled"
-           "disabled"))
-     ))
+       "Toggle Shell Escape"
+       (setq LaTeX-command
+             (if (string= LaTeX-command "latex") "latex -shell-escape"
+               "latex"))
+       (message (concat "shell escape "
+                        (if (string= LaTeX-command "latex -shell-escape")
+                            "enabled"
+                          "disabled"))
+                ))
 (add-hook 'LaTeX-mode-hook
-      (lambda nil
-    (local-set-key (kbd "C-c C-t x") 'TeX-toggle-escape)))
+          (lambda nil
+            (local-set-key (kbd "C-c C-t x") 'TeX-toggle-escape)))
 
 (require 'package)
 (add-to-list 'package-archives
-	     '("melpa" . "http://melpa.milkbox.net/packages/") t)
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(load "cleanup-buffer")
 
 
 (setq inhibit-startup-screen t)
-(add-hook 'after-init-hook (lambda () 
-                             (if is-mac
-                                 (load-theme 'zenburn t)
-                               (load-theme 'monokai t))
-                             
+(add-hook 'after-init-hook (lambda ()
+                             (load-theme 'monokai t)
                              (global-auto-complete-mode t)
                              (require 'flx-ido)
                              (ido-mode 1)
                              (ido-everywhere 1)
                              (flx-ido-mode 1)
+                             (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+                             (add-hook 'js-mode-hook 'js2-minor-mode)
+                             (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
                              ;; disable ido faces to see flx highlights.
                              (setq ido-enable-flex-matching t)
                              (setq ido-use-faces nil)
@@ -129,13 +131,13 @@
 
 ;;MAC peculiar keyboard
 (when is-mac
-(setq mac-command-modifier 'meta
-      mac-option-modifier 'control
-      ns-function-modifier 'super))
+  (setq mac-command-modifier 'meta
+        mac-option-modifier 'control
+        ns-function-modifier 'super))
 
 
 (add-hook 'python-mode-hook 'jedi:setup)
-(setq jedi:complete-on-dot t) 
+(setq jedi:complete-on-dot t)
 
 (desktop-save-mode 1)
 (defun my-setup-php ()
@@ -197,11 +199,11 @@
 
 
 (when (not is-mac)
-    
-    (defun fullscreen ()
-      (interactive)
-      (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
-                             '(2 "_NET_WM_STATE_FULLSCREEN" 0)))
+
+  (defun fullscreen ()
+    (interactive)
+    (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
+                           '(2 "_NET_WM_STATE_FULLSCREEN" 0)))
   (global-set-key (kbd "<f11>") 'fullscreen)
 
   (defun maximized (&optional f)
@@ -211,4 +213,4 @@
     (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
                            '(2 "_NET_WM_STATE_MAXIMIZED_HORZ" 0)))
   (maximized)
- )
+  )
