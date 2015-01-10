@@ -90,15 +90,15 @@
 
 ;; toggel shell escape using C-c C-t C-x
 (defun TeX-toggle-escape nil (interactive)
-       "Toggle Shell Escape"
-       (setq LaTeX-command
-             (if (string= LaTeX-command "latex") "latex -shell-escape"
-               "latex"))
-       (message (concat "shell escape "
-                        (if (string= LaTeX-command "latex -shell-escape")
-                            "enabled"
-                          "disabled"))
-                ))
+  "Toggle Shell Escape"
+  (setq LaTeX-command
+        (if (string= LaTeX-command "latex") "latex -shell-escape"
+          "latex"))
+  (message (concat "shell escape "
+                   (if (string= LaTeX-command "latex -shell-escape")
+                       "enabled"
+                     "disabled"))
+           ))
 (add-hook 'LaTeX-mode-hook
           (lambda nil
             (local-set-key (kbd "C-c C-t x") 'TeX-toggle-escape)))
@@ -113,6 +113,7 @@
 (add-hook 'after-init-hook (lambda ()
                              (load-theme 'monokai t)
                              (global-auto-complete-mode t)
+                             (yas-global-mode 1)
                              (require 'flx-ido)
                              (ido-mode 1)
                              (ido-everywhere 1)
