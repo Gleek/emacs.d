@@ -144,7 +144,6 @@
 (defun my-setup-php ()
   ;; enable web mode
   (web-mode)
-
   ;; make these variables local
   ;; (make-local-variable 'web-mode-code-indent-offset)
   ;; (make-local-variable 'web-mode-markup-indent-offset)
