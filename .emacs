@@ -24,6 +24,7 @@
 
 (global-set-key (kbd "C-=") 'er/expand-region)
 (global-set-key (kbd "M-/") 'hippie-expand)
+(icomplete-mode 1)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (global-set-key (kbd "M-z") 'zap-up-to-char)
 
@@ -90,15 +91,15 @@
 
 ;; toggel shell escape using C-c C-t C-x
 (defun TeX-toggle-escape nil (interactive)
-  "Toggle Shell Escape"
-  (setq LaTeX-command
-        (if (string= LaTeX-command "latex") "latex -shell-escape"
-          "latex"))
-  (message (concat "shell escape "
-                   (if (string= LaTeX-command "latex -shell-escape")
-                       "enabled"
-                     "disabled"))
-           ))
+       "Toggle Shell Escape"
+       (setq LaTeX-command
+             (if (string= LaTeX-command "latex") "latex -shell-escape"
+               "latex"))
+       (message (concat "shell escape "
+                        (if (string= LaTeX-command "latex -shell-escape")
+                            "enabled"
+                          "disabled"))
+                ))
 (add-hook 'LaTeX-mode-hook
           (lambda nil
             (local-set-key (kbd "C-c C-t x") 'TeX-toggle-escape)))
@@ -184,18 +185,63 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-names-vector ["#272822" "#F92672" "#A6E22E" "#E6DB74" "#66D9EF" "#FD5FF0" "#A1EFE4" "#F8F8F2"])
+ '(ansi-color-names-vector
+   ["#272822" "#F92672" "#A6E22E" "#E6DB74" "#66D9EF" "#FD5FF0" "#A1EFE4" "#F8F8F2"])
  '(compilation-message-face (quote default))
- '(custom-safe-themes (quote ("9c7c1aa124c1ea23662e94d8bd69defc2c3115b0ec73983625a0ae4f3a762a6c" "6ccbd72e43b217398d9aafa7525992145430f7c0a1e586164bae0e114585adb5" "bf5d965e878026e405b1d8a76d5bf48614999cfac3a9a0b833e98b6e07d1e77a" "3a2fa6489367c5153be25348aec54756b94dedc6e275f0be267ad8f6b0317f2b" "f0a99f53cbf7b004ba0c1760aa14fd70f2eabafe4e62a2b3cf5cabae8203113b" "64581032564feda2b5f2cf389018b4b9906d98293d84d84142d90d7986032d33" "9dae95cdbed1505d45322ef8b5aa90ccb6cb59e0ff26fef0b8f411dfc416c552" "d04ca2c551ca3b4e05df9e28f9eada505c12803b8fff83c4e031985bcd81c790" default)))
+ '(custom-safe-themes
+   (quote
+    ("4e262566c3d57706c70e403d440146a5440de056dfaeb3062f004da1711d83fc" "9c7c1aa124c1ea23662e94d8bd69defc2c3115b0ec73983625a0ae4f3a762a6c" "6ccbd72e43b217398d9aafa7525992145430f7c0a1e586164bae0e114585adb5" "bf5d965e878026e405b1d8a76d5bf48614999cfac3a9a0b833e98b6e07d1e77a" "3a2fa6489367c5153be25348aec54756b94dedc6e275f0be267ad8f6b0317f2b" "f0a99f53cbf7b004ba0c1760aa14fd70f2eabafe4e62a2b3cf5cabae8203113b" "64581032564feda2b5f2cf389018b4b9906d98293d84d84142d90d7986032d33" "9dae95cdbed1505d45322ef8b5aa90ccb6cb59e0ff26fef0b8f411dfc416c552" "d04ca2c551ca3b4e05df9e28f9eada505c12803b8fff83c4e031985bcd81c790" default)))
  '(fci-rule-color "#49483E")
  '(highlight-changes-colors ("#FD5FF0" "#AE81FF"))
- '(highlight-tail-colors (("#49483E" . 0) ("#67930F" . 20) ("#349B8D" . 30) ("#21889B" . 50) ("#968B26" . 60) ("#A45E0A" . 70) ("#A41F99" . 85) ("#49483E" . 100)))
+ '(highlight-tail-colors
+   (("#49483E" . 0)
+    ("#67930F" . 20)
+    ("#349B8D" . 30)
+    ("#21889B" . 50)
+    ("#968B26" . 60)
+    ("#A45E0A" . 70)
+    ("#A41F99" . 85)
+    ("#49483E" . 100)))
  '(magit-diff-use-overlays nil)
- '(safe-local-variable-values (quote ((eval when (fboundp (quote aggressive-indent-mode)) (aggressive-indent-mode -1)) (eval when (fboundp (quote rainbow-mode)) (rainbow-mode 1)) (eval when (require (quote rainbow-mode) nil t) (rainbow-mode 1)))))
+ '(safe-local-variable-values
+   (quote
+    ((eval when
+           (fboundp
+            (quote aggressive-indent-mode))
+           (aggressive-indent-mode -1))
+     (eval when
+           (fboundp
+            (quote rainbow-mode))
+           (rainbow-mode 1))
+     (eval when
+           (require
+            (quote rainbow-mode)
+            nil t)
+           (rainbow-mode 1)))))
  '(vc-annotate-background nil)
- '(vc-annotate-color-map (quote ((20 . "#F92672") (40 . "#CF4F1F") (60 . "#C26C0F") (80 . "#E6DB74") (100 . "#AB8C00") (120 . "#A18F00") (140 . "#989200") (160 . "#8E9500") (180 . "#A6E22E") (200 . "#729A1E") (220 . "#609C3C") (240 . "#4E9D5B") (260 . "#3C9F79") (280 . "#A1EFE4") (300 . "#299BA6") (320 . "#2896B5") (340 . "#2790C3") (360 . "#66D9EF"))))
+ '(vc-annotate-color-map
+   (quote
+    ((20 . "#F92672")
+     (40 . "#CF4F1F")
+     (60 . "#C26C0F")
+     (80 . "#E6DB74")
+     (100 . "#AB8C00")
+     (120 . "#A18F00")
+     (140 . "#989200")
+     (160 . "#8E9500")
+     (180 . "#A6E22E")
+     (200 . "#729A1E")
+     (220 . "#609C3C")
+     (240 . "#4E9D5B")
+     (260 . "#3C9F79")
+     (280 . "#A1EFE4")
+     (300 . "#299BA6")
+     (320 . "#2896B5")
+     (340 . "#2790C3")
+     (360 . "#66D9EF"))))
  '(vc-annotate-very-old-color nil)
- '(weechat-color-list (unspecified "#272822" "#49483E" "#A20C41" "#F92672" "#67930F" "#A6E22E" "#968B26" "#E6DB74" "#21889B" "#66D9EF" "#A41F99" "#FD5FF0" "#349B8D" "#A1EFE4" "#F8F8F2" "#F8F8F0")))
+ '(weechat-color-list
+   (unspecified "#272822" "#49483E" "#A20C41" "#F92672" "#67930F" "#A6E22E" "#968B26" "#E6DB74" "#21889B" "#66D9EF" "#A41F99" "#FD5FF0" "#349B8D" "#A1EFE4" "#F8F8F2" "#F8F8F0")))
 
 
 (when (not is-mac)
