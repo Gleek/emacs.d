@@ -1,12 +1,13 @@
+;;;Load these settings first so that they dont pop up
 (menu-bar-mode -1)
 (when (fboundp 'tool-bar-mode)
   (tool-bar-mode -1))
 (when (fboundp 'scroll-bar-mode)
   (scroll-bar-mode -1))
-
-(set-default-font "Consolas 13")
-(autoload 'zap-up-to-char "misc"
-  "Kill up to, but not including ARGth occurrence of CHAR." t)
+(size-indication-mode t)
+(set-frame-font "Consolas 13")
+;; (autoload 'zap-up-to-char "misc"
+  ;; "Kill up to, but not including ARGth occurrence of CHAR." t)
 
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
@@ -24,20 +25,19 @@
 
 (global-set-key (kbd "C-=") 'er/expand-region)
 (global-set-key (kbd "M-/") 'hippie-expand)
-(icomplete-mode 1)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-(global-set-key (kbd "M-z") 'zap-up-to-char)
-
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
 (global-set-key (kbd "C-M-s") 'isearch-forward)
 (global-set-key (kbd "C-M-r") 'isearch-backward)
 (global-set-key (kbd "C-x m") 'magit-status)
+(global-set-key (kbd "M-x") 'smex)
 (autoload 'magit-status "magit")
 
+ 
 (defalias 'yes-or-no-p 'y-or-n-p)
-(show-paren-mode 1)
-(electric-pair-mode t)
+(show-paren-mode t)
+(smartparens-mode t)
 (electric-indent-mode)
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
@@ -75,7 +75,7 @@
         (setq beg (region-beginning) end (region-end))
       (setq beg (line-beginning-position) end (line-end-position)))
     (comment-or-uncomment-region beg end)
-    (next-line)))
+    (forward-line)))
 (global-set-key (kbd "M-;") 'comment-or-uncomment-region-or-line)
 
 
@@ -103,33 +103,65 @@
 (add-hook 'LaTeX-mode-hook
           (lambda nil
             (local-set-key (kbd "C-c C-t x") 'TeX-toggle-escape)))
-
+(setq inhibit-startup-screen t)
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (load "cleanup-buffer")
 
 
-(setq inhibit-startup-screen t)
+;;;;;;;;;;;;;;;;;;;;;;;<PACKAGES>;;;;;;;;;;;;;;;;;;;;;;;
+(package-initialize)
+
+(global-undo-tree-mode t)
+(load-theme 'monokai t)
+(yas-global-mode 1)
+(global-auto-complete-mode t)
+(ac-set-trigger-key "C-o")
+(require 'flx-ido)
+(ido-mode 1)
+(ido-everywhere 1)
+(flx-ido-mode 1)
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+(add-hook 'js-mode-hook 'js2-minor-mode)
+(add-to-list 'interpreter-mode-alist '("node" . js2-mode))
+;; disable ido faces to see flx highlights.
+(setq ido-enable-flex-matching t)
+(setq ido-use-faces nil)
+(hlinum-activate)
+(global-anzu-mode +1)
+(global-set-key (kbd "M-z") 'zop-to-char)
+(require 'move-text)
+(move-text-default-bindings)
+;;;;;;;;;;;;;;;;;;;;;;;</PACKAGES>;;;;;;;;;;;;;;;;;;;;;;;
+
+(diminish 'anzu-mode)
+(diminish 'yas-minor-mode)
+(setq is-mac (equal system-type 'darwin))
+
+
+;;fullscreen when not mac
+(when (not is-mac)
+
+  (defun fullscreen ()
+    (interactive)
+    (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
+                           '(2 "_NET_WM_STATE_FULLSCREEN" 0)))
+  (global-set-key (kbd "<f11>") 'fullscreen)
+
+  (defun maximized (&optional f)
+    (interactive)
+    (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
+                           '(2 "_NET_WM_STATE_MAXIMIZED_VERT" 0))
+    (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
+                           '(2 "_NET_WM_STATE_MAXIMIZED_HORZ" 0)))
+  (maximized)
+  )
+
 (add-hook 'after-init-hook (lambda ()
-                             (load-theme 'monokai t)
-                             (global-auto-complete-mode t)
-                             (yas-global-mode 1)
-                             (require 'flx-ido)
-                             (ido-mode 1)
-                             (ido-everywhere 1)
-                             (flx-ido-mode 1)
-                             (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-                             (add-hook 'js-mode-hook 'js2-minor-mode)
-                             (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
-                             ;; disable ido faces to see flx highlights.
-                             (setq ido-enable-flex-matching t)
-                             (setq ido-use-faces nil)
-                             (hlinum-activate)
+                             (global-flycheck-mode)
                              (setq-default frame-title-format '(buffer-file-name "%b"))
                              ))
-
-(setq is-mac (equal system-type 'darwin))
 
 ;;MAC peculiar keyboard
 (when is-mac
@@ -190,7 +222,7 @@
  '(compilation-message-face (quote default))
  '(custom-safe-themes
    (quote
-    ("4e262566c3d57706c70e403d440146a5440de056dfaeb3062f004da1711d83fc" "9c7c1aa124c1ea23662e94d8bd69defc2c3115b0ec73983625a0ae4f3a762a6c" "6ccbd72e43b217398d9aafa7525992145430f7c0a1e586164bae0e114585adb5" "bf5d965e878026e405b1d8a76d5bf48614999cfac3a9a0b833e98b6e07d1e77a" "3a2fa6489367c5153be25348aec54756b94dedc6e275f0be267ad8f6b0317f2b" "f0a99f53cbf7b004ba0c1760aa14fd70f2eabafe4e62a2b3cf5cabae8203113b" "64581032564feda2b5f2cf389018b4b9906d98293d84d84142d90d7986032d33" "9dae95cdbed1505d45322ef8b5aa90ccb6cb59e0ff26fef0b8f411dfc416c552" "d04ca2c551ca3b4e05df9e28f9eada505c12803b8fff83c4e031985bcd81c790" default)))
+    ("cbef37d6304f12fb789f5d80c2b75ea01465e41073c30341dc84c6c0d1eb611d" "4e262566c3d57706c70e403d440146a5440de056dfaeb3062f004da1711d83fc" "9c7c1aa124c1ea23662e94d8bd69defc2c3115b0ec73983625a0ae4f3a762a6c" "6ccbd72e43b217398d9aafa7525992145430f7c0a1e586164bae0e114585adb5" "bf5d965e878026e405b1d8a76d5bf48614999cfac3a9a0b833e98b6e07d1e77a" "3a2fa6489367c5153be25348aec54756b94dedc6e275f0be267ad8f6b0317f2b" "f0a99f53cbf7b004ba0c1760aa14fd70f2eabafe4e62a2b3cf5cabae8203113b" "64581032564feda2b5f2cf389018b4b9906d98293d84d84142d90d7986032d33" "9dae95cdbed1505d45322ef8b5aa90ccb6cb59e0ff26fef0b8f411dfc416c552" "d04ca2c551ca3b4e05df9e28f9eada505c12803b8fff83c4e031985bcd81c790" default)))
  '(fci-rule-color "#49483E")
  '(highlight-changes-colors ("#FD5FF0" "#AE81FF"))
  '(highlight-tail-colors
@@ -242,21 +274,3 @@
  '(vc-annotate-very-old-color nil)
  '(weechat-color-list
    (unspecified "#272822" "#49483E" "#A20C41" "#F92672" "#67930F" "#A6E22E" "#968B26" "#E6DB74" "#21889B" "#66D9EF" "#A41F99" "#FD5FF0" "#349B8D" "#A1EFE4" "#F8F8F2" "#F8F8F0")))
-
-
-(when (not is-mac)
-
-  (defun fullscreen ()
-    (interactive)
-    (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
-                           '(2 "_NET_WM_STATE_FULLSCREEN" 0)))
-  (global-set-key (kbd "<f11>") 'fullscreen)
-
-  (defun maximized (&optional f)
-    (interactive)
-    (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
-                           '(2 "_NET_WM_STATE_MAXIMIZED_VERT" 0))
-    (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
-                           '(2 "_NET_WM_STATE_MAXIMIZED_HORZ" 0)))
-  (maximized)
-  )
