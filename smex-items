@@ -1,0 +1,31 @@
+
+;; ----- smex-history -----
+(
+ grep
+ lgrep
+ emacs-version
+ mc/mark-all-dwim
+ list-command-history
+ column-number-mode
+ hlinum-activate
+)
+
+;; ----- smex-data -----
+(
+ (smart-tab . 3)
+ (smart-tab-mode . 1)
+ (smartparens-mode . 1)
+ (electric-pair-mode . 1)
+ (show-paren-mode . 1)
+ (global-undo-tree-mode . 1)
+ (list-packages . 2)
+ (hlinum-deactivate . 1)
+ (eshell . 3)
+ (hlinum-activate . 1)
+ (column-number-mode . 2)
+ (mc/mark-all-dwim . 2)
+ (list-command-history . 1)
+ (emacs-version . 1)
+ (lgrep . 1)
+ (grep . 1)
+)

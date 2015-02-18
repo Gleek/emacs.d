@@ -37,7 +37,6 @@
  
 (defalias 'yes-or-no-p 'y-or-n-p)
 (show-paren-mode t)
-(smartparens-mode t)
 (electric-indent-mode)
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
@@ -113,6 +112,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;<PACKAGES>;;;;;;;;;;;;;;;;;;;;;;;
 (package-initialize)
 
+(smartparens-mode t)
 (global-undo-tree-mode t)
 (load-theme 'monokai t)
 (yas-global-mode 1)
@@ -133,10 +133,12 @@
 (global-set-key (kbd "M-z") 'zop-to-char)
 (require 'move-text)
 (move-text-default-bindings)
+(require 'vlf-setup)
 ;;;;;;;;;;;;;;;;;;;;;;;</PACKAGES>;;;;;;;;;;;;;;;;;;;;;;;
 
 (diminish 'anzu-mode)
 (diminish 'yas-minor-mode)
+(diminish 'undo-tree-mode)
 (setq is-mac (equal system-type 'darwin))
 
 

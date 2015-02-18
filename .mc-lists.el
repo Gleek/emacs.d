@@ -3,6 +3,7 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        beginning-of-line-or-indentation
         kill-region
         sgml-slash
         ))
