@@ -2,7 +2,7 @@ auto-save-list
 backups
 *~
 places
-session.*
+*session.*
 tramp-autosave
 ac-comphist.dat
 tramp
@@ -16,3 +16,5 @@ emms
 /url/
 /var/
 /.sx/
+eshell/history
+smex-items

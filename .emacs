@@ -114,6 +114,9 @@
 
 (smartparens-mode t)
 (global-undo-tree-mode t)
+(global-set-key [remap undo-tree-undo] 'undo)
+
+
 (load-theme 'monokai t)
 (yas-global-mode 1)
 (global-auto-complete-mode t)
