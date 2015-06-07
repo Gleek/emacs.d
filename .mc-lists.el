@@ -4,10 +4,16 @@
 (setq mc/cmds-to-run-for-all
       '(
         beginning-of-line-or-indentation
+        isearch-abort
+        isearch-forward-regexp
+        isearch-printing-char
+        isearch-repeat-forward
         kill-region
         sgml-slash
         ))
 
 (setq mc/cmds-to-run-once
       '(
+        isearch-delete-char
+        repeat
         ))
