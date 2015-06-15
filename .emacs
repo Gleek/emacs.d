@@ -53,12 +53,12 @@
       backup-directory-alist `(("." . ,(concat user-emacs-directory
                                                "backups"))))
 
-
 (setq tramp-default-method "ssh")
 (setq tramp-auto-save-directory "~/.emacs.d/tramp-autosave/")
 (setq ring-bell-function 'ignore)
 (global-auto-revert-mode 1)
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
+
 (setq-default line-spacing 0)
 (defun linum-format-func (line)
   (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
@@ -113,11 +113,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;<PACKAGES>;;;;;;;;;;;;;;;;;;;;;;;
 (package-initialize)
 
-(smartparens-mode t)
+(smartparens-global-mode t)
 (global-undo-tree-mode t)
 (global-set-key [remap undo-tree-undo] 'undo)
 
-
+(setq js2-basic-offset 2)
 (load-theme 'monokai t)
 (yas-global-mode 1)
 ;; (global-auto-complete-mode t)

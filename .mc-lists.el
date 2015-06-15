@@ -4,6 +4,7 @@
 (setq mc/cmds-to-run-for-all
       '(
         beginning-of-line-or-indentation
+        c-electric-semi&comma
         isearch-abort
         isearch-forward-regexp
         isearch-printing-char
