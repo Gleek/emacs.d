@@ -110,15 +110,6 @@
 (load "cleanup-buffer")
 (load "remove-header-grep")
 
-(defun delete-grep-header ()
-  (save-excursion
-    (with-current-buffer grep-last-buffer
-      (goto-line 5)
-      (narrow-to-region (point) (point-max)))))
-
-(defadvice grep (after delete-grep-header activate) (delete-grep-header))
-(defadvice rgrep (after delete-grep-header activate) (delete-grep-header))
-
 ;;;;;;;;;;;;;;;;;;;;;;;<PACKAGES>;;;;;;;;;;;;;;;;;;;;;;;
 (package-initialize)
 
@@ -240,9 +231,22 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(compilation-message-face (quote default))
+ '(custom-safe-themes
+   (quote
+    ("05c3bc4eb1219953a4f182e10de1f7466d28987f48d647c01f1f0037ff35ab9a" "3dafeadb813a33031848dfebfa0928e37e7a3c18efefa10f3e9f48d1993598d3" default)))
  '(fci-rule-color "#49483E")
  '(highlight-changes-colors ("#FD5FF0" "#AE81FF"))
+ '(highlight-tail-colors
+   (quote
+    (("#49483E" . 0)
+     ("#67930F" . 20)
+     ("#349B8D" . 30)
+     ("#21889B" . 50)
+     ("#968B26" . 60)
+     ("#A45E0A" . 70)
+     ("#A41F99" . 85)
+     ("#49483E" . 100))))
  '(magit-diff-use-overlays nil)
  '(magit-use-overlays nil)
-
- )
+ '(weechat-color-list
+   (unspecified "#272822" "#49483E" "#A20C41" "#F92672" "#67930F" "#A6E22E" "#968B26" "#E6DB74" "#21889B" "#66D9EF" "#A41F99" "#FD5FF0" "#349B8D" "#A1EFE4" "#F8F8F2" "#F8F8F0")))

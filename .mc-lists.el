@@ -17,4 +17,5 @@
       '(
         isearch-delete-char
         repeat
+        smex
         ))
