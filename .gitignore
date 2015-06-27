@@ -18,3 +18,4 @@ emms
 /.sx/
 eshell/history
 smex-items
+projectile.cache

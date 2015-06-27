@@ -79,7 +79,7 @@
 		 ((:keywords "extensions")
 		  (:url . "http://www.dr-qubit.org/emacs.php"))])
  (avy .
-      [(0 2 1)
+      [(0 3 0)
        ((emacs
 	 (24 1))
 	(cl-lib
