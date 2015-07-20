@@ -5,6 +5,9 @@
       '(
         beginning-of-line-or-indentation
         c-electric-semi&comma
+        electric-newline-and-maybe-indent
+        eval-and-replace
+        eval-last-sexp
         isearch-abort
         isearch-forward-regexp
         isearch-printing-char
@@ -17,7 +20,9 @@
       '(
         ido-switch-buffer
         isearch-delete-char
+        projectile-switch-to-buffer
         repeat
         smex
         undo-tree-visualize
+        yas-expand
         ))
