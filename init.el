@@ -9,10 +9,6 @@
 (set-frame-font "Consolas 14")
 
 
-
-;; (autoload 'zap-up-to-char "misc"
-;; "Kill up to, but not including ARGth occurrence of CHAR." t)
-
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
 (setq uniquify-separator "/")
@@ -116,15 +112,16 @@
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (load "cleanup-buffer")
+(load "eval-replace")
 (load "remove-header-grep")
-
+(load "webmode-flycheck")
 ;;;;;;;;;;;;;;;;;;;;;;;<PACKAGES>;;;;;;;;;;;;;;;;;;;;;;;
 (package-initialize)
 (load-theme 'monokai t)
 (smartparens-global-mode 1)
 ;; (autopair-global-mode)
 (global-undo-tree-mode t)
-(global-set-key [remap undo-tree-undo] 'undo-tree-undo)
+;; (global-set-key [remap undo-tree-undo] 'undo-tree-undo)
 
 (setq js2-basic-offset 4)
 (yas-global-mode 1)
@@ -159,8 +156,9 @@
 (diminish 'anzu-mode)
 (diminish 'yas-minor-mode)
 (diminish 'undo-tree-mode)
-(setq is-mac (equal system-type 'darwin))
+(diminish 'smartparens-mode)
 
+(setq is-mac (equal system-type 'darwin))
 
 ;;helm multi occur
 ;; (eval-after-load "helm-regexp"
@@ -178,14 +176,14 @@
 ;;                  (buffer-list)))))
 
 
-;; (setq whitespace-line -1)
-;; (setq whitespace-display-mappings
-;;       ;; all numbers are Unicode codepoint in decimal. try (insert-char 182 ) to see it
-;;       '(
-;;         ;; (space-mark 32 [183] [46]) ; 32 SPACE, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
-;;         ;; (newline-mark 10 [182 10]) ; 10 LINE FEED
-;;         (tab-mark 9 [9655 9] [92 9]) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
-;;         ))
+(setq whitespace-line -1)
+(setq whitespace-display-mappings
+      ;; all numbers are Unicode codepoint in decimal. try (insert-char 182 ) to see it
+      '(
+        ;; (space-mark 32 [183] [46]) ; 32 SPACE, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
+        ;; (newline-mark 10 [182 10]) ; 10 LINE FEED
+        (tab-mark 9 [9655 9] [92 9]) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
+        ))
 
 ;; fullscreen when not mac
 (when (not is-mac)
@@ -215,20 +213,12 @@
 (when is-mac
   (setq mac-command-modifier 'meta
         mac-option-modifier 'control
-        ns-function-modifier 'super))
+        ns-function-modifier 'super)
+  (exec-path-from-shell-initialize))
+
 
 
 (global-flycheck-mode)
-
-(eval-after-load 'flycheck
-  '(progn
-     (flycheck-define-checker web-mode-php
-       "This is the same as the default php checker except just for web-mode.It continues checking for javascript errors if there are no more PHP errors."
-       :command ("php" "-l" "-d" "error_reporting=E_ALL" "-d" "display_errors=1" "-d" "log_errors=0" source)
-       :error-patterns ((error line-start (or "Parse" "Fatal" "syntax") " error" (any ":" ",") " " (message) " in " (file-name) " on line " line line-end))
-       :modes (web-mode))
-     (add-to-list 'flycheck-checkers 'web-mode-php)
-     ))
 
 ;; (add-hook 'python-mode-hook 'jedi:setup)
 ;; (setq jedi:complete-on-dot t)

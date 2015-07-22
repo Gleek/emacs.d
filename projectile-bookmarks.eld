@@ -1,1 +1,1 @@
-("~/Development/zdev/zomato4/application/" "~/.emacs.d/" "/Volumes/zdev/zomato4/application/" "/ssh:umar@zdev.net:/home/umar/zomato4/application/" "~/web/")
+("~/.emacs.d/" "~/Development/zdev/zomato4/application/" "/sudo:root@localhost:/usr/local/" "/Volumes/zdev/zomato4/application/" "/ssh:umar@zdev.net:/home/umar/zomato4/application/" "~/web/")
