@@ -19,3 +19,5 @@ emms
 eshell/history
 smex-items
 projectile.cache
+savehist
+recentf
