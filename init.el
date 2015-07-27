@@ -1,4 +1,4 @@
-;;; init.el --- Prelude's configuration entry point.
+;;; init.el -- Prelude's configuration entry point.
 ;;; Commentary:
 ;; This file simply sets up the default load path and requires
 ;; the various modules defined within Emacs.

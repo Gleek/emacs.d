@@ -1,14 +1,16 @@
-My .emacs settings
+My Emacs settings
 ==================
 Includes ALL the packages installed from melpa.
 
-There are better ways to include them, but I guess, I'm too lazy.
+A better way would have been to simply list package and install packages via `package.el` on load, but the current system saves my time, since all my systems have the same version of Emacs.
 
-I use this repository merely to keep a backup of my settings and keeping my emacs settings on all systems synced.
+In case of problems `M-: (byte-recompile-directory package-user-dir nil 'force)` should help.
 
+Usage
+------
+`git clone https://www.github.com/gleek/.emacs .emacs.d`
 
 TODO
 ---------
-
 - Organize all the settings properly
 - Maintain different files for all the settings
