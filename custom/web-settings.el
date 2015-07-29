@@ -1,3 +1,6 @@
+;;; web-settings.el -- Custom Web Settings File
+;;; Commentary:
+;; Settings for the modes of web php js & html
 (require 'flycheck)
 ;; flycheck for web mode-line
 (eval-after-load 'flycheck
@@ -36,3 +39,5 @@ See URL `http://pear.php.net/package/PHP_CodeSniffer/'."
 ;; )
 
 ;; (add-to-list 'auto-mode-alist '("\\.php$" . my-setup-php))
+(provide 'web-settings)
+;;; web-settings.el ends here

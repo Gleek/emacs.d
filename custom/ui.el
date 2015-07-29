@@ -1,3 +1,7 @@
+;;; ui.el -- UI Properties file of Emacs
+;;; Commentary:
+;; Defines the commands considering the UI aspect
+;;; Code:
 (menu-bar-mode -1)
 (when (fboundp 'tool-bar-mode)
   (tool-bar-mode -1))
@@ -31,7 +35,7 @@
 (setq sml/theme 'respectful)
 (add-hook 'after-init-hook #'sml/setup)
 
-
+(setq ring-bell-function 'ignore)
 
 (require 'whitespace)
 (setq whitespace-line -1)

@@ -62,12 +62,14 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 
-(require 'smartparens-config)
-(setq sp-base-key-bindings 'paredit)
-(setq sp-autoskip-closing-pair 'always)
-(setq sp-hybrid-kill-entire-symbol nil)
-(sp-use-paredit-bindings)
-(show-smartparens-global-mode +1)
+(require 'smartparens)
+(smartparens-global-mode)
+;; (require 'smartparens-config)
+;; (setq sp-base-key-bindings 'paredit)
+;; (setq sp-autoskip-closing-pair 'always)
+;; (setq sp-hybrid-kill-entire-symbol nil)
+;; (sp-use-paredit-bindings)
+;; (show-smartparens-global-mode +1)
 
 (yas-global-mode 1)
 

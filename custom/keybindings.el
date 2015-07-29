@@ -28,7 +28,7 @@
 (global-set-key (kbd "C-x <left>") 'windmove-left)
 (global-set-key (kbd "C-x <up>") 'windmove-up)
 (global-set-key (kbd "C-x <down>") 'windmove-down)
-(global-set-key (kbd "C-c j") 'avy-goto-word-or-subword-1)
+(global-set-key (kbd "C-'") 'avy-goto-word-or-subword-1)
 (global-set-key (kbd "C-M-<up>") 'move-text-up)
 (global-set-key (kbd "C-M-<down>") 'move-text-down)
 (global-set-key (kbd "M-%") 'anzu-query-replace)
