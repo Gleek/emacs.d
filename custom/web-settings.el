@@ -1,6 +1,7 @@
 ;;; web-settings.el -- Custom Web Settings File
 ;;; Commentary:
 ;; Settings for the modes of web php js & html
+;;; Code:
 (require 'flycheck)
 ;; flycheck for web mode-line
 (eval-after-load 'flycheck

@@ -29,10 +29,14 @@
 (global-set-key (kbd "C-x <up>") 'windmove-up)
 (global-set-key (kbd "C-x <down>") 'windmove-down)
 (global-set-key (kbd "C-'") 'avy-goto-word-or-subword-1)
-(global-set-key (kbd "C-M-<up>") 'move-text-up)
-(global-set-key (kbd "C-M-<down>") 'move-text-down)
+(global-set-key (kbd "M-<up>") 'move-text-up)
+(global-set-key (kbd "M-<down>") 'move-text-down)
 (global-set-key (kbd "M-%") 'anzu-query-replace)
 (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp)
+(global-set-key (kbd "C-c r")  'rename-file-and-buffer)
+(global-set-key (kbd "C-x C-r") 'sudo-edit)
+(global-set-key [remap kill-whole-line] 'smart-kill-whole-line)
+(global-set-key [(shift return)] 'smart-open-line)
 
 (provide 'keybindings)
 ;;; keybindings.el ends here

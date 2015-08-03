@@ -46,9 +46,19 @@
       mouse-yank-at-point t
       require-final-newline t
       ediff-window-setup-function 'ediff-setup-windows-plain
-      save-place-file (concat user-emacs-directory "places")
-      backup-directory-alist `(("." . ,(concat user-emacs-directory "backups"))))
+      save-place-file (concat user-emacs-directory "places"))
 
+;; store all backup and autosave files in the backup dir
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
+sdfasdfasdfasdfasd
+(setq redisplay-dont-pause t
+  scroll-margin 1
+  scroll-step 1
+  scroll-conservatively 10000
+  scroll-preserve-screen-position 1)
 
 (global-undo-tree-mode t)
 (setq undo-tree-history-directory-alist
@@ -69,7 +79,7 @@
 ;; (setq sp-autoskip-closing-pair 'always)
 ;; (setq sp-hybrid-kill-entire-symbol nil)
 ;; (sp-use-paredit-bindings)
-;; (show-smartparens-global-mode +1)
+(show-smartparens-global-mode +1)
 
 (yas-global-mode 1)
 
@@ -80,9 +90,10 @@
 ;; disable ido faces to see flx highlights.
 (setq ido-enable-flex-matching t)
 (setq ido-use-faces nil)
+;; (ido-vertical-mode 1)
 ;; (hlinum-activate)
 
-(global-auto-revert-mode 1)
+;; (global-auto-revert-mode 1)
 
 (require 'move-text)
 ;; (move-text-default-bindings)

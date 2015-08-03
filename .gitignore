@@ -16,6 +16,7 @@ emms
 /url/
 /var/
 /.sx/
+eshell/lastdir
 eshell/history
 smex-items
 projectile.cache

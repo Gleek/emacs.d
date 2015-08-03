@@ -4,9 +4,9 @@
 ;;; Code:
 (setq is-mac (equal system-type 'darwin))
 (when is-mac
-  (setq mac-command-modifier 'meta)
+  (setq mac-command-modifier 'meta
   ;;       mac-option-modifier 'control
-  ;;       ns-function-modifier 'super)
+        ns-function-modifier 'super)
   (exec-path-from-shell-initialize))
 (when (not is-mac)
 

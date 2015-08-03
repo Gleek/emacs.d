@@ -8,7 +8,7 @@
 (when (fboundp 'scroll-bar-mode)
   (scroll-bar-mode -1))
 (size-indication-mode t)
-(set-frame-font "Sauce Code Powerline 14")
+(set-frame-font "Sauce Code Powerline 13")
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message "")
 (load-theme 'zenburn t)
@@ -19,7 +19,7 @@
 (line-number-mode t)
 (column-number-mode t)
 (size-indication-mode t)
-
+(global-hl-line-mode t)
 (setq-default frame-title-format '(buffer-file-name "%b"))
 ;; (defun linum-format-func (line)
 ;;   (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
