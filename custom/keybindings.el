@@ -7,13 +7,18 @@
 (global-set-key (kbd "C-=") 'er/expand-region)
 (global-set-key (kbd "M-/") 'hippie-expand)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-(global-set-key (kbd "C-s") 'isearch-forward-regexp)
+(global-set-key (kbd "C-x b") 'helm-mini)
+(global-set-key (kbd "C-x k") 'kill-this-buffer)
+;; (global-set-key (kbd "C-s") 'isearch-forward-regexp)
+(global-set-key (kbd "C-s") 'swiper)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
 (global-set-key (kbd "C-M-s") 'isearch-forward)
 (global-set-key (kbd "C-M-r") 'isearch-backward)
 (global-set-key (kbd "C-c e") 'eval-and-replace)
 (global-set-key (kbd "C-x m") 'magit-status)
-(global-set-key (kbd "M-x") 'smex)
+;; (global-set-key (kbd "M-x") 'smex)
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "M-p") 'helm-projectile)
 (global-set-key (kbd "M-;") 'comment-or-uncomment-region-or-line)
 (global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
 (add-hook 'LaTeX-mode-hook
@@ -35,6 +40,9 @@
 (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp)
 (global-set-key (kbd "C-c r")  'rename-file-and-buffer)
 (global-set-key (kbd "C-x C-r") 'sudo-edit)
+
+(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+
 (global-set-key [remap kill-whole-line] 'smart-kill-whole-line)
 (global-set-key [(shift return)] 'smart-open-line)
 

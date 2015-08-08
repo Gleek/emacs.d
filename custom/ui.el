@@ -8,7 +8,7 @@
 (when (fboundp 'scroll-bar-mode)
   (scroll-bar-mode -1))
 (size-indication-mode t)
-(set-frame-font "Sauce Code Powerline 13")
+(set-frame-font "Sauce Code Powerline 14")
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message "")
 (load-theme 'zenburn t)
@@ -21,19 +21,22 @@
 (size-indication-mode t)
 (global-hl-line-mode t)
 (setq-default frame-title-format '(buffer-file-name "%b"))
+
 ;; (defun linum-format-func (line)
-;;   (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
-;;     (propertize (format (format " %%%dd " w) line) 'face 'linum)))
+  ;; (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
+    ;; (propertize (format (format " %%%dd " w) line) 'face 'linum)))
 ;; (setq linum-format 'linum-format-func)
 ;; (global-linum-mode 1)
+;; (fringe-mode -1)
 ;; (setq-default cursor-type '(bar . 1))
 
 (blink-cursor-mode -1)
 
 (require 'smart-mode-line)
 (setq sml/no-confirm-load-theme t)
+;; (add-hook 'after-init-hook #'sml/setup)
 (setq sml/theme 'respectful)
-(add-hook 'after-init-hook #'sml/setup)
+(sml/setup)
 
 (setq ring-bell-function 'ignore)
 

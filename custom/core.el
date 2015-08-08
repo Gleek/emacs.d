@@ -33,7 +33,7 @@
 (setq tab-always-indent 'complete)
 
 (desktop-save-mode 1)
-(setq desktop-files-not-to-save "^$")
+;;(setq desktop-files-not-to-save "^$")
 
 
 (autoload 'magit-status "magit")
@@ -45,25 +45,11 @@
       apropos-do-all t
       mouse-yank-at-point t
       require-final-newline t
-      ediff-window-setup-function 'ediff-setup-windows-plain
-      save-place-file (concat user-emacs-directory "places"))
-
-;; store all backup and autosave files in the backup dir
+      ediff-window-setup-function 'ediff-setup-windows-plain)
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
-sdfasdfasdfasdfasd
-(setq redisplay-dont-pause t
-  scroll-margin 1
-  scroll-step 1
-  scroll-conservatively 10000
-  scroll-preserve-screen-position 1)
-
-(global-undo-tree-mode t)
-(setq undo-tree-history-directory-alist
-      `((".*" . ,temporary-file-directory)))
-(setq undo-tree-auto-save-history t)
 
 (require 'tramp)
 (setq tramp-default-method "ssh")
@@ -81,19 +67,44 @@ sdfasdfasdfasdfasd
 ;; (sp-use-paredit-bindings)
 (show-smartparens-global-mode +1)
 
-(yas-global-mode 1)
-
-(require 'flx-ido)
-(ido-mode 1)
-(ido-everywhere 1)
-(flx-ido-mode 1)
+;; (yas-global-mode 1)
+;; (require 'ivy)
+;; (ivy-mode)
+;; (require 'flx-ido)
+;; (ido-mode 1)
+;; (ido-everywhere 1)
+;; (flx-ido-mode 1)
 ;; disable ido faces to see flx highlights.
-(setq ido-enable-flex-matching t)
-(setq ido-use-faces nil)
+;; (setq ido-enable-flex-matching t)
+;; (setq ido-use-faces nil)
 ;; (ido-vertical-mode 1)
 ;; (hlinum-activate)
 
-;; (global-auto-revert-mode 1)
+(require 'helm-config)
+(helm-mode 1)
+(set-face-attribute 'helm-source-header nil :height 2)
+(setq helm-display-header-line nil)
+(helm-autoresize-mode 1)
+(setq helm-autoresize-max-height 30)
+(setq helm-autoresize-min-height 30)
+(setq helm-split-window-in-side-p t)
+(setq helm-M-x-fuzzy-match t)
+(defun fu/helm-find-files-navigate-forward (orig-fun &rest args)
+  (if (file-directory-p (helm-get-selection))
+      (apply orig-fun args)
+    (helm-maybe-exit-minibuffer)))
+(advice-add 'helm-execute-persistent-action :around #'fu/helm-find-files-navigate-forward)
+(define-key helm-find-files-map (kbd "<return>") 'helm-execute-persistent-action)
+(defun fu/helm-find-files-navigate-back (orig-fun &rest args)
+  (if (= (length helm-pattern) (length (helm-find-files-initial-input)))
+      (helm-find-files-up-one-level 1)
+    (apply orig-fun args)))
+(advice-add 'helm-ff-delete-char-backward :around #'fu/helm-find-files-navigate-back)
+(setq helm-buffers-fuzzy-matching t
+      helm-recentf-fuzzy-match    t)
+
+
+;; (global-auto-revert-mode -1)
 
 (require 'move-text)
 ;; (move-text-default-bindings)
@@ -103,8 +114,9 @@ sdfasdfasdfasdfasd
 (require 'projectile)
 (projectile-global-mode)
 (setq projectile-enable-caching t)
-
-
+;;; Remove vc support
+(require 'vc)
+(remove-hook 'find-file-hooks 'vc-find-file-hook)
 (require 'company)
 (global-company-mode)
 
@@ -113,19 +125,25 @@ sdfasdfasdfasdfasd
 ;; (require 'helm-dash)
 ;; (setq helm-dash-browser-func 'eww)
 
-(require 'anzu)
-(global-anzu-mode)
+;; (require 'anzu)
+;; (global-anzu-mode)
 
+(require 'undo-tree)
+(undo-tree-mode 1)
 
 (require 'diminish)
-(diminish 'anzu-mode)
-(diminish 'yas-minor-mode)
+;; (diminish 'anzu-mode)
+;; (diminish 'yas-minor-mode)
+;; (diminish 'ivy-mode)
 (diminish 'undo-tree-mode)
 (diminish 'smartparens-mode)
 (diminish 'company-mode)
 (diminish 'whitespace-mode)
 (diminish 'global-whitespace-mode)
 
+
+(require 'recentf)
+(recentf-mode 1)
 
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
