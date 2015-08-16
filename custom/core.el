@@ -38,7 +38,7 @@
 
 (autoload 'magit-status "magit")
 (delete-selection-mode)
-
+(global-subword-mode)
 (setq x-select-enable-clipboard t
       x-select-enable-primary t
       save-interprogram-paste-before-kill t
@@ -82,24 +82,14 @@
 
 (require 'helm-config)
 (helm-mode 1)
-(set-face-attribute 'helm-source-header nil :height 2)
+(helm-adaptive-mode t)
+(set-face-attribute 'helm-source-header nil :height 1)
 (setq helm-display-header-line nil)
 (helm-autoresize-mode 1)
 (setq helm-autoresize-max-height 30)
 (setq helm-autoresize-min-height 30)
 (setq helm-split-window-in-side-p t)
 (setq helm-M-x-fuzzy-match t)
-(defun fu/helm-find-files-navigate-forward (orig-fun &rest args)
-  (if (file-directory-p (helm-get-selection))
-      (apply orig-fun args)
-    (helm-maybe-exit-minibuffer)))
-(advice-add 'helm-execute-persistent-action :around #'fu/helm-find-files-navigate-forward)
-(define-key helm-find-files-map (kbd "<return>") 'helm-execute-persistent-action)
-(defun fu/helm-find-files-navigate-back (orig-fun &rest args)
-  (if (= (length helm-pattern) (length (helm-find-files-initial-input)))
-      (helm-find-files-up-one-level 1)
-    (apply orig-fun args)))
-(advice-add 'helm-ff-delete-char-backward :around #'fu/helm-find-files-navigate-back)
 (setq helm-buffers-fuzzy-matching t
       helm-recentf-fuzzy-match    t)
 
@@ -117,6 +107,7 @@
 ;;; Remove vc support
 (require 'vc)
 (remove-hook 'find-file-hooks 'vc-find-file-hook)
+(remove-hook 'after-save-hook 'vc-find-file-hook)
 (require 'company)
 (global-company-mode)
 
@@ -129,7 +120,7 @@
 ;; (global-anzu-mode)
 
 (require 'undo-tree)
-(undo-tree-mode 1)
+(global-undo-tree-mode 1)
 
 (require 'diminish)
 ;; (diminish 'anzu-mode)
@@ -140,14 +131,13 @@
 (diminish 'company-mode)
 (diminish 'whitespace-mode)
 (diminish 'global-whitespace-mode)
-
+(diminish 'helm-mode)
+(diminish 'subword-mode)
 
 (require 'recentf)
 (recentf-mode 1)
 
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
-
-;; (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
 (provide 'core)
 ;;; core.el ends here

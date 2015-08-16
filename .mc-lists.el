@@ -13,13 +13,18 @@
         isearch-printing-char
         isearch-repeat-forward
         kill-region
+        kmacro-start-macro-or-insert-counter
         sgml-slash
         ))
 
 (setq mc/cmds-to-run-once
       '(
+        helm-M-x
+        helm-mini
+        hsplit-last-buffer
         ido-switch-buffer
         isearch-delete-char
+        mark-whole-buffer
         projectile-switch-to-buffer
         repeat
         smex

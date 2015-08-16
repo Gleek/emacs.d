@@ -11,7 +11,7 @@
 (set-frame-font "Sauce Code Powerline 14")
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message "")
-(load-theme 'zenburn t)
+(load-theme 'apropospriate-dark t)
 (show-paren-mode)
 (setq-default line-spacing 0)
 
@@ -22,28 +22,28 @@
 (global-hl-line-mode t)
 (setq-default frame-title-format '(buffer-file-name "%b"))
 
-;; (defun linum-format-func (line)
-  ;; (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
-    ;; (propertize (format (format " %%%dd " w) line) 'face 'linum)))
-;; (setq linum-format 'linum-format-func)
-;; (global-linum-mode 1)
+(defun linum-format-func (line)
+  (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
+    (propertize (format (format " %%%dd " w) line) 'face 'linum)))
+(setq linum-format 'linum-format-func)
+(global-linum-mode 1)
 ;; (fringe-mode -1)
 ;; (setq-default cursor-type '(bar . 1))
-
 (blink-cursor-mode -1)
 
 (require 'smart-mode-line)
 (setq sml/no-confirm-load-theme t)
-;; (add-hook 'after-init-hook #'sml/setup)
-(setq sml/theme 'respectful)
-(sml/setup)
+(setq sml/theme 'powerline)
+(add-hook 'after-init-hook #'sml/setup)
+
 
 (setq ring-bell-function 'ignore)
 
 (require 'whitespace)
 (setq whitespace-line -1)
+
 (setq whitespace-style '(face tabs empty trailing lines-tail))
-(global-whitespace-mode)
+(global-whitespace-mode)y
 ;; (setq whitespace-display-mappings '((tab-mark 9 [9655 9] [92 9])))
 ;; (space-mark 32 [183] [46]) ; 32 SPACE, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
 ;; (newline-mark 10 [182 10]) ; 10 LINE FEED
