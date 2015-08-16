@@ -33,7 +33,7 @@
 
 (require 'smart-mode-line)
 (setq sml/no-confirm-load-theme t)
-(setq sml/theme 'powerline)
+(setq sml/theme 'respectful)
 (add-hook 'after-init-hook #'sml/setup)
 
 
@@ -43,7 +43,7 @@
 (setq whitespace-line -1)
 
 (setq whitespace-style '(face tabs empty trailing lines-tail))
-(global-whitespace-mode)y
+(global-whitespace-mode)
 ;; (setq whitespace-display-mappings '((tab-mark 9 [9655 9] [92 9])))
 ;; (space-mark 32 [183] [46]) ; 32 SPACE, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
 ;; (newline-mark 10 [182 10]) ; 10 LINE FEED
