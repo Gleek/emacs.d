@@ -124,8 +124,17 @@ buffer is not visiting a file."
    (concat
     "http://www.google.com/search?ie=utf-8&oe=utf-8&q="
     (url-hexify-string (if mark-active
-         (buffer-substring (region-beginning) (region-end))
-         (read-string "Google: "))))))
+                           (buffer-substring (region-beginning) (region-end))
+                         (read-string "Google: "))))))
+(defun duck ()
+  "Duck Duck Go the selected region if any, display a query prompt otherwise."
+  (interactive)
+  (browse-url
+   (concat
+    "http://www.duckduckgo.com/?&q="
+    (url-hexify-string (if mark-active
+                           (buffer-substring (region-beginning) (region-end))
+                         (read-string "Duck Duck Go: "))))))
 
 
 (defun copy-file-name-to-clipboard ()
@@ -144,6 +153,15 @@ Position the cursor at its beginning, according to the current mode."
   (interactive)
   (move-end-of-line nil)
   (newline-and-indent))
+
+(defun goto-line-with-feedback ()
+  "Show line numbers temporarily, while prompting for the line number input"
+  (interactive)
+  (unwind-protect
+      (progn
+        (linum-mode 1)
+        (goto-line (read-number "Goto line: ")))
+    (linum-mode -1)))
 
 
 (defun rename-file-and-buffer ()
@@ -178,7 +196,7 @@ This functions should be added to the hooks of major modes for programming."
   (split-window-vertically)
   (other-window 1 nil)
   (if (= prefix 1)
-    (switch-to-next-buffer)))
+      (switch-to-next-buffer)))
 (defun hsplit-last-buffer (prefix)
   "Split the window horizontally and display the previous buffer."
   (interactive "p")
@@ -209,20 +227,32 @@ With negative N, comment out original line and use the absolute value."
             (comment-region (line-beginning-position) (line-end-position)))
         (forward-line 1)
         (forward-char pos)))))
+
+(defadvice kill-ring-save (before slick-copy activate compile)
+  "When called interactively with no active region, copy a single line instead."
+           (interactive (if mark-active (list (region-beginning) (region-end))
+                          (message "Copied line") (list (line-beginning-position) (line-beginning-position 2)))))
+
+(defadvice kill-region (before slick-cut activate compile)
+  "When called interactively with no active region, kill a single line instead."
+  (interactive
+   (if mark-active (list (region-beginning) (region-end))
+     (list (line-beginning-position)
+           (line-beginning-position 2)))))
 ;;helm multi occur
-;; (eval-after-load "helm-regexp"
-;;   '(setq helm-source-moccur
-;;          (helm-make-source "Moccur"
-;;                            'helm-source-multi-occur :follow 1)))
+(eval-after-load "helm-regexp"
+  '(setq helm-source-moccur
+         (helm-make-source "Moccur"
+                           'helm-source-multi-occur :follow 1)))
 
 ;; (defun my-helm-multi-all ()
-;;   "multi-occur in all buffers backed by files."
-;;   (interactive)
-;;   (helm-multi-occur
-;;    (delq nil
-;;          (mapcar (lambda (b)
-;;                    (when (buffer-file-name b) (buffer-name b)))
-;;                  (buffer-list)))))
+  ;; "Multi-occur in all buffers backed by files."
+  ;; (interactive)
+  ;; (helm-multi-occur
+   ;; (delq nil
+         ;; (mapcar (lambda (b)
+                   ;; (when (buffer-file-name b) (buffer-name b)))
+                 ;; (buffer-list)))))
 
 
 (defadvice grep (after delete-grep-header activate) (delete-grep-header))

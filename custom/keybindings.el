@@ -19,6 +19,7 @@
 ;; (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "M-p") 'helm-projectile)
+(global-set-key (kbd "C-c g") 'helm-google-suggest)
 (global-set-key (kbd "M-;") 'comment-or-uncomment-region-or-line)
 (global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
 (global-set-key (kbd "C-x a r") 'align-regexp)
@@ -53,6 +54,7 @@
 
 (global-set-key [remap kill-whole-line] 'smart-kill-whole-line)
 (global-set-key [(shift return)] 'smart-open-line)
+(global-set-key [remap goto-line] 'goto-line-with-feedback)
 
 (provide 'keybindings)
 ;;; keybindings.el ends here

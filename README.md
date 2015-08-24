@@ -12,5 +12,4 @@ Usage
 
 TODO
 ---------
-- Organize all the settings properly
-- Maintain different files for all the settings
+- Maintain different file for different modules

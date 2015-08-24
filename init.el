@@ -13,5 +13,9 @@
 (load "osx")
 (load "web-settings")
 (load "keybindings")
+;;
+(add-to-list 'load-path "~/.emacs.d/custom/modules")
+(load "org-wunderlist-settings")
+(load "org-mode-config")
 
 ;;; init.el ends here

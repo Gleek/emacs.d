@@ -14,7 +14,9 @@
         isearch-repeat-forward
         kill-region
         kmacro-start-macro-or-insert-counter
+        org-delete-char
         sgml-slash
+        zop-to-char
         ))
 
 (setq mc/cmds-to-run-once
@@ -28,6 +30,7 @@
         projectile-switch-to-buffer
         repeat
         smex
+        swiper
         undo-tree-visualize
         yas-expand
         ))

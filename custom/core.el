@@ -71,6 +71,7 @@
 ;; (require 'ivy)
 ;; (ivy-mode)
 ;; (require 'flx-ido)
+;; ;; Ido mode is disabled (switched to HELM)
 ;; (ido-mode 1)
 ;; (ido-everywhere 1)
 ;; (flx-ido-mode 1)
@@ -119,6 +120,10 @@
 ;; (require 'anzu)
 ;; (global-anzu-mode)
 
+(require 'smooth-scroll)
+(smooth-scroll-mode t)
+(setq smooth-scroll-margin 5)
+
 (require 'undo-tree)
 (global-undo-tree-mode 1)
 
@@ -133,7 +138,7 @@
 (diminish 'global-whitespace-mode)
 (diminish 'helm-mode)
 (diminish 'subword-mode)
-
+(diminish 'smooth-scroll-mode)
 (require 'recentf)
 (recentf-mode 1)
 

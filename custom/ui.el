@@ -20,13 +20,18 @@
 (column-number-mode t)
 (size-indication-mode t)
 (global-hl-line-mode t)
+;; hl-line+ feature
+(hl-line-flash)
+(hl-line-toggle-when-idle 1)
+(hl-line-when-idle-interval 1)
 (setq-default frame-title-format '(buffer-file-name "%b"))
 
 (defun linum-format-func (line)
-  (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
+  "Defines the format for the linum mode for specific LINE."
+(let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
     (propertize (format (format " %%%dd " w) line) 'face 'linum)))
 (setq linum-format 'linum-format-func)
-(global-linum-mode 1)
+;; (global-linum-mode -1)
 ;; (fringe-mode -1)
 ;; (setq-default cursor-type '(bar . 1))
 (blink-cursor-mode -1)
