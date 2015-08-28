@@ -112,17 +112,13 @@
 (require 'company)
 (global-company-mode)
 
-(require 'flycheck)
-(global-flycheck-mode)
+;; (require 'flycheck)
+;; (global-flycheck-mode)
 ;; (require 'helm-dash)
 ;; (setq helm-dash-browser-func 'eww)
 
 ;; (require 'anzu)
 ;; (global-anzu-mode)
-
-(require 'smooth-scroll)
-(smooth-scroll-mode t)
-(setq smooth-scroll-margin 5)
 
 (require 'undo-tree)
 (global-undo-tree-mode 1)
@@ -138,7 +134,6 @@
 (diminish 'global-whitespace-mode)
 (diminish 'helm-mode)
 (diminish 'subword-mode)
-(diminish 'smooth-scroll-mode)
 (require 'recentf)
 (recentf-mode 1)
 

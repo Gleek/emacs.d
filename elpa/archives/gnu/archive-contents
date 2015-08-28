@@ -65,7 +65,7 @@
 			((:url . "http://www.gnuvola.org/software/aa2u/")
 			 (:keywords "ascii" "unicode" "box-drawing"))])
  (auctex .
-	 [(11 88 7)
+	 [(11 88 8)
 	  nil "Integrated environment for *TeX*" tar
 	  ((:url . "http://www.gnu.org/software/auctex/"))])
  (aumix-mode .
@@ -466,12 +466,8 @@
 	    ((:url . "http://elpa.gnu.org/packages/omn-mode.html")
 	     (:keywords))])
  (org .
-      [(8 3 1)
-       ((emacs
-	 (23 2)))
-       "Outline-based notes management and organizer" tar
-       ((:keywords "outlines" "hypermedia" "calendar" "wp")
-	(:url . "http://orgmode.org"))])
+      [(20150824)
+       nil "Outline-based notes management and organizer" tar nil])
  (osc .
       [(0 1)
        nil "Open Sound Control protocol library" single

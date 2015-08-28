@@ -25,6 +25,7 @@ See URL `http://pear.php.net/package/PHP_CodeSniffer/'."
      (add-to-list 'flycheck-checkers 'web-mode-phpcs)))
 
 (setq js2-basic-offset 4)
+(setq web-mode-enable-sql-detection t)
 ;; (defun my-setup-php ()
 ;; enable web mode
 ;; (web-mode)

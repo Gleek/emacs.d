@@ -3,7 +3,7 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil nil ("smooth-scroll.el") (21976 52206 459927
+;;;### (autoloads nil nil ("smooth-scroll.el") (21984 408 726616
 ;;;;;;  0))
 
 ;;;***
