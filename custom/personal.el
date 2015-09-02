@@ -116,6 +116,10 @@ buffer is not visiting a file."
   (kill-whole-line arg)
   (back-to-indentation))
 
+(defun top-join-line ()
+  "Join the current line with the line beneath it."
+  (interactive)
+  (delete-indentation 1))
 
 (defun google ()
   "Google the selected region if any, display a query prompt otherwise."

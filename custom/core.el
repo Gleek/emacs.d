@@ -137,6 +137,7 @@
 (require 'recentf)
 (recentf-mode 1)
 
+(setq gc-cons-threshold 20000000) ;; collect garbage after 20 MB
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (provide 'core)

@@ -10,7 +10,7 @@
 (global-set-key (kbd "C-x b") 'helm-mini)
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 ;; (global-set-key (kbd "C-s") 'isearch-forward-regexp)
-(global-set-key (kbd "C-s") 'swiper)
+(global-set-key (kbd "C-s") 'swiper-helm)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
 (global-set-key (kbd "C-M-s") 'isearch-forward)
 (global-set-key (kbd "C-M-r") 'isearch-backward)
@@ -50,6 +50,17 @@
 (global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
 (global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
 (global-set-key (kbd "C-c d") 'duplicate-line-or-region)
+(global-set-key (kbd "C-^") 'top-join-line)
+(eval-after-load "helm-gtags"
+  '(progn
+     ;; (define-key helm-gtags-mode-map (kbd "M-t") 'helm-gtags-find-tag)
+     ;; (define-key helm-gtags-mode-map (kbd "M-r") 'helm-gtags-find-rtag)
+     ;; (define-key helm-gtags-mode-map (kbd "M-s") 'helm-gtags-find-symbol)
+     ;; (define-key helm-gtags-mode-map (kbd "M-g M-p") 'helm-gtags-parse-file)
+     ;; (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+     ;; (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history)
+     (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-find-rtag)
+     (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-find-tag-from-here)))
 ;; (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
 
 (global-set-key [remap kill-whole-line] 'smart-kill-whole-line)
