@@ -4,6 +4,7 @@
 (setq mc/cmds-to-run-for-all
       '(
         beginning-of-line-or-indentation
+        c-electric-delete-forward
         c-electric-semi&comma
         electric-newline-and-maybe-indent
         eval-and-replace

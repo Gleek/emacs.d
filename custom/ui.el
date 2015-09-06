@@ -26,20 +26,21 @@
 (hl-line-when-idle-interval 1)
 (setq-default frame-title-format '(buffer-file-name "%b"))
 
-(defun linum-format-func (line)
-  "Defines the format for the linum mode for specific LINE."
-(let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
-    (propertize (format (format " %%%dd " w) line) 'face 'linum)))
-(setq linum-format 'linum-format-func)
+;; (defun linum-format-func (line)
+;;   "Defines the format for the linum mode for specific LINE."
+;; (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
+;;     (propertize (format (format " %%%dd " w) line) 'face 'linum)))
+
+;; (setq linum-format 'dynamic)
 ;; (global-linum-mode -1)
 ;; (fringe-mode -1)
 ;; (setq-default cursor-type '(bar . 1))
 (blink-cursor-mode -1)
-
 (require 'smart-mode-line)
 (setq sml/no-confirm-load-theme t)
 (setq sml/theme 'respectful)
 (add-hook 'after-init-hook #'sml/setup)
+;; (set-face-attribute 'mode-line nil :font "Sauce Code Powerline 14")
 
 
 (setq ring-bell-function 'ignore)
@@ -49,10 +50,5 @@
 
 (setq whitespace-style '(face tabs empty trailing lines-tail))
 (global-whitespace-mode)
-;; (setq whitespace-display-mappings '((tab-mark 9 [9655 9] [92 9])))
-;; (space-mark 32 [183] [46]) ; 32 SPACE, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
-;; (newline-mark 10 [182 10]) ; 10 LINE FEED
-;; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
-
 (provide 'ui)
 ;;; ui.el ends here

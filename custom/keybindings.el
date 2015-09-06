@@ -10,7 +10,7 @@
 (global-set-key (kbd "C-x b") 'helm-mini)
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 ;; (global-set-key (kbd "C-s") 'isearch-forward-regexp)
-(global-set-key (kbd "C-s") 'swiper-helm)
+(global-set-key (kbd "C-s") 'swiper)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
 (global-set-key (kbd "C-M-s") 'isearch-forward)
 (global-set-key (kbd "C-M-r") 'isearch-backward)

@@ -17,5 +17,5 @@
 (add-to-list 'load-path "~/.emacs.d/custom/modules")
 (load "org-wunderlist-settings")
 (load "org-mode-config")
-
+(load "company-settings")
 ;;; init.el ends here

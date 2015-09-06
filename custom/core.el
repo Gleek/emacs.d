@@ -8,7 +8,6 @@
 (unless (server-running-p)
   (server-start))
 (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function)
-
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
 (setq uniquify-separator "/")
@@ -29,7 +28,7 @@
 (savehist-mode +1)
 
 (setq-default indent-tabs-mode nil)   ;; don't use tabs to indent
-(setq-default tab-width 8)
+(setq-default tab-width 4)
 (setq tab-always-indent 'complete)
 
 (desktop-save-mode 1)
@@ -65,9 +64,9 @@
 ;; (setq sp-autoskip-closing-pair 'always)
 ;; (setq sp-hybrid-kill-entire-symbol nil)
 ;; (sp-use-paredit-bindings)
-(show-smartparens-global-mode +1)
+;; (show-smartparens-global-mode +1)
 
-;; (yas-global-mode 1)
+(yas-global-mode 1)
 ;; (require 'ivy)
 ;; (ivy-mode)
 ;; (require 'flx-ido)
@@ -87,13 +86,12 @@
 (set-face-attribute 'helm-source-header nil :height 1)
 (setq helm-display-header-line nil)
 (helm-autoresize-mode 1)
-(setq helm-autoresize-max-height 30)
-(setq helm-autoresize-min-height 30)
-(setq helm-split-window-in-side-p t)
-(setq helm-M-x-fuzzy-match t)
-(setq helm-buffers-fuzzy-matching t
+(setq helm-autoresize-max-height 30
+      helm-autoresize-min-height 30
+      helm-split-window-in-side-p t
+      helm-M-x-fuzzy-match t
+      helm-buffers-fuzzy-matching t
       helm-recentf-fuzzy-match    t)
-
 
 ;; (global-auto-revert-mode -1)
 
@@ -112,21 +110,19 @@
 (require 'company)
 (global-company-mode)
 
+(require 'smooth-scrolling)
+(setq smooth-scroll-margin 2)
 ;; (require 'flycheck)
 ;; (global-flycheck-mode)
 ;; (require 'helm-dash)
 ;; (setq helm-dash-browser-func 'eww)
 
-;; (require 'anzu)
-;; (global-anzu-mode)
-
 (require 'undo-tree)
 (global-undo-tree-mode 1)
 
 (require 'diminish)
-;; (diminish 'anzu-mode)
-;; (diminish 'yas-minor-mode)
 ;; (diminish 'ivy-mode)
+(diminish 'yas-minor-mode)
 (diminish 'undo-tree-mode)
 (diminish 'smartparens-mode)
 (diminish 'company-mode)
