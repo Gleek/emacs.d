@@ -20,6 +20,7 @@
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "M-p") 'helm-projectile)
 (global-set-key (kbd "C-c g") 'helm-google-suggest)
+(global-set-key (kbd "C-c C-a") 'helm-ag)
 (global-set-key (kbd "M-;") 'comment-or-uncomment-region-or-line)
 (global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
 (global-set-key (kbd "C-x a r") 'align-regexp)
@@ -49,7 +50,8 @@
 (global-set-key (kbd "C-x C-r") 'sudo-edit)
 (global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
 (global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
-(global-set-key (kbd "C-c d") 'duplicate-line-or-region)
+(global-set-key (kbd "C-c d") 'duplicate-current-line-or-region)
+(global-set-key (kbd "C-c C-d") 'duplicate-and-comment-current-line-or-region)
 (global-set-key (kbd "C-^") 'top-join-line)
 (eval-after-load "helm-gtags"
   '(progn

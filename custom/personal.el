@@ -13,6 +13,18 @@
     (comment-or-uncomment-region beg end)
     (forward-line)))
 
+(defmacro keep-region (command)
+  "Wrap command in code that saves and restores the region"
+  (letrec ((command-name (symbol-name command))
+           (advice-name (concat command-name "-keep-region")))
+    `(progn
+       (defadvice ,command (around ,(intern advice-name))
+         (let ((deactivate-mark nil)
+               (transient-mark-mode transient-mark-mode))
+           (save-excursion
+             ad-do-it)))
+       (ad-activate (quote ,command)))))
+
 
 (defun beginning-of-line-or-indentation ()
   "Move to beginning of line, or indentation."
@@ -40,7 +52,6 @@
 (defun indent-buffer ()
   (interactive)
   (indent-region (point-min) (point-max)))
-
 
 (defun cleanup-buffer-safe ()
   "Perform a bunch of safe operations on the whitespace content of a buffer.
@@ -208,34 +219,54 @@ This functions should be added to the hooks of major modes for programming."
   (other-window 1 nil)
   (if (= prefix 1) (switch-to-next-buffer)))
 
+(defun get-positions-of-line-or-region ()
+  "Return positions (beg . end) of the current line or region."
+  (let (beg end)
+    (if (and mark-active (> (point) (mark)))
+        (exchange-point-and-mark))
+    (setq beg (line-beginning-position))
+    (if mark-active
+        (exchange-point-and-mark))
+    (setq end (line-end-position))
+    (cons beg end)))
 
-
-(defun duplicate-line-or-region (&optional n)
-  "Duplicate current line, or region if active.
-With argument N, make N copies.
-With negative N, comment out original line and use the absolute value."
-  (interactive "*p")
-  (let ((use-region (use-region-p)))
-    (save-excursion
-      (let ((text (if use-region        ;Get region if active, otherwise line
-                      (buffer-substring (region-beginning) (region-end))
-                    (prog1 (thing-at-point 'line)
-                      (end-of-line)
-                      (if (< 0 (forward-line 1)) ;Go to beginning of next line, or make a new one
-                          (newline))))))
-        (dotimes (i (abs (or n 1)))     ;Insert N times, or once if not specified
-          (insert text))))
-    (if use-region nil                  ;Only if we're working with a line (not a region)
-      (let ((pos (- (point) (line-beginning-position)))) ;Save column
-        (if (> 0 n)                             ;Comment out original with negative arg
-            (comment-region (line-beginning-position) (line-end-position)))
-        (forward-line 1)
-        (forward-char pos)))))
+(defun duplicate-current-line-or-region (arg)
+  "Duplicates the current line or region ARG times.
+If there's no region, the current line will be duplicated.  However, if
+there's a region, all lines that region covers will be duplicated."
+  (interactive "p")
+  (pcase-let* ((origin (point))
+               (`(,beg . ,end) (get-positions-of-line-or-region))
+               (region (buffer-substring-no-properties beg end)))
+    (-dotimes arg
+      (lambda (n)
+        (goto-char end)
+        (newline)
+        (insert region)
+        (setq end (point))))
+    (goto-char (+ origin (* (length region) arg) arg))))
+(defun duplicate-and-comment-current-line-or-region (arg)
+  "Duplicates and comments the current line or region ARG times.
+If there's no region, the current line will be duplicated.  However, if
+there's a region, all lines that region covers will be duplicated."
+  (interactive "p")
+  (pcase-let* ((origin (point))
+               (`(,beg . ,end) (get-positions-of-line-or-region))
+               (region (buffer-substring-no-properties beg end)))
+    (comment-or-uncomment-region beg end)
+    (setq end (line-end-position))
+    (-dotimes arg
+      (lambda (n)
+        (goto-char end)
+        (newline)
+        (insert region)
+        (setq end (point))))
+    (goto-char (+ origin (* (length region) arg) arg))))
 
 (defadvice kill-ring-save (before slick-copy activate compile)
   "When called interactively with no active region, copy a single line instead."
-           (interactive (if mark-active (list (region-beginning) (region-end))
-                          (message "Copied line") (list (line-beginning-position) (line-beginning-position 2)))))
+  (interactive (if mark-active (list (region-beginning) (region-end))
+                 (message "Copied line") (list (line-beginning-position) (line-beginning-position 2)))))
 
 (defadvice kill-region (before slick-cut activate compile)
   "When called interactively with no active region, kill a single line instead."
@@ -247,16 +278,16 @@ With negative N, comment out original line and use the absolute value."
 (eval-after-load "helm-regexp"
   '(setq helm-source-moccur
          (helm-make-source "Moccur"
-                           'helm-source-multi-occur :follow 1)))
+             'helm-source-multi-occur :follow 1)))
 
 ;; (defun my-helm-multi-all ()
-  ;; "Multi-occur in all buffers backed by files."
-  ;; (interactive)
-  ;; (helm-multi-occur
-   ;; (delq nil
-         ;; (mapcar (lambda (b)
-                   ;; (when (buffer-file-name b) (buffer-name b)))
-                 ;; (buffer-list)))))
+;; "Multi-occur in all buffers backed by files."
+;; (interactive)
+;; (helm-multi-occur
+;; (delq nil
+;; (mapcar (lambda (b)
+;; (when (buffer-file-name b) (buffer-name b)))
+;; (buffer-list)))))
 
 
 (defadvice grep (after delete-grep-header activate) (delete-grep-header))

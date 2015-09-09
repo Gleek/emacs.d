@@ -36,7 +36,9 @@
 
 
 (autoload 'magit-status "magit")
-(delete-selection-mode)
+
+;; This some how slows down in large files
+;;(delete-selection-mode)
 (global-subword-mode)
 (setq x-select-enable-clipboard t
       x-select-enable-primary t
@@ -99,6 +101,9 @@
 ;; (move-text-default-bindings)
 
 (require 'vlf-setup)
+
+(require 'avy)
+(setq avy-background t)
 
 (require 'projectile)
 (projectile-global-mode)
