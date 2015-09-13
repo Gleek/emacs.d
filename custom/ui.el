@@ -11,7 +11,7 @@
 (set-frame-font "Sauce Code Powerline 14")
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message "")
-(load-theme 'apropospriate-dark t)
+(load-theme 'zenburn t)
 (show-paren-mode)
 (setq-default line-spacing 0)
 

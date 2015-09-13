@@ -17,6 +17,7 @@
         kmacro-start-macro-or-insert-counter
         org-delete-char
         sgml-slash
+        subword-right
         zop-to-char
         ))
 

@@ -21,6 +21,7 @@
 (global-set-key (kbd "M-p") 'helm-projectile)
 (global-set-key (kbd "C-c g") 'helm-google-suggest)
 (global-set-key (kbd "C-c C-a") 'helm-ag)
+(global-set-key (kbd "M-y") 'helm-show-kill-ring)
 (global-set-key (kbd "M-;") 'comment-or-uncomment-region-or-line)
 (global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
 (global-set-key (kbd "C-x a r") 'align-regexp)
