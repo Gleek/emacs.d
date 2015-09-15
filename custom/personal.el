@@ -25,7 +25,6 @@
              ad-do-it)))
        (ad-activate (quote ,command)))))
 
-
 (defun beginning-of-line-or-indentation ()
   "Move to beginning of line, or indentation."
   (interactive)
@@ -291,7 +290,6 @@ there's a region, all lines that region covers will be duplicated."
 
 
 (defadvice grep (after delete-grep-header activate) (delete-grep-header))
-(defadvice rgrep (after delete-grep-header activate) (delete-grep-header))
 
 (provide 'personal)
 ;;; personal.el ends here

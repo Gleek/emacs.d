@@ -11,7 +11,7 @@
 (set-frame-font "Sauce Code Powerline 14")
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message "")
-(load-theme 'zenburn t)
+(load-theme 'apropospriate-dark t)
 (show-paren-mode)
 (setq-default line-spacing 0)
 
@@ -41,8 +41,7 @@
 (setq sml/theme 'respectful)
 (add-hook 'after-init-hook #'sml/setup)
 ;; (set-face-attribute 'mode-line nil :font "Sauce Code Powerline 14")
-
-
+(setq ns-use-srgb-colorspace t)
 (setq ring-bell-function 'ignore)
 
 (require 'whitespace)

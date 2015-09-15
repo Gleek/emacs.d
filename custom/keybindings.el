@@ -36,6 +36,8 @@
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c m") 'mc/mark-all-like-this)
+(global-unset-key (kbd "M-<down-mouse-1>"))
+(global-set-key (kbd "M-<mouse-1>") 'mc/add-cursor-on-click)
 
 (global-set-key (kbd "C-x <right>") 'windmove-right)
 (global-set-key (kbd "C-x <left>") 'windmove-left)

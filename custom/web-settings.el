@@ -27,6 +27,7 @@ See URL `http://pear.php.net/package/PHP_CodeSniffer/'."
 (setq js2-basic-offset 2)
 (setq js-indent-level 4)
 (setq web-mode-enable-sql-detection t)
+;; (php-enable-symfony2-coding-style)
 ;; (defun my-setup-php ()
 ;; enable web mode
 ;; (web-mode)
