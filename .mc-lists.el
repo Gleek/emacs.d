@@ -9,26 +9,36 @@
         electric-newline-and-maybe-indent
         eval-and-replace
         eval-last-sexp
+        forward-sexp
         isearch-abort
         isearch-forward-regexp
         isearch-printing-char
         isearch-repeat-forward
+        keyboard-quit
         kill-region
         kmacro-start-macro-or-insert-counter
+        org-beginning-of-line
         org-delete-char
+        org-end-of-line
+        org-self-insert-command
         sgml-slash
         subword-right
+        web-mode-navigate
         zop-to-char
         ))
 
 (setq mc/cmds-to-run-once
       '(
+        god-local-mode
+        god-mode-self-insert
         helm-M-x
         helm-mini
+        helm-projectile
         hsplit-last-buffer
         ido-switch-buffer
         isearch-delete-char
         mark-whole-buffer
+        mouse-set-secondary
         projectile-switch-to-buffer
         repeat
         smex

@@ -26,6 +26,7 @@
 (hl-line-when-idle-interval 1)
 (setq-default frame-title-format '(buffer-file-name "%b"))
 
+
 ;; (defun linum-format-func (line)
 ;;   "Defines the format for the linum mode for specific LINE."
 ;; (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))

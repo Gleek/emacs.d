@@ -18,4 +18,5 @@
 (load "org-wunderlist-settings")
 (load "org-mode-config")
 (load "company-settings")
+(load "god-mode-config")
 ;;; init.el ends here
