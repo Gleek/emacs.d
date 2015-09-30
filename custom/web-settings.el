@@ -24,8 +24,8 @@ See URL `http://pear.php.net/package/PHP_CodeSniffer/'."
        :modes (web-mode))
      (add-to-list 'flycheck-checkers 'web-mode-phpcs)))
 
-(setq js2-basic-offset 2)
-(setq js-indent-level 2)
+(setq js2-basic-offset 4)
+(setq js-indent-level 4)
 (setq web-mode-enable-sql-detection t)
 ;; (php-enable-symfony2-coding-style)
 ;; (defun my-setup-php ()

@@ -244,6 +244,7 @@ there's a region, all lines that region covers will be duplicated."
         (insert region)
         (setq end (point))))
     (goto-char (+ origin (* (length region) arg) arg))))
+
 (defun duplicate-and-comment-current-line-or-region (arg)
   "Duplicates and comments the current line or region ARG times.
 If there's no region, the current line will be duplicated.  However, if
