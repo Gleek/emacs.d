@@ -29,6 +29,7 @@
 
 (setq mc/cmds-to-run-once
       '(
+        c-electric-slash
         god-local-mode
         god-mode-self-insert
         helm-M-x
