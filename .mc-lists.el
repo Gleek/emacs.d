@@ -6,6 +6,7 @@
         beginning-of-line-or-indentation
         c-electric-delete-forward
         c-electric-semi&comma
+        delete-indentation
         electric-newline-and-maybe-indent
         eval-and-replace
         eval-last-sexp
@@ -23,6 +24,7 @@
         org-self-insert-command
         sgml-slash
         subword-right
+        top-join-line
         web-mode-navigate
         zop-to-char
         ))

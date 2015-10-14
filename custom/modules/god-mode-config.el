@@ -5,3 +5,6 @@
 
 (add-hook 'god-mode-enabled-hook 'my-update-cursor)
 (add-hook 'god-mode-disabled-hook 'my-update-cursor)
+(define-key god-local-mode-map (kbd ".") 'repeat)
+(define-key god-local-mode-map (kbd "z") 'keyboard-quit)
+(define-key god-local-mode-map (kbd "i") 'god-local-mode)
