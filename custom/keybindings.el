@@ -56,6 +56,9 @@
 (global-set-key (kbd "C-c d") 'duplicate-current-line-or-region)
 (global-set-key (kbd "C-c C-d") 'duplicate-and-comment-current-line-or-region)
 (global-set-key (kbd "C-^") 'top-join-line)
+(global-set-key (kbd "C-c C-f") 'fold-this-all)
+(global-set-key (kbd "C-c C-F") 'fold-this)
+(global-set-key (kbd "C-c M-f") 'fold-this-unfold-all)
 (eval-after-load "helm-gtags"
   '(progn
      ;; (define-key helm-gtags-mode-map (kbd "M-t") 'helm-gtags-find-tag)

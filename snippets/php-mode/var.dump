@@ -1,3 +1,0 @@
-#name : var_dump(...)
-# --
-var_dump(${expression[, mixed expression]})$0
