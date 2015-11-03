@@ -72,7 +72,7 @@
 ;; (require 'ivy)
 ;; (ivy-mode)
 ;; (require 'flx-ido)
-;; ;; Ido mode is disabled (switched to HELM)
+;; Ido mode is disabled (switched to HELM)
 ;; (ido-mode 1)
 ;; (ido-everywhere 1)
 ;; (flx-ido-mode 1)

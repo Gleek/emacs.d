@@ -24,6 +24,8 @@ See URL `http://pear.php.net/package/PHP_CodeSniffer/'."
        :modes (web-mode))
      (add-to-list 'flycheck-checkers 'web-mode-phpcs)))
 
+
+;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 (setq js2-basic-offset 2)
 (setq js-indent-level 2)
 (setq web-mode-enable-sql-detection t)

@@ -24,6 +24,7 @@
         org-self-insert-command
         sgml-slash
         subword-right
+        tab-to-tab-stop
         top-join-line
         web-mode-navigate
         zop-to-char
