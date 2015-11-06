@@ -27,11 +27,11 @@
 (setq-default frame-title-format '(buffer-file-name "%b"))
 
 
-;; (defun linum-format-func (line)
-;;   "Defines the format for the linum mode for specific LINE."
-;; (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
-;;     (propertize (format (format " %%%dd " w) line) 'face 'linum)))
-
+(defun linum-format-func (line)
+  "Defines the format for the linum mode for specific LINE."
+(let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
+    (propertize (format (format " %%%dd " w) line) 'face 'linum)))
+(setq linum-format 'linum-format-func)
 ;; (setq linum-format 'dynamic)
 ;; (global-linum-mode -1)
 ;; (fringe-mode -1)
@@ -42,7 +42,7 @@
 (setq sml/theme 'respectful)
 (add-hook 'after-init-hook #'sml/setup)
 ;; (set-face-attribute 'mode-line nil :font "Sauce Code Powerline 14")
-(setq ns-use-srgb-colorspace t)
+;; (setq ns-use-srgb-colorspace t)
 (setq ring-bell-function 'ignore)
 
 (require 'whitespace)
