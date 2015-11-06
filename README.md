@@ -13,3 +13,5 @@ Usage
 TODO
 ---------
 - Maintain different file for different modules
+- Using use-package for a faster boot-time
+- [Single File master Configuration](http://milkbox.net/note/single-file-master-emacs-configuration/)
