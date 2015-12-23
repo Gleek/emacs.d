@@ -69,6 +69,10 @@
 ;; (show-smartparens-global-mode +1)
 
 (yas-global-mode 1)
+
+(add-hook 'term-mode-hook
+          (lambda()
+            (yas-minor-mode -1)))
 ;; (require 'ivy)
 ;; (ivy-mode)
 ;; (require 'flx-ido)
@@ -98,6 +102,7 @@
 (setq projectile-enable-caching t)
 ;;; Remove vc support
 (require 'vc)
+(setq vc-handled-backends nil)
 (remove-hook 'find-file-hooks 'vc-find-file-hook)
 (remove-hook 'after-save-hook 'vc-find-file-hook)
 (require 'company)

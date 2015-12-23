@@ -32,6 +32,7 @@
 
 (setq mc/cmds-to-run-once
       '(
+        c-electric-paren
         c-electric-slash
         god-local-mode
         god-mode-self-insert
