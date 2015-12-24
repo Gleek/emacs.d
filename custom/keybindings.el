@@ -7,7 +7,7 @@
 (global-set-key (kbd "C-=") 'er/expand-region)
 (global-set-key (kbd "M-/") 'hippie-expand)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-(global-set-key (kbd "C-x b") 'helm-mini)
+(global-set-key (kbd "C-x b") 'ivy-switch-buffer)
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 ;; (global-set-key (kbd "C-s") 'isearch-forward-regexp)
 (global-set-key (kbd "C-s") 'swiper)

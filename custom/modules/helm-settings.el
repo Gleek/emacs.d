@@ -1,5 +1,5 @@
 (require 'helm-config)
-(helm-mode 1)
+;; (helm-mode 1)
 (helm-adaptive-mode t)
 (set-face-attribute 'helm-source-header nil :height 1)
 (setq helm-display-header-line nil)
