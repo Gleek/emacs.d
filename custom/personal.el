@@ -52,6 +52,12 @@
   (interactive)
   (indent-region (point-min) (point-max)))
 
+(define-globalized-minor-mode global-helm-gtags-mode helm-gtags-mode
+  (lambda ()
+    (helm-gtags-mode 1)))
+(global-helm-gtags-mode 1)
+
+
 (defun cleanup-buffer-safe ()
   "Perform a bunch of safe operations on the whitespace content of a buffer.
 Does not indent buffer, because it is used for a `before-save-hook', and that
@@ -266,7 +272,7 @@ there's a region, all lines that region covers will be duplicated."
 (defadvice kill-ring-save (before slick-copy activate compile)
   "When called interactively with no active region, copy a single line instead."
   (interactive (if mark-active (list (region-beginning) (region-end))
-                 (message "Copied line") (list (line-beginning-position) (line-beginning-position 2)))))
+                 (message "Line copied") (list (line-beginning-position) (line-beginning-position 2)))))
 
 (defadvice kill-region (before slick-cut activate compile)
   "When called interactively with no active region, kill a single line instead."

@@ -8,13 +8,13 @@
 (when (fboundp 'scroll-bar-mode)
   (scroll-bar-mode -1))
 (size-indication-mode t)
-(set-frame-font "Sauce Code Powerline 14")
+(set-frame-font "Source Code Pro 13")
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message "")
-(load-theme 'apropospriate-dark t)
+(load-theme 'spacemacs-light t)
 (show-paren-mode)
 (setq-default line-spacing 0)
-
+(setq avy-background t)
 ;; mode line settings
 (line-number-mode t)
 (column-number-mode t)
@@ -26,6 +26,8 @@
 (hl-line-when-idle-interval 1)
 (setq-default frame-title-format '(buffer-file-name "%b"))
 
+(require 'smooth-scroll)
+(smooth-scroll-mode t)
 
 (defun linum-format-func (line)
   "Defines the format for the linum mode for specific LINE."
@@ -34,6 +36,7 @@
 (setq linum-format 'linum-format-func)
 ;; (setq linum-format 'dynamic)
 ;; (global-linum-mode -1)
+
 ;; (fringe-mode -1)
 ;; (setq-default cursor-type '(bar . 1))
 (blink-cursor-mode -1)
@@ -41,6 +44,9 @@
 (setq sml/no-confirm-load-theme t)
 (setq sml/theme 'respectful)
 (add-hook 'after-init-hook #'sml/setup)
+
+;; (require 'spaceline-config)
+;; (spaceline-emacs-theme)
 ;; (set-face-attribute 'mode-line nil :font "Sauce Code Powerline 14")
 ;; (setq ns-use-srgb-colorspace t)
 (setq ring-bell-function 'ignore)

@@ -4,8 +4,11 @@
 (setq mc/cmds-to-run-for-all
       '(
         beginning-of-line-or-indentation
+        c-electric-colon
         c-electric-delete-forward
+        c-electric-paren
         c-electric-semi&comma
+        c-electric-slash
         delete-indentation
         electric-newline-and-maybe-indent
         eval-and-replace
@@ -15,13 +18,18 @@
         isearch-forward-regexp
         isearch-printing-char
         isearch-repeat-forward
+        ivy-switch-buffer
         keyboard-quit
         kill-region
         kmacro-start-macro-or-insert-counter
+        nxml-electric-slash
         org-beginning-of-line
         org-delete-char
         org-end-of-line
+        org-force-self-insert
+        org-kill-line
         org-self-insert-command
+        org-yank
         sgml-slash
         subword-right
         tab-to-tab-stop
@@ -32,8 +40,6 @@
 
 (setq mc/cmds-to-run-once
       '(
-        c-electric-paren
-        c-electric-slash
         god-local-mode
         god-mode-self-insert
         helm-M-x
@@ -43,6 +49,8 @@
         ido-switch-buffer
         isearch-delete-char
         mark-whole-buffer
+        mouse-secondary-save-then-kill
+        mouse-set-region
         mouse-set-secondary
         projectile-switch-to-buffer
         repeat

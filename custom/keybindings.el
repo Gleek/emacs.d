@@ -10,7 +10,8 @@
 (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 ;; (global-set-key (kbd "C-s") 'isearch-forward-regexp)
-(global-set-key (kbd "C-s") 'swiper)
+(global-set-key (kbd "C-s") 'isearch-forward)
+(global-set-key (kbd "M-i") 'helm-swoop)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
 (global-set-key (kbd "C-M-s") 'isearch-forward)
 (global-set-key (kbd "C-M-r") 'isearch-backward)
@@ -18,7 +19,8 @@
 (global-set-key (kbd "C-x m") 'magit-status)
 ;; (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "M-p") 'helm-projectile)
+;; (global-set-key (kbd "M-p") 'helm-projectile)
+(global-set-key (kbd "M-p") 'projectile-find-file)
 (global-set-key (kbd "C-c g") 'helm-google-suggest)
 (global-set-key (kbd "C-c a") 'helm-do-ag)
 (global-set-key (kbd "M-y") 'helm-show-kill-ring)
@@ -44,9 +46,7 @@
 (global-set-key (kbd "C-x <up>") 'windmove-up)
 (global-set-key (kbd "C-x <down>") 'windmove-down)
 (global-set-key (kbd "C-\"") 'avy-goto-word-or-subword-1)
-(global-set-key (kbd "C-'") 'avy-goto-char)
-(global-set-key (kbd "M-<up>") 'move-text-up)
-(global-set-key (kbd "M-<down>") 'move-text-down)
+(global-set-key (kbd "C-'") 'avy-goto-char-timer)
 (global-set-key (kbd "M-%") 'anzu-query-replace)
 (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp)
 (global-set-key (kbd "C-c r")  'rename-file-and-buffer)
@@ -56,9 +56,15 @@
 (global-set-key (kbd "C-c d") 'duplicate-current-line-or-region)
 (global-set-key (kbd "C-c C-d") 'duplicate-and-comment-current-line-or-region)
 (global-set-key (kbd "C-^") 'top-join-line)
-(global-set-key (kbd "C-c C-f") 'fold-this-all)
-(global-set-key (kbd "C-c C-F") 'fold-this)
+(global-set-key (kbd "C-c C-F") 'fold-this-all)
+(global-set-key (kbd "C-c C-f") 'fold-this)
 (global-set-key (kbd "C-c M-f") 'fold-this-unfold-all)
+(global-unset-key (kbd "M-."))
+
+(eval-after-load "php-mode"
+  '(progn
+     (local-unset-key (kbd "C-c C-f"))))
+
 (eval-after-load "helm-gtags"
   '(progn
      ;; (define-key helm-gtags-mode-map (kbd "M-t") 'helm-gtags-find-tag)

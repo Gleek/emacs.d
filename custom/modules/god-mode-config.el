@@ -1,8 +1,13 @@
 (defun my-update-cursor ()
-  (setq cursor-type (if (or god-local-mode buffer-read-only)
-                        'hbar
-                      'box)))
-
+  (let ((limited-colors-p (> 257 (length (defined-colors)))))
+    (cond (god-local-mode (progn
+                            (set-face-background 'mode-line (if limited-colors-p "red" "#cb202d"))
+                            (set-face-background 'mode-line-inactive (if limited-colors-p "red" "#cb202d"))
+                            (setq cursor-type 'hbar )))
+          (t (progn
+               (set-face-background 'mode-line (if limited-colors-p "black" "#0a2832"))
+               (set-face-background 'mode-line-inactive (if limited-colors-p "black" "#0a2832"))
+               (setq cursor-type 'box ))))))
 (add-hook 'god-mode-enabled-hook 'my-update-cursor)
 (add-hook 'god-mode-disabled-hook 'my-update-cursor)
 (god-local-mode t)

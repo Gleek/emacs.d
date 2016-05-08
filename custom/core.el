@@ -11,7 +11,7 @@
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
 (setq uniquify-separator "/")
-(setq uniquify-ater-kill-buffer-p t)
+(setq uniquify-after-kill-buffer-p t)
 (setq uniquify-ignore-buffers-re "^\\*")
 
 (require 'saveplace)
@@ -87,10 +87,10 @@
 ;; (hlinum-activate)
 
 
-;; (global-auto-revert-mode -1)
+(global-auto-revert-mode -1)
 
-(require 'move-text)
-;; (move-text-default-bindings)
+(require 'drag-stuff)
+(drag-stuff-global-mode 1)
 
 (require 'vlf-setup)
 
@@ -98,6 +98,7 @@
 (setq avy-background t)
 
 (require 'projectile)
+(setq projectile-completion-system 'ivy)
 (projectile-global-mode)
 (setq projectile-enable-caching t)
 ;;; Remove vc support
@@ -105,8 +106,9 @@
 (setq vc-handled-backends nil)
 (remove-hook 'find-file-hooks 'vc-find-file-hook)
 (remove-hook 'after-save-hook 'vc-find-file-hook)
-(require 'company)
-(global-company-mode)
+
+;; (require 'company)
+;; (global-company-mode)
 
 (require 'smooth-scrolling)
 (setq smooth-scroll-margin 2)
@@ -125,8 +127,13 @@
 (diminish 'smartparens-mode)
 (diminish 'company-mode)
 (diminish 'whitespace-mode)
+(diminish 'projectile-mode)
 (diminish 'global-whitespace-mode)
+(diminish 'smooth-scroll-mode)
+(diminish 'helm-gtags-mode)
 (diminish 'subword-mode)
+(diminish 'drag-stuff-mode)
+(diminish 'ivy-mode)
 (require 'recentf)
 (recentf-mode 1)
 
