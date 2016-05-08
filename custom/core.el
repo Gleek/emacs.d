@@ -134,6 +134,7 @@
 (diminish 'subword-mode)
 (diminish 'drag-stuff-mode)
 (diminish 'ivy-mode)
+(diminish 'flycheck-mode)
 (require 'recentf)
 (recentf-mode 1)
 
