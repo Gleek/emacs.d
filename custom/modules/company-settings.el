@@ -5,7 +5,7 @@
 ;;; Code:
 
 (setq company-idle-delay 0.1)
-(setq company-minimum-prefix-length 1)
+(setq company-minimum-prefix-length 3)
 
 (defvar company-mode/enable-yas t
   "Enable yasnippet for all backends.")

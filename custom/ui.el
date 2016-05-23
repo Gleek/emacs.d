@@ -11,7 +11,7 @@
 (set-frame-font "Source Code Pro 13")
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message "")
-(load-theme 'spacemacs-light t)
+(load-theme 'zenburn t)
 (show-paren-mode)
 (setq-default line-spacing 0)
 (setq avy-background t)

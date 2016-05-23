@@ -17,6 +17,7 @@
 (add-to-list 'load-path "~/.emacs.d/custom/modules")
 (load "helm-settings")
 (load "org-wunderlist-settings")
+(load "nonsvn")
 (load "org-mode-config")
 (load "company-settings")
 (load "god-mode-config")
