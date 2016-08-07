@@ -2,7 +2,10 @@
 ;;; Commentary:
 ;; Settings for the modes of web php js & html
 ;;; Code:
+
+
 (require 'flycheck)
+(setq flycheck-phpcs-standard 'nil)
 ;; flycheck for web mode-line
 (eval-after-load 'flycheck
   '(progn
@@ -18,19 +21,39 @@
         "A PHP style checker using PHP_CodeSniffer.
 See URL `http://pear.php.net/package/PHP_CodeSniffer/'."
        :command ("phpcs" "--report=checkstyle"
-                 (option "--standard=" flycheck-phpcs-standard concat)
+                 ;; (option "--standard=" flycheck-phpcs-standard concat)
                  source)
        :error-parser flycheck-parse-checkstyle
        :modes (web-mode))
      (add-to-list 'flycheck-checkers 'web-mode-phpcs)))
 
 
-;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-(add-to-list 'auto-mode-alist '("\\.jsx\\'" . js2-mode))
 
-(setq js2-basic-offset 2)
-(setq js-indent-level 2)
-(setq web-mode-enable-sql-detection t)
+;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+
+(use-package web-mode
+  :init
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-markup-indent-offset 2)
+  (setq js2-basic-offset 2)
+  (setq js-indent-level 2)
+  (setq web-mode-enable-sql-detection t)
+  :config
+  (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode)))
+;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+
+;; (setq web-mode-code-indent-offset 2)
+;; (setq web-mode-markup-indent-offset 2)
+;; (setq js2-basic-offset 2)
+;; (setq js-indent-level 2)
+;; (setq web-mode-enable-sql-detection t)
+
+(defadvice web-mode-highlight-part (around tweak-jsx activate)
+  (if (equal web-mode-content-type "jsx")
+    (let ((web-mode-enable-part-face nil))
+      ad-do-it)
+    ad-do-it))
+
 ;; (php-enable-symfony2-coding-style)
 ;; (defun my-setup-php ()
 ;; enable web mode

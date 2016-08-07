@@ -9,6 +9,7 @@
         c-electric-paren
         c-electric-semi&comma
         c-electric-slash
+        delete-horizontal-space
         delete-indentation
         electric-newline-and-maybe-indent
         eval-and-replace

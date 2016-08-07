@@ -1,0 +1,1 @@
+(define-package "golden-ratio" "20150819.420" "Automatic resizing of Emacs windows to the golden ratio" 'nil :stars '(#("247" 0 3 (font-lock-face paradox-star-face))) :keywords '("window" "resizing"))

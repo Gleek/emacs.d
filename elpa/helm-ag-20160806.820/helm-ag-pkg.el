@@ -1,0 +1,2 @@
+;;; -*- no-byte-compile: t -*-
+(define-package "helm-ag" "20160806.820" "the silver searcher with helm interface" '((emacs "24.3") (helm "1.7.7")) :stars '(#("160" 0 3 (font-lock-face paradox-star-face))) :url "https://github.com/syohex/emacs-helm-ag")

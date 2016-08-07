@@ -55,7 +55,12 @@
 (define-globalized-minor-mode global-helm-gtags-mode helm-gtags-mode
   (lambda ()
     (helm-gtags-mode 1)))
-(global-helm-gtags-mode 1)
+;; (define-globalized-minor-mode global-autorevert-mode auto-revert-mode
+;;   (lambda ()
+;;     (auto-revert-mode 1)))
+
+
+;; (global-helm-gtags-mode 1)
 
 
 (defun cleanup-buffer-safe ()
@@ -281,10 +286,7 @@ there's a region, all lines that region covers will be duplicated."
      (list (line-beginning-position)
            (line-beginning-position 2)))))
 ;;helm multi occur
-(eval-after-load "helm-regexp"
-  '(setq helm-source-moccur
-         (helm-make-source "Moccur"
-             'helm-source-multi-occur :follow 1)))
+
 
 ;; (defun my-helm-multi-all ()
 ;; "Multi-occur in all buffers backed by files."
@@ -296,7 +298,7 @@ there's a region, all lines that region covers will be duplicated."
 ;; (buffer-list)))))
 
 
-(defadvice grep (after delete-grep-header activate) (delete-grep-header))
+;; (defadvice grep (after delete-grep-header activate) (delete-grep-header))
 
 (provide 'personal)
 ;;; personal.el ends here
