@@ -39,6 +39,7 @@
   (fancy-battery-mode))
 
 (use-package which-func
+  :disabled t ;; slowing down startup of big files
   :config
   (which-function-mode)
   (set-face-foreground 'which-func "darkgrey")
@@ -73,9 +74,9 @@
   (smooth-scroll-mode t)
   :diminish smooth-scroll-mode)
 
-(use-package smooth-scrolling
-  :init
-  (setq smooth-scroll-margin 2))
+;; (use-package smooth-scrolling
+;;   :init
+;;   (setq smooth-scroll-margin 2))
 
 
 
@@ -90,7 +91,7 @@
 ;; Find my cursor
 (use-package beacon
   :config
-  (beacon-mode 1)
+  (beacon-mode)
   :diminish beacon-mode)
 
 
@@ -127,7 +128,12 @@
   (savehist-mode 1))
 
 ;;(delete-selection-mode)
-(use-package magit  :bind ("C-x m" . magit-status))
+(use-package magit
+  :bind ("C-x m" . magit-status)
+  :config
+  (setq magit-refresh-status-buffer nil))
+
+
 (use-package subword
   :config (global-subword-mode)
   :diminish subword-mode
@@ -137,8 +143,15 @@
   :init
   (setq tramp-default-method "ssh")
   (setq tramp-auto-save-directory "~/.emacs.d/tramp-autosave/")
+  :config
+  (add-to-list 'tramp-default-proxies-alist
+               '("scripts" nil "/ssh:entry:"))
   :defer t)
 
+
+(use-package flyspell
+  :init (setq ispell-program-name "aspell")
+  )
 
 (use-package paren
   :config
@@ -166,22 +179,23 @@
   :config
   (global-unset-key (kbd "M-<down-mouse-1>")))
 
-
-(use-package tex-mode
-  :bind ("C-c C-t x" . TeX-toggle-escape))
-
 (use-package term
   :config
   (yas-minor-mode -1)
   :defer t)
 
-(use-package ivy
-  :config
-  (ivy-mode)
-  :bind ("C-x b" . ivy-switch-buffer)
-  :diminish ivy-mode)
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)
+         ("C-c a" . counsel-ag)))
+
+(use-package paradox
+  :init (setq paradox-automatically-star t))
+
+
 ;; (require 'flx-ido)
 
+;; (use-package counsel
+;;   :bind ("M-x" . counsel-M-x))
 (use-package ido
   :disabled t
   :init
@@ -195,10 +209,13 @@
   (ido-vertical-mode 1)
   :defer t)
 
+(use-package imenu
+  :bind ("C-x c i" . helm-imenu))
 
-(use-package auto-revert
-  :disabled t)
-;; (global-auto-revert-mode -1)
+
+(use-package autorevert
+  :disabled t
+  :config (global-auto-revert-mode -1))
 
 
 (use-package drag-stuff
@@ -241,9 +258,11 @@
   :init
   (setq vc-handled-backends nil)
   (remove-hook 'find-file-hooks 'vc-find-file-hook)
+  (remove-hook 'find-file-hook 'vc-refresh-state)
   (remove-hook 'after-save-hook 'vc-find-file-hook))
 
 (use-package volatile-highlights
+  :disabled t
   :config
   (volatile-highlights-mode t)
   :diminish volatile-highlights-mode)
@@ -329,13 +348,13 @@
   :config (recentf-mode))
 
 (use-package isearch
-  :bind (("C-r" . isearch-backward-regexp)
-         ("C-M-s". isearch-forward)
+  :bind (("C-r"   . isearch-backward-regexp)
+         ("C-M-s" . isearch-forward)
          ("C-M-r" . isearch-backward)))
 (use-package swiper
   :bind ("C-s" . swiper))
 (use-package anzu
-  :bind (("M-%" . anzu-query-replace)
+  :bind (("M-%"   . anzu-query-replace)
          ("C-M-%" . anzu-query-replace-regexp)))
 
 (use-package fold-this

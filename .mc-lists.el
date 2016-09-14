@@ -14,6 +14,7 @@
         electric-newline-and-maybe-indent
         eval-and-replace
         eval-last-sexp
+        eval-print-last-sexp
         forward-sexp
         isearch-abort
         isearch-forward-regexp

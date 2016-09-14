@@ -90,7 +90,7 @@
      `(default ((,class (:background ,base00 :foreground ,base03))))
      `(bold ((,class (:weight bold))))
      `(border ((,class (:background ,base02))))
-     `(cursor ((,class (:background ,pink-1 :inverse-video t))))
+     `(cursor ((,class (:background ,pink :inverse-video t))))
      `(highlight ((,class (:background ,base00+1))))
      `(hl-line ((,class (:background ,highlight-line-color))))
      `(link ((,class (:foreground ,blue :underline t))))

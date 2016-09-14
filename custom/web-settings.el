@@ -33,8 +33,8 @@ See URL `http://pear.php.net/package/PHP_CodeSniffer/'."
 
 (use-package web-mode
   :init
-  (setq web-mode-code-indent-offset 2)
-  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-code-indent-offset 4)
+  (setq web-mode-markup-indent-offset 4)
   (setq js2-basic-offset 2)
   (setq js-indent-level 2)
   (setq web-mode-enable-sql-detection t)

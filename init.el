@@ -14,6 +14,7 @@
 
 (add-to-list 'load-path "~/.emacs.d/custom/")
 (use-package personal
+  ;; :config (global-autorevert-mode)
   :bind (("C-x k"                 . kill-this-buffer)
          ("M-;"                   . comment-or-uncomment-region-or-line)
          ("C-a"                   . beginning-of-line-or-indentation)
@@ -30,6 +31,8 @@
          ("C-c d"                 . duplicate-current-line-or-region)
          ("C-c c"                 . duplicate-and-comment-current-line-or-region)
          ("C-^"                   . top-join-line)
+         ("C-c C-t x"             . TeX-toggle-escape)
+         ("C-c e"                 . eval-and-replace)
          ([remap kill-whole-line] . smart-kill-whole-line)
          ([(shift return)]        . smart-open-line)
          ([remap goto-line]       . goto-line-with-feedback)))
@@ -38,9 +41,14 @@
 (load "osx")
 (load "web-settings")
 (load "nonsvn")
-;; (load "keybindings")
 ;; Load individual modules
 (add-to-list 'load-path "~/.emacs.d/custom/modules")
 (load "helm-settings")
+(load "ivy-config")
 (load "org-mode-config")
+(put 'narrow-to-region 'disabled nil)
+
+
+
+(provide 'init)
 ;;; init.el ends here

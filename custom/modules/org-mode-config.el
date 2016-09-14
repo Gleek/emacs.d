@@ -19,9 +19,9 @@
 (use-package org-bullets
   :config (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
-(use-package org-wunderlist
-  :init (setq org-wunderlist-file  "~/.emacs.d/Wunderlist.org"
-                org-wunderlist-dir "~/.emacs.d/org-wunderlist/"))
+;; (use-package org-wunderlist
+;;   :init (setq org-wunderlist-file  "~/.emacs.d/Wunderlist.org"
+;;                 org-wunderlist-dir "~/.emacs.d/org-wunderlist/"))
 
 
 

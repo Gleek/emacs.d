@@ -1,2 +1,1 @@
-;;; -*- no-byte-compile: t -*-
-(define-package "helm-gtags" "20160726.844" "GNU GLOBAL helm interface" '((emacs "24.3") (helm "1.7.7")) :stars '(#("122" 0 3 (font-lock-face paradox-star-face))) :url "https://github.com/syohex/emacs-helm-gtags")
+(define-package "helm-gtags" "20160726.844" "GNU GLOBAL helm interface" '((emacs "24.3") (helm "1.7.7")) :stars '("") :url "https://github.com/syohex/emacs-helm-gtags")

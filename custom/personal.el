@@ -55,9 +55,10 @@
 (define-globalized-minor-mode global-helm-gtags-mode helm-gtags-mode
   (lambda ()
     (helm-gtags-mode 1)))
-;; (define-globalized-minor-mode global-autorevert-mode auto-revert-mode
-;;   (lambda ()
-;;     (auto-revert-mode 1)))
+
+(define-globalized-minor-mode global-autorevert-mode auto-revert-mode
+  (lambda ()
+    (auto-revert-mode -1)))
 
 
 ;; (global-helm-gtags-mode 1)
