@@ -27,7 +27,8 @@
 (use-package helm-ring
   :config (helm-attrset 'follow 1 helm-source-mark-ring)
   :bind (("C-h C-SPC" . helm-all-mark-rings)
-         ("M-y" . helm-show-kill-ring)))
+         ;; ("M-y" . helm-show-kill-ring)
+         ))
 
 
 (use-package helm-gtags
@@ -37,6 +38,11 @@
          ("C-M-." . helm-gtags-find-tag)
          ("M-." . helm-gtags-find-tag-from-here))
   :diminish helm-gtags-mode)
+
+
+(use-package helm-net
+  :bind ("C-c g" . helm-google-suggest)
+  )
 
 ;; (use-package helm-ag
 ;;   :config

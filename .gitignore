@@ -16,8 +16,8 @@ emms
 /url/
 /var/
 /.sx/
-eshell/lastdir
-eshell/history
+/eshell/lastdir
+/eshell/history
 smex-items
 projectile.cache
 savehist
@@ -29,3 +29,8 @@ org-wunderlist-settings.el
 tutorial/
 nonsvn.el
 archived-contents
+/node_modules/
+.persistent-scratch
+helm-adaptive-history
+bookmarks
+elpa/*

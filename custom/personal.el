@@ -45,13 +45,6 @@
                           "disabled"))
                 ))
 
-(defun untabify-buffer ()
-  (interactive)
-  (untabify (point-min) (point-max)))
-(defun indent-buffer ()
-  (interactive)
-  (indent-region (point-min) (point-max)))
-
 (define-globalized-minor-mode global-helm-gtags-mode helm-gtags-mode
   (lambda ()
     (helm-gtags-mode 1)))
@@ -63,6 +56,13 @@
 
 ;; (global-helm-gtags-mode 1)
 
+
+(defun untabify-buffer ()
+  (interactive)
+  (untabify (point-min) (point-max)))
+(defun indent-buffer ()
+  (interactive)
+  (indent-region (point-min) (point-max)))
 
 (defun cleanup-buffer-safe ()
   "Perform a bunch of safe operations on the whitespace content of a buffer.
@@ -152,12 +152,34 @@ buffer is not visiting a file."
     (url-hexify-string (if mark-active
                            (buffer-substring (region-beginning) (region-end))
                          (read-string "Google: "))))))
+(defun lucky ()
+  "Google the selected region if any, display a query prompt otherwise."
+  (interactive)
+  (browse-url
+   (concat
+    "http://www.google.com/search?btnI&q="
+    (url-hexify-string (if mark-active
+                           (buffer-substring (region-beginning) (region-end))
+                         (read-string "Google: "))))))
+
+
 (defun duck ()
   "Duck Duck Go the selected region if any, display a query prompt otherwise."
   (interactive)
   (browse-url
    (concat
     "http://www.duckduckgo.com/?&q="
+    (url-hexify-string (if mark-active
+                           (buffer-substring (region-beginning) (region-end))
+                         (read-string "Duck Duck Go: "))))))
+
+
+(defun ducky ()
+  "Duck Duck Go the selected region if any, display a query prompt otherwise."
+  (interactive)
+  (browse-url
+   (concat
+    "http://www.duckduckgo.com/?&q=%21ducky%20"
     (url-hexify-string (if mark-active
                            (buffer-substring (region-beginning) (region-end))
                          (read-string "Duck Duck Go: "))))))

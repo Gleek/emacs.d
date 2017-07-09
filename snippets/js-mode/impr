@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: import React
+# key: impr
+# --
+import React from 'react'
+
+const ${1:class} = React.createClass({
+  $2
+});
+
+export default $1;

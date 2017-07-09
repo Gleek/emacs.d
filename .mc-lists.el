@@ -3,45 +3,57 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        beginning-of-buffer
         beginning-of-line-or-indentation
+        c-electric-brace
         c-electric-colon
         c-electric-delete-forward
         c-electric-paren
+        c-electric-pound
         c-electric-semi&comma
         c-electric-slash
+        c-electric-star
+        counsel-yank-pop
         delete-horizontal-space
         delete-indentation
+        duplicate-current-line-or-region
         electric-newline-and-maybe-indent
         eval-and-replace
         eval-last-sexp
         eval-print-last-sexp
         forward-sexp
+        helm-show-kill-ring
+        indent-for-tab-command
         isearch-abort
         isearch-forward-regexp
         isearch-printing-char
         isearch-repeat-forward
-        ivy-switch-buffer
         keyboard-quit
         kill-region
         kmacro-start-macro-or-insert-counter
+        mark-sexp
         nxml-electric-slash
         org-beginning-of-line
         org-delete-char
         org-end-of-line
         org-force-self-insert
         org-kill-line
+        org-return-indent
         org-self-insert-command
         org-yank
         sgml-slash
+        sp-backward-unwrap-sexp
         subword-right
         tab-to-tab-stop
         top-join-line
+        transpose-words
         web-mode-navigate
         zop-to-char
         ))
 
 (setq mc/cmds-to-run-once
       '(
+        counsel-M-x
         god-local-mode
         god-mode-self-insert
         helm-M-x
@@ -50,14 +62,21 @@
         hsplit-last-buffer
         ido-switch-buffer
         isearch-delete-char
+        ivy-done
+        ivy-switch-buffer
         mark-whole-buffer
+        markdown-exdent-or-delete
+        mc/insert-numbers
+        mc/mark-all-dwim
         mouse-secondary-save-then-kill
         mouse-set-region
         mouse-set-secondary
+        mouse-start-secondary
         projectile-switch-to-buffer
         repeat
         smex
         swiper
         undo-tree-visualize
+        yank-rectangle
         yas-expand
         ))
