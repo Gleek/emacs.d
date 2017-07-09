@@ -1,5 +1,0 @@
-XSym
-0080
-b21ed22c135e1696d2ef25b636e9acb4
-/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/codecs.py
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               

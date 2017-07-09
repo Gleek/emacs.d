@@ -1,5 +1,0 @@
-XSym
-0078
-a8fc4c805847dddb9108a10127fb6274
-/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/stat.py
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
