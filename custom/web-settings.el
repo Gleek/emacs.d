@@ -31,26 +31,18 @@ See URL `http://pear.php.net/package/PHP_CodeSniffer/'."
 ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
 
-(use-package php-mode
-  :bind (:map php-mode-map
-              ("C-c C-c" . nil)))
+;; (use-package php-mode
+;;   :bind (:map php-mode-map
+;;               ("C-c C-c" . nil)))
   ;; :config
   ;; (php-enable-symfony2-coding-style))
 
-(use-package web-mode
-  :init
-  (setq web-mode-code-indent-offset 4)
-  (setq web-mode-markup-indent-offset 4)
-  (setq js2-basic-offset 4)
-  (setq js-indent-level 2)
-  (setq web-mode-enable-sql-detection t)
-  :config
-  (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode)))
+
 ;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
 
 ;; (setq web-mode-code-indent-offset 2)
 ;; (setq web-mode-markup-indent-offset 2)
-(setq js2-basic-offset 4)
+;; (setq js2-basic-offset 4)
 ;; (setq js-indent-level 2)
 ;; (setq web-mode-enable-sql-detection t)
 

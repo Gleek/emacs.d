@@ -12,13 +12,13 @@
        ((:keywords "tools" "processes" "convenience")
 	(:url . "https://github.com/leoliu/ack-el"))])
  (ada-mode .
-	   [(5 2 1)
+	   [(5 2 2)
 	    ((wisi
-	      (1 1 4))
+	      (1 1 5))
 	     (cl-lib
 	      (0 4))
 	     (emacs
-	      (24 2)))
+	      (24 3)))
 	    "major-mode for editing Ada sources" tar
 	    ((:keywords "languages" "ada")
 	     (:url . "http://www.nongnu.org/ada-mode/"))])
@@ -695,7 +695,7 @@
 	     ((:url . "https://github.com/michael-heerdegen/on-screen.el")
 	      (:keywords "convenience"))])
  (org .
-      [(20170703)
+      [(20170710)
        nil "Outline-based notes management and organizer" tar nil])
  (org-edna .
 	   [(1 0 -3 1)
@@ -714,7 +714,7 @@
        ((:url . "http://elpa.gnu.org/packages/osc.html")
 	(:keywords "comm" "processes" "multimedia"))])
  (other-frame-window .
-		     [(1 0 3)
+		     [(1 0 4)
 		      ((emacs
 			(24 4)))
 		      "Minor mode to enable global prefix keys for other frame/window buffer placement" single
@@ -1038,7 +1038,7 @@
 	      ((:url . "http://elpa.gnu.org/packages/windresize.html")
 	       (:keywords "window"))])
  (wisi .
-       [(1 1 4)
+       [(1 1 5)
 	((cl-lib
 	  (0 4))
 	 (emacs

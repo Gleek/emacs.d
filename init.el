@@ -5,6 +5,7 @@
 
 ;;; Code:
 (setq gc-cons-threshold 100000000) ;; collect garbage after about 100 MB
+(setq message-log-max 10000) ;; Debugging
 (require 'package)
 (package-initialize)
 (eval-when-compile
@@ -43,9 +44,9 @@
 
 (load "core")
 (load "osx")
-(load "web-settings")
+;; (load "web-settings")
 (load "nonsvn")
-(load "xwidconf")
+;; (load "xwidconf")
 ;; Load individual modules
 ;; (add-to-list 'load-path "~/.emacs.d/custom/modules")
 ;; (load "helm-settings")

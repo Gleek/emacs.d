@@ -22,7 +22,7 @@
 (set-frame-font "Fira Mono 11")
 (load-theme 'spacemacs-dark t)
 (set-cursor-color "#FFFFCC")
-(use-package all-the-icons :ensure t)
+(use-package all-the-icons :ensure t :defer t)
 
 ;; mode line settings
 (use-package spaceline-config
@@ -139,22 +139,27 @@
 ;;;;;;;;;;;;;;;;
 (use-package counsel
   :ensure t
+  :defer t
   :bind (("M-x" . counsel-M-x)
          ("C-c s s" . counsel-rg)
          ("M-y" . counsel-yank-pop)
          ("M-." . counsel-gtags-dwim)
          ("C-c t u" . counsel-gtags-update-tags)
          ("C-x c i" . counsel-imenu)
+         ("C-x C-f" . counsel-find-file)
          ("C-M-." . counsel-gtags-find-definition)))
 
 (use-package ivy
-  :init
+  :defer t
+  :config
   (ivy-mode t)
   :bind ("C-x b" . ivy-switch-buffer)
   :diminish ivy-mode)
 
 (use-package ido
   :disabled t
+  :ensure flx-ido
+  :ensure smex
   :init
   (setq ido-enable-flex-matching t)
   (setq ido-use-faces nil)
@@ -184,7 +189,7 @@
   :ensure t
   :ensure company-web
   :ensure company-quickhelp
-  ;; :disabled te
+  ;; :disabled t
   :init
   (setq company-idle-delay 0.5)
   (setq company-minimum-prefix-length 3)
@@ -193,8 +198,8 @@
          (company-bbdb company-nxml company-css company-eclim company-semantic company-clang company-xcode company-cmake company-capf company-files
                        (company-dabbrev-code company-keywords)
                        company-oddmuse company-dabbrev)))
-  :config
   (global-company-mode)
+  :config
   ;; (defvar company-mode/enable-yas t
   ;;   "Enable yasnippet for all backends.")
   ;; (defun company-mode/backend-with-yas (backend)
@@ -203,7 +208,9 @@
   ;;     (append (if (consp backend) backend (list backend))
   ;;             '(:with company-yasnippet))))
   ;; (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
-  :defer t)
+  :defer t
+  :diminish "Ⓒ"
+  )
 
 (use-package yasnippet
   :disabled t
@@ -262,6 +269,7 @@
 
 
 (use-package smartparens
+  :defer t
   :init (smartparens-global-mode t)
   :ensure t
   :config
@@ -333,15 +341,18 @@
   (magit-auto-revert-mode nil))
 
 (use-package projectile
+  :defer t
   :ensure projectile
   :init
+  (defvar projectile-mode-line)
   (setq projectile-completion-system 'ivy)
   (setq projectile-enable-caching t)
-  (projectile-mode 1)
   :config
+  (setq projectile-mode-line '(:eval (format " %s" (projectile-project-name))))
+  (projectile-mode 1)
   :bind (("M-p" . projectile-find-file)
-         ("C-c s p" . projectile-ripgrep))
-  :diminish projectile-mode)
+         ("C-c s p" . projectile-ripgrep)
+         ("C-c p p" . projectile-switch-project)))
 
 (use-package vc
   :init
@@ -364,6 +375,7 @@
   :config (desktop-save-mode 1))
 
 (use-package xref
+  :defer t
   :config (add-to-list 'xref-backend-functions 'gxref-xref-backend))
 
 (use-package ggtags :ensure t)
@@ -392,11 +404,18 @@
   (global-flycheck-mode)
   :diminish flycheck-mode)
 
+(use-package flycheck-pos-tip
+  :disabled t
+  ;; :ensure t
+  :after flycheck
+  :config
+    (flycheck-pos-tip-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Emacs Utilities ;;
 ;;;;;;;;;;;;;;;;;;;;;
 (use-package server
+  :defer t
   :config
   (unless (server-running-p)
   (server-start))
@@ -431,6 +450,7 @@
   :defer t)
 (use-package paradox
   :ensure t
+  :defer t
   :init
   (defvar paradox-automatically-star)
   (defvar paradox-execute-asynchronously)
@@ -442,6 +462,7 @@
   :defer t)
 
 (use-package zeal-at-point
+  :defer t
   :config (setq zeal-at-point-zeal-version "0.3.1"))
 
 (use-package dashboard
@@ -458,6 +479,7 @@
   :ensure t
   :config
   (global-undo-tree-mode 1)
+  (setq undo-tree-auto-save-history t)
   :diminish undo-tree-mode)
 
 (use-package vlf :defer t)
@@ -473,6 +495,7 @@
 
 (use-package ansi-term
   :ensure shell-toggle
+  :defer t
   :init (setq-default bidi-display-reordering nil)
   :bind ("C-`" . shell-toggle)
   :config
@@ -488,14 +511,17 @@
 
 (use-package eshell
   :ensure eshell-git-prompt
+  :defer t
   ;;   https://github.com/ekaschalk/dotspacemacs/blob/master/.spacemacs
   :init (eshell-git-prompt-use-theme 'robbyrussell))
 
 (use-package persistent-scratch
+  :defer t
   :ensure t
   :config (persistent-scratch-setup-default))
 
 (use-package alert
+  :defer t
   :ensure t
   :init
   (defvar alert-default-style)
@@ -509,16 +535,45 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package apache-mode)
 (use-package csv-mode)
-(use-package php-mode :ensure t)
-(use-package js2-mode :ensure t)
+(use-package php-mode
+  :defer t
+  :ensure t
+  :bind (:map php-mode-map
+              ("C-c C-c" . nil)))
+(use-package abbrev
+  :defer t
+  :diminish "🆎")
+(use-package web-mode
+  :defer t
+  :init
+  (setq web-mode-code-indent-offset 4)
+  (setq web-mode-markup-indent-offset 4)
+  (setq web-mode-enable-sql-detection t)
+  :config
+  (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+  (defadvice web-mode-highlight-part (around tweak-jsx activate)
+  (if (equal web-mode-content-type "jsx")
+    (let ((web-mode-enable-part-face nil))
+      ad-do-it)
+    ad-do-it)))
+
+(use-package js-mode
+  :defer t
+  :init (setq js-indent-level 2))
+(use-package js2-mode
+  :init (setq js2-basic-offset 4)
+  :ensure t
+  :defer t)
 ;; (use-package js-doc :ensure t)
 ;; (use-package jsx-mode :defer t)
 (use-package less-css-mode)
 (use-package phpcbf
+  :defer t
   :config
   (setq phpcbf-standard "~/Development/phpcs.xml"))
 
 (use-package go-mode
+  :defer t
   :init
   (setq gofmt-command "goimports")
   (add-hook 'before-save-hook 'gofmt-before-save)
@@ -528,6 +583,7 @@
 
 (use-package markdown-mode
   :ensure t
+  :defer t
   :init
   (defvar markdown-command)
   (setq markdown-command "/usr/bin/pandoc"))
@@ -535,6 +591,7 @@
 
 ;; Org mode settings
 (use-package org-crypt
+  :defer t
   :init
   (setq org-tags-exclude-from-inheritance (quote ("crypt")))
   (setq org-crypt-key nil)
@@ -553,9 +610,11 @@
 ;;                 org-wunderlist-dir "~/.emacs.d/org-wunderlist/"))
 
 (use-package org-alert
+  :defer t
   :config (org-alert-enable))
 
 (use-package org
+  :defer t
   :init
   (setq org-ellipsis "…"
         ;; org-agenda-files '("~/Dropbox/org-files")
