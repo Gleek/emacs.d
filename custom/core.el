@@ -22,6 +22,7 @@
 (set-frame-font "Fira Mono 11")
 (load-theme 'spacemacs-dark t)
 (set-cursor-color "#FFFFCC")
+(use-package all-the-icons :ensure t)
 
 ;; mode line settings
 (use-package spaceline-config
@@ -132,7 +133,7 @@
   (which-key-mode 1)
   :diminish which-key-mode)
 
-
+(use-package indent-guide :ensure t :disabled t)
 ;;;;;;;;;;;;;;;;
 ;; Completion ;;
 ;;;;;;;;;;;;;;;;
@@ -278,6 +279,11 @@
   :ensure t
   :disabled t
   :config (evil-mode 1))
+
+(use-package god-mode
+  :ensure t
+  :bind ([escape] . god-local-mode))
+
 ;;;;;;;;;;;;;;;;
 ;; Navigation ;;
 ;;;;;;;;;;;;;;;;
@@ -310,7 +316,7 @@
   :ensure t
   :bind ("M-z" . zop-to-char))
 
-
+(use-package imenu-anywhere :ensure t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Multi-file Management ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -357,14 +363,13 @@
   :disabled t
   :config (desktop-save-mode 1))
 
-
-(use-package god-mode
-  :ensure t
-  :bind ([escape] . god-local-mode))
-
 (use-package xref
   :config (add-to-list 'xref-backend-functions 'gxref-xref-backend))
 
+(use-package ggtags :ensure t)
+(use-package ecb :disabled t :defer t)
+
+(use-package ag :ensure t :defer t)
 ;;;;;;;;;;;;;
 ;; Checker ;;
 ;;;;;;;;;;;;;
@@ -439,6 +444,16 @@
 (use-package zeal-at-point
   :config (setq zeal-at-point-zeal-version "0.3.1"))
 
+(use-package dashboard
+  :ensure t
+  :init (setq dashboard-items '((recents  . 7)
+                                (projects . 8)
+                                (bookmarks . 5)
+                                (agenda . 5)))
+  :config
+  (dashboard-setup-startup-hook))
+
+(use-package howdoi :disabled t)
 (use-package undo-tree
   :ensure t
   :config
@@ -488,9 +503,17 @@
 
 
 
-;;;;;;;;;;;;;;;
-;; Languages ;;
-;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Languages / Syntax Major Mode ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package apache-mode)
+(use-package csv-mode)
+(use-package php-mode :ensure t)
+(use-package js2-mode :ensure t)
+;; (use-package js-doc :ensure t)
+;; (use-package jsx-mode :defer t)
+(use-package less-css-mode)
 (use-package phpcbf
   :config
   (setq phpcbf-standard "~/Development/phpcs.xml"))

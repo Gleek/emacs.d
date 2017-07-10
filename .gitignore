@@ -34,3 +34,6 @@ archived-contents
 helm-adaptive-history
 bookmarks
 elpa/*
+.python-environments/
+anaconda-mode/
+.edbi-ds-history
