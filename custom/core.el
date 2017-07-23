@@ -26,9 +26,11 @@
 
 ;; mode line settings
 (use-package spaceline-config
+  :defer 1
   :init
   (setq powerline-default-separator "wave")
   (setq spaceline-window-numbers-unicode t)
+  (setq spaceline-minor-modes-separator " ")
   (setq spaceline-workspace-numbers-unicode t)
   :ensure spaceline
   :config
@@ -153,7 +155,9 @@
   :defer t
   :config
   (ivy-mode t)
-  :bind ("C-x b" . ivy-switch-buffer)
+  (all-the-icons-ivy-setup)
+  :bind (("C-x b" . ivy-switch-buffer)
+         ("C-c b r" . ivy-resume))
   :diminish ivy-mode)
 
 (use-package ido
@@ -213,11 +217,12 @@
   )
 
 (use-package yasnippet
-  :disabled t
-  ;; :ensure t
+  ;; :disabled t
+  :ensure t
+  :defer t
   :config
   (yas-global-mode 1)
-  :diminish yas-minor-mode)
+  :diminish (yas-minor-mode . "Ⓨ"))
 
 ;;;;;;;;;;;;;
 ;; Editing ;;
@@ -256,6 +261,10 @@
   :bind (("C-c C-F" . fold-this-all)
          ("C-c C-c" . fold-this)
          ("C-c M-f" . fold-this-unfold-all)))
+
+(use-package align
+  :bind (("C-x a a" . align)
+         ("C-x a c" . align-current)))
 
 (use-package origami
   :disabled t
@@ -322,7 +331,8 @@
 
 (use-package zop-to-char
   :ensure t
-  :bind ("M-z" . zop-to-char))
+  :bind (("M-z" . zop-to-char)
+         ("M-Z" . zop-up-to-char)))
 
 (use-package imenu-anywhere :ensure t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -348,7 +358,7 @@
   (setq projectile-completion-system 'ivy)
   (setq projectile-enable-caching t)
   :config
-  (setq projectile-mode-line '(:eval (format " %s" (projectile-project-name))))
+  (setq projectile-mode-line '(:eval (format "%s" (projectile-project-name))))
   (projectile-mode 1)
   :bind (("M-p" . projectile-find-file)
          ("C-c s p" . projectile-ripgrep)
@@ -378,7 +388,7 @@
   :defer t
   :config (add-to-list 'xref-backend-functions 'gxref-xref-backend))
 
-(use-package ggtags :ensure t)
+(use-package ggtags :ensure t :defer t)
 (use-package ecb :disabled t :defer t)
 
 (use-package ag :ensure t :defer t)
@@ -400,7 +410,7 @@
 
 (use-package flycheck
   :ensure t
-  :config
+  :init
   (global-flycheck-mode)
   :diminish flycheck-mode)
 
@@ -421,8 +431,11 @@
   (server-start))
 (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function))
 
+
+
 (use-package saveplace
   :init
+  (save-place-mode 1)
   (setq-default save-place t))
 
 (use-package savehist
@@ -474,31 +487,29 @@
   :config
   (dashboard-setup-startup-hook))
 
+(use-package page-break-lines :defer t :diminish page-break-lines-mode)
 (use-package howdoi :disabled t)
 (use-package undo-tree
   :ensure t
   :config
   (global-undo-tree-mode 1)
   (setq undo-tree-auto-save-history t)
+  (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
   :diminish undo-tree-mode)
 
 (use-package vlf :defer t)
 
 (use-package autorevert
-  :disabled t
-  :config (global-auto-revert-mode -1))
+  :config
+  (global-auto-revert-mode 1)
+  :diminish (auto-revert-mode . "Ⓐ"))
+
 
 (use-package term
-  :config
-  (yas-minor-mode -1)
-  :defer t)
-
-(use-package ansi-term
   :ensure shell-toggle
   :defer t
-  :init (setq-default bidi-display-reordering nil)
-  :bind ("C-`" . shell-toggle)
-  :config
+  :init
+  (setq-default bidi-display-reordering nil)
   (defun term-handle-more-ansi-escapes (proc char)
     "Handle additional ansi escapes."
     (cond
@@ -507,7 +518,10 @@
       (let ((col (min term-width (max 0 term-terminal-parameter))))
         (term-move-columns (- col (term-current-column)))))
      (t)))
-  (advice-add 'term-handle-ansi-escape :before #'term-handle-more-ansi-escapes))
+  (advice-add 'term-handle-ansi-escape :before #'term-handle-more-ansi-escapes)
+  :config
+  (yas-minor-mode -1)
+  :bind ("C-`" . shell-toggle))
 
 (use-package eshell
   :ensure eshell-git-prompt
@@ -517,6 +531,8 @@
 
 (use-package persistent-scratch
   :defer t
+  :init
+  (persistent-scratch-restore)
   :ensure t
   :config (persistent-scratch-setup-default))
 
@@ -544,13 +560,12 @@
   :defer t
   :diminish "🆎")
 (use-package web-mode
-  :defer t
   :init
   (setq web-mode-code-indent-offset 4)
-  (setq web-mode-markup-indent-offset 4)
+  (setq web-mode-markup-indent-offset 2)
   (setq web-mode-enable-sql-detection t)
   :config
-  (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+  ;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode)) ;; Using rjsx for that
   (defadvice web-mode-highlight-part (around tweak-jsx activate)
   (if (equal web-mode-content-type "jsx")
     (let ((web-mode-enable-part-face nil))
@@ -562,8 +577,25 @@
   :init (setq js-indent-level 2))
 (use-package js2-mode
   :init (setq js2-basic-offset 4)
+  :mode ("\\.js\\'" . js2-mode)
   :ensure t
   :defer t)
+(use-package rjsx-mode :mode ("\\.jsx\\'" . rjsx-mode) :defer t)
+(use-package tern                       ; Javascript IDE backend
+  :ensure t
+  :defer t
+  :init (add-hook 'js2-mode-hook #'tern-mode)
+  :config
+  ;; Don't generate port files
+  (add-to-list 'tern-command "--no-port-file" 'append)
+  :diminish "🕊")
+
+(use-package company-tern               ; Auto-completion for javascript
+  :defer t
+  :ensure t
+  :after company
+  :config (add-to-list 'company-backends 'company-tern))
+
 ;; (use-package js-doc :ensure t)
 ;; (use-package jsx-mode :defer t)
 (use-package less-css-mode)
@@ -588,10 +620,18 @@
   (defvar markdown-command)
   (setq markdown-command "/usr/bin/pandoc"))
 
-
+(use-package restclient
+  :ensure t
+  :mode ("\\.rest\\'" . restclient-mode)
+  :defer t)
+(use-package company-restclient
+  :ensure t
+  :after company
+  :after restclient
+  :config (add-to-list 'company-backends 'company-restclient))
 ;; Org mode settings
 (use-package org-crypt
-  :defer t
+  :defer 4
   :init
   (setq org-tags-exclude-from-inheritance (quote ("crypt")))
   (setq org-crypt-key nil)
@@ -614,7 +654,6 @@
   :config (org-alert-enable))
 
 (use-package org
-  :defer t
   :init
   (setq org-ellipsis "…"
         ;; org-agenda-files '("~/Dropbox/org-files")
@@ -636,11 +675,14 @@
       select-enable-primary nil ;; Disable Copy on selection
       display-time-default-load-average nil
       save-interprogram-paste-before-kill t
+      kill-ring-max 200
+      kill-do-not-save-duplicates t
       apropos-do-all t
       use-dialog-box nil
       ring-bell-function 'ignore
       mouse-yank-at-point t
       require-final-newline t
+      
       ns-use-srgb-colorspace 'nil
       ediff-window-setup-function 'ediff-setup-windows-plain
       backup-directory-alist

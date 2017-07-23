@@ -8,6 +8,7 @@ ac-comphist.dat
 tramp
 ido.last
 elpa/*.txt
+*.elc
 emms
 .emacs.desktop*
 .DS_Store

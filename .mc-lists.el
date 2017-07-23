@@ -48,6 +48,7 @@
         top-join-line
         transpose-words
         web-mode-navigate
+        wgrep-finish-edit
         zop-to-char
         ))
 
