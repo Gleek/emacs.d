@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: addcol
+# key: addcol
+# --
+ALTER TABLE ${table_name} ADD ${col_name} INT NOT NULL ${AFTER col}

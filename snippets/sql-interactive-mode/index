@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: index
+# key: index
+# --
+ALTER TABLE ${table_name} ADD INDEX (${col_name}) ;

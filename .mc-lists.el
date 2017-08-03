@@ -28,6 +28,7 @@
         isearch-forward-regexp
         isearch-printing-char
         isearch-repeat-forward
+        js2-line-break
         keyboard-quit
         kill-region
         kmacro-start-macro-or-insert-counter
@@ -47,7 +48,9 @@
         tab-to-tab-stop
         top-join-line
         transpose-words
+        wdired-capitalize-word
         web-mode-navigate
+        wgrep-change-to-wgrep-mode
         wgrep-finish-edit
         zop-to-char
         ))

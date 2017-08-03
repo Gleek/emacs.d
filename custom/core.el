@@ -135,6 +135,11 @@
   (which-key-mode 1)
   :diminish which-key-mode)
 
+(use-package golden-ratio
+  :ensure t
+  :defer t
+  :diminish "Φ")
+
 (use-package indent-guide :ensure t :disabled t)
 ;;;;;;;;;;;;;;;;
 ;; Completion ;;
@@ -142,21 +147,21 @@
 (use-package counsel
   :ensure t
   :defer t
-  :bind (("M-x" . counsel-M-x)
+  :bind (("M-x"     . counsel-M-x)
          ("C-c s s" . counsel-rg)
-         ("M-y" . counsel-yank-pop)
-         ("M-." . counsel-gtags-dwim)
+         ("M-y"     . counsel-yank-pop)
+         ("M-."     . counsel-gtags-dwim)
          ("C-c t u" . counsel-gtags-update-tags)
          ("C-x c i" . counsel-imenu)
          ("C-x C-f" . counsel-find-file)
-         ("C-M-." . counsel-gtags-find-definition)))
+         ("C-M-."   . counsel-gtags-find-definition)))
 
 (use-package ivy
   :defer t
   :config
   (ivy-mode t)
   (all-the-icons-ivy-setup)
-  :bind (("C-x b" . ivy-switch-buffer)
+  :bind (("C-x b"   . ivy-switch-buffer)
          ("C-c b r" . ivy-resume))
   :diminish ivy-mode)
 
@@ -194,6 +199,7 @@
   :ensure company-web
   :ensure company-quickhelp
   ;; :disabled t
+  :bind ("C-." . company-complete)
   :init
   (setq company-idle-delay 0.5)
   (setq company-minimum-prefix-length 3)
@@ -283,11 +289,14 @@
   :ensure t
   :config
   (require 'smartparens-config)
-  ;; (setq sp-base-key-bindings 'paredit)
-  ;; (setq sp-autoskip-closing-pair 'always)
-  ;; (setq sp-hybrid-kill-entire-symbol nil)
-  ;; (sp-use-paredit-bindings)
-  ;; (show-smartparens-global-mode +1)
+  ;; https://github.com/Fuco1/smartparens/issues/80 get reindent on curly brackets.
+  (sp-local-pair 'prog-mode "{" nil :post-handlers '((my-create-newline-and-enter-sexp "RET")))
+  (defun my-create-newline-and-enter-sexp (&rest _ignored)
+    "Open a new brace or bracket expression, with relevant newlines and indent. "
+    (newline)
+    (indent-according-to-mode)
+    (forward-line -1)
+    (indent-according-to-mode))
   :bind (("M-[" . sp-backward-unwrap-sexp)
          ("M-]" . sp-unwrap-sexp))
   :diminish smartparens-mode)
@@ -299,7 +308,8 @@
 
 (use-package god-mode
   :ensure t
-  :bind ([escape] . god-local-mode))
+  :bind ([escape] . god-local-mode)
+  :config (define-key god-local-mode-map (kbd ".") 'repeat))
 
 ;;;;;;;;;;;;;;;;
 ;; Navigation ;;
@@ -392,6 +402,13 @@
 (use-package ecb :disabled t :defer t)
 
 (use-package ag :ensure t :defer t)
+
+(use-package rg
+  :ensure rg
+  :ensure wgrep-ag
+  :config
+  (add-hook 'ripgrep-search-mode-hook 'wgrep-ag-setup)
+  :defer t)
 ;;;;;;;;;;;;;
 ;; Checker ;;
 ;;;;;;;;;;;;;
@@ -406,6 +423,8 @@
   :config
   (set-face-attribute 'flyspell-incorrect nil :underline '(:color "#6666ff"))
   (set-face-attribute 'flyspell-duplicate nil :underline '(:color "#6666ff"))
+  (eval-after-load "flyspell"
+  '(define-key flyspell-mode-map (kbd "C-.") nil))
   :diminish flyspell-mode)
 
 (use-package flycheck
@@ -431,7 +450,15 @@
   (server-start))
 (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function))
 
-
+(use-package key-chord
+  :config
+  (key-chord-mode 1)
+  (setq key-chord-two-keys-delay .015
+        key-chord-one-key-delay .040)
+  (key-chord-define-global "df" 'isearch-forward)
+  (key-chord-define-global "jk" 'avy-goto-word-or-subword-1)
+  (key-chord-define-global "nm" 'switch-to-previous-buffer)
+  )
 
 (use-package saveplace
   :init
@@ -520,8 +547,17 @@
      (t)))
   (advice-add 'term-handle-ansi-escape :before #'term-handle-more-ansi-escapes)
   :config
-  (yas-minor-mode -1)
-  :bind ("C-`" . shell-toggle))
+  (yas-minor-mode -1))
+
+(use-package shell-pop
+  :ensure t
+  :defer t
+  :bind ("C-`" . shell-pop)
+  :init
+  (setq shell-pop-window-position "bottom"
+        shell-pop-window-size     30
+        shell-pop-term-shell      "/bin/zsh"
+        shell-pop-internal-mode   "ansi-term"))
 
 (use-package eshell
   :ensure eshell-git-prompt

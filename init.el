@@ -18,6 +18,7 @@
 (setq custom-file "~/.emacs.d/custom/emacs-custom.el")
 (load custom-file)
 (add-to-list 'load-path "~/.emacs.d/custom/")
+
 (use-package personal
   :bind (("C-x k"                 . kill-this-buffer)
          ("M-;"                   . comment-or-uncomment-region-or-line)

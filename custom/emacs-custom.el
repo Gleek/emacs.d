@@ -39,9 +39,14 @@
       "* %?\\n%c\\n%:initial"))))
  '(package-selected-packages
    (quote
-    (all-the-icons-ivy rjsx-mode wgrep company-tern company-restclient flycheck-pos-tip dashboard ansi-term shell-toggle gxref edbi ace-window eshell-git-prompt spaceline-all-the-icons go-guru pandoc-mode org-alert persistent-scratch zeal-at-point projectile-ripgrep vimrc-mode ripgrep counsel-gtags move-text csv-mode nlinum-relative org-pomodoro php-mode zop-to-char zenburn-theme writeroom-mode which-key web-mode vlf use-package sql-indent spacemacs-theme spaceline spacegray-theme solarized-theme smooth-scroll smartparens skewer-mode rhtml-mode restclient request-deferred rainbow-mode projectile phpcbf php-boris-minor-mode php+-mode paradox ov org-bullets org nlinum neotree multiple-cursors multi-term multi-eshell markdown-mode magit less-css-mode jump jsx-mode json-rpc json-mode js-doc inf-ruby indent-guide imenu-anywhere hl-line+ helm-gtags helm-ag golden-ratio god-mode git-timemachine ggtags fringe-helper fold-this flycheck fancy-battery expand-region exec-path-from-shell evil esqlite emmet-mode ecb drag-stuff counsel company-web company-quickhelp company-math company-jedi company-go avy apache-mode anzu alert ag)))
+    (bind-chord key-chord web-beautify shell-toggle shell-pop lsp-go rg wgrep-ag counsel-projectile all-the-icons-ivy rjsx-mode wgrep company-tern company-restclient flycheck-pos-tip dashboard ansi-term gxref edbi ace-window eshell-git-prompt spaceline-all-the-icons go-guru pandoc-mode org-alert persistent-scratch zeal-at-point projectile-ripgrep vimrc-mode ripgrep counsel-gtags move-text csv-mode nlinum-relative org-pomodoro php-mode zop-to-char zenburn-theme writeroom-mode which-key web-mode vlf use-package sql-indent spacemacs-theme spaceline spacegray-theme solarized-theme smooth-scroll smartparens skewer-mode rhtml-mode restclient request-deferred rainbow-mode projectile phpcbf php-boris-minor-mode php+-mode paradox ov org-bullets org nlinum neotree multiple-cursors multi-term multi-eshell markdown-mode magit less-css-mode jump jsx-mode json-rpc json-mode js-doc inf-ruby indent-guide imenu-anywhere hl-line+ helm-gtags helm-ag golden-ratio god-mode git-timemachine ggtags fringe-helper fold-this flycheck fancy-battery expand-region exec-path-from-shell evil esqlite emmet-mode ecb drag-stuff counsel company-web company-quickhelp company-math company-jedi company-go avy apache-mode anzu alert ag)))
  '(pos-tip-background-color "#3a3a3a")
  '(pos-tip-foreground-color "#9E9E9E")
+ '(shell-pop-shell-type
+   (quote
+    ("ansi-term" "*ansi-term*"
+     (lambda nil
+       (ansi-term shell-pop-term-shell)))))
  '(smartrep-mode-line-active-bg (solarized-color-blend "#859900" "#073642" 0.2))
  '(tabbar-background-color "#353535")
  '(vc-annotate-background-mode nil)

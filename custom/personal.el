@@ -60,6 +60,14 @@
 (defun untabify-buffer ()
   (interactive)
   (untabify (point-min) (point-max)))
+
+(defun indent-defun ()
+  "Indent the current defun."
+  (interactive)
+  (save-excursion
+    (mark-defun)
+    (indent-region (region-beginning) (region-end))))
+
 (defun indent-buffer ()
   (interactive)
   (indent-region (point-min) (point-max)))
@@ -90,6 +98,11 @@ Including indent-buffer, which should not be called automatically on save."
     (error (message "Invalid expression")
            (insert (current-kill 0)))))
 
+(defun insert-date ()
+  "Insert a timestamp according to locale's date and time format."
+  (interactive)
+  (insert (format-time-string "%c" (current-time))))
+
 (defun file-owner-uid (filename)
   "Return the UID of the FILENAME as an integer.
 See `file-attributes' for more info."
@@ -100,6 +113,11 @@ See `file-attributes' for more info."
   (equal (file-owner-uid filename)
          (user-uid)))
 
+(defun switch-to-previous-buffer ()
+  "Switch to previously open buffer.
+Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
 (defun find-alternate-file-as-root (filename)
   "Wraps `find-alternate-file' with opening a file as root."
   (find-alternate-file (concat "/sudo:root@localhost:" filename)))
@@ -238,6 +256,8 @@ This functions should be added to the hooks of major modes for programming."
 (add-hook 'prog-mode-hook 'font-lock-comment-annotations)
 
 
+
+
 (defun vsplit-last-buffer (prefix)
   "Split the window vertically and display the previous buffer."
   (interactive "p")
@@ -322,6 +342,7 @@ there's a region, all lines that region covers will be duplicated."
                   (delete-file (concat buffer-file-name "c"))))
             nil
             t))
+
 
 (add-hook 'emacs-lisp-mode-hook 'remove-elc-on-save)
 
