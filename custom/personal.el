@@ -202,6 +202,13 @@ buffer is not visiting a file."
                            (buffer-substring (region-beginning) (region-end))
                          (read-string "Duck Duck Go: "))))))
 
+(defun httpd-start-here (directory port)
+  (interactive (list (read-directory-name "Root directory: " default-directory nil t)
+                     (read-number "Port: " 8017)))
+  (setq httpd-root directory)
+  (setq httpd-port port)
+  (httpd-start)
+  (browse-url (concat "http://localhost:" (number-to-string port) "/")))
 
 (defun copy-file-name-to-clipboard ()
   "Copy the current buffer file name to the clipboard."
@@ -346,6 +353,77 @@ there's a region, all lines that region covers will be duplicated."
 
 (add-hook 'emacs-lisp-mode-hook 'remove-elc-on-save)
 
+;; auto indent on yank
+
+(defvar yank-indent-modes '(prog-mode
+                            sgml-mode
+                            js2-mode)
+  "Modes in which to indent regions that are yanked (or yank-popped)")
+
+(defvar yank-advised-indent-threshold 1000
+  "Threshold (# chars) over which indentation does not automatically occur.")
+
+(defun yank-advised-indent-function (beg end)
+  "Do indentation, as long as the region isn't too large."
+  (if (<= (- end beg) yank-advised-indent-threshold)
+      (indent-region beg end nil)))
+
+(defadvice yank (after yank-indent activate)
+  "If current mode is one of 'yank-indent-modes, indent yanked text (with prefix arg don't indent)."
+  (if (and (not (ad-get-arg 0))
+           (--any? (derived-mode-p it) yank-indent-modes))
+      (let ((transient-mark-mode nil))
+        (yank-advised-indent-function (region-beginning) (region-end)))))
+
+(defadvice yank-pop (after yank-pop-indent activate)
+  "If current mode is one of 'yank-indent-modes, indent yanked text (with prefix arg don't indent)."
+  (if (and (not (ad-get-arg 0))
+           (member major-mode yank-indent-modes))
+      (let ((transient-mark-mode nil))
+        (yank-advised-indent-function (region-beginning) (region-end)))))
+
+(defun yank-unindented ()
+  (interactive)
+  (yank 1))
+
+;; Number edit
+
+(defun incs (s &optional num)
+  (let* ((inc (or num 1))
+         (new-number (number-to-string (+ inc (string-to-number s))))
+         (zero-padded? (s-starts-with? "0" s)))
+    (if zero-padded?
+        (s-pad-left (length s) "0" new-number)
+      new-number)))
+
+(defun goto-closest-number ()
+  (interactive)
+  (let ((closest-behind (save-excursion (search-backward-regexp "[0-9]" nil t)))
+        (closest-ahead (save-excursion (search-forward-regexp "[0-9]" nil t))))
+    (push-mark)
+    (goto-char
+     (cond
+      ((and (not closest-ahead) (not closest-behind)) (error "No numbers in buffer"))
+      ((and closest-ahead (not closest-behind)) closest-ahead)
+      ((and closest-behind (not closest-ahead)) closest-behind)
+      ((> (- closest-ahead (point)) (- (point) closest-behind)) closest-behind)
+      ((> (- (point) closest-behind) (- closest-ahead (point))) closest-ahead)
+      :else closest-ahead))))
+
+(defun change-number-at-point (arg)
+  (interactive "p")
+  (unless (or (looking-at "[0-9]")
+              (looking-back "[0-9]"))
+    (goto-closest-number))
+  (save-excursion
+    (while (looking-back "[0-9]")
+      (forward-char -1))
+    (re-search-forward "[0-9]+" nil)
+    (replace-match (incs (match-string 0) arg) nil nil)))
+
+(defun subtract-number-at-point (arg)
+  (interactive "p")
+  (change-number-at-point (- arg)))
 ;; (defun my-helm-multi-all ()
 ;; "Multi-occur in all buffers backed by files."
 ;; (interactive)

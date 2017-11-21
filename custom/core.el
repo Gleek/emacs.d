@@ -130,7 +130,7 @@
 
 (use-package which-key
   :ensure t
-  :disabled t
+  ;; :disabled t
   :config
   (which-key-mode 1)
   :diminish which-key-mode)
@@ -230,9 +230,9 @@
   (yas-global-mode 1)
   :diminish (yas-minor-mode . "Ⓨ"))
 
-;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 ;; Editing ;;
-;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 
 (use-package move-text
   :ensure t
@@ -250,7 +250,7 @@
          ("C-$" . mc/mark-more-like-this-extended)
          ("C->" . mc/mark-next-like-this)
          ("C-<" . mc/mark-previous-like-this)
-         ("C-c m" . mc/mark-all-like-this)
+         ("C-c m" . mc/mark-all-dwim)
          ("M-<down-mouse-1>" . mc/add-cursor-on-click)))
 
 (use-package drag-stuff
@@ -360,6 +360,20 @@
   (setq magit-auto-revert-mode nil)
   (magit-auto-revert-mode nil))
 
+(use-package git-gutter
+  :ensure t
+  :diminish git-gutter-mode
+  :bind (("C-c g d" . git-gutter:popup-hunk)
+         ("C-c g r" . git-gutter:revert-hunk))
+  :config
+  (global-git-gutter-mode t)
+  (setq git-gutter:modified-sign " "
+        git-gutter:added-sign " "
+        git-gutter:deleted-sign " ")
+  (set-face-background 'git-gutter:modified "SandyBrown")
+  (set-face-background 'git-gutter:added "DarkGreen")
+  (set-face-background 'git-gutter:deleted "DarkRed"))
+
 (use-package projectile
   :defer t
   :ensure projectile
@@ -387,6 +401,16 @@
   (recentf-mode 1))
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer))
+(use-package ibuffer-projectile
+  :ensure t
+  :defer t
+  :config
+  (add-hook 'ibuffer-hook
+            (lambda ()
+              (ibuffer-projectile-set-filter-groups)
+              (unless (eq ibuffer-sorting-mode 'alphabetic)
+                (ibuffer-do-sort-by-alphabetic)))))
+
 (use-package recentf
   :disabled t
   :config (recentf-mode))
@@ -396,12 +420,24 @@
 
 (use-package xref
   :defer t
-  :config (add-to-list 'xref-backend-functions 'gxref-xref-backend))
+  :config
+  (add-to-list 'xref-backend-functions 'gxref-xref-backend))
 
 (use-package ggtags :ensure t :defer t)
 (use-package ecb :disabled t :defer t)
 
 (use-package ag :ensure t :defer t)
+(use-package dumb-jump
+  :ensure t
+  :bind (("M-g o" . dumb-jump-go-other-window)
+         ("M-g j" . dumb-jump-go)
+         ("M-g i" . dumb-jump-go-prompt)
+         ("M-g h" . dumb-jump-back)
+         ("M-g x" . dumb-jump-go-prefer-external)
+         ("M-g z" . dumb-jump-go-prefer-external-other-window))
+  :config
+  (setq dumb-jump-force-searcher 'rg)
+  (setq dumb-jump-selector 'ivy))
 
 (use-package rg
   :ensure rg
@@ -590,15 +626,20 @@
 (use-package php-mode
   :defer t
   :ensure t
+  ;; :config (load "lsp-php")
   :bind (:map php-mode-map
               ("C-c C-c" . nil)))
 (use-package abbrev
   :defer t
   :diminish "🆎")
+(use-package lsp-mode
+  ;; (add-hook 'php-mode-hook #'lsp-mode)
+  :bind ("M-." . xref-find-definitions))
+
 (use-package web-mode
   :init
   (setq web-mode-code-indent-offset 4)
-  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-markup-indent-offset 4)
   (setq web-mode-enable-sql-detection t)
   :config
   ;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode)) ;; Using rjsx for that
@@ -610,20 +651,29 @@
 
 (use-package js-mode
   :defer t
-  :init (setq js-indent-level 2))
+  :init (setq js-indent-level 4))
 (use-package js2-mode
-  :init (setq js2-basic-offset 4)
   :mode ("\\.js\\'" . js2-mode)
+  :config
+  (setq js2-basic-offset 4)
+  ;; (load "lsp-javascript")
+  ;; (add-hook 'js2-mode-hook (lambda ()
+  ;;                            (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
+  :bind (:map js2-mode-map ("M-." . nil))
   :ensure t
   :defer t)
 (use-package rjsx-mode :mode ("\\.jsx\\'" . rjsx-mode) :defer t)
 (use-package tern                       ; Javascript IDE backend
   :ensure t
   :defer t
-  :init (add-hook 'js2-mode-hook #'tern-mode)
+  :init
+  (add-hook 'js2-mode-hook #'tern-mode)
   :config
   ;; Don't generate port files
   (add-to-list 'tern-command "--no-port-file" 'append)
+  :bind (:map tern-mode-keymap
+              ("M-." . nil)
+              ("M-," . nil))
   :diminish "🕊")
 
 (use-package company-tern               ; Auto-completion for javascript
@@ -648,6 +698,15 @@
   :bind (:map go-mode-map
               ("M-." . godef-jump)
               ("M-*" . pop-tag-mark)))
+
+(use-package robe
+  :ensure t
+  :config
+  (defadvice inf-ruby-console-auto (before activate-rvm-for-robe activate)
+    (rvm-activate-corresponding-ruby))
+  (add-hook 'ruby-mode-hook 'robe-mode)
+  (eval-after-load 'company
+    '(push 'company-robe company-backends)))
 
 (use-package markdown-mode
   :ensure t
@@ -718,7 +777,6 @@
       ring-bell-function 'ignore
       mouse-yank-at-point t
       require-final-newline t
-      
       ns-use-srgb-colorspace 'nil
       ediff-window-setup-function 'ediff-setup-windows-plain
       backup-directory-alist

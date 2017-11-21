@@ -24,6 +24,7 @@
          ("M-;"                   . comment-or-uncomment-region-or-line)
          ("C-a"                   . beginning-of-line-or-indentation)
          ("C-x a r"               . align-regexp)
+         ("s-u"                   . revert-buffer)
          ("C-c n"                 . cleanup-buffer)
          ("C-x <right>"           . windmove-right)
          ("C-x <left>"            . windmove-left)
@@ -39,10 +40,13 @@
          ("C-c C-t x"             . TeX-toggle-escape)
          ("C-c s d"               . lucky)
          ("C-c e"                 . eval-and-replace)
+         ("C-+"                   . change-number-at-point)
+         ([f5]                    . kmacro-edit-macro)
          ([remap kill-whole-line] . smart-kill-whole-line)
          ([(shift return)]        . smart-open-line)
          ([remap goto-line]       . goto-line-with-feedback)))
 
+;; (load "firacode") ;; Font hack to get ligatures
 (load "core")
 (load "osx")
 ;; (load "web-settings")

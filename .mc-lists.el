@@ -13,6 +13,7 @@
         c-electric-semi&comma
         c-electric-slash
         c-electric-star
+        change-number-at-point
         counsel-yank-pop
         delete-horizontal-space
         delete-indentation
@@ -42,6 +43,8 @@
         org-return-indent
         org-self-insert-command
         org-yank
+        rjsx-delete-creates-full-tag
+        rjsx-electric-lt
         sgml-slash
         sp-backward-unwrap-sexp
         subword-right
@@ -70,6 +73,7 @@
         ivy-switch-buffer
         mark-whole-buffer
         markdown-exdent-or-delete
+        markdown-outdent-or-delete
         mc/insert-numbers
         mc/mark-all-dwim
         mouse-secondary-save-then-kill

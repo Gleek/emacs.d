@@ -38,3 +38,5 @@ elpa/*
 .python-environments/
 anaconda-mode/
 .edbi-ds-history
+/.org-id-locations
+/request/curl-cookie-jar
