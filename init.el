@@ -2,10 +2,6 @@
 ;;; Commentary:
 ;; This file simply sets up the default load path and requires
 ;; the various modules defined within Emacs.
-;; TODO: Autoinstall these packages
-;; use-package
-;; diminish
-;; bind-key
 
 ;;; Code:
 
@@ -15,13 +11,18 @@
 (setq message-log-max 10000) ;; Debugging
 (require 'package)
 (package-initialize)
-(eval-when-compile
-  (require 'use-package))
-(require 'diminish)
-(require 'bind-key)
-(setq use-package-always-ensure t)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
+
+;; Bootstrap `use-package'
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(eval-when-compile
+  (require 'use-package))
+(require 'bind-key)
+(setq use-package-always-ensure t)
+(use-package diminish)
 
 (setq custom-file "~/.emacs.d/custom/emacs-custom.el")
 (load custom-file)
