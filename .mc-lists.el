@@ -3,6 +3,7 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        LaTeX-babel-insert-hyphen
         beginning-of-buffer
         beginning-of-line-or-indentation
         c-electric-brace
@@ -13,6 +14,7 @@
         c-electric-semi&comma
         c-electric-slash
         c-electric-star
+        c-indent-new-comment-line
         change-number-at-point
         counsel-yank-pop
         delete-horizontal-space
@@ -25,6 +27,7 @@
         forward-sexp
         helm-show-kill-ring
         indent-for-tab-command
+        indent-new-comment-line
         isearch-abort
         isearch-forward-regexp
         isearch-printing-char
@@ -52,6 +55,7 @@
         top-join-line
         transpose-words
         wdired-capitalize-word
+        wdired-finish-edit
         web-mode-navigate
         wgrep-change-to-wgrep-mode
         wgrep-finish-edit
@@ -80,10 +84,12 @@
         mouse-set-region
         mouse-set-secondary
         mouse-start-secondary
+        phi-search
         projectile-switch-to-buffer
         repeat
         smex
         swiper
+        swiper-mc
         undo-tree-visualize
         yank-rectangle
         yas-expand

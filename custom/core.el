@@ -19,10 +19,15 @@
 (blink-cursor-mode -1)
 
 ;; Font/Themes
-(set-frame-font "Fira Mono 11")
-(load-theme 'spacemacs-dark t)
+(set-frame-font "Fira Mono 10")
+(use-package spacemacs-common
+  :ensure spacemacs-theme
+  :config
+  (load-theme 'spacemacs-dark t))
 (set-cursor-color "#FFFFCC")
-(use-package all-the-icons :ensure t :defer t)
+(use-package all-the-icons
+  :ensure all-the-icons
+  :ensure all-the-icons-ivy :defer t)
 
 ;; mode line settings
 (use-package spaceline-config
@@ -59,6 +64,7 @@
   :defer t)
 
 (use-package simple
+  :ensure nil
   :config
   (size-indication-mode t)
   (line-number-mode t)
@@ -66,6 +72,7 @@
 
 
 (use-package uniquify
+  :ensure nil
   :init
   (setq uniquify-buffer-name-style 'forward)
   (setq uniquify-separator "/")
@@ -75,6 +82,7 @@
 
 ;; Editing
 (use-package hl-line+
+  :disabled t
   :ensure t
   :config
   (global-hl-line-mode t)
@@ -181,6 +189,7 @@
   :defer t)
 
 (use-package hippie-expand
+  :ensure nil
   :init
   (setq hippie-expand-try-functions-list '(try-expand-dabbrev
                                            try-expand-dabbrev-all-buffers
@@ -246,6 +255,9 @@
 
 (use-package multiple-cursors
   :ensure t
+  :config
+  (define-key mc/keymap (kbd "C-s") #'phi-search)
+  (define-key mc/keymap (kbd "C-r") #'phi-search-backward)
   :bind (("C-S-c C-S-c" . mc/edit-lines)
          ("C-$" . mc/mark-more-like-this-extended)
          ("C->" . mc/mark-next-like-this)
@@ -301,6 +313,17 @@
          ("M-]" . sp-unwrap-sexp))
   :diminish smartparens-mode)
 
+(use-package electric-pair
+  :disabled t
+  :defer t
+  :init
+  (defvar electric-pair-pairs)
+  (setq electric-pair-pairs '((?\" . ?\")
+                              (?\{ . ?\})
+                              ))
+  :config
+  (electric-pair-mode))
+
 (use-package evil
   :ensure t
   :disabled t
@@ -326,13 +349,17 @@
   :bind ("C-:" . ace-window))
 
 (use-package isearch
+  :ensure nil
   :bind (("C-r"   . isearch-backward-regexp)
          ("C-M-s" . isearch-forward)
          ("C-M-r" . isearch-backward)))
 
 (use-package swiper
   :ensure t
-  :bind ("C-s" . swiper))
+  :bind (("C-s" . swiper)
+         ("C-c s m" . swiper-mc)))
+
+(use-package phi-search :ensure t)
 
 (use-package anzu
   :ensure t
@@ -354,10 +381,13 @@
 
 (use-package magit
   :ensure t
-  :bind ("C-x m" . magit-status)
+  :bind (("C-x m" . magit-status)
+         ("C-c g b" . magit-blame)
+         ("C-c g l" . magit-log-buffer-file))
   :config
   (setq magit-refresh-status-buffer nil)
   (setq magit-auto-revert-mode nil)
+  (setq magit-diff-refine-hunk "all")
   (magit-auto-revert-mode nil))
 
 (use-package git-gutter
@@ -365,11 +395,12 @@
   :diminish git-gutter-mode
   :bind (("C-c g d" . git-gutter:popup-hunk)
          ("C-c g r" . git-gutter:revert-hunk))
-  :config
+  :init
   (global-git-gutter-mode t)
-  (setq git-gutter:modified-sign " "
-        git-gutter:added-sign " "
-        git-gutter:deleted-sign " ")
+  :config
+  (setq git-gutter:modified-sign "\u2009"
+        git-gutter:added-sign "\u2009"
+        git-gutter:deleted-sign "\u2009")
   (set-face-background 'git-gutter:modified "SandyBrown")
   (set-face-background 'git-gutter:added "DarkGreen")
   (set-face-background 'git-gutter:deleted "DarkRed"))
@@ -433,6 +464,7 @@
          ("M-g j" . dumb-jump-go)
          ("M-g i" . dumb-jump-go-prompt)
          ("M-g h" . dumb-jump-back)
+         ("M-g q" . dumb-jump-quick-look)
          ("M-g x" . dumb-jump-go-prefer-external)
          ("M-g z" . dumb-jump-go-prefer-external-other-window))
   :config
@@ -487,14 +519,14 @@
 (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function))
 
 (use-package key-chord
+  :ensure t
   :config
   (key-chord-mode 1)
   (setq key-chord-two-keys-delay .015
         key-chord-one-key-delay .040)
   (key-chord-define-global "df" 'isearch-forward)
   (key-chord-define-global "jk" 'avy-goto-word-or-subword-1)
-  (key-chord-define-global "nm" 'switch-to-previous-buffer)
-  )
+  (key-chord-define-global "nm" 'switch-to-previous-buffer))
 
 (use-package saveplace
   :init
@@ -534,6 +566,7 @@
   (setq paradox-execute-asynchronously t))
 
 (use-package simple-http
+  :ensure nil
   :config (setq httpd-root "~/Development/testing")
   :defer t)
 
@@ -546,11 +579,13 @@
   :init (setq dashboard-items '((recents  . 7)
                                 (projects . 8)
                                 (bookmarks . 5)
-                                (agenda . 5)))
+                                ;; (agenda . 5)
+                                ))
   :config
   (dashboard-setup-startup-hook))
 
-(use-package page-break-lines :defer t :diminish page-break-lines-mode)
+(use-package page-break-lines :diminish page-break-lines-mode)
+
 (use-package howdoi :disabled t)
 (use-package undo-tree
   :ensure t
@@ -621,27 +656,48 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Languages / Syntax Major Mode ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package apache-mode)
-(use-package csv-mode)
+(use-package apache-mode :ensure t)
+(use-package csv-mode :ensure t)
 (use-package php-mode
   :defer t
   :ensure t
-  ;; :config (load "lsp-php")
   :bind (:map php-mode-map
-              ("C-c C-c" . nil)))
+              ("C-c C-c" . nil))
+  :config
+  (setq c-basic-offset 4))
+
 (use-package abbrev
+  :ensure nil
   :defer t
   :diminish "🆎")
 (use-package lsp-mode
-  ;; (add-hook 'php-mode-hook #'lsp-mode)
   :bind ("M-." . xref-find-definitions))
 
+(use-package lsp-ui
+  :ensure t
+  :config
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+
+(use-package lsp-imenu
+  :ensure lsp-mode
+  :config
+  (add-hook 'lsp-after-open-hook 'lsp-enable-imenu))
+
+(use-package lsp-php
+  :ensure t
+  :disabled t
+  :config
+  (setq lsp-php-server-install-dir "/mnt/data/Development/")
+  (add-hook 'php-mode-hook #'lsp-php-enable))
 (use-package web-mode
+  :ensure t
   :init
   (setq web-mode-code-indent-offset 4)
   (setq web-mode-markup-indent-offset 4)
   (setq web-mode-enable-sql-detection t)
   :config
+  ;; (add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
+  (flycheck-add-mode 'php 'web-mode)
   ;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode)) ;; Using rjsx for that
   (defadvice web-mode-highlight-part (around tweak-jsx activate)
   (if (equal web-mode-content-type "jsx")
@@ -650,6 +706,7 @@
     ad-do-it)))
 
 (use-package js-mode
+  :ensure nil
   :defer t
   :init (setq js-indent-level 4))
 (use-package js2-mode
@@ -684,7 +741,16 @@
 
 ;; (use-package js-doc :ensure t)
 ;; (use-package jsx-mode :defer t)
-(use-package less-css-mode)
+(use-package lsp-javascript-typescript
+  :ensure t
+  :config
+  (add-hook 'js-mode-hook #'lsp-javascript-typescript-enable)
+  (add-hook 'js2-mode-hook #'lsp-javascript-typescript-enable)
+  (add-hook 'typescript-mode-hook #'lsp-javascript-typescript-enable)
+  (add-hook 'js3-mode-hook #'lsp-javascript-typescript-enable)
+  (add-hook 'rjsx-mode #'lsp-javascript-typescript-enable))
+
+(use-package less-css-mode :ensure t)
 (use-package phpcbf
   :defer t
   :config
@@ -724,8 +790,16 @@
   :after company
   :after restclient
   :config (add-to-list 'company-backends 'company-restclient))
+
+;; PDF View
+(use-package pdf-tools
+  :ensure t
+  :defer t
+  :init (pdf-tools-install))
+
 ;; Org mode settings
 (use-package org-crypt
+  :ensure nil
   :defer 4
   :init
   (setq org-tags-exclude-from-inheritance (quote ("crypt")))
@@ -738,6 +812,7 @@
 ;; # -*- buffer-auto-save-file-name: nil; -*-
 
 (use-package org-bullets
+  :ensure t
   :config (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
 ;; (use-package org-wunderlist
@@ -750,20 +825,34 @@
 
 (use-package org
   :init
+  (defvar org-plantuml-jar-path)
   (setq org-ellipsis "…"
-        ;; org-agenda-files '("~/Dropbox/org-files")
+        org-agenda-files '("~/Dropbox/org-files/Tasks.org")
         org-log-done 'time
         org-startup-with-inline-images t
+        org-plantuml-jar-path (expand-file-name "~/.emacs.d/plantuml.jar")
         ;; org-fontify-whole-heading-line t
         ;; org-fontify-done-headline t
         org-fontify-quote-and-verse-blocks t
-        org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA"))
+        org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
+  :config
+  ;; Support for plantuml
+  (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+  ;; helper function
+  (defun my-org-confirm-babel-evaluate (lang body)
+    "Do not ask for confirmation to evaluate code for specified languages."
+    (member lang '("plantuml")))
+  ;; trust certain code as being safe
+  (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
+  ;; automatically show the resulting image
+  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+  :bind ("C-c o a" . org-agenda))
 
 
 ;; Loading functions and variables
 
 (set-default 'imenu-auto-rescan t)
-(setq-default frame-title-format '(buffer-file-name "%b"))
+(setq-default frame-title-format '(buffer-file-name "Emacs - %b"))
 (setq-default line-spacing 0)
 (defalias 'yes-or-no-p 'y-or-n-p)
 (setq select-enable-clipboard t ;; Enabled emacs to use system clipboard

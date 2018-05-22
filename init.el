@@ -2,9 +2,16 @@
 ;;; Commentary:
 ;; This file simply sets up the default load path and requires
 ;; the various modules defined within Emacs.
+;; TODO: Autoinstall these packages
+;; use-package
+;; diminish
+;; bind-key
 
 ;;; Code:
+
+;; (setq debug-on-error t)
 (setq gc-cons-threshold 100000000) ;; collect garbage after about 100 MB
+(run-with-idle-timer 2 t (lambda () (garbage-collect)))
 (setq message-log-max 10000) ;; Debugging
 (require 'package)
 (package-initialize)
@@ -12,6 +19,7 @@
   (require 'use-package))
 (require 'diminish)
 (require 'bind-key)
+(setq use-package-always-ensure t)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
@@ -20,6 +28,7 @@
 (add-to-list 'load-path "~/.emacs.d/custom/")
 
 (use-package personal
+  :ensure nil
   :bind (("C-x k"                 . kill-this-buffer)
          ("M-;"                   . comment-or-uncomment-region-or-line)
          ("C-a"                   . beginning-of-line-or-indentation)

@@ -32,14 +32,16 @@
  '(nrepl-message-colors
    (quote
     ("#dc322f" "#cb4b16" "#b58900" "#546E00" "#B4C342" "#00629D" "#2aa198" "#d33682" "#6c71c4")))
+ '(org-agenda-files (quote ("~/Dropbox/org-files/Tasks.org")))
  '(org-capture-templates
    (quote
     (("w" "Web Site" entry
       (file "~/Dropbox/org-files/Bookmarks.org")
       "* %?\\n%c\\n%:initial"))))
+ '(org-export-with-sub-superscripts (quote {}))
  '(package-selected-packages
    (quote
-    (git-gutter exwm yaml-mode projectile-rails rvm robe ibuffer-vc ibuffer-projectile org-jira dumb-jump htmlize howdoi xref-js2 browse-at-remote bind-chord key-chord web-beautify shell-toggle shell-pop lsp-go rg wgrep-ag counsel-projectile all-the-icons-ivy rjsx-mode wgrep company-tern company-restclient flycheck-pos-tip dashboard ansi-term gxref edbi ace-window eshell-git-prompt spaceline-all-the-icons go-guru pandoc-mode org-alert persistent-scratch zeal-at-point projectile-ripgrep vimrc-mode ripgrep counsel-gtags move-text csv-mode nlinum-relative org-pomodoro php-mode zop-to-char zenburn-theme writeroom-mode which-key web-mode vlf use-package sql-indent spacemacs-theme spaceline spacegray-theme solarized-theme smooth-scroll smartparens skewer-mode rhtml-mode restclient request-deferred rainbow-mode projectile phpcbf php-boris-minor-mode php+-mode paradox ov org-bullets org nlinum neotree multiple-cursors multi-term multi-eshell markdown-mode magit less-css-mode jump jsx-mode json-rpc json-mode js-doc inf-ruby indent-guide imenu-anywhere hl-line+ helm-gtags helm-ag golden-ratio god-mode git-timemachine ggtags fringe-helper fold-this flycheck fancy-battery expand-region exec-path-from-shell evil esqlite emmet-mode ecb drag-stuff counsel company-web company-quickhelp company-math company-jedi company-go avy apache-mode anzu alert ag)))
+    (form-feed spacemacs-dark phi-search lsp-php company-lsp idea-darkula-theme lsp-ui lsp-javascript-typescript org-noter pdf-tools atomic-chrome edit-server git-gutter exwm yaml-mode projectile-rails rvm robe ibuffer-vc ibuffer-projectile org-jira dumb-jump htmlize howdoi xref-js2 browse-at-remote bind-chord key-chord web-beautify shell-toggle shell-pop lsp-go rg wgrep-ag counsel-projectile all-the-icons-ivy rjsx-mode wgrep company-tern company-restclient flycheck-pos-tip dashboard ansi-term gxref edbi ace-window eshell-git-prompt spaceline-all-the-icons go-guru pandoc-mode org-alert persistent-scratch zeal-at-point projectile-ripgrep vimrc-mode ripgrep counsel-gtags move-text csv-mode nlinum-relative org-pomodoro php-mode zop-to-char zenburn-theme writeroom-mode which-key web-mode vlf use-package sql-indent spacemacs-theme spaceline spacegray-theme solarized-theme smooth-scroll smartparens skewer-mode rhtml-mode restclient request-deferred rainbow-mode projectile phpcbf php-boris-minor-mode php+-mode paradox ov org-bullets org nlinum neotree multiple-cursors multi-term multi-eshell markdown-mode magit less-css-mode jump jsx-mode json-rpc json-mode js-doc inf-ruby indent-guide imenu-anywhere hl-line+ helm-gtags helm-ag golden-ratio god-mode git-timemachine ggtags fringe-helper fold-this flycheck fancy-battery expand-region exec-path-from-shell evil esqlite emmet-mode ecb drag-stuff counsel company-web company-quickhelp company-math company-jedi company-go avy apache-mode anzu alert ag)))
  '(pos-tip-background-color "#3a3a3a")
  '(pos-tip-foreground-color "#9E9E9E")
  '(shell-pop-shell-type
