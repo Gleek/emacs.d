@@ -93,7 +93,7 @@
 (use-package whitespace
   :init
   (setq whitespace-line -1)
-  (setq whitespace-style '(face tabs empty trailing lines-tail))
+  (setq whitespace-style '(face empty trailing lines-tail space-after-tab space-before-tab))
   :config
   (global-whitespace-mode)
   :diminish global-whitespace-mode)
@@ -390,6 +390,8 @@
   (setq magit-diff-refine-hunk "all")
   (magit-auto-revert-mode nil))
 
+(use-package browse-at-remote)
+
 (use-package git-gutter
   :ensure t
   :diminish git-gutter-mode
@@ -514,8 +516,9 @@
 (use-package server
   :defer t
   :config
-  (unless (server-running-p)
-  (server-start))
+  (if (and (fboundp 'server-running-p)
+           (not (server-running-p)))
+      (server-start))
 (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function))
 
 (use-package key-chord
@@ -674,6 +677,9 @@
   :bind ("M-." . xref-find-definitions))
 
 (use-package lsp-ui
+  :init
+  (setq lsp-ui-sideline-enable nil)
+  (setq lsp-ui-doc-enable nil)
   :ensure t
   :config
   (add-hook 'lsp-mode-hook 'lsp-ui-mode))
@@ -721,6 +727,7 @@
   :defer t)
 (use-package rjsx-mode :mode ("\\.jsx\\'" . rjsx-mode) :defer t)
 (use-package tern                       ; Javascript IDE backend
+  :disabled t
   :ensure t
   :defer t
   :init
@@ -749,8 +756,9 @@
   (add-hook 'typescript-mode-hook #'lsp-javascript-typescript-enable)
   (add-hook 'js3-mode-hook #'lsp-javascript-typescript-enable)
   (add-hook 'rjsx-mode #'lsp-javascript-typescript-enable))
-
-(use-package less-css-mode :ensure t)
+(use-package json-mode)
+(use-package less-css-mode)
+(use-package rainbow-mode)
 (use-package phpcbf
   :defer t
   :config
@@ -758,9 +766,14 @@
 
 (use-package go-mode
   :defer t
+  :ensure go-mode
+  :ensure company-go
   :init
   (setq gofmt-command "goimports")
   (add-hook 'before-save-hook 'gofmt-before-save)
+  (add-hook 'go-mode-hook (lambda ()
+                            (set (make-local-variable 'company-backends) '(company-go))
+                            (company-mode)))
   :bind (:map go-mode-map
               ("M-." . godef-jump)
               ("M-*" . pop-tag-mark)))
@@ -781,12 +794,8 @@
   (defvar markdown-command)
   (setq markdown-command "/usr/bin/pandoc"))
 
-(use-package restclient
-  :ensure t
-  :mode ("\\.rest\\'" . restclient-mode)
-  :defer t)
+(use-package restclient :mode ("\\.rest\\'" . restclient-mode) :defer t)
 (use-package company-restclient
-  :ensure t
   :after company
   :after restclient
   :config (add-to-list 'company-backends 'company-restclient))
@@ -822,6 +831,8 @@
 (use-package org-alert
   :defer t
   :config (org-alert-enable))
+
+(use-package org-pomodoro :defer t)
 
 (use-package org
   :init
@@ -868,10 +879,19 @@
       require-final-newline t
       ns-use-srgb-colorspace 'nil
       ediff-window-setup-function 'ediff-setup-windows-plain
-      backup-directory-alist
-      `((".*" . ,temporary-file-directory))
       auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
+
+;; Backup
+(setq version-control t
+      kept-new-versions 10
+      kept-old-versions 0
+      delete-old-versions t
+      backup-by-copying t
+      vc-make-backup-files t
+      backup-directory-alist '(("" . "~/.emacs.d/backups/per-save"))
+      browse-url-browser-function 'browse-url-chrome)
+
 
 (setq-default indent-tabs-mode nil)   ;; don't use tabs to indent
 (setq-default tab-width 4)

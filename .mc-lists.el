@@ -43,15 +43,19 @@
         org-end-of-line
         org-force-self-insert
         org-kill-line
+        org-open-line
         org-return-indent
         org-self-insert-command
         org-yank
         rjsx-delete-creates-full-tag
         rjsx-electric-lt
         sgml-slash
+        sh-assignment
         sp-backward-unwrap-sexp
+        subtract-number-at-point
         subword-right
         tab-to-tab-stop
+        toggle-input-method
         top-join-line
         transpose-words
         wdired-capitalize-word
@@ -67,6 +71,7 @@
         counsel-M-x
         god-local-mode
         god-mode-self-insert
+        godef-jump
         helm-M-x
         helm-mini
         helm-projectile
@@ -80,6 +85,7 @@
         markdown-outdent-or-delete
         mc/insert-numbers
         mc/mark-all-dwim
+        mouse-buffer-menu
         mouse-secondary-save-then-kill
         mouse-set-region
         mouse-set-secondary
