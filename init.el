@@ -12,7 +12,7 @@
 (require 'package)
 (package-initialize)
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+             '("melpa" . "https://melpa.org/packages/") t)
 
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
@@ -22,6 +22,7 @@
   (require 'use-package))
 (require 'bind-key)
 (setq use-package-always-ensure t)
+(setq use-package-always-defer t)
 (use-package diminish)
 
 (setq custom-file "~/.emacs.d/custom/emacs-custom.el")
@@ -55,7 +56,8 @@
          ([f5]                    . kmacro-edit-macro)
          ([remap kill-whole-line] . smart-kill-whole-line)
          ([(shift return)]        . smart-open-line)
-         ([remap goto-line]       . goto-line-with-feedback)))
+         ;; ([remap goto-line]       . goto-line-with-feedback)
+         ))
 
 ;; (load "firacode") ;; Font hack to get ligatures
 (load "core")

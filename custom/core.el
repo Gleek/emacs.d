@@ -20,20 +20,25 @@
 
 ;; Font/Themes
 (set-frame-font "Fira Mono 10")
-(use-package spacemacs-common
-  :ensure spacemacs-theme
-  :config
-  (load-theme 'spacemacs-dark t))
-(set-cursor-color "#FFFFCC")
+;; (use-package spacemacs-common
+;;   :ensure spacemacs-theme
+;;   :config
+;;   (load-theme 'spacemacs-dark t))
+
+(use-package atom-one-dark-theme
+  :demand
+  :config (load-theme 'atom-one-dark t))
+;; (set-cursor-color "#FFFFCC")
 (use-package all-the-icons
   :ensure all-the-icons
-  :ensure all-the-icons-ivy :defer t)
+  :ensure all-the-icons-ivy )
 
 ;; mode line settings
 (use-package spaceline-config
   :defer 1
   :init
   (setq powerline-default-separator "wave")
+  (setq powerline-height 20)
   (setq spaceline-window-numbers-unicode t)
   (setq spaceline-minor-modes-separator " ")
   (setq spaceline-workspace-numbers-unicode t)
@@ -60,8 +65,7 @@
   :disabled t ;; slowing down startup of big files
   :config
   (which-function-mode)
-  (set-face-foreground 'which-func "darkgrey")
-  :defer t)
+  (set-face-foreground 'which-func "darkgrey"))
 
 (use-package simple
   :ensure nil
@@ -106,6 +110,7 @@
   :diminish beacon-mode)
 
 (use-package smooth-scroll
+  :demand
   :ensure t
   :config
   (smooth-scroll-mode t)
@@ -121,10 +126,6 @@
       (propertize (format (format " %%%dd " w) line) 'face 'linum)))
   (setq linum-format 'linum-format-func))
 
-(use-package nlinum
-  :ensure nlinum
-  :ensure nlinum-relative
-  :defer t)
 
 (use-package paren
   :config
@@ -143,10 +144,7 @@
   (which-key-mode 1)
   :diminish which-key-mode)
 
-(use-package golden-ratio
-  :ensure t
-  :defer t
-  :diminish "Φ")
+(use-package golden-ratio :diminish "Φ")
 
 (use-package indent-guide :ensure t :disabled t)
 ;;;;;;;;;;;;;;;;
@@ -154,7 +152,6 @@
 ;;;;;;;;;;;;;;;;
 (use-package counsel
   :ensure t
-  :defer t
   :bind (("M-x"     . counsel-M-x)
          ("C-c s s" . counsel-rg)
          ("M-y"     . counsel-yank-pop)
@@ -165,7 +162,6 @@
          ("C-M-."   . counsel-gtags-find-definition)))
 
 (use-package ivy
-  :defer t
   :config
   (ivy-mode t)
   (all-the-icons-ivy-setup)
@@ -185,8 +181,7 @@
   (ido-everywhere 1)
   (flx-ido-mode 1)
   ;; disable ido faces to see flx highlights.
-  (ido-vertical-mode 1)
-  :defer t)
+  (ido-vertical-mode 1))
 
 (use-package hippie-expand
   :ensure nil
@@ -227,14 +222,11 @@
   ;;     (append (if (consp backend) backend (list backend))
   ;;             '(:with company-yasnippet))))
   ;; (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
-  :defer t
-  :diminish "Ⓒ"
-  )
+  :diminish "Ⓒ")
 
 (use-package yasnippet
   ;; :disabled t
   :ensure t
-  :defer t
   :config
   (yas-global-mode 1)
   :diminish (yas-minor-mode . "Ⓨ"))
@@ -250,8 +242,7 @@
 
 (use-package subword
   :init (global-subword-mode t)
-  :diminish subword-mode
-  :defer t)
+  :diminish subword-mode)
 
 (use-package multiple-cursors
   :ensure t
@@ -271,8 +262,7 @@
   :config
   (drag-stuff-global-mode 1)
   :diminish
-  drag-stuff-mode
-  :defer t)
+  drag-stuff-mode)
 
 (use-package fold-this
   :ensure t
@@ -296,7 +286,6 @@
 
 
 (use-package smartparens
-  :defer t
   :init (smartparens-global-mode t)
   :ensure t
   :config
@@ -315,7 +304,6 @@
 
 (use-package electric-pair
   :disabled t
-  :defer t
   :init
   (defvar electric-pair-pairs)
   (setq electric-pair-pairs '((?\" . ?\")
@@ -342,8 +330,7 @@
   :init
   (setq avy-background t)
   :bind (("C-\"". avy-goto-word-or-subword-1)
-         ("C-'" . avy-goto-char-timer))
-  :defer t)
+         ("C-'" . avy-goto-char-timer)))
 
 (use-package ace-window
   :bind ("C-:" . ace-window))
@@ -408,18 +395,20 @@
   (set-face-background 'git-gutter:deleted "DarkRed"))
 
 (use-package projectile
-  :defer t
   :ensure projectile
   :init
   (defvar projectile-mode-line)
   (setq projectile-completion-system 'ivy)
-  (setq projectile-enable-caching t)
+  ;; (setq projectile-enable-caching t) ;; Projectile turbo!!
   :config
-  (setq projectile-mode-line '(:eval (format "%s" (projectile-project-name))))
+  (setq projectile-mode-line-prefix "")
   (projectile-mode 1)
   :bind (("M-p" . projectile-find-file)
-         ("C-c s p" . projectile-ripgrep)
-         ("C-c p p" . projectile-switch-project)))
+         ("C-c p b" . projectile-switch-to-buffer)
+         ("C-c p i" . projectile-invalidate-cache)
+         ("C-c p k" . projectile-kill-buffers)
+         ("C-c p p" . projectile-switch-project)
+         ("C-c p s" . projectile-save-project-buffers)))
 
 (use-package vc
   :init
@@ -436,7 +425,6 @@
   :bind ("C-x C-b" . ibuffer))
 (use-package ibuffer-projectile
   :ensure t
-  :defer t
   :config
   (add-hook 'ibuffer-hook
             (lambda ()
@@ -452,14 +440,16 @@
   :config (desktop-save-mode 1))
 
 (use-package xref
-  :defer t
   :config
   (add-to-list 'xref-backend-functions 'gxref-xref-backend))
 
-(use-package ggtags :ensure t :defer t)
-(use-package ecb :disabled t :defer t)
+(use-package ivy-xref
+  :init (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
 
-(use-package ag :ensure t :defer t)
+(use-package ggtags :ensure t )
+(use-package ecb :disabled t )
+
+(use-package ag :ensure t )
 (use-package dumb-jump
   :ensure t
   :bind (("M-g o" . dumb-jump-go-other-window)
@@ -478,7 +468,7 @@
   :ensure wgrep-ag
   :config
   (add-hook 'ripgrep-search-mode-hook 'wgrep-ag-setup)
-  :defer t)
+  )
 ;;;;;;;;;;;;;
 ;; Checker ;;
 ;;;;;;;;;;;;;
@@ -514,7 +504,6 @@
 ;; Emacs Utilities ;;
 ;;;;;;;;;;;;;;;;;;;;;
 (use-package server
-  :defer t
   :config
   (if (and (fboundp 'server-running-p)
            (not (server-running-p)))
@@ -558,10 +547,9 @@
                '("scripts" nil "/ssh:entry:"))
   (add-to-list 'tramp-default-proxies-alist
                '("aa102" nil "/ssh:entry:"))
-  :defer t)
+  )
 (use-package paradox
   :ensure t
-  :defer t
   :init
   (defvar paradox-automatically-star)
   (defvar paradox-execute-asynchronously)
@@ -571,13 +559,13 @@
 (use-package simple-http
   :ensure nil
   :config (setq httpd-root "~/Development/testing")
-  :defer t)
+  )
 
 (use-package zeal-at-point
-  :defer t
   :config (setq zeal-at-point-zeal-version "0.3.1"))
 
 (use-package dashboard
+  :demand
   :ensure t
   :init (setq dashboard-items '((recents  . 7)
                                 (projects . 8)
@@ -598,7 +586,7 @@
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
   :diminish undo-tree-mode)
 
-(use-package vlf :defer t)
+(use-package vlf )
 
 (use-package autorevert
   :config
@@ -608,7 +596,6 @@
 
 (use-package term
   :ensure shell-toggle
-  :defer t
   :init
   (setq-default bidi-display-reordering nil)
   (defun term-handle-more-ansi-escapes (proc char)
@@ -625,7 +612,6 @@
 
 (use-package shell-pop
   :ensure t
-  :defer t
   :bind ("C-`" . shell-pop)
   :init
   (setq shell-pop-window-position "bottom"
@@ -635,19 +621,16 @@
 
 (use-package eshell
   :ensure eshell-git-prompt
-  :defer t
   ;;   https://github.com/ekaschalk/dotspacemacs/blob/master/.spacemacs
   :init (eshell-git-prompt-use-theme 'robbyrussell))
 
 (use-package persistent-scratch
-  :defer t
   :init
   (persistent-scratch-restore)
   :ensure t
   :config (persistent-scratch-setup-default))
 
 (use-package alert
-  :defer t
   :ensure t
   :init
   (defvar alert-default-style)
@@ -662,16 +645,16 @@
 (use-package apache-mode :ensure t)
 (use-package csv-mode :ensure t)
 (use-package php-mode
-  :defer t
   :ensure t
   :bind (:map php-mode-map
               ("C-c C-c" . nil))
   :config
   (setq c-basic-offset 4))
 
+(use-package geben)
+
 (use-package abbrev
   :ensure nil
-  :defer t
   :diminish "🆎")
 (use-package lsp-mode
   :bind ("M-." . xref-find-definitions))
@@ -713,7 +696,6 @@
 
 (use-package js-mode
   :ensure nil
-  :defer t
   :init (setq js-indent-level 4))
 (use-package js2-mode
   :mode ("\\.js\\'" . js2-mode)
@@ -723,13 +705,11 @@
   ;; (add-hook 'js2-mode-hook (lambda ()
   ;;                            (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
   :bind (:map js2-mode-map ("M-." . nil))
-  :ensure t
-  :defer t)
-(use-package rjsx-mode :mode ("\\.jsx\\'" . rjsx-mode) :defer t)
+  :ensure t)
+(use-package rjsx-mode :mode ("\\.jsx\\'" . rjsx-mode) )
 (use-package tern                       ; Javascript IDE backend
   :disabled t
   :ensure t
-  :defer t
   :init
   (add-hook 'js2-mode-hook #'tern-mode)
   :config
@@ -741,31 +721,32 @@
   :diminish "🕊")
 
 (use-package company-tern               ; Auto-completion for javascript
-  :defer t
   :ensure t
   :after company
   :config (add-to-list 'company-backends 'company-tern))
 
 ;; (use-package js-doc :ensure t)
-;; (use-package jsx-mode :defer t)
+;; (use-package jsx-mode )
 (use-package lsp-javascript-typescript
-  :ensure t
+  :defer 1
+  :hook ((js-mode . lsp-javascript-typescript-enable)
+         (js2-mode . lsp-javascript-typescript-enable)
+         (typescript-mode . lsp-javascript-typescript-enable)
+         (js3-mode . lsp-javascript-typescript-enable)
+         (rjsx-mode . lsp-javascript-typescript-enable)))
+
+(use-package indium
   :config
-  (add-hook 'js-mode-hook #'lsp-javascript-typescript-enable)
-  (add-hook 'js2-mode-hook #'lsp-javascript-typescript-enable)
-  (add-hook 'typescript-mode-hook #'lsp-javascript-typescript-enable)
-  (add-hook 'js3-mode-hook #'lsp-javascript-typescript-enable)
-  (add-hook 'rjsx-mode #'lsp-javascript-typescript-enable))
+  (setq indium-chrome-executable "google-chrome"))
+
 (use-package json-mode)
 (use-package less-css-mode)
 (use-package rainbow-mode)
 (use-package phpcbf
-  :defer t
   :config
   (setq phpcbf-standard "~/Development/phpcs.xml"))
 
 (use-package go-mode
-  :defer t
   :ensure go-mode
   :ensure company-go
   :init
@@ -789,12 +770,11 @@
 
 (use-package markdown-mode
   :ensure t
-  :defer t
   :init
   (defvar markdown-command)
   (setq markdown-command "/usr/bin/pandoc"))
 
-(use-package restclient :mode ("\\.rest\\'" . restclient-mode) :defer t)
+(use-package restclient :mode ("\\.rest\\'" . restclient-mode) )
 (use-package company-restclient
   :after company
   :after restclient
@@ -803,7 +783,6 @@
 ;; PDF View
 (use-package pdf-tools
   :ensure t
-  :defer t
   :init (pdf-tools-install))
 
 ;; Org mode settings
@@ -821,18 +800,16 @@
 ;; # -*- buffer-auto-save-file-name: nil; -*-
 
 (use-package org-bullets
-  :ensure t
-  :config (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+  :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
 ;; (use-package org-wunderlist
 ;;   :init (setq org-wunderlist-file  "~/.emacs.d/Wunderlist.org"
 ;;                 org-wunderlist-dir "~/.emacs.d/org-wunderlist/"))
 
 (use-package org-alert
-  :defer t
   :config (org-alert-enable))
 
-(use-package org-pomodoro :defer t)
+(use-package org-pomodoro )
 
 (use-package org
   :init

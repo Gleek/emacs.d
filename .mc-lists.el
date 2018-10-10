@@ -91,12 +91,14 @@
         mouse-set-secondary
         mouse-start-secondary
         phi-search
+        projectile-switch-project
         projectile-switch-to-buffer
         repeat
         smex
         swiper
         swiper-mc
         undo-tree-visualize
+        wgrep-abort-changes
         yank-rectangle
         yas-expand
         ))

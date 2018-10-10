@@ -7,7 +7,8 @@
   (setq mac-command-modifier 'meta
   ;;       mac-option-modifier 'control
         ns-function-modifier 'super)
-  (exec-path-from-shell-initialize))
+  (use-package exec-path-from-shell
+    :config (exec-path-from-shell-initialize)))
 (when (not is-mac)
 
   (defun fullscreen ()
