@@ -457,6 +457,12 @@ there's a region, all lines that region covers will be duplicated."
   (if (not (equal line-num 0))
       (goto-line line-num)))
 
+(defun html2text ()
+  "Replacement for standard html2text using shr."
+  (interactive)
+  (shr-render-region (point-min) (point-max))
+  (goto-char (point-min)))
+
 
 (provide 'personal)
 ;;; personal.el ends here

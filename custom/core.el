@@ -19,13 +19,23 @@
 (blink-cursor-mode -1)
 
 ;; Font/Themes
-(set-frame-font "Fira Mono 10")
-;; (use-package spacemacs-common
-;;   :ensure spacemacs-theme
-;;   :config
-;;   (load-theme 'spacemacs-dark t))
+;; (set-frame-font "Fira Mono 10")
+(set-frame-font "Hack 10")
+(use-package spacemacs-common
+  :disabled
+  :ensure spacemacs-theme
+  :config
+  (load-theme 'spacemacs-dark t))
 
+(use-package solarized-theme
+  :disabled
+  :demand
+  :config
+  (setq solarized-use-variable-pitch nil)
+  (setq solarized-scale-org-headlines nil)
+  (load-theme 'solarized-light t))
 (use-package atom-one-dark-theme
+  ;; :disabled
   :demand
   :config (load-theme 'atom-one-dark t))
 ;; (set-cursor-color "#FFFFCC")
@@ -236,7 +246,7 @@
 ;;;;;;;;;;;;;;;;
 
 (use-package move-text
-  :ensure t
+  :demand
   :config
   (move-text-default-bindings))
 
@@ -363,13 +373,11 @@
 ;; Multi-file Management ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package neotree
-  :ensure t
   :init (setq neo-theme 'icons))
 
 (use-package magit
-  :ensure t
   :bind (("C-x m" . magit-status)
-         ("C-c g b" . magit-blame)
+         ("C-c g b" . magit-blame-addition)
          ("C-c g l" . magit-log-buffer-file))
   :config
   (setq magit-refresh-status-buffer nil)
@@ -511,7 +519,7 @@
 (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function))
 
 (use-package key-chord
-  :ensure t
+  :demand
   :config
   (key-chord-mode 1)
   (setq key-chord-two-keys-delay .015
@@ -647,7 +655,8 @@
 (use-package php-mode
   :ensure t
   :bind (:map php-mode-map
-              ("C-c C-c" . nil))
+              ("C-c C-c" . nil)
+              ("C-." . nil))
   :config
   (setq c-basic-offset 4))
 
@@ -673,11 +682,12 @@
   (add-hook 'lsp-after-open-hook 'lsp-enable-imenu))
 
 (use-package lsp-php
-  :ensure t
-  :disabled t
+  :defer 1
   :config
-  (setq lsp-php-server-install-dir "/mnt/data/Development/")
+  ;; (setq lsp-php-server-install-dir "/mnt/data/Development/")
+  (setq lsp-php-language-server-command (quote ("/usr/bin/node" "/home/umar/.config/yarn/global/node_modules/intelephense-server/lib/server.js" "--stdio")))
   (add-hook 'php-mode-hook #'lsp-php-enable))
+
 (use-package web-mode
   :ensure t
   :init
