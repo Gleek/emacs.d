@@ -208,7 +208,7 @@ buffer is not visiting a file."
   (setq httpd-root directory)
   (setq httpd-port port)
   (httpd-start)
-  (browse-url (concat "http://localhost:" (number-to-string port) "/")))
+  (browse-url (concata "http://localhost:" (number-to-string port) "/")))
 
 (defun copy-file-name-to-clipboard ()
   "Copy the current buffer file name to the clipboard."
@@ -232,9 +232,9 @@ Position the cursor at its beginning, according to the current mode."
   (interactive)
   (unwind-protect
       (progn
-        (linum-mode 1)
+        (display-line-numbers-mode 1)
         (goto-line (read-number "Goto line: ")))
-    (linum-mode -1)))
+    (display-line-numbers-mode -1)))
 
 
 (defun rename-file-and-buffer ()
@@ -355,36 +355,36 @@ there's a region, all lines that region covers will be duplicated."
 
 ;; auto indent on yank
 
-(defvar yank-indent-modes '(prog-mode
-                            sgml-mode
-                            js2-mode)
-  "Modes in which to indent regions that are yanked (or yank-popped)")
+;; (defvar yank-indent-modes '(prog-mode
+;;                             sgml-mode
+;;                             js2-mode)
+;;   "Modes in which to indent regions that are yanked (or yank-popped)")
 
-(defvar yank-advised-indent-threshold 1000
-  "Threshold (# chars) over which indentation does not automatically occur.")
+;; (defvar yank-advised-indent-threshold 1000
+;;   "Threshold (# chars) over which indentation does not automatically occur.")
 
-(defun yank-advised-indent-function (beg end)
-  "Do indentation, as long as the region isn't too large."
-  (if (<= (- end beg) yank-advised-indent-threshold)
-      (indent-region beg end nil)))
+;; (defun yank-advised-indent-function (beg end)
+;;   "Do indentation, as long as the region isn't too large."
+;;   (if (<= (- end beg) yank-advised-indent-threshold)
+;;       (indent-region beg end nil)))
 
-(defadvice yank (after yank-indent activate)
-  "If current mode is one of 'yank-indent-modes, indent yanked text (with prefix arg don't indent)."
-  (if (and (not (ad-get-arg 0))
-           (--any? (derived-mode-p it) yank-indent-modes))
-      (let ((transient-mark-mode nil))
-        (yank-advised-indent-function (region-beginning) (region-end)))))
+;; (defadvice yank (after yank-indent activate)
+;;   "If current mode is one of 'yank-indent-modes, indent yanked text (with prefix arg don't indent)."
+;;   (if (and (not (ad-get-arg 0))
+;;            (--any? (derived-mode-p it) yank-indent-modes))
+;;       (let ((transient-mark-mode nil))
+;;         (yank-advised-indent-function (region-beginning) (region-end)))))
 
-(defadvice yank-pop (after yank-pop-indent activate)
-  "If current mode is one of 'yank-indent-modes, indent yanked text (with prefix arg don't indent)."
-  (if (and (not (ad-get-arg 0))
-           (member major-mode yank-indent-modes))
-      (let ((transient-mark-mode nil))
-        (yank-advised-indent-function (region-beginning) (region-end)))))
+;; (defadvice yank-pop (after yank-pop-indent activate)
+;;   "If current mode is one of 'yank-indent-modes, indent yanked text (with prefix arg don't indent)."
+;;   (if (and (not (ad-get-arg 0))
+;;            (member major-mode yank-indent-modes))
+;;       (let ((transient-mark-mode nil))
+;;         (yank-advised-indent-function (region-beginning) (region-end)))))
 
-(defun yank-unindented ()
-  (interactive)
-  (yank 1))
+;; (defun yank-unindented ()
+;;   (interactive)
+;;   (yank 1))
 
 ;; Number edit
 
@@ -463,6 +463,9 @@ there's a region, all lines that region covers will be duplicated."
   (shr-render-region (point-min) (point-max))
   (goto-char (point-min)))
 
+(defun insert-uuid ()
+  (interactive)
+  (shell-command "echo -n \"$(uuidgen)\"" t))
 
 (provide 'personal)
 ;;; personal.el ends here

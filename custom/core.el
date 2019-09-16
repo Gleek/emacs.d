@@ -24,8 +24,25 @@
 (use-package spacemacs-common
   :disabled
   :ensure spacemacs-theme
-  :config
-  (load-theme 'spacemacs-dark t))
+  :init (load-theme 'spacemacs-dark t))
+
+(use-package doom-themes
+  :demand
+  :config (load-theme 'doom-nord t)
+  (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
+  (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
+
+(use-package treemacs
+  :bind ("C-c p t" . treemacs))
+(use-package treemacs-projectile
+  :after treemacs projectile
+  :ensure t)
+
+(use-package zenburn-theme
+  :disabled
+  :config (load-theme 'theme t))
 
 (use-package solarized-theme
   :disabled
@@ -35,7 +52,7 @@
   (setq solarized-scale-org-headlines nil)
   (load-theme 'solarized-light t))
 (use-package atom-one-dark-theme
-  ;; :disabled
+  :disabled
   :demand
   :config (load-theme 'atom-one-dark t))
 ;; (set-cursor-color "#FFFFCC")
@@ -128,6 +145,7 @@
   :diminish smooth-scroll-mode)
 
 (use-package linum
+  :disabled
   :ensure t
   :config
   (defun linum-format-func (line)
@@ -162,14 +180,18 @@
 ;;;;;;;;;;;;;;;;
 (use-package counsel
   :ensure t
+  :init
+  (setq counsel-rg-base-command "rg -S --no-heading --line-number -M 500 --color never %s .")
   :bind (("M-x"     . counsel-M-x)
          ("C-c s s" . counsel-rg)
+         ("C-c SPC" . counsel-mark-ring)
          ("M-y"     . counsel-yank-pop)
-         ("M-."     . counsel-gtags-dwim)
-         ("C-c t u" . counsel-gtags-update-tags)
+         ;; ("M-."     . counsel-gtags-dwim)
+         ;; ("C-c t u" . counsel-gtags-update-tags)
          ("C-x c i" . counsel-imenu)
          ("C-x C-f" . counsel-find-file)
-         ("C-M-."   . counsel-gtags-find-definition)))
+         ;; ("C-M-."   . counsel-gtags-find-definition)
+         ))
 
 (use-package ivy
   :config
@@ -208,6 +230,7 @@
                                            try-complete-lisp-symbol))
   :bind ("M-/" . hippie-expand))
 
+
 (use-package company
   :ensure t
   :ensure company-web
@@ -233,6 +256,13 @@
   ;;             '(:with company-yasnippet))))
   ;; (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
   :diminish "Ⓒ")
+
+(use-package company-box
+  :diminish
+  :hook (company-mode . company-box-mode)
+  :config
+  (setq company-box-icons-alist 'company-box-icons-all-the-icons)
+  (add-to-list 'company-box-frame-parameters '(height . 9)))
 
 (use-package yasnippet
   ;; :disabled t
@@ -294,6 +324,9 @@
   :init (setq shift-select-mode nil)
   :bind ("C-=" . er/expand-region))
 
+;; (use-package easy-kill
+;;   :init
+;;   (global-set-key [remap kill-ring-save] 'easy-kill))
 
 (use-package smartparens
   :init (smartparens-global-mode t)
@@ -395,12 +428,24 @@
   :init
   (global-git-gutter-mode t)
   :config
-  (setq git-gutter:modified-sign "\u2009"
-        git-gutter:added-sign "\u2009"
-        git-gutter:deleted-sign "\u2009")
-  (set-face-background 'git-gutter:modified "SandyBrown")
-  (set-face-background 'git-gutter:added "DarkGreen")
-  (set-face-background 'git-gutter:deleted "DarkRed"))
+  (setq git-gutter:modified-sign " "
+        git-gutter:added-sign " "
+        git-gutter:deleted-sign " ")
+  (set-face-attribute
+   'git-gutter:modified nil
+   :family "Arial"
+   :background "SandyBrown"
+   :height 70)
+  (set-face-attribute
+   'git-gutter:added nil
+   :family "Arial"
+   :background "DarkGreen"
+   :height 70)
+  (set-face-attribute
+   'git-gutter:deleted nil
+   :family "Arial"
+   :background "DarkRed"
+   :height 70))
 
 (use-package projectile
   :ensure projectile
@@ -412,6 +457,7 @@
   (setq projectile-mode-line-prefix "")
   (projectile-mode 1)
   :bind (("M-p" . projectile-find-file)
+         ("C-c p f" . projectile-find-file)
          ("C-c p b" . projectile-switch-to-buffer)
          ("C-c p i" . projectile-invalidate-cache)
          ("C-c p k" . projectile-kill-buffers)
@@ -468,6 +514,8 @@
          ("M-g x" . dumb-jump-go-prefer-external)
          ("M-g z" . dumb-jump-go-prefer-external-other-window))
   :config
+  (setq dumb-jump-rg-cmd "/home/umar/.bin/rg")
+  (setq dumb-jump-max-find-time 5)
   (setq dumb-jump-force-searcher 'rg)
   (setq dumb-jump-selector 'ivy))
 
@@ -480,11 +528,13 @@
 ;;;;;;;;;;;;;
 ;; Checker ;;
 ;;;;;;;;;;;;;
+(use-package flyspell-lazy
+  :config (flyspell-lazy-mode 1))
 (use-package flyspell
   :init
   (defvar ispell-program-name)
   (defvar flyspell-issue-message-flag)
-  (setq ispell-program-name "aspell")
+  (setq ispell-program-name "/usr/bin/hunspell")
   (setq flyspell-issue-message-flag nil)
   (add-hook 'prog-mode-hook 'flyspell-prog-mode)
   (add-hook 'text-mode-hook 'flyspell-mode)
@@ -506,7 +556,12 @@
   ;; :ensure t
   :after flycheck
   :config
-    (flycheck-pos-tip-mode))
+  (flycheck-pos-tip-mode))
+
+(use-package flymake-diagnostic-at-point
+  :config
+  (require 'flymake-diagnostic-at-point)
+  (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Emacs Utilities ;;
@@ -580,6 +635,8 @@
                                 (bookmarks . 5)
                                 ;; (agenda . 5)
                                 ))
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
   :config
   (dashboard-setup-startup-hook))
 
@@ -645,7 +702,8 @@
   (setq alert-default-style 'libnotify))
 
 
-
+(add-hook 'after-save-hook
+          'executable-make-buffer-file-executable-if-script-p)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Languages / Syntax Major Mode ;;
@@ -660,13 +718,18 @@
   :config
   (setq c-basic-offset 4))
 
-(use-package geben)
+(use-package geben
+  :config (setq geben-path-mappings '(("~/Development/zomato/application/" "/ssh:zdev:/var/www/zomato9/application"))))
 
 (use-package abbrev
   :ensure nil
   :diminish "🆎")
+
 (use-package lsp-mode
-  :bind ("M-." . xref-find-definitions))
+  :bind ("M-." . xref-find-definitions)
+  :hook ((js-mode js2-mode js3-mode rjsx-mode php-mode) . lsp))
+
+(use-package dap-mode)
 
 (use-package lsp-ui
   :init
@@ -674,6 +737,9 @@
   (setq lsp-ui-doc-enable nil)
   :ensure t
   :config
+  (add-hook 'lsp-ui-doc-frame-hook
+            (lambda (frame _w)
+              (set-face-attribute 'default frame :font "Hack" :height 130)))
   (add-hook 'lsp-mode-hook 'lsp-ui-mode))
 
 (use-package lsp-imenu
@@ -681,12 +747,13 @@
   :config
   (add-hook 'lsp-after-open-hook 'lsp-enable-imenu))
 
-(use-package lsp-php
-  :defer 1
-  :config
-  ;; (setq lsp-php-server-install-dir "/mnt/data/Development/")
-  (setq lsp-php-language-server-command (quote ("/usr/bin/node" "/home/umar/.config/yarn/global/node_modules/intelephense-server/lib/server.js" "--stdio")))
-  (add-hook 'php-mode-hook #'lsp-php-enable))
+;; (use-package lsp-php
+;;   :disabled t
+;;   :defer 1
+;;   :config
+;;   ;; (setq lsp-php-server-install-dir "/mnt/data/Development/")
+;;   (setq lsp-php-language-server-command (quote ("/usr/bin/node" "/home/umar/.config/yarn/global/node_modules/intelephense-server/lib/server.js" "--stdio")))
+;;   (add-hook 'php-mode-hook #'lsp-php-enable))
 
 (use-package web-mode
   :ensure t
@@ -737,13 +804,13 @@
 
 ;; (use-package js-doc :ensure t)
 ;; (use-package jsx-mode )
-(use-package lsp-javascript-typescript
-  :defer 1
-  :hook ((js-mode . lsp-javascript-typescript-enable)
-         (js2-mode . lsp-javascript-typescript-enable)
-         (typescript-mode . lsp-javascript-typescript-enable)
-         (js3-mode . lsp-javascript-typescript-enable)
-         (rjsx-mode . lsp-javascript-typescript-enable)))
+;; (use-package lsp-javascript-typescript
+;;   :defer 1
+;;   :hook ((js-mode . lsp-javascript-typescript-enable)
+;;          (js2-mode . lsp-javascript-typescript-enable)
+;;          (typescript-mode . lsp-javascript-typescript-enable)
+;;          (js3-mode . lsp-javascript-typescript-enable)
+;;          (rjsx-mode . lsp-javascript-typescript-enable)))
 
 (use-package indium
   :config
@@ -751,7 +818,7 @@
 
 (use-package json-mode)
 (use-package less-css-mode)
-(use-package rainbow-mode)
+(use-package rainbow-mode :diminish "🌈")
 (use-package phpcbf
   :config
   (setq phpcbf-standard "~/Development/phpcs.xml"))
@@ -795,6 +862,10 @@
   :ensure t
   :init (pdf-tools-install))
 
+;; W3M browser
+(use-package w3m
+  :init (setq w3m-search-default-engine "duckduckgo"))
+
 ;; Org mode settings
 (use-package org-crypt
   :ensure nil
@@ -824,24 +895,26 @@
 (use-package org
   :init
   (defvar org-plantuml-jar-path)
-  (setq org-ellipsis "…"
-        org-agenda-files '("~/Dropbox/org-files/Tasks.org")
-        org-log-done 'time
-        org-startup-with-inline-images t
-        org-plantuml-jar-path (expand-file-name "~/.emacs.d/plantuml.jar")
-        ;; org-fontify-whole-heading-line t
-        ;; org-fontify-done-headline t
-        org-fontify-quote-and-verse-blocks t
-        org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
-  :config
-  ;; Support for plantuml
-  (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
   ;; helper function
   (defun my-org-confirm-babel-evaluate (lang body)
     "Do not ask for confirmation to evaluate code for specified languages."
     (member lang '("plantuml")))
   ;; trust certain code as being safe
-  (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
+  (setq org-ellipsis "…"
+        org-agenda-files '("~/Dropbox/org-files/Tasks.org")
+        org-log-done 'time
+        org-startup-with-inline-images t
+        org-html-checkbox-type 'html
+        org-plantuml-jar-path (expand-file-name "~/.emacs.d/plantuml.jar")
+        ;; org-fontify-whole-heading-line t
+        ;; org-fontify-done-headline t
+        org-fontify-quote-and-verse-blocks t
+        org-confirm-babel-evaluate nil
+        org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
+  :config
+  ;; Support for plantuml
+  (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+  
   ;; automatically show the resulting image
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
   :bind ("C-c o a" . org-agenda))
@@ -877,7 +950,7 @@
       backup-by-copying t
       vc-make-backup-files t
       backup-directory-alist '(("" . "~/.emacs.d/backups/per-save"))
-      browse-url-browser-function 'browse-url-chrome)
+      browse-url-browser-function 'browse-url-default-browser)
 
 
 (setq-default indent-tabs-mode nil)   ;; don't use tabs to indent

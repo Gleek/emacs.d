@@ -63,6 +63,8 @@
         web-mode-navigate
         wgrep-change-to-wgrep-mode
         wgrep-finish-edit
+        yaml-electric-backspace
+        yaml-electric-dash-and-dot
         zop-to-char
         ))
 
@@ -90,6 +92,7 @@
         mouse-set-region
         mouse-set-secondary
         mouse-start-secondary
+        org-cycle
         phi-search
         projectile-switch-project
         projectile-switch-to-buffer

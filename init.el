@@ -56,7 +56,7 @@
          ([f5]                    . kmacro-edit-macro)
          ([remap kill-whole-line] . smart-kill-whole-line)
          ([(shift return)]        . smart-open-line)
-         ;; ([remap goto-line]       . goto-line-with-feedback)
+         ([remap goto-line]       . goto-line-with-feedback)
          ))
 
 ;; (load "firacode") ;; Font hack to get ligatures
