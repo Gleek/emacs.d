@@ -41,3 +41,7 @@ anaconda-mode/
 /.org-id-locations
 /request/curl-cookie-jar
 games/
+.cache
+/.lsp-session-v1
+/geben/
+/server/

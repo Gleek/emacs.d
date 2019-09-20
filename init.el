@@ -46,7 +46,7 @@
          ("C-x 2"                 . vsplit-last-buffer)
          ("C-x 3"                 . hsplit-last-buffer)
          ("C-c d"                 . duplicate-current-line-or-region)
-         ("C-c c"                 . duplicate-and-comment-current-line-or-region)
+         ("C-c ;"                 . duplicate-and-comment-current-line-or-region)
          ("C-^"                   . top-join-line)
          ("C-c C-t x"             . TeX-toggle-escape)
          ("C-c s d"               . lucky)

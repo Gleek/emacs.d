@@ -69,6 +69,9 @@
   (setq spaceline-window-numbers-unicode t)
   (setq spaceline-minor-modes-separator " ")
   (setq spaceline-workspace-numbers-unicode t)
+  (defadvice load-theme (after run-after-load-theme-hook activate)
+    "Run `powerline-reset'."
+    (powerline-reset))
   :ensure spaceline
   :config
   (spaceline-spacemacs-theme))
@@ -304,9 +307,18 @@
   :diminish
   drag-stuff-mode)
 
+(use-package string-inflection
+  :bind (("M-_" . string-inflection-all-cycle)
+         ("C-c c s" . string-inflection-underscore)
+         ("C-c c k" . string-inflection-kebab-case)
+         ("C-c c m" . string-inflection-camelcase)
+         ("C-c c c" . capitalize-word)
+         ("C-c c u" . upcase-word)
+         ("C-c c l" . downcase-word)))
+
 (use-package fold-this
   :ensure t
-  :bind (("C-c C-F" . fold-this-all)
+  :bind (("C-c C-S-f" . fold-this-all)
          ("C-c C-c" . fold-this)
          ("C-c M-f" . fold-this-unfold-all)))
 
@@ -549,6 +561,7 @@
   :ensure t
   :init
   (global-flycheck-mode)
+  (setq flycheck-protoc-import-path '("/home/umar/Development/zomato/zomato-event-registry/"))
   :diminish flycheck-mode)
 
 (use-package flycheck-pos-tip
@@ -559,8 +572,8 @@
   (flycheck-pos-tip-mode))
 
 (use-package flymake-diagnostic-at-point
+  :after flymake
   :config
-  (require 'flymake-diagnostic-at-point)
   (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -822,6 +835,23 @@
 (use-package phpcbf
   :config
   (setq phpcbf-standard "~/Development/phpcs.xml"))
+
+(use-package reformatter :disabled)
+
+(use-package protobuf-mode
+  :after reformatter
+  :config
+  (defvar prototool-command)
+  (setq prototool-command "/usr/local/bin/prototool")
+  (defun prototool-format()
+    (interactive)
+    (shell-command (concat
+                    prototool-command
+                    " format"
+                    " -w"
+                    " "
+                    (buffer-file-name)))
+    (revert-buffer t t)))
 
 (use-package go-mode
   :ensure go-mode

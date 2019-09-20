@@ -15,6 +15,7 @@
         c-electric-slash
         c-electric-star
         c-indent-new-comment-line
+        camel-to-snake
         change-number-at-point
         counsel-yank-pop
         delete-horizontal-space
@@ -52,6 +53,9 @@
         sgml-slash
         sh-assignment
         sp-backward-unwrap-sexp
+        string-inflection-all-cycle
+        string-inflection-camelcase
+        string-inflection-underscore
         subtract-number-at-point
         subword-right
         tab-to-tab-stop
@@ -87,6 +91,7 @@
         markdown-outdent-or-delete
         mc/insert-numbers
         mc/mark-all-dwim
+        minibuffer-keyboard-quit
         mouse-buffer-menu
         mouse-secondary-save-then-kill
         mouse-set-region
