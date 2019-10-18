@@ -25,6 +25,8 @@
         eval-and-replace
         eval-last-sexp
         eval-print-last-sexp
+        fold-this
+        fold-this-unfold-at-point
         forward-sexp
         helm-show-kill-ring
         indent-for-tab-command
@@ -62,6 +64,7 @@
         toggle-input-method
         top-join-line
         transpose-words
+        undefined
         wdired-capitalize-word
         wdired-finish-edit
         web-mode-navigate

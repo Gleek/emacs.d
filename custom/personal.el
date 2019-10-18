@@ -467,5 +467,10 @@ there's a region, all lines that region covers will be duplicated."
   (interactive)
   (shell-command "echo -n \"$(uuidgen)\"" t))
 
+(defun sort-lines-nocase ()
+  (interactive)
+  (let ((sort-fold-case t))
+    (call-interactively 'sort-lines)))
+
 (provide 'personal)
 ;;; personal.el ends here

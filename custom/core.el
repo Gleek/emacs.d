@@ -58,7 +58,10 @@
 ;; (set-cursor-color "#FFFFCC")
 (use-package all-the-icons
   :ensure all-the-icons
-  :ensure all-the-icons-ivy )
+  :ensure all-the-icons-ivy
+  :config
+  (unless (member "all-the-icons" (font-family-list))
+    (all-the-icons-install-fonts t)))
 
 ;; mode line settings
 (use-package spaceline-config
@@ -459,6 +462,8 @@
    :background "DarkRed"
    :height 70))
 
+(use-package git-timemachine)
+
 (use-package projectile
   :ensure projectile
   :init
@@ -535,8 +540,16 @@
   :ensure rg
   :ensure wgrep-ag
   :config
-  (add-hook 'ripgrep-search-mode-hook 'wgrep-ag-setup)
-  )
+  (add-hook 'ripgrep-search-mode-hook 'wgrep-ag-setup))
+
+(use-package smart-jump
+  :ensure t
+  :demand
+  :bind (("M-." . smart-jump-go)
+         ("M-," . smart-jump-back)
+         ("M-?" . smart-jump-references))
+  :config (smart-jump-setup-default-registers)
+  (smart-jump-register :modes 'go-mode))
 ;;;;;;;;;;;;;
 ;; Checker ;;
 ;;;;;;;;;;;;;
@@ -571,9 +584,11 @@
   :config
   (flycheck-pos-tip-mode))
 
+(use-package flymake)
 (use-package flymake-diagnostic-at-point
   :after flymake
   :config
+  (require 'flymake-diagnostic-at-point)
   (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -616,6 +631,7 @@
   :init
   (setq tramp-default-method "ssh")
   (setq tramp-auto-save-directory "~/.emacs.d/tramp-autosave/")
+  ;; (setq tramp-shell-prompt-pattern "^[^$>\n]*[#$%>] *\\(\[[0-9;]*[a-zA-Z] *\\)*")
   :config
   (add-to-list 'tramp-default-proxies-alist
                '("jobs" nil "/ssh:entry:"))
@@ -729,6 +745,7 @@
               ("C-c C-c" . nil)
               ("C-." . nil))
   :config
+  (add-hook 'php-mode-hook 'php-enable-symfony2-coding-style)
   (setq c-basic-offset 4))
 
 (use-package geben
@@ -739,8 +756,7 @@
   :diminish "🆎")
 
 (use-package lsp-mode
-  :bind ("M-." . xref-find-definitions)
-  :hook ((js-mode js2-mode js3-mode rjsx-mode php-mode) . lsp))
+  :hook ((js-mode js2-mode js3-mode rjsx-mode php-mode go-mode) . lsp))
 
 (use-package dap-mode)
 
@@ -839,19 +855,40 @@
 (use-package reformatter :disabled)
 
 (use-package protobuf-mode
-  :after reformatter
+  :init
+  ;; TODO: make a proper utility instead of this Macro
+  (fset 'renumber-proto-message
+   [?\C-\M-u ?\C-\M-s ?= ?\C-b ?\C-  ?\C-f ?\C-c ?m ?\C-  ?\C-k ?  ?\M-x ?m ?c ?/ ?i ?n ?s ?e ?r ?\C-n return C-S-up ?\; return])
   :config
+  (defconst my-protobuf-style
+    '((c-basic-offset . 2)
+      (indent-tabs-mode . nil)))
+
+  (add-hook 'protobuf-mode-hook
+            (lambda () (c-add-style "my-style" my-protobuf-style t)))
+  (add-hook 'protobuf-mode-hook
+          (function (lambda ()
+                      (setq tab-width 2))))
   (defvar prototool-command)
   (setq prototool-command "/usr/local/bin/prototool")
   (defun prototool-format()
     (interactive)
+    (message "Formatting proto file")
     (shell-command (concat
                     prototool-command
                     " format"
-                    " -w"
-                    " "
+                    " -w "
                     (buffer-file-name)))
-    (revert-buffer t t)))
+    (revert-buffer t t))
+  (defun prototool-format-after-save()
+    (interactive)
+    (when (eq major-mode 'protobuf-mode)
+      (prototool-format)))
+  ;; (add-hook 'protobuf-mode
+  ;;         (lambda ()
+  ;;            (add-hook 'after-save-hook 'prototool-format-after-save nil t)))
+  ;; (add-hook 'after-save-hook 'prototool-format-after-save)
+  )
 
 (use-package go-mode
   :ensure go-mode
