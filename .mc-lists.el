@@ -5,6 +5,7 @@
       '(
         LaTeX-babel-insert-hyphen
         beginning-of-buffer
+        beginning-of-defun
         beginning-of-line-or-indentation
         c-electric-brace
         c-electric-colon
@@ -14,12 +15,16 @@
         c-electric-semi&comma
         c-electric-slash
         c-electric-star
+        c-indent-line-or-region
         c-indent-new-comment-line
         camel-to-snake
         change-number-at-point
+        comment-or-uncomment-region-or-line
         counsel-yank-pop
+        default-indent-new-line
         delete-horizontal-space
         delete-indentation
+        dired-unmark-backward
         duplicate-current-line-or-region
         electric-newline-and-maybe-indent
         eval-and-replace
@@ -40,6 +45,9 @@
         kill-region
         kmacro-start-macro-or-insert-counter
         mark-sexp
+        markdown-exdent-or-delete
+        markdown-outdent-or-delete
+        move-text-up
         nxml-electric-slash
         org-beginning-of-line
         org-delete-char
@@ -57,6 +65,8 @@
         sp-backward-unwrap-sexp
         string-inflection-all-cycle
         string-inflection-camelcase
+        string-inflection-kebab-case
+        string-inflection-lower-camelcase
         string-inflection-underscore
         subtract-number-at-point
         subword-right
@@ -77,6 +87,8 @@
 
 (setq mc/cmds-to-run-once
       '(
+        company-complete
+        company-complete-selection
         counsel-M-x
         god-local-mode
         god-mode-self-insert
@@ -86,12 +98,12 @@
         helm-projectile
         hsplit-last-buffer
         ido-switch-buffer
+        insert-file
         isearch-delete-char
         ivy-done
         ivy-switch-buffer
+        kmacro-end-or-call-macro
         mark-whole-buffer
-        markdown-exdent-or-delete
-        markdown-outdent-or-delete
         mc/insert-numbers
         mc/mark-all-dwim
         minibuffer-keyboard-quit
@@ -102,6 +114,7 @@
         mouse-start-secondary
         org-cycle
         phi-search
+        php-browse-manual
         projectile-switch-project
         projectile-switch-to-buffer
         repeat
@@ -111,5 +124,6 @@
         undo-tree-visualize
         wgrep-abort-changes
         yank-rectangle
+        yas-clear-field
         yas-expand
         ))

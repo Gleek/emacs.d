@@ -61,6 +61,8 @@
 
 ;; (load "firacode") ;; Font hack to get ligatures
 (load "core")
+(when (display-graphic-p)
+  (load "init-exwm"))
 (load "osx")
 ;; (load "web-settings")
 (load "nonsvn")

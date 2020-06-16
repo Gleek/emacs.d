@@ -17,14 +17,9 @@
 (setq inhibit-startup-screen t
       initial-scratch-message "")
 (blink-cursor-mode -1)
-
 ;; Font/Themes
-;; (set-frame-font "Fira Mono 10")
-(set-frame-font "Hack 10")
-(use-package spacemacs-common
-  :disabled
-  :ensure spacemacs-theme
-  :init (load-theme 'spacemacs-dark t))
+(set-frame-font "Fira Mono 10" nil t)
+
 
 (use-package doom-themes
   :demand
@@ -34,65 +29,19 @@
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
-(use-package treemacs
-  :bind ("C-c p t" . treemacs))
-(use-package treemacs-projectile
-  :after treemacs projectile
-  :ensure t)
-
-(use-package zenburn-theme
-  :disabled
-  :config (load-theme 'theme t))
-
-(use-package solarized-theme
-  :disabled
-  :demand
-  :config
-  (setq solarized-use-variable-pitch nil)
-  (setq solarized-scale-org-headlines nil)
-  (load-theme 'solarized-light t))
-(use-package atom-one-dark-theme
-  :disabled
-  :demand
-  :config (load-theme 'atom-one-dark t))
-;; (set-cursor-color "#FFFFCC")
-(use-package all-the-icons
-  :ensure all-the-icons
-  :ensure all-the-icons-ivy
-  :config
-  (unless (member "all-the-icons" (font-family-list))
-    (all-the-icons-install-fonts t)))
-
 ;; mode line settings
 (use-package spaceline-config
   :defer 1
   :init
   (setq powerline-default-separator "wave")
   (setq powerline-height 20)
-  (setq spaceline-window-numbers-unicode t)
   (setq spaceline-minor-modes-separator " ")
-  (setq spaceline-workspace-numbers-unicode t)
   (defadvice load-theme (after run-after-load-theme-hook activate)
     "Run `powerline-reset'."
     (powerline-reset))
   :ensure spaceline
   :config
   (spaceline-spacemacs-theme))
-
-(use-package spaceline-all-the-icons
-  :disabled t
-  :init
-  (defvar spaceline-all-the-icons-separator-type)
-  (setq spaceline-all-the-icons-separator-type 'arrow))
-
-(use-package fancy-battery
-  :ensure t
-  :init
-  (defvar fancy-battery-show-percentage)
-  (setq fancy-battery-show-percentage t)
-  :config
-  (display-time-mode)
-  (fancy-battery-mode))
 
 (use-package which-func
   :disabled t ;; slowing down startup of big files
@@ -150,37 +99,30 @@
   (setq smooth-scroll/vscroll-step-size 5)
   :diminish smooth-scroll-mode)
 
-(use-package linum
-  :disabled
-  :ensure t
-  :config
-  (defun linum-format-func (line)
-    "Defines the format for the linum mode for specific LINE."
-    (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
-      (propertize (format (format " %%%dd " w) line) 'face 'linum)))
-  (setq linum-format 'linum-format-func))
-
 
 (use-package paren
+  :defer 10
   :config
   (show-paren-mode))
 
-(use-package volatile-highlights
-  :disabled t
-  :config
-  (volatile-highlights-mode t)
-  :diminish volatile-highlights-mode)
 
 (use-package which-key
-  :ensure t
-  ;; :disabled t
+  :defer 1
   :config
   (which-key-mode 1)
+  (which-key-setup-minibuffer)
   :diminish which-key-mode)
 
-(use-package golden-ratio :diminish "Φ")
+(use-package zoom
+  :defer 3
+  :diminish
+  :config
+  ;; (zoom-mode t)
+  (setq zoom-ignored-buffer-name-regexps '("^\*ansi-term.*"))
+  (setq zoom-size '(0.618 0.618)))
 
-(use-package indent-guide :ensure t :disabled t)
+(use-package writeroom-mode)
+
 ;;;;;;;;;;;;;;;;
 ;; Completion ;;
 ;;;;;;;;;;;;;;;;
@@ -192,34 +134,42 @@
          ("C-c s s" . counsel-rg)
          ("C-c SPC" . counsel-mark-ring)
          ("M-y"     . counsel-yank-pop)
-         ;; ("M-."     . counsel-gtags-dwim)
-         ;; ("C-c t u" . counsel-gtags-update-tags)
          ("C-x c i" . counsel-imenu)
          ("C-x C-f" . counsel-find-file)
-         ;; ("C-M-."   . counsel-gtags-find-definition)
+         ("C-h v" . counsel-describe-variable)
          ))
 
 (use-package ivy
   :config
   (ivy-mode t)
-  (all-the-icons-ivy-setup)
+  ;; (all-the-icons-ivy-setup)
   :bind (("C-x b"   . ivy-switch-buffer)
          ("C-c b r" . ivy-resume))
   :diminish ivy-mode)
-
-(use-package ido
-  :disabled t
-  :ensure flx-ido
-  :ensure smex
-  :init
-  (setq ido-enable-flex-matching t)
-  (setq ido-use-faces nil)
+(use-package ivy-posframe
+  :disabled
   :config
-  (ido-mode 1)
-  (ido-everywhere 1)
-  (flx-ido-mode 1)
-  ;; disable ido faces to see flx highlights.
-  (ido-vertical-mode 1))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
+  (setq ivy-posframe-parameters
+      '((left-fringe . 8)
+        (right-fringe . 8)))
+  (ivy-posframe-mode 1))
+
+(use-package ivy-rich
+  :defer 1
+  :after ivy
+  :config
+  (ivy-rich-mode t))
+
+;; (use-package all-the-icons-ivy-rich
+;;   :defer 1
+;;   :after ivy-rich
+;;   :config (all-the-icons-ivy-rich-mode t))
 
 (use-package hippie-expand
   :ensure nil
@@ -253,22 +203,14 @@
                        company-oddmuse company-dabbrev)))
   (global-company-mode)
   :config
-  ;; (defvar company-mode/enable-yas t
-  ;;   "Enable yasnippet for all backends.")
-  ;; (defun company-mode/backend-with-yas (backend)
-  ;;   (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-  ;;       backend
-  ;;     (append (if (consp backend) backend (list backend))
-  ;;             '(:with company-yasnippet))))
-  ;; (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
   :diminish "Ⓒ")
 
 (use-package company-box
   :diminish
   :hook (company-mode . company-box-mode)
   :config
-  (setq company-box-icons-alist 'company-box-icons-all-the-icons)
-  (add-to-list 'company-box-frame-parameters '(height . 9)))
+  (setq company-box-icons-alist 'company-box-icons-images))
+
 
 (use-package yasnippet
   ;; :disabled t
@@ -286,6 +228,13 @@
   :config
   (move-text-default-bindings))
 
+
+(use-package auto-indent-mode
+  :init
+  (setq auto-indent-assign-indent-level nil)
+  :hook php-mode
+  :diminish)
+
 (use-package subword
   :init (global-subword-mode t)
   :diminish subword-mode)
@@ -302,42 +251,30 @@
          ("C-c m" . mc/mark-all-dwim)
          ("M-<down-mouse-1>" . mc/add-cursor-on-click)))
 
-(use-package drag-stuff
-  :disabled t
-  ;; :ensure t
-  :config
-  (drag-stuff-global-mode 1)
-  :diminish
-  drag-stuff-mode)
-
 (use-package string-inflection
   :bind (("M-_" . string-inflection-all-cycle)
          ("C-c c s" . string-inflection-underscore)
          ("C-c c k" . string-inflection-kebab-case)
-         ("C-c c m" . string-inflection-camelcase)
+         ("C-c c M" . string-inflection-camelcase)
+         ("C-c c m" . string-inflection-lower-camelcase)
          ("C-c c c" . capitalize-word)
          ("C-c c u" . upcase-word)
          ("C-c c l" . downcase-word)))
 
-(use-package fold-this
-  :ensure t
-  :bind (("C-c C-S-f" . fold-this-all)
-         ("C-c C-c" . fold-this)
-         ("C-c M-f" . fold-this-unfold-all)))
 
 (use-package align
   :bind (("C-x a a" . align)
          ("C-x a c" . align-current)))
 
 (use-package origami
-  :disabled t
   :config (global-origami-mode 1)
-  :bind (("C-c C-c" . origami-toggle-node)))
+  :bind (("C-c C-c" . origami-recursively-toggle-node)))
 
 (use-package er/expand-region
   :ensure expand-region
   :init (setq shift-select-mode nil)
-  :bind ("C-=" . er/expand-region))
+  :bind (("C-=" . er/expand-region)
+         ("C-+" . er/contract-region)))
 
 ;; (use-package easy-kill
 ;;   :init
@@ -349,8 +286,11 @@
   :config
   (require 'smartparens-config)
   ;; https://github.com/Fuco1/smartparens/issues/80 get reindent on curly brackets.
-  (sp-local-pair 'prog-mode "{" nil :post-handlers '((my-create-newline-and-enter-sexp "RET")))
-  (defun my-create-newline-and-enter-sexp (&rest _ignored)
+  (dolist (mode '(prog-mode))
+  (sp-local-pair mode "{" nil :post-handlers
+                 '((radian-enter-and-indent-sexp "RET")
+                   (radian-enter-and-indent-sexp "<return>"))))
+  (defun radian-enter-and-indent-sexp (&rest _ignored)
     "Open a new brace or bracket expression, with relevant newlines and indent. "
     (newline)
     (indent-according-to-mode)
@@ -360,20 +300,13 @@
          ("M-]" . sp-unwrap-sexp))
   :diminish smartparens-mode)
 
-(use-package electric-pair
-  :disabled t
-  :init
-  (defvar electric-pair-pairs)
-  (setq electric-pair-pairs '((?\" . ?\")
-                              (?\{ . ?\})
-                              ))
-  :config
-  (electric-pair-mode))
 
 (use-package evil
   :ensure t
   :disabled t
   :config (evil-mode 1))
+
+(use-package vimrc-mode)
 
 (use-package god-mode
   :ensure t
@@ -404,7 +337,8 @@
   :bind (("C-s" . swiper)
          ("C-c s m" . swiper-mc)))
 
-(use-package phi-search :ensure t)
+(use-package phi-search :ensure t
+  :init (setq phi-search-limit 10000))
 
 (use-package anzu
   :ensure t
@@ -420,8 +354,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Multi-file Management ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package neotree
-  :init (setq neo-theme 'icons))
+(use-package treemacs
+  :bind ("C-c p t" . treemacs))
+
+(use-package treemacs-projectile
+  :after treemacs projectile
+  :ensure t)
 
 (use-package magit
   :bind (("C-x m" . magit-status)
@@ -475,6 +413,7 @@
   (projectile-mode 1)
   :bind (("M-p" . projectile-find-file)
          ("C-c p f" . projectile-find-file)
+         ("C-c p z" . counsel-fzf)
          ("C-c p b" . projectile-switch-to-buffer)
          ("C-c p i" . projectile-invalidate-cache)
          ("C-c p k" . projectile-kill-buffers)
@@ -510,14 +449,15 @@
   :disabled t
   :config (desktop-save-mode 1))
 
-(use-package xref
-  :config
-  (add-to-list 'xref-backend-functions 'gxref-xref-backend))
+;; (use-package xref
+;;   :config
+;;   (add-to-list 'xref-backend-functions 'gxref-xref-backend))
 
 (use-package ivy-xref
-  :init (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
+  :init
+  (setq xref-show-definitions-function #'ivy-xref-show-defs)
+  (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
 
-(use-package ggtags :ensure t )
 (use-package ecb :disabled t )
 
 (use-package ag :ensure t )
@@ -574,27 +514,30 @@
   :ensure t
   :init
   (global-flycheck-mode)
-  (setq flycheck-protoc-import-path '("/home/umar/Development/zomato/zomato-event-registry/"))
+  (setq flycheck-protoc-import-path
+        '("/home/umar/Development/zomato/zomato-event-registry/"
+          "/home/umar/Development/gocode/src/github.com/Zomato/delivery-composite-order-service/"))
   :diminish flycheck-mode)
 
-(use-package flycheck-pos-tip
-  :disabled t
-  ;; :ensure t
+(use-package flycheck-posframe
+  :ensure t
   :after flycheck
-  :config
-  (flycheck-pos-tip-mode))
+  :config (add-hook 'flycheck-mode-hook #'flycheck-posframe-mode)
+  (flycheck-posframe-configure-pretty-defaults)
+  (setq flycheck-posframe-warning-prefix "⚠ "))
 
 (use-package flymake)
 (use-package flymake-diagnostic-at-point
+  :demand
   :after flymake
   :config
-  (require 'flymake-diagnostic-at-point)
   (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Emacs Utilities ;;
 ;;;;;;;;;;;;;;;;;;;;;
 (use-package server
+  :defer 5
   :config
   (if (and (fboundp 'server-running-p)
            (not (server-running-p)))
@@ -638,8 +581,8 @@
   (add-to-list 'tramp-default-proxies-alist
                '("scripts" nil "/ssh:entry:"))
   (add-to-list 'tramp-default-proxies-alist
-               '("aa102" nil "/ssh:entry:"))
-  )
+               '("aa102" nil "/ssh:entry:")))
+
 (use-package paradox
   :ensure t
   :init
@@ -673,6 +616,7 @@
 
 (use-package howdoi :disabled t)
 (use-package undo-tree
+  :defer 2
   :ensure t
   :config
   (global-undo-tree-mode 1)
@@ -692,15 +636,15 @@
   :ensure shell-toggle
   :init
   (setq-default bidi-display-reordering nil)
-  (defun term-handle-more-ansi-escapes (proc char)
-    "Handle additional ansi escapes."
-    (cond
-     ;; \E[nG - Cursor Horizontal Absolute, e.g. move cursor to column n
-     ((eq char ?G)
-      (let ((col (min term-width (max 0 term-terminal-parameter))))
-        (term-move-columns (- col (term-current-column)))))
-     (t)))
-  (advice-add 'term-handle-ansi-escape :before #'term-handle-more-ansi-escapes)
+  ;; (defun term-handle-more-ansi-escapes (proc char)
+  ;;   "Handle additional ansi escapes."
+  ;;   (cond
+  ;;    ;; \E[nG - Cursor Horizontal Absolute, e.g. move cursor to column n
+  ;;    ((eq char ?G)
+  ;;     (let ((col (min term-width (max 0 term-terminal-parameter))))
+  ;;       (term-move-columns (- col (term-current-column)))))
+  ;;    (t)))
+  ;; (advice-remove 'term-handle-ansi-escape :before #'term-handle-more-ansi-escapes)
   :config
   (yas-minor-mode -1))
 
@@ -745,6 +689,7 @@
               ("C-c C-c" . nil)
               ("C-." . nil))
   :config
+  (setq c-auto-align-backslashes nil)
   (add-hook 'php-mode-hook 'php-enable-symfony2-coding-style)
   (setq c-basic-offset 4))
 
@@ -755,21 +700,35 @@
   :ensure nil
   :diminish "🆎")
 
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
 (use-package lsp-mode
-  :hook ((js-mode js2-mode js3-mode rjsx-mode php-mode go-mode) . lsp))
+  :hook ((js-mode js2-mode js3-mode rjsx-mode go-mode rust-mode) . lsp))
 
 (use-package dap-mode)
 
+(use-package lsp-ivy)
+
 (use-package lsp-ui
-  :init
-  (setq lsp-ui-sideline-enable nil)
-  (setq lsp-ui-doc-enable nil)
+  :hook (lsp-mode . lsp-ui-mode)
   :ensure t
   :config
-  (add-hook 'lsp-ui-doc-frame-hook
+
+  (setq lsp-prefer-flymake nil
+        lsp-ui-doc-max-height 8
+        lsp-ui-doc-max-width 35
+        lsp-ui-sideline-ignore-duplicate t
+        lsp-ui-doc-enable t
+        ;; Don't show symbol definitions in the sideline. They are pretty noisy,
+        ;; and there is a bug preventing Flycheck errors from being shown (the
+        ;; errors flash briefly and then disappear).
+        lsp-ui-sideline-enable t
+        lsp-ui-sideline-show-hover nil)
+
+    (add-hook 'lsp-ui-doc-frame-hook
             (lambda (frame _w)
-              (set-face-attribute 'default frame :font "Hack" :height 130)))
-  (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+              (set-face-attribute 'default frame :font "Hack" :height 100)))
+
+  )
 
 (use-package lsp-imenu
   :ensure lsp-mode
@@ -845,7 +804,9 @@
   :config
   (setq indium-chrome-executable "google-chrome"))
 
-(use-package json-mode)
+(use-package json-mode
+  :bind (:map json-mode-map ("C-c C-f" . json-pretty-print)))
+
 (use-package less-css-mode)
 (use-package rainbow-mode :diminish "🌈")
 (use-package phpcbf
@@ -899,9 +860,13 @@
   (add-hook 'go-mode-hook (lambda ()
                             (set (make-local-variable 'company-backends) '(company-go))
                             (company-mode)))
-  :bind (:map go-mode-map
-              ("M-." . godef-jump)
-              ("M-*" . pop-tag-mark)))
+  )
+
+(use-package rust-mode
+  :init
+  (setq rust-format-on-save t)
+  :config
+  (flycheck-mode -1))
 
 (use-package robe
   :ensure t
@@ -1005,14 +970,12 @@
       mouse-yank-at-point t
       require-final-newline t
       ns-use-srgb-colorspace 'nil
-      ediff-window-setup-function 'ediff-setup-windows-plain
-      auto-save-file-name-transforms
-      `((".*" ,temporary-file-directory t)))
+      ediff-window-setup-function 'ediff-setup-windows-plain)
 
 ;; Backup
 (setq version-control t
       kept-new-versions 10
-      kept-old-versions 0
+      kept-old-versions 2
       delete-old-versions t
       backup-by-copying t
       vc-make-backup-files t
