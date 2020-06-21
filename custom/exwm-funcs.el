@@ -18,7 +18,7 @@
 		(start-process-shell-command buffer-prefix nil cmd))))
 
 (defun pactl (cmd)
-  (shell-command (concat "pactl " cmd))
+  (exwm-run-or-raise "volume control" (concat "pactl " cmd))
   (message "Volume command: %s" cmd))
 
 (defun volume-mute () (interactive) (pactl "set-sink-mute @DEFAULT_SINK@ toggle"))
@@ -26,27 +26,35 @@
 (defun volume-down () (interactive) (pactl "set-sink-volume @DEFAULT_SINK@ -5%"))
 
 
+(defun backlight(action count)
+  (start-process-shell-command "backlight" nil (concat "~/.config/i3/kbacklight.sh " action " " count)))
+
+(defun backlight-up() (interactive) (backlight "up" (number-to-string 10)))
+(defun backlight-down() (interactive) (backlight "down" (number-to-string 10)))
+
+(defun brightness(args)
+  (start-process-shell-command "brightness" nil (concat "light " args)))
 
 (defun brightness-up ()
   (interactive)
-  (shell-command "light -A 2")
+  (brightness "-A 2")
   (message "Brightness increased"))
 
 (defun brightness-down ()
   (interactive)
-  (shell-command "light -U 2")
+  (brightness "-U 2")
   (message "Brightness decreased"))
 
 (defun lock()
   (interactive)
-  (shell-command "~/.config/i3/lock.sh > /dev/null 2>&1"))
+  (exwm-run-or-raise "lock" "~/.config/i3/lock.sh > /dev/null 2>&1"))
 
 (defun reboot()
   (interactive)
-  (shell-command "systemctl reboot"))
+  (start-process-shell-command "systemctl" nil "systemctl reboot"))
 (defun poweroff()
   (interactive)
-  (shell-command "systemctl poweroff"))
+  (start-process-shell-command "systemctl" nil "systemctl poweroff"))
 
 (defun screen-term() (interactive) (term-app "screen -dR session"))
 
@@ -83,15 +91,21 @@
   (exwm-run-or-raise "playerctld" "playerctld"))
 
 (defun playerctl(command)
-  (shell-command (concat "playerctl --player=playerctld,%any " command))
+  (start-process-shell-command "player" nil (concat "playerctl --player=playerctld,%any " command))
   (message "Player command %s" command))
 
 (defun term-app (command)
   (exwm-run-or-raise "gnome-terminal" (concat "gnome-terminal -e \"" command "\"")))
 
+(defun web-app(url)
+  (exwm-run-or-raise "chrome-app" (concat "google-chrome-stable --app=\"" url "\"")))
+
 (defun gotop() (interactive) (term-app "gotop"))
 (defun ranger() (interactive) (term-app "ranger"))
 (defun nethogs() (interactive) (term-app "nethogs wlp3s0"))
+
+
+(defun dingtalk() (interactive) (exwm-run-or-raise "DingTalk" "/mnt/data/Apps/DingTalk-linux-x64/DingTalk"))
 
 (defun musicplayer()
   (interactive)
@@ -99,7 +113,7 @@
 
 (defun screenshot()
   (interactive)
-  (shell-command "flameshot gui --path '/home/umar/Pictures/Screenshots/'"))
+  (exwm-run-or-raise "screenshot" "flameshot gui --path '/home/umar/Pictures/Screenshots/'"))
 
 
 (defun play-pause() (interactive) (playerctl "play-pause"))
@@ -129,5 +143,17 @@
   (when (derived-mode-p 'exwm-mode)
     (exwm-input--fake-key ?\C-v)))
 
+(defun exwm-counsel-unicode-char ()
+  "Same as `counsel-unicode-char' and paste into exwm buffer."
+  (interactive)
+  (let ((inhibit-read-only t)
+        ;; Make sure we send selected yank-pop candidate to
+        ;; clipboard:
+        (yank-pop-change-selection t))
+    (kill-new (char-to-string (get-text-property 0 'code (call-interactively #'counsel-unicode-char))))
+  (when (derived-mode-p 'exwm-mode)
+    (exwm-input--fake-key ?\C-v))))
+
 (provide 'exwm-funcs)
 ;;; exwm-funcs.el ends here
+

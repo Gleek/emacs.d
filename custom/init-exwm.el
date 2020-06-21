@@ -47,6 +47,8 @@
 
 (exwm-input-set-key (kbd "<XF86MonBrightnessUp>")   'brightness-up)
 (exwm-input-set-key (kbd "<XF86MonBrightnessDown>") 'brightness-down)
+(exwm-input-set-key (kbd "<XF86KbdBrightnessUp>")   'backlight-up)
+(exwm-input-set-key (kbd "<XF86KbdBrightnessDown>") 'backlight-down)
 (exwm-input-set-key (kbd "<XF86AudioRaiseVolume>")  'volume-up)
 (exwm-input-set-key (kbd "<XF86AudioLowerVolume>")  'volume-down)
 (exwm-input-set-key (kbd "<XF86AudioMute>")         'volume-mute)
@@ -59,6 +61,7 @@
 (exwm-input-set-key (kbd "S-s-<XF86AudioPrev>")     'play-bigbak)
 (exwm-input-set-key (kbd "<XF86LaunchA>")           'screenshot)
 (exwm-input-set-key (kbd "s-y")                     'exwm-counsel-yank-pop)
+(exwm-input-set-key (kbd "s-E")                     'exwm-counsel-unicode-char)
 
 
 
@@ -87,8 +90,9 @@
 ;; (exwm-input-set-simulation-key (kbd "C-e") (kbd "<end>"))
 ;; (exwm-input-set-simulation-key (kbd "M-v") (kbd "<prior>"))
 (exwm-input-set-simulation-key (kbd "M-w") (kbd "C-c"))
-(exwm-input-set-simulation-key (kbd "C-w") (kbd "C-x"))
 (exwm-input-set-simulation-key (kbd "C-y") (kbd "C-v"))
+(exwm-input-set-simulation-key (kbd "C-w") (kbd "C-x"))
+(exwm-input-set-simulation-key (kbd "C-S-w") (kbd "C-w"))
 ;; (exwm-input-set-simulation-key (kbd "C-s") (kbd "C-f"))
 ;; (exwm-input-set-simulation-key (kbd "C-v") (kbd "<next>"))
 ;; (exwm-input-set-simulation-key (kbd "C-d") (kbd "<delete>"))
