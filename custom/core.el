@@ -77,12 +77,10 @@
   (hl-line-when-idle-interval 1))
 
 (use-package whitespace
+  :hook (after-change-major-mode . whitespace-mode)
   :init
-  (setq whitespace-line -1)
   (setq whitespace-style '(face empty trailing lines-tail space-after-tab space-before-tab))
-  :config
-  (global-whitespace-mode)
-  :diminish global-whitespace-mode)
+  :diminish whitespace-mode)
 
 ;; Find my cursor
 (use-package beacon
@@ -96,6 +94,8 @@
   :ensure t
   :config
   (smooth-scroll-mode t)
+  ;; (setq scroll-conservatively 101)
+  ;; (setq inhibit-compacting-font-caches t)
   (setq smooth-scroll/vscroll-step-size 5)
   :diminish smooth-scroll-mode)
 
@@ -132,12 +132,12 @@
   (setq counsel-rg-base-command "rg -S --no-heading --line-number -M 500 --color never %s .")
   :bind (("M-x"     . counsel-M-x)
          ("C-c s s" . counsel-rg)
+         ("C-x B"   . counsel-switch-buffer-other-window)
          ("C-c SPC" . counsel-mark-ring)
          ("M-y"     . counsel-yank-pop)
          ("C-x c i" . counsel-imenu)
          ("C-x C-f" . counsel-find-file)
-         ("C-h v" . counsel-describe-variable)
-         ))
+         ("C-h v" . counsel-describe-variable)))
 
 (use-package ivy
   :config
@@ -147,17 +147,20 @@
          ("C-c b r" . ivy-resume))
   :diminish ivy-mode)
 (use-package ivy-posframe
-  :disabled
+  ;; :disabled
+  :diminish
   :config
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
-  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
+  ;; (setq ivy-posframe-parameters '())
   (setq ivy-posframe-parameters
       '((left-fringe . 8)
-        (right-fringe . 8)))
+        (right-fringe . 8)
+        (parent-frame nil)))
   (ivy-posframe-mode 1))
 
 (use-package ivy-rich
@@ -325,6 +328,11 @@
 
 (use-package ace-window
   :bind ("C-:" . ace-window))
+
+(use-package winner
+  :config (winner-mode t)
+  :bind (("s-<tab>" . winner-undo)
+         ("s-<iso-lefttab>" . winner-redo)))
 
 (use-package isearch
   :ensure nil

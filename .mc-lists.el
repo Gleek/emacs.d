@@ -4,6 +4,7 @@
 (setq mc/cmds-to-run-for-all
       '(
         LaTeX-babel-insert-hyphen
+        backward-up-list
         beginning-of-buffer
         beginning-of-defun
         beginning-of-line-or-indentation

@@ -14,8 +14,12 @@
 (setq exwm-layout-show-all-buffers t)
 (setq exwm-workspace-show-all-buffers t)
 
-(add-hook 'exwm-update-class-hook 'exwm-rename-buffer)
-(add-hook 'exwm-update-title-hook 'exwm-rename-buffer)
+;; Performance issues here so disabling
+;; ;; Rename buffer to have a proper name
+;; (add-hook 'exwm-update-class-hook 'exwm-rename-buffer)
+;; (add-hook 'exwm-update-title-hook 'exwm-rename-buffer)
+
+(add-to-list 'exwm-manage-finish-hook 'exwm-rename-buffer)
 
 (setq exwm-input-move-event 's-down-mouse-1
       exwm-input-resize-event 'M-down-mouse-1)
@@ -38,7 +42,8 @@
                             (exwm-workspace-switch-create ,i))))
                       (number-sequence 0 9))))
 
-(exwm-input-set-key (kbd "s-<return>") 'screen-term)
+(exwm-input-set-key (kbd "s-<return>") 'popup-terminal)
+(exwm-input-set-key (kbd "C-`") 'shell-pop)
 
 (exwm-input-set-key (kbd "s-f") 'windmove-right)
 (exwm-input-set-key (kbd "s-b") 'windmove-left)
@@ -71,6 +76,16 @@
 (exwm-input-set-key (kbd "s-d") 'counsel-linux-app)
 (exwm-input-set-key (kbd "s-D") 'extrarofi)
 (exwm-input-set-key (kbd "s-k") 'keepass)
+
+
+(exwm-input-set-key (kbd "s-<tab>") 'winner-undo)
+(exwm-input-set-key (kbd "s-<iso-lefttab>") 'winner-redo)
+(exwm-input-set-key (kbd "s-`") 'rotate-windows)
+(exwm-input-set-key (kbd "s-~") 'transpose-frame)
+(exwm-input-set-key (kbd "s-<left>") 'shrink-window-horizontally)
+(exwm-input-set-key (kbd "s-<right>") 'enlarge-window-horizontally)
+(exwm-input-set-key (kbd "s-<down>") 'shrink-window)
+(exwm-input-set-key (kbd "s-<up>") 'enlarge-window)
 
 
 (exwm-input-set-key (kbd "s-\\") 'gotop)

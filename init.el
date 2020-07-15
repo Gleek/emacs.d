@@ -31,7 +31,7 @@
 
 (use-package personal
   :ensure nil
-  :bind (("C-x k"                 . kill-this-buffer)
+  :bind (("C-x k"                 . kill-current-buffer)
          ("M-;"                   . comment-or-uncomment-region-or-line)
          ("C-a"                   . beginning-of-line-or-indentation)
          ("C-x a r"               . align-regexp)
@@ -49,20 +49,20 @@
          ("C-c ;"                 . duplicate-and-comment-current-line-or-region)
          ("C-^"                   . top-join-line)
          ("C-c C-t x"             . TeX-toggle-escape)
-         ("C-c s d"               . lucky)
+         ("C-c s d"               . duck)
+         ("C-c s l"               . lucky)
          ("C-c e"                 . eval-and-replace)
          ("C-S-<up>"              . change-number-at-point)
          ("C-S-<down>"            . subtract-number-at-point)
          ([f5]                    . kmacro-edit-macro)
          ([remap kill-whole-line] . smart-kill-whole-line)
          ([(shift return)]        . smart-open-line)
-         ([remap goto-line]       . goto-line-with-feedback)
-         ))
+         ([remap goto-line]       . goto-line-with-feedback)))
 
 ;; (load "firacode") ;; Font hack to get ligatures
 (load "core")
-(when (display-graphic-p)
-  (load "init-exwm"))
+
+(load "init-exwm")
 (load "osx")
 ;; (load "web-settings")
 (load "nonsvn")

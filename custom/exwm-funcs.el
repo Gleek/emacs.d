@@ -27,10 +27,11 @@
 
 
 (defun backlight(action count)
-  (start-process-shell-command "backlight" nil (concat "~/.config/i3/kbacklight.sh " action " " count)))
+  (message "Backlight %s by %d" action count)
+  (start-process-shell-command "backlight" nil (concat "~/.config/i3/kbacklight.sh " action " " (number-to-string count))))
 
-(defun backlight-up() (interactive) (backlight "up" (number-to-string 10)))
-(defun backlight-down() (interactive) (backlight "down" (number-to-string 10)))
+(defun backlight-up() (interactive) (backlight "up" 10))
+(defun backlight-down() (interactive) (backlight "down" 10))
 
 (defun brightness(args)
   (start-process-shell-command "brightness" nil (concat "light " args)))
@@ -47,7 +48,7 @@
 
 (defun lock()
   (interactive)
-  (exwm-run-or-raise "lock" "~/.config/i3/lock.sh > /dev/null 2>&1"))
+  (start-process-shell-command "lock-computer" nil "/home/umar/.config/i3/lock.sh > /tmp/lockout 2>&1"))
 
 (defun reboot()
   (interactive)
@@ -76,6 +77,12 @@
 (defun terminal()
   (interactive) (exwm-run-or-raise "gnome-terminal" "gnome-terminal"))
 
+(defun popup-terminal()
+  (interactive)
+  (vsplit-last-buffer 1 -15)
+  ;; (other-window 1 nil nil)
+  (screen-term))
+
 ;; (defun rofi()
 ;;   (interactive)
 ;;   (exwm-run-or-raise "rofi" "rofi -modi combi -show combi -combi-modi window,drun,run"))
@@ -89,6 +96,15 @@
 (defun playerctldaemon()
   (interactive)
   (exwm-run-or-raise "playerctld" "playerctld"))
+
+(defun qrshow()
+  (interactive)
+  (start-process-shell-command "qr" nil (concat
+                                         "~/.config/rofi/scripts/qr.sh "
+                                         (shell-quote-argument
+                                          (substring-no-properties
+                                           (car kill-ring))))))
+
 
 (defun playerctl(command)
   (start-process-shell-command "player" nil (concat "playerctl --player=playerctld,%any " command))
