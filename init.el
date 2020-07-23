@@ -37,6 +37,7 @@
          ("C-x a r"               . align-regexp)
          ("s-u"                   . revert-buffer)
          ("C-c n"                 . cleanup-buffer)
+         ("C-x F"                 . ido-find-file-other-window)
          ("C-x <right>"           . windmove-right)
          ("C-x <left>"            . windmove-left)
          ("C-x <up>"              . windmove-up)

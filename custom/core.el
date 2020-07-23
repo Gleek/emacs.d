@@ -77,9 +77,15 @@
   (hl-line-when-idle-interval 1))
 
 (use-package whitespace
-  :hook (after-change-major-mode . whitespace-mode)
+  :hook (after-change-major-mode . sane-whitespace)
   :init
-  (setq whitespace-style '(face empty trailing lines-tail space-after-tab space-before-tab))
+  (defun sane-whitespace()
+    (unless (or (eq major-mode 'fundamental-mode)
+              buffer-read-only
+              (bound-and-true-p global-whitespace-mode)
+              (null buffer-file-name))
+      (whitespace-mode +1)))
+  (setq whitespace-style '(face empty trailing space-after-tab space-before-tab))
   :diminish whitespace-mode)
 
 ;; Find my cursor
@@ -313,7 +319,7 @@
 
 (use-package god-mode
   :ensure t
-  :bind ([escape] . god-local-mode)
+  ;; :bind ([escape] . god-local-mode)
   :config (define-key god-local-mode-map (kbd ".") 'repeat))
 
 ;;;;;;;;;;;;;;;;
@@ -469,15 +475,16 @@
 (use-package ecb :disabled t )
 
 (use-package ag :ensure t )
+
 (use-package dumb-jump
   :ensure t
-  :bind (("M-g o" . dumb-jump-go-other-window)
-         ("M-g j" . dumb-jump-go)
-         ("M-g i" . dumb-jump-go-prompt)
-         ("M-g h" . dumb-jump-back)
-         ("M-g q" . dumb-jump-quick-look)
-         ("M-g x" . dumb-jump-go-prefer-external)
-         ("M-g z" . dumb-jump-go-prefer-external-other-window))
+  ;; :bind (("M-g o" . dumb-jump-go-other-window)
+  ;;        ("M-g j" . dumb-jump-go)
+  ;;        ("M-g i" . dumb-jump-go-prompt)
+  ;;        ("M-g h" . dumb-jump-back)
+  ;;        ("M-g q" . dumb-jump-quick-look)
+  ;;        ("M-g x" . dumb-jump-go-prefer-external)
+  ;;        ("M-g z" . dumb-jump-go-prefer-external-other-window))
   :config
   (setq dumb-jump-rg-cmd "/home/umar/.bin/rg")
   (setq dumb-jump-max-find-time 5)
@@ -954,7 +961,7 @@
   :config
   ;; Support for plantuml
   (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
-  
+
   ;; automatically show the resulting image
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
   :bind ("C-c o a" . org-agenda))
@@ -979,7 +986,7 @@
       require-final-newline t
       ns-use-srgb-colorspace 'nil
       ediff-window-setup-function 'ediff-setup-windows-plain)
-
+;; (setq redisplay-dont-pause t)
 ;; Backup
 (setq version-control t
       kept-new-versions 10

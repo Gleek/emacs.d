@@ -57,7 +57,7 @@
   (interactive)
   (start-process-shell-command "systemctl" nil "systemctl poweroff"))
 
-(defun screen-term() (interactive) (term-app "screen -dR session"))
+(defun screen-term() (interactive) (term-app "term" "screen -dR session"))
 
 (defun pop-term()
     (interactive)
@@ -75,7 +75,7 @@
 (defun load-x-resources () (interactive) (shell-command "xrdb -merge ~/.Xresources"))
 
 (defun terminal()
-  (interactive) (exwm-run-or-raise "gnome-terminal" "gnome-terminal"))
+  (interactive) (start-process-shell-command "kitty"  nil "kitty"))
 
 (defun popup-terminal()
   (interactive)
@@ -110,15 +110,19 @@
   (start-process-shell-command "player" nil (concat "playerctl --player=playerctld,%any " command))
   (message "Player command %s" command))
 
-(defun term-app (command)
-  (exwm-run-or-raise "gnome-terminal" (concat "gnome-terminal -e \"" command "\"")))
+(defun term-app (title command)
+  (start-process-shell-command
+   "kitty"
+   nil
+   (format
+    "kitty -T \"%s\" %s" title command)))
 
 (defun web-app(url)
   (exwm-run-or-raise "chrome-app" (concat "google-chrome-stable --app=\"" url "\"")))
 
-(defun gotop() (interactive) (term-app "gotop"))
-(defun ranger() (interactive) (term-app "ranger"))
-(defun nethogs() (interactive) (term-app "nethogs wlp3s0"))
+(defun gotop() (interactive) (term-app "gotop" "gotop"))
+(defun ranger() (interactive) (term-app "ranger" "ranger"))
+(defun nethogs() (interactive) (term-app "nethogs" "nethogs wlp3s0"))
 
 
 (defun dingtalk() (interactive) (exwm-run-or-raise "DingTalk" "/mnt/data/Apps/DingTalk-linux-x64/DingTalk"))
@@ -169,6 +173,11 @@
     (kill-new (char-to-string (get-text-property 0 'code (call-interactively #'counsel-unicode-char))))
   (when (derived-mode-p 'exwm-mode)
     (exwm-input--fake-key ?\C-v))))
+
+
+(defun toggle-polybar()
+  (interactive)
+  (start-process-shell-command "polybar-toggle" nil "~/.config/polybar/toggle.sh"))
 
 (provide 'exwm-funcs)
 ;;; exwm-funcs.el ends here

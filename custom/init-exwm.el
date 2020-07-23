@@ -13,6 +13,7 @@
 ;; (exwm-systemtray-enable)
 (setq exwm-layout-show-all-buffers t)
 (setq exwm-workspace-show-all-buffers t)
+;; (setq exwm-workspace-number 5)
 
 ;; Performance issues here so disabling
 ;; ;; Rename buffer to have a proper name
@@ -67,6 +68,7 @@
 (exwm-input-set-key (kbd "<XF86LaunchA>")           'screenshot)
 (exwm-input-set-key (kbd "s-y")                     'exwm-counsel-yank-pop)
 (exwm-input-set-key (kbd "s-E")                     'exwm-counsel-unicode-char)
+(exwm-input-set-key (kbd "s-B")                     'toggle-polybar)
 
 
 
@@ -114,10 +116,10 @@
 ;; (exwm-input-set-simulation-key (kbd "C-k") (kbd "S-<end> <delete>"))
 ;; (exwm-input-set-simulation-key (kbd "C-x h") (kbd "C-a"))
 
-(setq exwm-manage-configurations '(((string-match-p "^floating_term" exwm-title)
-                                    floating t)
-                                   (string-match-p "^dragger" exwm-class-name)
-                                   floating t))
+;; (setq exwm-manage-configurations '(((string-match-p "^floating_term" exwm-title)
+;;                                     floating t)
+;;                                    (string-match-p "^dragger" exwm-class-name)
+;;                                    floating t))
 
 (setq window-divider-default-right-width 1)
 (window-divider-mode)
