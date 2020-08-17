@@ -13,6 +13,8 @@
 (package-initialize)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
+;; (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))
+
 
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
@@ -50,7 +52,7 @@
          ("C-c ;"                 . duplicate-and-comment-current-line-or-region)
          ("C-^"                   . top-join-line)
          ("C-c C-t x"             . TeX-toggle-escape)
-         ("C-c s d"               . duck)
+         ("C-c s w"               . duck)
          ("C-c s l"               . lucky)
          ("C-c e"                 . eval-and-replace)
          ("C-S-<up>"              . change-number-at-point)
@@ -58,13 +60,14 @@
          ([f5]                    . kmacro-edit-macro)
          ([remap kill-whole-line] . smart-kill-whole-line)
          ([(shift return)]        . smart-open-line)
-         ([remap goto-line]       . goto-line-with-feedback)))
+         ("C-S-<return>"          . open-line-above)
+         ([remap goto-line]       . goto-line-with-feedback)
+         ([remap keyboard-quit]   . escape-quit)))
 
 ;; (load "firacode") ;; Font hack to get ligatures
-(load "core")
-
-(load "init-exwm")
 (load "osx")
+(load "core")
+;; (load "init-exwm")
 ;; (load "web-settings")
 (load "nonsvn")
 ;; (load "xwidconf")

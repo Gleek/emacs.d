@@ -6,9 +6,17 @@
 (when is-mac
   (setq mac-command-modifier 'meta
   ;;       mac-option-modifier 'control
-        ns-function-modifier 'super)
+        ns-option-modifier 'super)
+  (setq ns-auto-hide-menu-bar nil)
+  (setq ns-use-srgb-colorspace t)
+  (set-fontset-font
+   t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)
+  (add-to-list
+   'default-frame-alist'(ns-transparent-titlebar . t))
+  (add-to-list
+   'default-frame-alist'(ns-appearance . light))
   (use-package exec-path-from-shell
-    :config (exec-path-from-shell-initialize)))
+    :init (exec-path-from-shell-initialize)))
 (when (not is-mac)
 
   (defun fullscreen ()
@@ -26,5 +34,6 @@
 
   (maximized)
   )
+
 (provide 'osx)
 ;;; osx.el ends here

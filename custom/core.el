@@ -18,30 +18,47 @@
       initial-scratch-message "")
 (blink-cursor-mode -1)
 ;; Font/Themes
-(set-frame-font "Fira Mono 10" nil t)
+(set-frame-font "Source Code Pro 13" 'keepsize t)
+;; (set-face-font 'variable-pitch "Baskerville 15")
+(set-face-font 'variable-pitch "Georgia 15")
+(set-face-font 'fixed-pitch "Source Code Pro 13")
 
 
 (use-package doom-themes
+  :init
+  (defvar doom-themes-treemacs-enable-variable-pitch)
+  (setq doom-themes-treemacs-enable-variable-pitch nil)
   :demand
-  :config (load-theme 'doom-nord t)
+  :config (load-theme 'doom-one t)
   (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
   (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
+
+
+(use-package all-the-icons)
 ;; mode line settings
-(use-package spaceline-config
+;; (use-package spaceline-config
+;;   :defer 1
+;;   :init
+;;   (setq powerline-default-separator "utf-8")
+;;   (setq powerline-height 20)
+;;   (setq spaceline-minor-modes-separator " ")
+;;   (defadvice load-theme (after run-after-load-theme-hook activate)
+;;     "Run `powerline-reset'."
+;;     (powerline-reset))
+;;   :ensure spaceline
+;;   :config
+;;   (spaceline-spacemacs-theme))
+
+
+(use-package doom-modeline
   :defer 1
-  :init
-  (setq powerline-default-separator "wave")
-  (setq powerline-height 20)
-  (setq spaceline-minor-modes-separator " ")
-  (defadvice load-theme (after run-after-load-theme-hook activate)
-    "Run `powerline-reset'."
-    (powerline-reset))
-  :ensure spaceline
   :config
-  (spaceline-spacemacs-theme))
+  (setq doom-modeline-vcs-max-length 20)
+  (doom-modeline-mode +1))
+
 
 (use-package which-func
   :disabled t ;; slowing down startup of big files
@@ -56,6 +73,8 @@
   (line-number-mode t)
   (column-number-mode t))
 
+(use-package display-line-numbers
+  :hook ((prog-mode text-mode conf-mode) . display-line-numbers-mode))
 
 (use-package uniquify
   :ensure nil
@@ -96,7 +115,7 @@
   :diminish beacon-mode)
 
 (use-package smooth-scroll
-  :demand
+  :defer 1
   :ensure t
   :config
   (smooth-scroll-mode t)
@@ -109,6 +128,10 @@
 (use-package paren
   :defer 10
   :config
+  (setq show-paren-delay 0.1
+        show-paren-highlight-openparen t
+        show-paren-when-point-inside-paren t
+        show-paren-when-point-in-periphery nil)
   (show-paren-mode))
 
 
@@ -146,14 +169,29 @@
          ("C-h v" . counsel-describe-variable)))
 
 (use-package ivy
+  :init
+  (setq ivy-sort-max-size 7500
+        ivy-height 15
+        ivy-wrap nil
+        ivy-use-selectable-prompt t
+        ivy-fixed-height-minibuffer t
+        ivy-use-virtual-buffers nil
+        ivy-virtual-abbreviate 'full
+        ivy-use-selectable-prompt t)
   :config
   (ivy-mode t)
   ;; (all-the-icons-ivy-setup)
   :bind (("C-x b"   . ivy-switch-buffer)
          ("C-c b r" . ivy-resume))
   :diminish ivy-mode)
+
+(use-package all-the-icons-ivy-rich
+  :defer 1
+  :config
+  (all-the-icons-ivy-rich-mode 1))
+
 (use-package ivy-posframe
-  ;; :disabled
+  :disabled
   :diminish
   :config
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
@@ -180,8 +218,7 @@
 ;;   :after ivy-rich
 ;;   :config (all-the-icons-ivy-rich-mode t))
 
-(use-package hippie-expand
-  :ensure nil
+(use-package hippie-exp
   :init
   (setq hippie-expand-try-functions-list '(try-expand-dabbrev
                                            try-expand-dabbrev-all-buffers
@@ -197,25 +234,33 @@
 
 
 (use-package company
-  :ensure t
+  :defer 5
   :ensure company-web
   :ensure company-quickhelp
   ;; :disabled t
   :bind ("C-." . company-complete)
   :init
-  (setq company-idle-delay 0.5)
-  (setq company-minimum-prefix-length 3)
-  (setq company-backends
-        (quote
-         (company-bbdb company-nxml company-css company-eclim company-semantic company-clang company-xcode company-cmake company-capf company-files
-                       (company-dabbrev-code company-keywords)
-                       company-oddmuse company-dabbrev)))
-  (global-company-mode)
+
+  (setq company-idle-delay 0.25
+        company-minimum-prefix-length 2
+        company-require-match 'never
+        company-global-modes '(not erc-mode message-mode help-mode gud-mode)
+        ;; company-backends
+        ;; (quote
+        ;;  (company-semantic company-clang company-capf company-files
+        ;;                    (company-dabbrev-code company-keywords)
+        ;;                    company-dabbrev))
+        company-backends '(company-capf)
+        
+        company-dabbrev-ignore-case nil
+        company-dabbrev-downcase nil)
   :config
+  (global-company-mode)
   :diminish "Ⓒ")
 
 (use-package company-box
   :diminish
+  :after company
   :hook (company-mode . company-box-mode)
   :config
   (setq company-box-icons-alist 'company-box-icons-images))
@@ -223,7 +268,7 @@
 
 (use-package yasnippet
   ;; :disabled t
-  :ensure t
+  :defer 5
   :config
   (yas-global-mode 1)
   :diminish (yas-minor-mode . "Ⓨ"))
@@ -233,7 +278,7 @@
 ;;;;;;;;;;;;;;;;
 
 (use-package move-text
-  :demand
+  :defer 3
   :config
   (move-text-default-bindings))
 
@@ -290,10 +335,14 @@
 ;;   (global-set-key [remap kill-ring-save] 'easy-kill))
 
 (use-package smartparens
-  :init (smartparens-global-mode t)
+  :hook ((prog-mode text-mode conf-mode) . smartparens-mode)
   :ensure t
   :config
+  ;; (smartparens-global-mode t)
   (require 'smartparens-config)
+  (setq sp-highlight-pair-overlay nil
+        sp-highlight-wrap-overlay nil
+        sp-highlight-wrap-tag-overlay nil)
   ;; https://github.com/Fuco1/smartparens/issues/80 get reindent on curly brackets.
   (dolist (mode '(prog-mode))
   (sp-local-pair mode "{" nil :post-handlers
@@ -348,7 +397,7 @@
 
 (use-package swiper
   :ensure t
-  :bind (("C-s" . swiper)
+  :bind (("C-s" . swiper-isearch)
          ("C-c s m" . swiper-mc)))
 
 (use-package phi-search :ensure t
@@ -375,6 +424,10 @@
   :after treemacs projectile
   :ensure t)
 
+(use-package lsp-treemacs
+  :after treemacs lsp
+  :hook (treemacs-select-hook . lsp-treemacs-sync-mode))
+
 (use-package magit
   :bind (("C-x m" . magit-status)
          ("C-c g b" . magit-blame-addition)
@@ -388,13 +441,12 @@
 (use-package browse-at-remote)
 
 (use-package git-gutter
-  :ensure t
+  :defer 3
   :diminish git-gutter-mode
   :bind (("C-c g d" . git-gutter:popup-hunk)
          ("C-c g r" . git-gutter:revert-hunk))
-  :init
-  (global-git-gutter-mode t)
   :config
+  (global-git-gutter-mode t)
   (setq git-gutter:modified-sign " "
         git-gutter:added-sign " "
         git-gutter:deleted-sign " ")
@@ -425,22 +477,26 @@
   :config
   (setq projectile-mode-line-prefix "")
   (projectile-mode 1)
-  :bind (("M-p" . projectile-find-file)
-         ("C-c p f" . projectile-find-file)
-         ("C-c p z" . counsel-fzf)
-         ("C-c p b" . projectile-switch-to-buffer)
-         ("C-c p i" . projectile-invalidate-cache)
+  :bind (("C-c p z" . counsel-fzf)
          ("C-c p k" . projectile-kill-buffers)
-         ("C-c p p" . projectile-switch-project)
          ("C-c p s" . projectile-save-project-buffers)))
+
+(use-package counsel-projectile
+  :defer 1
+  :bind (("M-p" . counsel-projectile-find-file)
+         ("C-c p f" . counsel-projectile-find-file)
+         ("C-c p b" . counsel-projectile-switch-to-buffer)
+         ("C-c p p" . counsel-projectile-switch-project)))
+
 
 (use-package vc
   :init
   ;; Slows down opening large files.
-  (setq vc-handled-backends nil)
-  (remove-hook 'find-file-hooks 'vc-find-file-hook)
-  (remove-hook 'find-file-hook 'vc-refresh-state)
-  (remove-hook 'after-save-hook 'vc-find-file-hook))
+  (setq vc-handled-backends '(Git))
+  ;; (remove-hook 'find-file-hooks 'vc-find-file-hook)
+  (add-hook 'find-file-hook 'vc-refresh-state)
+  ;; (remove-hook 'after-save-hook 'vc-find-file-hook)
+  )
 
 (use-package recentf
   :config
@@ -459,9 +515,6 @@
 (use-package recentf
   :disabled t
   :config (recentf-mode))
-(use-package desktop
-  :disabled t
-  :config (desktop-save-mode 1))
 
 ;; (use-package xref
 ;;   :config
@@ -486,7 +539,7 @@
   ;;        ("M-g x" . dumb-jump-go-prefer-external)
   ;;        ("M-g z" . dumb-jump-go-prefer-external-other-window))
   :config
-  (setq dumb-jump-rg-cmd "/home/umar/.bin/rg")
+  (setq dumb-jump-rg-cmd "rg")
   (setq dumb-jump-max-find-time 5)
   (setq dumb-jump-force-searcher 'rg)
   (setq dumb-jump-selector 'ivy))
@@ -499,7 +552,7 @@
 
 (use-package smart-jump
   :ensure t
-  :demand
+  :defer 4
   :bind (("M-." . smart-jump-go)
          ("M-," . smart-jump-back)
          ("M-?" . smart-jump-references))
@@ -511,10 +564,11 @@
 (use-package flyspell-lazy
   :config (flyspell-lazy-mode 1))
 (use-package flyspell
+  :defer 10
   :init
   (defvar ispell-program-name)
   (defvar flyspell-issue-message-flag)
-  (setq ispell-program-name "/usr/bin/hunspell")
+  (setq ispell-program-name "/usr/local/bin/aspell")
   (setq flyspell-issue-message-flag nil)
   (add-hook 'prog-mode-hook 'flyspell-prog-mode)
   (add-hook 'text-mode-hook 'flyspell-mode)
@@ -526,26 +580,38 @@
   :diminish flyspell-mode)
 
 (use-package flycheck
-  :ensure t
-  :init
-  (global-flycheck-mode)
+  :hook (prog-mode . flycheck-mode)
+  :config
+  ;; (global-flycheck-mode -1)
   (setq flycheck-protoc-import-path
-        '("/home/umar/Development/zomato/zomato-event-registry/"
-          "/home/umar/Development/gocode/src/github.com/Zomato/delivery-composite-order-service/"))
+        '("~/Development/zomato/zomato-event-registry/"
+          "~/Development/gocode/src/github.com/Zomato/delivery-composite-order-service/"))
+  (setq flycheck-check-syntax-automatically '(save mode-enabled new-line idle-change))
+  ;; (setq flycheck-buffer-switch-check-intermediate-buffers nil)
+  (setq flycheck-display-errors-delay 0.25)
   :diminish flycheck-mode)
 
+
+(use-package flycheck-phpstan
+  :init
+  (setq phpstan-memory-limit "1G")
+)
+
+
+
 (use-package flycheck-posframe
-  :ensure t
-  :after flycheck
-  :config (add-hook 'flycheck-mode-hook #'flycheck-posframe-mode)
-  (flycheck-posframe-configure-pretty-defaults)
-  (setq flycheck-posframe-warning-prefix "⚠ "))
+  :hook (flycheck-mode . flycheck-posframe-mode)
+  :config
+  ;; (flycheck-posframe-configure-pretty-defaults)
+  (setq flycheck-posframe-warning-prefix "⚠ "
+        flycheck-posframe-info-prefix "··· "
+        flycheck-posframe-error-prefix "✕ ")
+  (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p))
 
 (use-package flymake)
 (use-package flymake-diagnostic-at-point
-  :demand
   :after flymake
-  :config
+  :init
   (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -554,13 +620,12 @@
 (use-package server
   :defer 5
   :config
-  (if (and (fboundp 'server-running-p)
-           (not (server-running-p)))
-      (server-start))
-(remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function))
+    (unless (server-running-p)
+    (server-start))
+    (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function))
 
 (use-package key-chord
-  :demand
+  :defer 10
   :config
   (key-chord-mode 1)
   (setq key-chord-two-keys-delay .015
@@ -624,6 +689,8 @@
                                 ))
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
+  (setq dashboard-startup-banner 3)
+  (setq dashboard-center-content t)
   :config
   (dashboard-setup-startup-hook))
 
@@ -646,6 +713,8 @@
   (global-auto-revert-mode 1)
   :diminish (auto-revert-mode . "Ⓐ"))
 
+(use-package osx-dictionary
+  :bind (("C-c s d" . osx-dictionary-search-input)))
 
 (use-package term
   :ensure shell-toggle
@@ -663,6 +732,20 @@
   :config
   (yas-minor-mode -1))
 
+(use-package so-long
+  :defer 2
+  :config
+  (setq so-long-threshold 400)
+  ; Add some font locking
+  (setq so-long-minor-modes (delq 'font-lock-mode so-long-minor-modes))
+  (add-to-list 'so-long-minor-modes 'lsp-mode)
+  (add-to-list 'so-long-variable-overrides '(font-lock-maximum-decoration . 1))
+
+  (add-to-list 'so-long-variable-overrides '(save-place-alist . nil))
+  (add-to-list 'so-long-target-modes 'text-mode)
+  (setq so-long-variable-overrides (delq (assoc 'buffer-read-only so-long-variable-overrides) so-long-variable-overrides))
+  (global-so-long-mode))
+
 (use-package shell-pop
   :ensure t
   :bind ("C-`" . shell-pop)
@@ -679,12 +762,12 @@
 
 (use-package persistent-scratch
   :init
-  (persistent-scratch-restore)
-  :ensure t
-  :config (persistent-scratch-setup-default))
+  :defer 1
+  :config (persistent-scratch-restore)
+  (persistent-scratch-setup-default))
 
 (use-package alert
-  :ensure t
+  :defer 10
   :init
   (defvar alert-default-style)
   (setq alert-default-style 'libnotify))
@@ -693,6 +776,37 @@
 (add-hook 'after-save-hook
           'executable-make-buffer-file-executable-if-script-p)
 
+(use-package helpful
+  :init
+  (global-set-key [remap describe-function] #'helpful-callable)
+  (global-set-key [remap describe-command]  #'helpful-command)
+  (global-set-key [remap describe-variable] #'helpful-variable)
+  (global-set-key [remap describe-key]      #'helpful-key)
+  (global-set-key [remap describe-symbol]   #'helpful-symbol)
+  (setq counsel-describe-function-function #'helpful-callable)
+  (setq counsel-describe-variable-function #'helpful-variable))
+
+(use-package desktop
+  :defer 5
+  :init
+  (setq desktop-dirname "~/.emacs.d/")
+  (defun +desktop-save()
+    (interactive)
+    (let ((desktop-file-modtime (nth 5 (file-attributes (desktop-full-file-name)))))
+             (desktop-save desktop-dirname t)))
+  (defun restore-from-desktop(&rest _)
+    (interactive)
+    (desktop-read desktop-dirname))
+  (add-hook 'kill-emacs-hook #'+desktop-save))
+
+(use-package restart-emacs
+  :after desktop
+  :init
+  (add-to-list 'command-switch-alist (cons "--restore" #'restore-from-desktop))
+  (defun restart-and-restore()
+    (interactive)
+    (+desktop-save)
+    (restart-emacs '("--restore"))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Languages / Syntax Major Mode ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -717,11 +831,24 @@
 
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 (use-package lsp-mode
-  :hook ((js-mode js2-mode js3-mode rjsx-mode go-mode rust-mode) . lsp))
+  :hook ((js-mode js2-mode js3-mode rjsx-mode go-mode rust-mode php-mode) . lsp)
+  :init
+  (setq lsp-enable-file-watchers nil
+        lsp-enable-folding nil
+        lsp-enable-text-document-color nil)
+  (setq lsp-enable-indentation nil
+        lsp-enable-on-type-formatting nil)
+  (setq lsp-intelephense-files-max-size 2000000))
 
 (use-package dap-mode)
 
-(use-package lsp-ivy)
+(use-package lsp-ivy
+  :defer 2
+  :bind (:map lsp-mode ("M-<return>" . lsp-ivy-workspace-symbol)))
+
+(use-package lua-mode)
+(use-package dockerfile-mode)
+(use-package docker-compose-mode)
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
@@ -736,7 +863,7 @@
         ;; Don't show symbol definitions in the sideline. They are pretty noisy,
         ;; and there is a bug preventing Flycheck errors from being shown (the
         ;; errors flash briefly and then disappear).
-        lsp-ui-sideline-enable t
+        lsp-ui-sideline-enable nil
         lsp-ui-sideline-show-hover nil)
 
     (add-hook 'lsp-ui-doc-frame-hook
@@ -800,10 +927,10 @@
               ("M-," . nil))
   :diminish "🕊")
 
-(use-package company-tern               ; Auto-completion for javascript
-  :ensure t
-  :after company
-  :config (add-to-list 'company-backends 'company-tern))
+;; (use-package company-tern               ; Auto-completion for javascript
+;;   :ensure t
+;;   :after company
+;;   :config (add-to-list 'company-backends 'company-tern))
 
 ;; (use-package js-doc :ensure t)
 ;; (use-package jsx-mode )
@@ -826,7 +953,7 @@
 (use-package rainbow-mode :diminish "🌈")
 (use-package phpcbf
   :config
-  (setq phpcbf-standard "~/Development/phpcs.xml"))
+  (setq phpcbf-standard "~/Development/zomato/phpcs.xml"))
 
 (use-package reformatter :disabled)
 
@@ -906,12 +1033,55 @@
 
 ;; PDF View
 (use-package pdf-tools
-  :ensure t
-  :init (pdf-tools-install))
+  :defer 5
+  :init
+  (defvar pdf-annot-highlight-colors '(("blue" . "#40e0d0") ("yellow" . "#face50") ("red" . "#ff69b4")))
+  (defun pdf-annot-choose-highlight-color()
+    (interactive)
+    (pdf-annot-update-highilight-color
+     (cdr (assoc (completing-read "Choose highlight color: " pdf-annot-highlight-colors nil t) pdf-annot-highlight-colors))))
+  ;; (defun pdf-annot-update-highilight-color(color)
+  ;;   (setf (alist-get 'highlight pdf-annot-default-annotation-properties nil t) (cons 'color color)))
+  (defun pdf-annot-update-highilight-color (color)
+    (setq pdf-annot-default-annotation-properties
+          (let* ((temp-props)
+                 (acolor (cons 'color color))
+                 (highlight-prop '()))
+            (push acolor highlight-prop)
+            (push 'highlight highlight-prop)
+            (dolist (element pdf-annot-default-annotation-properties)
+              (when (eq (eq (car element) 'highlight) nil)
+                (push element temp-props)))
+            (push highlight-prop  temp-props)
+            temp-props)))
+  ;; (pdf-view-midnight-colors '("#839496" . "#002b36"))
+  (setq-default pdf-view-display-size 'fit-page)
+  (add-hook 'pdf-view-mode-hook
+            (lambda ()
+              (pdf-annot-update-highilight-color "#face50")
+              ))
+  :bind (:map pdf-view-mode-map
+              ("C-s" . isearch-forward)
+              ("h" . pdf-annot-add-highlight-markup-annotation)
+              ("C-c C-a H" . pdf-annot-choose-highlight-color)
+              ("D" . pdf-annot-delete)
+              ("m" . pdf-view-midnight-minor-mode)
+              ("t" . pdf-annot-add-text-annotation))
+
+  :config
+  (pdf-tools-install))
+
+(use-package saveplace-pdf-view
+  :hook (pdf-view-mode . (lambda ()
+                           (require 'saveplace-pdf-view)
+                           (save-place-mode t)
+                           )))
 
 ;; W3M browser
 (use-package w3m
   :init (setq w3m-search-default-engine "duckduckgo"))
+
+(use-package olivetti)
 
 ;; Org mode settings
 (use-package org-crypt
@@ -919,6 +1089,7 @@
   :defer 4
   :init
   (setq org-tags-exclude-from-inheritance (quote ("crypt")))
+  (setf epa-pinentry-mode 'loopback)
   (setq org-crypt-key nil)
   ;; GPG key to use for encryption
   ;; Either the Key ID or set to nil to use symmetric encryption.
@@ -937,7 +1108,13 @@
 (use-package org-alert
   :config (org-alert-enable))
 
-(use-package org-pomodoro )
+(use-package org-pomodoro
+  :config
+  ;; '(org-pomodoro-finished-sound "/home/umar/.emacs.d/resources/doorbell.wav")
+  ;; '(org-pomodoro-long-break-sound "/home/umar/.emacs.d/resources/doorbell.wav")
+  ;; '(org-pomodoro-short-break-sound "/home/umar/.emacs.d/resources/doorbell.wav")
+  ;; '(org-pomodoro-start-sound "/home/umar/.emacs.d/resources/doorbell.wav")
+  )
 
 (use-package org
   :init
@@ -951,24 +1128,50 @@
         org-agenda-files '("~/Dropbox/org-files/Tasks.org")
         org-log-done 'time
         org-startup-with-inline-images t
+        org-hide-emphasis-markers t
         org-html-checkbox-type 'html
         org-plantuml-jar-path (expand-file-name "~/.emacs.d/plantuml.jar")
+        org-todo-keywords '((sequence "TODO" "DOING" "BLOCKED" "|" "DONE" "DELEGATED" "STALE"))
         ;; org-fontify-whole-heading-line t
         ;; org-fontify-done-headline t
         org-fontify-quote-and-verse-blocks t
         org-confirm-babel-evaluate nil
         org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
+  (font-lock-add-keywords 'org-mode
+                        '(("^ *\\([-]\\) "
+                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+  ;; (add-hook 'org-mode-hook 'variable-pitch-mode)
+  (add-hook 'org-mode-hook 'visual-line-mode)
+
+  (custom-set-faces
+   '(org-block ((t (:inherit fixed-pitch))))
+   '(org-code ((t (:inherit (shadow fixed-pitch)))))
+   '(org-document-info ((t (:foreground "dark orange"))))
+   '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+   '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+   '(org-link ((t (:foreground "royal blue" :underline t))))
+   '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+   '(org-property-value ((t (:inherit fixed-pitch))) t)
+   '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+   '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+   '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+   '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
   :config
   ;; Support for plantuml
   (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
 
   ;; automatically show the resulting image
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
-  :bind ("C-c o a" . org-agenda))
+  :bind (("C-c o a" . org-agenda)
+         ("C-c o e" . org-export-dispatch)))
 
+
+(use-package org-alert
+  :init
+  (setq alert-default-style 'osx-notifier))
 
 ;; Loading functions and variables
-
+(delete-selection-mode +1)
 (set-default 'imenu-auto-rescan t)
 (setq-default frame-title-format '(buffer-file-name "Emacs - %b"))
 (setq-default line-spacing 0)
@@ -981,11 +1184,18 @@
       kill-do-not-save-duplicates t
       apropos-do-all t
       use-dialog-box nil
+      x-underline-at-descent-line t
       ring-bell-function 'ignore
       mouse-yank-at-point t
       require-final-newline t
-      ns-use-srgb-colorspace 'nil
+      fast-but-imprecise-scrolling t
+      frame-inhibit-implied-resize t
+      highlight-nonselected-windows nil
       ediff-window-setup-function 'ediff-setup-windows-plain)
+
+(setq indicate-buffer-boundaries nil
+      indicate-empty-lines nil)
+(setq enable-recursive-minibuffers t)
 ;; (setq redisplay-dont-pause t)
 ;; Backup
 (setq version-control t
@@ -998,9 +1208,10 @@
       browse-url-browser-function 'browse-url-default-browser)
 
 
+(setq-default cursor-in-non-selected-windows nil)
 (setq-default indent-tabs-mode nil)   ;; don't use tabs to indent
 (setq-default tab-width 4)
-(setq tab-always-indent 'complete)
+(setq tab-always-indent t)
 (put 'narrow-to-region 'disabled nil)
 (provide 'core)
 ;;; core.el ends here

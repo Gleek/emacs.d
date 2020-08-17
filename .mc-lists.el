@@ -82,6 +82,7 @@
         wgrep-change-to-wgrep-mode
         wgrep-finish-edit
         yaml-electric-backspace
+        yaml-electric-bar-and-angle
         yaml-electric-dash-and-dot
         zop-to-char
         ))
@@ -114,6 +115,7 @@
         mouse-set-secondary
         mouse-start-secondary
         org-cycle
+        origami-recursively-toggle-node
         phi-search
         php-browse-manual
         projectile-switch-project
