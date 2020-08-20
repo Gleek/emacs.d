@@ -17,10 +17,11 @@
 (setq inhibit-startup-screen t
       initial-scratch-message "")
 (blink-cursor-mode -1)
+(setq frame-inhibit-implied-resize t)
 ;; Font/Themes
 (set-frame-font "Source Code Pro 13" 'keepsize t)
 ;; (set-face-font 'variable-pitch "Baskerville 15")
-(set-face-font 'variable-pitch "Georgia 15")
+(set-face-font 'variable-pitch "ETBembo 17")
 (set-face-font 'fixed-pitch "Source Code Pro 13")
 
 
@@ -37,7 +38,8 @@
 
 
 
-(use-package all-the-icons)
+(use-package all-the-icons
+  :demand)
 ;; mode line settings
 ;; (use-package spaceline-config
 ;;   :defer 1
@@ -57,6 +59,9 @@
   :defer 1
   :config
   (setq doom-modeline-vcs-max-length 20)
+  (setq doom-modeline-minor-modes nil)
+  (setq doom-modeline-enable-word-count t)
+  (setq doom-modeline-checker-simple-format t)
   (doom-modeline-mode +1))
 
 
@@ -86,23 +91,37 @@
 
 
 ;; Editing
-(use-package hl-line+
-  :disabled t
-  :ensure t
+
+(use-package hl-line
+  ;; Highlights the current line
+  :hook ((prog-mode text-mode conf-mode special-mode) . hl-line-mode)
   :config
-  (global-hl-line-mode t)
-  (hl-line-flash)
-  (hl-line-toggle-when-idle 1)
-  (hl-line-when-idle-interval 1))
+  ;; Not having to render the hl-line overlay in multiple buffers offers a tiny
+  ;; performance boost. I also don't need to see it in other buffers.
+  (setq hl-line-sticky-flag nil
+        global-hl-line-sticky-flag nil)
+
+  ;; Temporarily disable `hl-line' when selection is active, since it doesn't
+  ;; serve much purpose when the selection is so much more visible.
+  (defvar doom--hl-line-mode nil))
+
+;; (use-package hl-line+
+;;   :disabled t
+;;   :ensure t
+;;   :config
+;;   (global-hl-line-mode t)
+;;   (hl-line-flash)
+;;   (hl-line-toggle-when-idle 1)
+;;   (hl-line-when-idle-interval 1))
 
 (use-package whitespace
   :hook (after-change-major-mode . sane-whitespace)
   :init
   (defun sane-whitespace()
     (unless (or (eq major-mode 'fundamental-mode)
-              buffer-read-only
-              (bound-and-true-p global-whitespace-mode)
-              (null buffer-file-name))
+                buffer-read-only
+                (bound-and-true-p global-whitespace-mode)
+                (null buffer-file-name))
       (whitespace-mode +1)))
   (setq whitespace-style '(face empty trailing space-after-tab space-before-tab))
   :diminish whitespace-mode)
@@ -126,7 +145,7 @@
 
 
 (use-package paren
-  :defer 10
+  :defer 1
   :config
   (setq show-paren-delay 0.1
         show-paren-highlight-openparen t
@@ -202,9 +221,9 @@
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
   ;; (setq ivy-posframe-parameters '())
   (setq ivy-posframe-parameters
-      '((left-fringe . 8)
-        (right-fringe . 8)
-        (parent-frame nil)))
+        '((left-fringe . 8)
+          (right-fringe . 8)
+          (parent-frame nil)))
   (ivy-posframe-mode 1))
 
 (use-package ivy-rich
@@ -250,8 +269,10 @@
         ;;  (company-semantic company-clang company-capf company-files
         ;;                    (company-dabbrev-code company-keywords)
         ;;                    company-dabbrev))
-        company-backends '(company-capf)
-        
+        company-backends '(company-capf company-files)
+        company-frontends '(company-pseudo-tooltip-frontend)
+        company-auto-complete nil
+        company-auto-complete-chars nil
         company-dabbrev-ignore-case nil
         company-dabbrev-downcase nil)
   :config
@@ -263,12 +284,60 @@
   :after company
   :hook (company-mode . company-box-mode)
   :config
-  (setq company-box-icons-alist 'company-box-icons-images))
+  (setq company-box-icons-alist 'company-box-icons-images
+        company-box-show-single-candidate t
+        company-box-backends-colors nil
+        company-box-max-candidates 50
+        company-box-icons-alist 'company-box-icons-all-the-icons
+        company-box-icons-functions
+        (cons #'+company-box-icons--elisp-fn
+              (delq 'company-box-icons--elisp
+                    company-box-icons-functions))
+        company-box-icons-all-the-icons
+        ;; Courtesy: doom emacs
+        (let ((all-the-icons-scale-factor 0.8))
+          `((Unknown       . ,(all-the-icons-material "find_in_page"             :face 'all-the-icons-purple))
+            (Text          . ,(all-the-icons-material "text_fields"              :face 'all-the-icons-green))
+            (Method        . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
+            (Function      . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
+            (Constructor   . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
+            (Field         . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
+            (Variable      . ,(all-the-icons-material "adjust"                   :face 'all-the-icons-blue))
+            (Class         . ,(all-the-icons-material "class"                    :face 'all-the-icons-red))
+            (Interface     . ,(all-the-icons-material "settings_input_component" :face 'all-the-icons-red))
+            (Module        . ,(all-the-icons-material "view_module"              :face 'all-the-icons-red))
+            (Property      . ,(all-the-icons-material "settings"                 :face 'all-the-icons-red))
+            (Unit          . ,(all-the-icons-material "straighten"               :face 'all-the-icons-red))
+            (Value         . ,(all-the-icons-material "filter_1"                 :face 'all-the-icons-red))
+            (Enum          . ,(all-the-icons-material "plus_one"                 :face 'all-the-icons-red))
+            (Keyword       . ,(all-the-icons-material "filter_center_focus"      :face 'all-the-icons-red))
+            (Snippet       . ,(all-the-icons-material "short_text"               :face 'all-the-icons-red))
+            (Color         . ,(all-the-icons-material "color_lens"               :face 'all-the-icons-red))
+            (File          . ,(all-the-icons-material "insert_drive_file"        :face 'all-the-icons-red))
+            (Reference     . ,(all-the-icons-material "collections_bookmark"     :face 'all-the-icons-red))
+            (Folder        . ,(all-the-icons-material "folder"                   :face 'all-the-icons-red))
+            (EnumMember    . ,(all-the-icons-material "people"                   :face 'all-the-icons-red))
+            (Constant      . ,(all-the-icons-material "pause_circle_filled"      :face 'all-the-icons-red))
+            (Struct        . ,(all-the-icons-material "streetview"               :face 'all-the-icons-red))
+            (Event         . ,(all-the-icons-material "event"                    :face 'all-the-icons-red))
+            (Operator      . ,(all-the-icons-material "control_point"            :face 'all-the-icons-red))
+            (TypeParameter . ,(all-the-icons-material "class"                    :face 'all-the-icons-red))
+            (Template      . ,(all-the-icons-material "short_text"               :face 'all-the-icons-green))
+            (ElispFunction . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
+            (ElispVariable . ,(all-the-icons-material "check_circle"             :face 'all-the-icons-blue))
+            (ElispFeature  . ,(all-the-icons-material "stars"                    :face 'all-the-icons-orange))
+            (ElispFace     . ,(all-the-icons-material "format_paint"             :face 'all-the-icons-pink)))))
+  (defun +company-box-icons--elisp-fn (candidate)
+    (when (derived-mode-p 'emacs-lisp-mode)
+      (let ((sym (intern candidate)))
+        (cond ((fboundp sym)  'ElispFunction)
+              ((boundp sym)   'ElispVariable)
+              ((featurep sym) 'ElispFeature)
+              ((facep sym)    'ElispFace))))))
 
 
 (use-package yasnippet
-  ;; :disabled t
-  :defer 5
+  :defer 3
   :config
   (yas-global-mode 1)
   :diminish (yas-minor-mode . "Ⓨ"))
@@ -286,7 +355,7 @@
 (use-package auto-indent-mode
   :init
   (setq auto-indent-assign-indent-level nil)
-  :hook php-mode
+  :hook prog-mode
   :diminish)
 
 (use-package subword
@@ -321,6 +390,7 @@
          ("C-x a c" . align-current)))
 
 (use-package origami
+  :disabled
   :config (global-origami-mode 1)
   :bind (("C-c C-c" . origami-recursively-toggle-node)))
 
@@ -335,19 +405,20 @@
 ;;   (global-set-key [remap kill-ring-save] 'easy-kill))
 
 (use-package smartparens
-  :hook ((prog-mode text-mode conf-mode) . smartparens-mode)
+  :defer 1
   :ensure t
   :config
   ;; (smartparens-global-mode t)
+  (add-hook 'prog-mode-hook 'smartparens-mode)
   (require 'smartparens-config)
   (setq sp-highlight-pair-overlay nil
         sp-highlight-wrap-overlay nil
         sp-highlight-wrap-tag-overlay nil)
   ;; https://github.com/Fuco1/smartparens/issues/80 get reindent on curly brackets.
   (dolist (mode '(prog-mode))
-  (sp-local-pair mode "{" nil :post-handlers
-                 '((radian-enter-and-indent-sexp "RET")
-                   (radian-enter-and-indent-sexp "<return>"))))
+    (sp-local-pair mode "{" nil :post-handlers
+                   '((radian-enter-and-indent-sexp "RET")
+                     (radian-enter-and-indent-sexp "<return>"))))
   (defun radian-enter-and-indent-sexp (&rest _ignored)
     "Open a new brace or bracket expression, with relevant newlines and indent. "
     (newline)
@@ -413,6 +484,18 @@
   :bind (("M-z" . zop-to-char)
          ("M-Z" . zop-up-to-char)))
 
+(use-package hideshow
+  :defer 1
+  :bind (:map hs-minor-mode-map
+              ("<S-mouse-1>" . move-mouse-and-toggle-hide))
+  :config
+  (add-hook 'prog-mode-hook 'hs-minor-mode)
+  (defun move-mouse-and-toggle-hide(e)
+    (interactive "e")
+    (mouse-set-point e)
+    (hs-toggle-hiding e)))
+
+
 (use-package imenu-anywhere :ensure t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Multi-file Management ;;
@@ -438,15 +521,76 @@
   (setq magit-diff-refine-hunk "all")
   (magit-auto-revert-mode nil))
 
-(use-package browse-at-remote)
+(use-package browse-at-remote
+  :init
+  (setq browse-at-remote-add-line-number-if-no-region-selected nil))
 
 (use-package git-gutter
-  :defer 3
+  :defer 2
+  :ensure git-gutter
+  :ensure git-gutter-fringe
   :diminish git-gutter-mode
   :bind (("C-c g d" . git-gutter:popup-hunk)
          ("C-c g r" . git-gutter:revert-hunk))
+  :init
+  ;; (defvar vc-gutter-in-remote-files nil)
+
+;;   (defun vc-gutter-init-maybe ()
+;;     "Enable `git-gutter-mode' in the current buffer.
+
+;; If the buffer doesn't represent an existing file, `git-gutter-mode's activation
+;; is deferred until the file is saved. Respects `git-gutter:disabled-modes'."
+;;     (let ((file-name (buffer-file-name (buffer-base-buffer))))
+;;       (when (or vc-gutter-in-remote-files
+;;                 (not (file-remote-p (or file-name default-directory))))
+;;         (if (null file-name)
+;;             (add-hook 'after-save-hook #'vc-gutter-init-maybe nil 'local)
+;;           (when (and (vc-backend file-name)
+;;                      (progn
+;;                        (require 'git-gutter)
+;;                        (not (memq major-mode git-gutter:disabled-modes))))
+;;             (if (and (display-graphic-p)
+;;                      (require 'git-gutter-fringe nil t))
+;;                 (setq-local git-gutter:init-function      #'git-gutter-fr:init
+;;                             git-gutter:view-diff-function #'git-gutter-fr:view-diff-infos
+;;                             git-gutter:clear-function     #'git-gutter-fr:clear
+;;                             git-gutter:window-width -1)
+;;               (setq-local git-gutter:init-function      'nil
+;;                           git-gutter:view-diff-function #'git-gutter:view-diff-infos
+;;                           git-gutter:clear-function     #'git-gutter:clear-diff-infos
+;;                           git-gutter:window-width 1))
+;;             (git-gutter-mode +1)
+;;             (remove-hook 'after-save-hook #'vc-gutter-init-maybe 'local))))))
+;;   (add-hook 'find-file-hook 'vc-gutter-init-maybe)
   :config
+  (require 'git-gutter-fringe)
+  ;; places the git gutter outside the margins.
+  (setq-default fringes-outside-margins t)
+  ;; thin fringe bitmaps
+  (define-fringe-bitmap 'git-gutter-fr:added [224]
+    nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:modified [224]
+    nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240]
+    nil nil 'bottom)
   (global-git-gutter-mode t)
+  ;; Courtesy doom emacs
+  (setq git-gutter:disabled-modes '(fundamental-mode image-mode pdf-view-mode))
+  (advice-add #'magit-stage-file   :after #'+vc-gutter-update-h)
+  (advice-add #'magit-unstage-file :after #'+vc-gutter-update-h)
+  ;; (if (fboundp 'fringe-mode) (fringe-mode nil))
+  ;; places the git gutter outside the margins.
+  ;; (setq-default fringes-outside-margins t)
+  ;; (require 'fringe-helper)
+  ;; (require 'git-gutter-fringe)
+  ;; ;; thin fringe bitmaps
+  ;; (define-fringe-bitmap 'git-gutter-fr:added [120]
+  ;;   nil nil '(center repeated))
+
+  ;; (define-fringe-bitmap 'git-gutter-fr:modified [224]
+  ;;   nil nil '(center repeated))
+  ;; (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240]
+  ;;   nil nil 'bottom)
   (setq git-gutter:modified-sign " "
         git-gutter:added-sign " "
         git-gutter:deleted-sign " ")
@@ -466,6 +610,9 @@
    :background "DarkRed"
    :height 70))
 
+;; (use-package git-gutter-fringe
+;;   :)
+
 (use-package git-timemachine)
 
 (use-package projectile
@@ -482,7 +629,6 @@
          ("C-c p s" . projectile-save-project-buffers)))
 
 (use-package counsel-projectile
-  :defer 1
   :bind (("M-p" . counsel-projectile-find-file)
          ("C-c p f" . counsel-projectile-find-file)
          ("C-c p b" . counsel-projectile-switch-to-buffer)
@@ -499,8 +645,12 @@
   )
 
 (use-package recentf
+  :hook (after-init . recentf-mode)
   :config
-  (recentf-mode 1))
+  (setq recentf-filename-handlers
+        '(substring-no-properties    ; strip out lingering text properties
+          abbreviate-file-name)))
+
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer))
 (use-package ibuffer-projectile
@@ -557,47 +707,68 @@
          ("M-," . smart-jump-back)
          ("M-?" . smart-jump-references))
   :config (smart-jump-setup-default-registers)
+  (smart-jump-register :modes 'php-mode
+                       :jump-fn 'xref-find-definitions
+                       :pop-fn 'xref-pop-marker-stack
+                       :refs-fn 'xref-find-references
+                       :should-jump t
+                       :heuristic 'point
+                       :async 500
+                       :order 1)
+  (setq smart-jump-find-references-fallback-function 'smart-jump-find-references-with-rg)
   (smart-jump-register :modes 'go-mode))
 ;;;;;;;;;;;;;
 ;; Checker ;;
 ;;;;;;;;;;;;;
 (use-package flyspell-lazy
-  :config (flyspell-lazy-mode 1))
+  :after flyspell
+  :hook (flyspell-mode . flyspell-lazy-mode))
+
 (use-package flyspell
-  :defer 10
-  :init
+  :defer 2
+  :config
+  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+  (add-hook 'conf-mode-hook 'flyspell-prog-mode)
+  (add-hook 'text-mode-hook 'flyspell-mode)
   (defvar ispell-program-name)
   (defvar flyspell-issue-message-flag)
   (setq ispell-program-name "/usr/local/bin/aspell")
   (setq flyspell-issue-message-flag nil)
-  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-  (add-hook 'text-mode-hook 'flyspell-mode)
-  :config
   (set-face-attribute 'flyspell-incorrect nil :underline '(:color "#6666ff"))
-  (set-face-attribute 'flyspell-duplicate nil :underline '(:color "#6666ff"))
+  (set-face-attribute 'flyspell-duplicate nil :underline '(:color "#6688ff"))
   (eval-after-load "flyspell"
-  '(define-key flyspell-mode-map (kbd "C-.") nil))
+    '(define-key flyspell-mode-map (kbd "C-.") nil))
+  (setq flyspell-prog-text-faces (delq 'font-lock-string-face flyspell-prog-text-faces))
   :diminish flyspell-mode)
 
 (use-package flycheck
-  :hook (prog-mode . flycheck-mode)
+  :defer 1
   :config
   ;; (global-flycheck-mode -1)
+  (add-hook 'prog-mode-hook 'flycheck-mode)
   (setq flycheck-protoc-import-path
         '("~/Development/zomato/zomato-event-registry/"
           "~/Development/gocode/src/github.com/Zomato/delivery-composite-order-service/"))
-  (setq flycheck-check-syntax-automatically '(save mode-enabled new-line idle-change))
+  (setq flycheck-check-syntax-automatically '(save mode-enabled idle-buffer-switch))
   ;; (setq flycheck-buffer-switch-check-intermediate-buffers nil)
   (setq flycheck-display-errors-delay 0.25)
-  :diminish flycheck-mode)
 
+  ;; Courtesy - Doom Emacs
+  (setq flycheck-indication-mode 'right-fringe)
+    ;; A non-descript, left-pointing arrow
+    (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
+      [16 48 112 240 112 48 16] nil nil 'center)
 
-(use-package flycheck-phpstan
-  :init
-  (setq phpstan-memory-limit "1G")
-)
+    (set-face-attribute 'flycheck-error nil :underline '(:style line :color "#a52a2a"))
+    (set-face-attribute 'flycheck-warning nil :underline '(:style line :color "#ca9532"))
+    (set-face-attribute 'flycheck-info nil :underline '(:style line :color "#98be65"))
+    :diminish flycheck-mode)
 
-
+;; (flycheck-add-next-checker 'lsp '(warning . php-phpmd))
+;; (use-package flycheck-phpstan
+;;   :init
+;;   (setq phpstan-memory-limit "1G")
+;; )
 
 (use-package flycheck-posframe
   :hook (flycheck-mode . flycheck-posframe-mode)
@@ -605,6 +776,7 @@
   ;; (flycheck-posframe-configure-pretty-defaults)
   (setq flycheck-posframe-warning-prefix "⚠ "
         flycheck-posframe-info-prefix "··· "
+        flycheck-posframe-prefix "··· "
         flycheck-posframe-error-prefix "✕ ")
   (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p))
 
@@ -620,9 +792,9 @@
 (use-package server
   :defer 5
   :config
-    (unless (server-running-p)
+  (unless (server-running-p)
     (server-start))
-    (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function))
+  (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function))
 
 (use-package key-chord
   :defer 10
@@ -641,12 +813,12 @@
 
 (use-package savehist
   :init (setq savehist-additional-variables
-      ;; search entries
-      '(search-ring regexp-search-ring)
-      ;; save every minute
-      savehist-autosave-interval 60
-      ;; keep the home clean
-      savehist-file (concat () user-emacs-directory "savehist" ))
+              ;; search entries
+              '(search-ring regexp-search-ring)
+              ;; save every minute
+              savehist-autosave-interval 60
+              ;; keep the home clean
+              savehist-file (concat () user-emacs-directory "savehist" ))
   :config
   (savehist-mode 1))
 
@@ -680,17 +852,26 @@
   :config (setq zeal-at-point-zeal-version "0.3.1"))
 
 (use-package dashboard
+  :after all-the-icons
   :demand
-  :ensure t
-  :init (setq dashboard-items '((recents  . 7)
-                                (projects . 8)
-                                (bookmarks . 5)
-                                ;; (agenda . 5)
-                                ))
+  :bind (:map dashboard-mode-map
+              ("C-n" . widget-forward)
+              ("C-p" . widget-backward))
+  :init (setq dashboard-items '((recents  . 5)
+                                (projects . 10)
+                                ;; (bookmarks . 5)
+                                (agenda . 5)))
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
   (setq dashboard-startup-banner 3)
   (setq dashboard-center-content t)
+  (setq dashboard-set-navigator t)
+  (setq dashboard-navigator-buttons
+        `(
+          ((,(all-the-icons-octicon "history" :height 1.1 :v-adjust 0.0)
+            "Restore"
+            "Restore last session"
+            (lambda (&rest _) (restore-from-desktop)) nil "" ""))))
   :config
   (dashboard-setup-startup-hook))
 
@@ -709,7 +890,13 @@
 (use-package vlf )
 
 (use-package autorevert
+  :defer 2
   :config
+  (setq auto-revert-verbose t ; let us know when it happens
+        auto-revert-use-notify nil
+        auto-revert-stop-on-user-input nil
+        ;; Only prompts for confirmation when buffer is unsaved.
+        revert-without-query (list "."))
   (global-auto-revert-mode 1)
   :diminish (auto-revert-mode . "Ⓐ"))
 
@@ -736,7 +923,7 @@
   :defer 2
   :config
   (setq so-long-threshold 400)
-  ; Add some font locking
+                                        ; Add some font locking
   (setq so-long-minor-modes (delq 'font-lock-mode so-long-minor-modes))
   (add-to-list 'so-long-minor-modes 'lsp-mode)
   (add-to-list 'so-long-variable-overrides '(font-lock-maximum-decoration . 1))
@@ -756,6 +943,7 @@
         shell-pop-internal-mode   "ansi-term"))
 
 (use-package eshell
+  :disabled
   :ensure eshell-git-prompt
   ;;   https://github.com/ekaschalk/dotspacemacs/blob/master/.spacemacs
   :init (eshell-git-prompt-use-theme 'robbyrussell))
@@ -763,7 +951,8 @@
 (use-package persistent-scratch
   :init
   :defer 1
-  :config (persistent-scratch-restore)
+  :config
+  (persistent-scratch-restore)
   (persistent-scratch-setup-default))
 
 (use-package alert
@@ -787,40 +976,46 @@
   (setq counsel-describe-variable-function #'helpful-variable))
 
 (use-package desktop
-  :defer 5
   :init
+  (add-to-list 'command-switch-alist (cons "--restore" #'restore-from-desktop))
   (setq desktop-dirname "~/.emacs.d/")
-  (defun +desktop-save()
+  (defun quick-desktop-save()
     (interactive)
-    (let ((desktop-file-modtime (nth 5 (file-attributes (desktop-full-file-name)))))
-             (desktop-save desktop-dirname t)))
+    (let ((desktop-file-modtime (nth 5 (file-attributes (concat desktop-dirname ".emacs.desktop")))))
+      (desktop-save desktop-dirname t)))
   (defun restore-from-desktop(&rest _)
     (interactive)
     (desktop-read desktop-dirname))
-  (add-hook 'kill-emacs-hook #'+desktop-save))
+  (add-hook 'kill-emacs-hook #'quick-desktop-save))
+
 
 (use-package restart-emacs
   :after desktop
   :init
-  (add-to-list 'command-switch-alist (cons "--restore" #'restore-from-desktop))
   (defun restart-and-restore()
     (interactive)
-    (+desktop-save)
+    (quick-desktop-save)
     (restart-emacs '("--restore"))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Languages / Syntax Major Mode ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package apache-mode :ensure t)
 (use-package csv-mode :ensure t)
 (use-package php-mode
-  :ensure t
+  :ensure php-mode
+  :ensure php-boris
+  :ensure phpactor
   :bind (:map php-mode-map
               ("C-c C-c" . nil)
               ("C-." . nil))
   :config
+  (setq php-template-compatibility nil)
   (setq c-auto-align-backslashes nil)
+  (add-hook 'php-mode-hook sp-max-pair-length 5)
   (add-hook 'php-mode-hook 'php-enable-symfony2-coding-style)
   (setq c-basic-offset 4))
+
 
 (use-package geben
   :config (setq geben-path-mappings '(("~/Development/zomato/application/" "/ssh:zdev:/var/www/zomato9/application"))))
@@ -838,13 +1033,15 @@
         lsp-enable-text-document-color nil)
   (setq lsp-enable-indentation nil
         lsp-enable-on-type-formatting nil)
-  (setq lsp-intelephense-files-max-size 2000000))
+  (setq lsp-intelephense-files-max-size 2000000)
+  (setq lsp-intelephense-licence-key intelephense-key))
 
 (use-package dap-mode)
 
 (use-package lsp-ivy
   :defer 2
-  :bind (:map lsp-mode ("M-<return>" . lsp-ivy-workspace-symbol)))
+  :bind (:map lsp-mode-map ("M-<return>" . lsp-ivy-workspace-symbol)))
+
 
 (use-package lua-mode)
 (use-package dockerfile-mode)
@@ -866,9 +1063,9 @@
         lsp-ui-sideline-enable nil
         lsp-ui-sideline-show-hover nil)
 
-    (add-hook 'lsp-ui-doc-frame-hook
+  (add-hook 'lsp-ui-doc-frame-hook
             (lambda (frame _w)
-              (set-face-attribute 'default frame :font "Hack" :height 100)))
+              (set-face-attribute 'default frame :font "Hack" :height 200)))
 
   )
 
@@ -896,10 +1093,10 @@
   (flycheck-add-mode 'php 'web-mode)
   ;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode)) ;; Using rjsx for that
   (defadvice web-mode-highlight-part (around tweak-jsx activate)
-  (if (equal web-mode-content-type "jsx")
-    (let ((web-mode-enable-part-face nil))
-      ad-do-it)
-    ad-do-it)))
+    (if (equal web-mode-content-type "jsx")
+        (let ((web-mode-enable-part-face nil))
+          ad-do-it)
+      ad-do-it)))
 
 (use-package js-mode
   :ensure nil
@@ -907,12 +1104,27 @@
 (use-package js2-mode
   :mode ("\\.js\\'" . js2-mode)
   :config
-  (setq js2-basic-offset 4)
+  (setq js2-basic-offset 4
+        js-chain-indent t
+        ;; Don't mishighlight shebang lines
+        js2-skip-preprocessor-directives t
+        ;; let flycheck handle this
+        js2-mode-show-parse-errors nil
+        js2-mode-show-strict-warnings nil
+        ;; Flycheck provides these features, so disable them: conflicting with
+        ;; the eslint settings.
+        js2-strict-trailing-comma-warning nil
+        js2-strict-missing-semi-warning nil
+        ;; maximum fontification
+        js2-highlight-level 3
+        js2-highlight-external-variables t
+        js2-idle-timer-delay 0.1)
   ;; (load "lsp-javascript")
   ;; (add-hook 'js2-mode-hook (lambda ()
   ;;                            (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
   :bind (:map js2-mode-map ("M-." . nil))
-  :ensure t)
+  :ensure t
+  :ensure prettier-js)
 (use-package rjsx-mode :mode ("\\.jsx\\'" . rjsx-mode) )
 (use-package tern                       ; Javascript IDE backend
   :disabled t
@@ -961,7 +1173,7 @@
   :init
   ;; TODO: make a proper utility instead of this Macro
   (fset 'renumber-proto-message
-   [?\C-\M-u ?\C-\M-s ?= ?\C-b ?\C-  ?\C-f ?\C-c ?m ?\C-  ?\C-k ?  ?\M-x ?m ?c ?/ ?i ?n ?s ?e ?r ?\C-n return C-S-up ?\; return])
+        [?\C-\M-u ?\C-\M-s ?= ?\C-b ?\C-  ?\C-f ?\C-c ?m ?\C-  ?\C-k ?  ?\M-x ?m ?c ?/ ?i ?n ?s ?e ?r ?\C-n return C-S-up ?\; return])
   :config
   (defconst my-protobuf-style
     '((c-basic-offset . 2)
@@ -970,8 +1182,8 @@
   (add-hook 'protobuf-mode-hook
             (lambda () (c-add-style "my-style" my-protobuf-style t)))
   (add-hook 'protobuf-mode-hook
-          (function (lambda ()
-                      (setq tab-width 2))))
+            (function (lambda ()
+                        (setq tab-width 2))))
   (defvar prototool-command)
   (setq prototool-command "/usr/local/bin/prototool")
   (defun prototool-format()
@@ -995,14 +1207,20 @@
 
 (use-package go-mode
   :ensure go-mode
-  :ensure company-go
-  :init
+  :ensure go-eldoc
+  :ensure go-guru
+  :ensure gorepl-mode
+  :ensure go-tag
+  :ensure go-gen-test
+  :ensure flycheck-golangci-lint
+  :bind (:map go-mode-map
+              ("C-c a" . go-tag-add))
+  :config
   (setq gofmt-command "goimports")
+  (add-hook 'go-mode-hook #'go-eldoc-setup)
   (add-hook 'before-save-hook 'gofmt-before-save)
-  (add-hook 'go-mode-hook (lambda ()
-                            (set (make-local-variable 'company-backends) '(company-go))
-                            (company-mode)))
-  )
+  (add-hook 'go-mode-hook 'flycheck-golangci-lint-setup)
+  (setq go-tag-args (list "-transform" "camelcase")))
 
 (use-package rust-mode
   :init
@@ -1081,7 +1299,14 @@
 (use-package w3m
   :init (setq w3m-search-default-engine "duckduckgo"))
 
-(use-package olivetti)
+(use-package olivetti
+  :config
+  (defun olivetti-custom-width()
+    (interactive)
+    (setq olivetti-body-width
+          (string-to-number
+           (completing-read "Width" '("160" "150" "100" "70") nil t)))
+    (olivetti-set-buffer-windows)))
 
 ;; Org mode settings
 (use-package org-crypt
@@ -1098,50 +1323,118 @@
 ;; To turn it off auto-save only locally, you can insert this:
 ;; # -*- buffer-auto-save-file-name: nil; -*-
 
-(use-package org-bullets
-  :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+;; (use-package org-bullets
+;;   :init (remove-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
 ;; (use-package org-wunderlist
 ;;   :init (setq org-wunderlist-file  "~/.emacs.d/Wunderlist.org"
 ;;                 org-wunderlist-dir "~/.emacs.d/org-wunderlist/"))
 
-(use-package org-alert
-  :config (org-alert-enable))
 
 (use-package org-pomodoro
   :config
-  ;; '(org-pomodoro-finished-sound "/home/umar/.emacs.d/resources/doorbell.wav")
-  ;; '(org-pomodoro-long-break-sound "/home/umar/.emacs.d/resources/doorbell.wav")
-  ;; '(org-pomodoro-short-break-sound "/home/umar/.emacs.d/resources/doorbell.wav")
-  ;; '(org-pomodoro-start-sound "/home/umar/.emacs.d/resources/doorbell.wav")
-  )
+  '(org-pomodoro-finished-sound "~/.emacs.d/resources/doorbell.wav")
+  '(org-pomodoro-long-break-sound "~/.emacs.d/resources/doorbell.wav")
+  '(org-pomodoro-short-break-sound "~/.emacs.d/resources/doorbell.wav")
+  '(org-pomodoro-start-sound "~/.emacs.d/resources/doorbell.wav"))
 
 (use-package org
-  :init
+  :config
   (defvar org-plantuml-jar-path)
   ;; helper function
   (defun my-org-confirm-babel-evaluate (lang body)
     "Do not ask for confirmation to evaluate code for specified languages."
     (member lang '("plantuml")))
+
+  (defun variable-pitch-for-notes ()
+    (when (string-match "\\(.*Notes.org\\|roam.*org\\)" (format "%s" buffer-file-name))
+      (progn
+        (setq cursor-type 'bar)
+        (variable-pitch-mode t))))
   ;; trust certain code as being safe
   (setq org-ellipsis "…"
         org-agenda-files '("~/Dropbox/org-files/Tasks.org")
+        org-agenda-window-setup 'current-window
+        org-agenda-skip-unavailable-files t
+        org-agenda-span 10
+        org-agenda-start-on-weekday nil
+        org-agenda-start-day "-3d"
+        org-agenda-inhibit-startup t
         org-log-done 'time
         org-startup-with-inline-images t
+        org-display-remote-inline-images 'download
         org-hide-emphasis-markers t
+        org-hide-leading-stars t
+        org-image-actual-width nil
+        org-imenu-depth 8
+        org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a."))
         org-html-checkbox-type 'html
+        org-priority-faces
+        '((?A . error)
+          (?B . warning)
+          (?C . success))
+        org-startup-indented t
         org-plantuml-jar-path (expand-file-name "~/.emacs.d/plantuml.jar")
-        org-todo-keywords '((sequence "TODO" "DOING" "BLOCKED" "|" "DONE" "DELEGATED" "STALE"))
-        ;; org-fontify-whole-heading-line t
-        ;; org-fontify-done-headline t
+        org-todo-keywords '((sequence "TODO" "DOING" "BLOCKED" "DELEGATED" "|" "DONE" "STALE"))
+        org-fontify-whole-heading-line t
+        org-fontify-done-headline t
         org-fontify-quote-and-verse-blocks t
         org-confirm-babel-evaluate nil
         org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
-  (font-lock-add-keywords 'org-mode
-                        '(("^ *\\([-]\\) "
-                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-  ;; (add-hook 'org-mode-hook 'variable-pitch-mode)
+
+  (setq org-refile-targets
+        '((nil :maxlevel . 3)
+          (org-agenda-files :maxlevel . 3))
+        ;; Without this, completers like ivy/helm are only given the first level of
+        ;; each outline candidates. i.e. all the candidates under the "Tasks" heading
+        ;; are just "Tasks/". This is unhelpful. We want the full path to each refile
+        ;; target! e.g. FILE/Tasks/heading/subheading
+        org-refile-use-outline-path 'file
+        org-outline-path-complete-in-steps nil)
+
+  (setq org-src-preserve-indentation t  ; use native major-mode indentation
+        org-src-tab-acts-natively t     ; we do this ourselves
+        org-link-elisp-confirm-function nil
+        ;; Show src buffer in popup, and don't monopolize the frame
+        org-src-window-setup 'other-window)
+
+  (setq org-display-remote-inline-images 'download) ; TRAMP urls
+  (org-link-set-parameters "http"  :image-data-fun #'+org-http-image-data-fn)
+  (org-link-set-parameters "https" :image-data-fun #'+org-http-image-data-fn)
+  (org-link-set-parameters "img"   :image-data-fun #'+org-inline-image-data-fn)
+
+  ;; (font-lock-remove-keywords 'org-mode
+  ;;                       '(("^ *\\([-]\\) "
+  ;;                          (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
   (add-hook 'org-mode-hook 'visual-line-mode)
+  (add-hook 'org-mode-hook 'variable-pitch-for-notes)
+  (add-hook 'org-mode-hook (lambda() (setq line-spacing 0.1)))
+  (add-hook 'org-mode-hook (lambda() (display-line-numbers-mode -1)))
+  (add-hook 'org-mode-hook (lambda ()
+                             (progn
+                               (setq left-margin-width 5)
+                               (setq right-margin-width 5)
+                               (set-window-buffer nil (current-buffer)))))
+
+  (defvar org-modules
+    '(;; ol-w3m
+      ;; ol-bbdb
+      ol-bibtex
+      ;; ol-docview
+      ;; ol-gnus
+      ;; ol-info
+      ;; ol-irc
+      ;; ol-mhe
+      ;; ol-rmail
+      ;; ol-eww
+      ))
+  ;; Save target buffer after archiving a node.
+  ;; (setq org-archive-subtree-save-file-p t)
+
+  ;; Prevent modifications made in invisible sections of an org document, as
+  ;; unintended changes can easily go unseen otherwise.
+  (setq org-catch-invisible-edits 'smart)
 
   (custom-set-faces
    '(org-block ((t (:inherit fixed-pitch))))
@@ -1162,14 +1455,31 @@
 
   ;; automatically show the resulting image
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+
   :bind (("C-c o a" . org-agenda)
          ("C-c o e" . org-export-dispatch)))
 
 
 (use-package org-alert
+  :defer 5
   :init
-  (setq alert-default-style 'osx-notifier))
+  (setq alert-default-style 'osx-notifier)
+  :config (org-alert-enable))
 
+(use-package org-superstar
+  :hook (org-mode . org-superstar-mode))
+(use-package org-fancy-priorities
+  :hook (org-mode . org-fancy-priorities-mode)
+  :config
+  (setq org-fancy-priorities-list '("⚡" "⇧" "⇩" "☕")))
+(use-package org-roam
+  :defer 5
+  :ensure org-roam
+  :ensure company-org-roam
+  :bind ("C-c o r f" . org-roam-find-file)
+  :config
+  (push 'company-org-roam company-backends)
+  (setq org-roam-directory "~/Dropbox/org-files/org-roam/"))
 ;; Loading functions and variables
 (delete-selection-mode +1)
 (set-default 'imenu-auto-rescan t)
@@ -1189,7 +1499,7 @@
       mouse-yank-at-point t
       require-final-newline t
       fast-but-imprecise-scrolling t
-      frame-inhibit-implied-resize t
+      kill-do-not-save-duplicates t
       highlight-nonselected-windows nil
       ediff-window-setup-function 'ediff-setup-windows-plain)
 
@@ -1207,7 +1517,7 @@
       backup-directory-alist '(("" . "~/.emacs.d/backups/per-save"))
       browse-url-browser-function 'browse-url-default-browser)
 
-
+(setq backward-delete-char-untabify-method 'hungry)
 (setq-default cursor-in-non-selected-windows nil)
 (setq-default indent-tabs-mode nil)   ;; don't use tabs to indent
 (setq-default tab-width 4)

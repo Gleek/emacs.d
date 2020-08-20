@@ -235,11 +235,13 @@ Position the cursor at its beginning, according to the current mode."
 (defun goto-line-with-feedback ()
   "Show line numbers temporarily, while prompting for the line number input"
   (interactive)
-  (unwind-protect
-      (progn
-        (display-line-numbers-mode 1)
-        (goto-line (read-number "Goto line: ")))
-    (display-line-numbers-mode -1)))
+  (let ((line-number-already-enabled display-line-numbers))
+    (unwind-protect
+        (progn
+          (when (eq line-number-already-enabled nil) (display-line-numbers-mode 1))
+          (goto-line (read-number "Goto line: ")))
+      (when (eq line-number-already-enabled nil)(display-line-numbers-mode -1)))))
+
 
 
 (defun rename-file-and-buffer ()
@@ -411,7 +413,7 @@ there's a region, all lines that region covers will be duplicated."
       ((and closest-behind (not closest-ahead)) closest-behind)
       ((> (- closest-ahead (point)) (- (point) closest-behind)) closest-behind)
       ((> (- (point) closest-behind) (- closest-ahead (point))) closest-ahead)
-      :else closest-ahead))))
+      (t closest-ahead)))))
 
 (defun change-number-at-point (arg)
   (interactive "p")
@@ -532,5 +534,11 @@ all hooks after it are ignored.")
         ;; Back to the default
         ((keyboard-quit))))
 
+(defun toggle-cursor-type()
+  (interactive)
+  (setq cursor-type
+        (cond
+         ((eq cursor-type t) 'bar)
+         (t 't))))
 (provide 'personal)
 ;;; personal.el ends here

@@ -26,6 +26,12 @@
 (setq use-package-always-ensure t)
 (setq use-package-always-defer t)
 (use-package diminish)
+(use-package benchmark-init
+  :demand
+  :ensure t
+  :config
+  ;; To disable collection of benchmark data after init is done.
+  (add-hook 'after-init-hook 'benchmark-init/deactivate))
 
 (setq custom-file "~/.emacs.d/custom/emacs-custom.el")
 (load custom-file)
@@ -66,10 +72,11 @@
 
 ;; (load "firacode") ;; Font hack to get ligatures
 (load "osx")
+
+(load "nonsvn")
 (load "core")
 ;; (load "init-exwm")
 ;; (load "web-settings")
-(load "nonsvn")
 ;; (load "xwidconf")
 ;; Load individual modules
 ;; (add-to-list 'load-path "~/.emacs.d/custom/modules")
