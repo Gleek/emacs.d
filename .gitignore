@@ -2,7 +2,7 @@ auto-save-list
 backups
 *~
 places
-*session.*
+/session.*
 tramp-autosave
 ac-comphist.dat
 tramp
@@ -46,3 +46,7 @@ games/
 /geben/
 /server/
 lsp-cache
+/transient/
+
+core/core-secrets.el
+cache/

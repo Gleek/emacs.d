@@ -28,6 +28,7 @@
         dired-unmark-backward
         duplicate-current-line-or-region
         electric-newline-and-maybe-indent
+        end-of-visual-line
         eval-and-replace
         eval-last-sexp
         eval-print-last-sexp
@@ -51,6 +52,7 @@
         move-text-up
         nxml-electric-slash
         org-beginning-of-line
+        org-cycle
         org-delete-char
         org-end-of-line
         org-force-self-insert
@@ -114,8 +116,6 @@
         mouse-set-region
         mouse-set-secondary
         mouse-start-secondary
-        org-cycle
-        origami-recursively-toggle-node
         phi-search
         php-browse-manual
         projectile-switch-project
