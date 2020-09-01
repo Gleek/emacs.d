@@ -4,6 +4,7 @@
   :init
   :defer 1
   :config
+  (setq persistent-scratch-save-file (concat CACHE-DIR ".persistent-scratch"))
   (persistent-scratch-restore)
   (persistent-scratch-setup-default))
 

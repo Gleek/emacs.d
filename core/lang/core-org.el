@@ -107,6 +107,7 @@
         org-display-remote-inline-images 'download
         org-hide-emphasis-markers t
         org-hide-leading-stars t
+        org-id-locations-file (concat CACHE-DIR ".org-id-locations")
         org-image-actual-width 500
         org-imenu-depth 8
         org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a."))

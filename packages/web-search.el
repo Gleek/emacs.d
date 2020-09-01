@@ -6,7 +6,8 @@
         (let ((buf (xwidget-buffer (xwidget-webkit-current-session))))
           (when (buffer-live-p buf)
             (and (eq buf (current-buffer)) (quit-window))
-            (pop-to-buffer buf))))
+            (pop-to-buffer buf)
+            (set-xwidget-query-on-exit-flag (xwidget-webkit-current-session) nil))))
     (browse-url url)))
 ;; Search provider
 (defvar search-providers

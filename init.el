@@ -35,15 +35,14 @@
   ;; To disable collection of benchmark data after init is done.
   (add-hook 'after-init-hook 'benchmark-init/deactivate))
 
-(setq custom-file "~/.emacs.d/custom.el")
-;; (load custom-file)
-;; (add-to-list 'load-path "~/.emacs.d/custom/")
-(add-to-list 'load-path "~/.emacs.d/packages")
-(add-to-list 'load-path "~/.emacs.d/core")
-
 (defconst CACHE-DIR (concat user-emacs-directory "cache/"))
 (defconst IS-MAC     (eq system-type 'darwin))
 (defconst IS-LINUX   (eq system-type 'gnu/linux))
+
+(setq custom-file (concat CACHE-DIR "custom.el"))
+;; (load custom-file)
+(add-to-list 'load-path "~/.emacs.d/packages")
+(add-to-list 'load-path "~/.emacs.d/core")
 
 (use-package "core-ui" :ensure nil :demand t)
 (use-package "core-ux" :ensure nil :demand t
