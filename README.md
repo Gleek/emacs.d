@@ -1,17 +1,11 @@
 My Emacs settings
 ==================
-Includes ALL the packages installed from melpa.
+Core components are in the `core` directory. They are loaded by `init.el`
 
-A better way would have been to simply list package and install packages via `package.el` on load, but the current system saves my time, since all my systems have the same version of Emacs.
+Uses `use-package` for package management. So cloning this repo and opening emacs should install all packages automatically.
 
-In case of problems `M-: (byte-recompile-directory package-user-dir nil 'force)` should help.
+I used exwm on my linux machine but have recently moved to MacOS so the exwm components are not maintained any further.
 
 Usage
-------
+-----
 `git clone https://www.github.com/gleek/.emacs .emacs.d`
-
-TODO
----------
-- Maintain different file for different modules
-- Using use-package for a faster boot-time
-- [Single File master Configuration](http://milkbox.net/note/single-file-master-emacs-configuration/)

@@ -118,13 +118,5 @@
 (use-package "mod-number" :ensure nil
   :bind (("C-S-<up>" . change-number-at-point)
          ("C-S-<down>" . subtract-number-at-point)))
-;; (load "init-exwm")
-;; (load "web-settings")
-;; (load "xwidconf")
-;; Load individual modules
-;; (add-to-list 'load-path "~/.emacs.d/custom/modules")
-;; (load "helm-settings")
-;; (load "ivy-config")
-;; (load "org-mode-config")
 (provide 'init)
 ;;; init.el ends here
