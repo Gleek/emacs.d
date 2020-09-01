@@ -1,8 +1,13 @@
-(menu-bar-mode -1)
-(when (fboundp 'tool-bar-mode)
-  (tool-bar-mode -1))
-(when (fboundp 'scroll-bar-mode)
-  (scroll-bar-mode -1))
+(unless (assq 'menu-bar-lines default-frame-alist)
+  ;; We do this in early-init.el too, but in case the user is on Emacs 26 we do
+  ;; it here too: disable tool and scrollbars.
+  (add-to-list 'default-frame-alist '(menu-bar-lines . 0))
+  (add-to-list 'default-frame-alist '(tool-bar-lines . 0))
+  (add-to-list 'default-frame-alist '(vertical-scroll-bars)))
+(setq menu-bar-mode nil
+      tool-bar-mode nil
+      scroll-bar-mode nil)
+
 (setq inhibit-startup-screen t
       initial-scratch-message "")
 (blink-cursor-mode -1)

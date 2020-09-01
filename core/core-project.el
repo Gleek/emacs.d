@@ -91,6 +91,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package treemacs
   :bind ("C-c p t" . treemacs)
   :config
+  (setq treemacs-width 30)
   (setq treemacs-persist-file (concat CACHE-DIR "treemacs-persist")))
 
 (use-package treemacs-projectile

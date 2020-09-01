@@ -5,7 +5,8 @@ Uses ~use-package~ for package management. So cloning this repo and opening emac
 
 I used exwm on my linux machine but have recently moved to MacOS so the exwm components are not maintained any further.
 
-- ~init.el~ is the first to be loaded
+- ~early-init.el~ is the first file to load. It just disables few UI elements
+- ~init.el~ is the practically the first to be loaded
 - ~core/~ contains all packages and there configuration
 - ~core/lang~ has language specific packages and configuration
 - ~cache~ is the directory where I try to keep all temporary files created
