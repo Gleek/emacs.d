@@ -13,5 +13,9 @@ I used exwm on my linux machine but have recently moved to MacOS so the exwm com
 - ~elpa~ has all the packages installed in emacs
 - ~snippets~ has all the yasnippet snippets
 
+The UI is heavily inspired by [[https://github.com/hlissner/doom-emacs][Doom Emacs]]
+
+[[file:screen.png]]
+
 ** Usage
 ~git clone https://www.github.com/gleek/.emacs .emacs.d~
