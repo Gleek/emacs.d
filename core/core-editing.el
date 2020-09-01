@@ -277,6 +277,10 @@ there's a region, all lines that region covers will be duplicated."
 
 (use-package reformatter :disabled)
 
+(use-package "mod-number" :ensure nil :demand t
+  :bind (("C-S-<up>" . change-number-at-point)
+         ("C-S-<down>" . subtract-number-at-point)))
+
 (delete-selection-mode +1)
 (setq backward-delete-char-untabify-method 'hungry)
 (setq-default cursor-in-non-selected-windows nil)

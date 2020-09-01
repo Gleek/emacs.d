@@ -111,12 +111,6 @@
 
 (use-package "lang/core-misc" :ensure nil :demand t)
 
-(use-package "web-search" :ensure nil
-  :bind (("C-c s w" . duck)
-         ("C-c s l" . lucky)
-         ("C-c s d" . devdocs)))
-(use-package "mod-number" :ensure nil
-  :bind (("C-S-<up>" . change-number-at-point)
-         ("C-S-<down>" . subtract-number-at-point)))
+
 (provide 'init)
 ;;; init.el ends here

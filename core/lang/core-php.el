@@ -39,7 +39,6 @@
 
 (use-package geben
   :init
-  (setq geben-temporary-file-directory (concat CACHE-DIR "geben"))
-  :config (setq geben-path-mappings '(("~/Development/zomato/application/" "/ssh:zdev:/var/www/zomato9/application"))))
+  (setq geben-temporary-file-directory (concat CACHE-DIR "geben")))
 
 (provide 'core-php)
