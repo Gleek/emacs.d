@@ -23,10 +23,10 @@
 
 (use-package org-pomodoro
   :config
-  '(org-pomodoro-finished-sound "~/.emacs.d/resources/doorbell.wav")
-  '(org-pomodoro-long-break-sound "~/.emacs.d/resources/doorbell.wav")
-  '(org-pomodoro-short-break-sound "~/.emacs.d/resources/doorbell.wav")
-  '(org-pomodoro-start-sound "~/.emacs.d/resources/doorbell.wav"))
+  (setq org-pomodoro-finished-sound "~/.emacs.d/resources/doorbell.wav")
+  (setq org-pomodoro-long-break-sound "~/.emacs.d/resources/doorbell.wav")
+  (setq org-pomodoro-short-break-sound "~/.emacs.d/resources/doorbell.wav")
+  (setq org-pomodoro-start-sound "~/.emacs.d/resources/doorbell.wav"))
 
 (use-package org
   :config

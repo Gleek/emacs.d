@@ -125,10 +125,27 @@ there's a region, all lines that region covers will be duplicated."
         (setq end (point))))
     (goto-char (+ origin (* (length region) arg) arg))))
 
+(defun html2org-clipboard ()
+  "Convert clipboard contents from HTML to Org and then paste (yank).
+https://emacs.stackexchange.com/a/12124/2144"
+  (interactive)
+  (kill-new (shell-command-to-string "osascript -e 'the clipboard as \"HTML\"' | perl -ne 'print chr foreach unpack(\"C*\",pack(\"H*\",substr($_,11,-3)))' | pandoc -f html -t json | pandoc -f json -t org | sed 's/ / /g'"))
+  (yank))
+
+
 
 (use-package move-text
   :defer 1
   :config
+  (defun indent-region-advice (&rest ignored)
+    (let ((deactivate deactivate-mark))
+      (if (region-active-p)
+          (indent-region (region-beginning) (region-end))
+        (indent-region (line-beginning-position) (line-end-position)))
+      (setq deactivate-mark deactivate)))
+
+  (advice-add 'move-text-up :after 'indent-region-advice)
+  (advice-add 'move-text-down :after 'indent-region-advice)
   (move-text-default-bindings))
 
 
@@ -136,6 +153,8 @@ there's a region, all lines that region covers will be duplicated."
   :init
   (setq auto-indent-assign-indent-level nil)
   :hook prog-mode
+  :config
+  (advice-remove 'beginning-of-visual-line #'ad-Advice-move-beginning-of-line)
   :diminish)
 
 (use-package subword
@@ -170,10 +189,6 @@ there's a region, all lines that region covers will be duplicated."
          ("C-x a r" . align-regexp)
          ("C-x a c" . align-current)))
 
-(use-package origami
-  :disabled
-  :config (global-origami-mode 1)
-  :bind (("C-c C-c" . origami-recursively-toggle-node)))
 
 (use-package er/expand-region
   :ensure expand-region

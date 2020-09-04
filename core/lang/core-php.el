@@ -13,7 +13,7 @@
   :config
   (setq php-template-compatibility nil)
   (setq c-auto-align-backslashes nil)
-  (add-hook 'php-mode-hook sp-max-pair-length 5)
+  (add-hook 'php-mode-hook (lambda() (setq sp-max-pair-length 5)))
   (add-hook 'php-mode-hook 'php-enable-symfony2-coding-style)
   (setq c-basic-offset 4))
 

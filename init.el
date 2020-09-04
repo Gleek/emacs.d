@@ -46,17 +46,17 @@
 
 (use-package "core-ui" :ensure nil :demand t)
 (use-package "core-ux" :ensure nil :demand t
-  :bind (([remap goto-line] . goto-line-with-feedback)
-         ([remap keyboard-quit] . escape-quit)))
+   :bind (([remap goto-line] . goto-line-with-feedback)
+          ([remap keyboard-quit] . escape-quit)))
 
 (use-package "core-window" :ensure nil :demand t
-  :bind (("C-x <right>" . windmove-right)
-         ("C-x <left>"  . windmove-left)
-         ("C-x <up>"    . windmove-up)
-         ("C-x <down>"  . windmove-down)
-         ("C-x 2"       . vsplit-last-buffer)
-         ("C-x 3"       . hsplit-last-buffer)
-         ("C-x F"       . find-file-other-window)))
+   :bind (("C-x <right>" . windmove-right)
+          ("C-x <left>"  . windmove-left)
+          ("C-x <up>"    . windmove-up)
+          ("C-x <down>"  . windmove-down)
+          ("C-x 2"       . vsplit-last-buffer)
+          ("C-x 3"       . hsplit-last-buffer)
+          ("C-x F"       . find-file-other-window)))
 
 (use-package "core-editing" :ensure nil :demand t
   :bind (("M-;" . comment-or-uncomment-region-or-line)
