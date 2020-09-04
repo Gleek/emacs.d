@@ -289,6 +289,9 @@
   (setq org-roam-graph-viewer (lambda(url) (+browse-url url))))
 
 (use-package org-noter)
-
+(use-package ox-clip
+  :bind ("s-w". ox-clip-formatted-copy))
+(use-package org-cliplink
+  :bind ("C-c o y" . org-cliplink))
 
 (provide 'core-org)

@@ -43,6 +43,60 @@
   (let ((sort-fold-case t))
     (call-interactively 'sort-lines)))
 
+(use-package image-mode :ensure nil
+  :init
+  (defun scale-image-register-hook ()
+    "Register the image scaling hook."
+    (add-hook 'text-scale-mode-hook 'scale-image))
+
+  :hook (image-mode . scale-image-register-hook)
+  :bind (:map image-mode-map
+              ("C-f" . image-forward-hscroll-small)
+              ("C-b" . image-backward-hscroll-small)
+              ("M-f" . image-forward-hscroll-large)
+              ("M-b" . image-backward-hscroll-large)
+              ("C-n" . image-forward-vscroll-small)
+              ("C-p" . image-backward-vscroll-small))
+  :config
+
+  (defun image-forward-hscroll-small()
+      (interactive)
+    (image-forward-hscroll 5))
+
+  (defun image-backward-hscroll-small()
+      (interactive)
+    (image-backward-hscroll 5))
+
+  (defun image-forward-hscroll-large()
+      (interactive)
+    (image-forward-hscroll 30))
+
+  (defun image-backward-hscroll-large()
+      (interactive)
+    (image-backward-hscroll 30))
+
+  (defun image-forward-vscroll-small()
+      (interactive)
+      (image-next-line 5))
+
+  (defun image-backward-vscroll-small()
+      (interactive)
+      (image-previous-line 5))
+
+  (defun image-forward-vscroll-large()
+      (interactive)
+    (image-next-line 30))
+
+  (defun image-backward-vscroll-large()
+      (interactive)
+    (image-previous-line 30))
+
+  (defun scale-image ()
+    "Scale the image by the same factor specified by the text scaling."
+    (image-transform-set-scale
+     (expt text-scale-mode-step
+           text-scale-mode-amount))))
+
 
 (use-package paradox
   :ensure t
