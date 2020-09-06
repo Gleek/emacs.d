@@ -1,6 +1,4 @@
 (unless (assq 'menu-bar-lines default-frame-alist)
-  ;; We do this in early-init.el too, but in case the user is on Emacs 26 we do
-  ;; it here too: disable tool and scrollbars.
   (add-to-list 'default-frame-alist '(menu-bar-lines . 0))
   (add-to-list 'default-frame-alist '(tool-bar-lines . 0))
   (add-to-list 'default-frame-alist '(vertical-scroll-bars)))
@@ -37,9 +35,8 @@
   (setq doom-themes-treemacs-enable-variable-pitch nil)
   :demand
   :config (load-theme 'doom-one t)
-  (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
+  (setq doom-themes-treemacs-theme "doom-atom")
   (doom-themes-treemacs-config)
-  ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
 
@@ -96,6 +93,10 @@
   ;; Temporarily disable `hl-line' when selection is active, since it doesn't
   ;; serve much purpose when the selection is so much more visible.
   (defvar doom--hl-line-mode nil))
+
+(use-package highlight-numbers
+  :hook ((prog-mode conf-mode) . highlight-numbers-mode)
+  :config (setq highlight-numbers-generic-regexp "\\_<[[:digit:]]+\\(?:\\.[0-9]*\\)?\\_>"))
 
 (use-package highlight-indent-guides
   :bind ("C-c t h" . highlight-indent-guides-mode)

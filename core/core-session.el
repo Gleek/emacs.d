@@ -72,5 +72,6 @@
     (quick-desktop-save)
     (restart-emacs '("--restore"))))
 
+(setq confirm-kill-emacs 'yes-or-no-p)
 
 (provide 'core-session)
