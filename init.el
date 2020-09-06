@@ -41,8 +41,8 @@
 
 (setq custom-file (concat CACHE-DIR "custom.el"))
 ;; (load custom-file)
-(add-to-list 'load-path "~/.emacs.d/packages")
-(add-to-list 'load-path "~/.emacs.d/core")
+(add-to-list 'load-path (concat user-emacs-directory "packages/"))
+(add-to-list 'load-path (concat user-emacs-directory "core/"))
 
 (use-package "core-ui" :ensure nil :demand t
   :hook (prog-mode . font-lock-comment-annotations))

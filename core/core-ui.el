@@ -99,7 +99,6 @@
 
 (use-package highlight-indent-guides
   :bind ("C-c t h" . highlight-indent-guides-mode)
-  :hook ((prog-mode conf-mode) . highlight-indent-guides-mode)
   :config
   (setq highlight-indent-guides-method 'character))
 

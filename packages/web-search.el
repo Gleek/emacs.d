@@ -1,12 +1,17 @@
-(defun +browse-url(url &optional use-webkit)
-  (if (and use-webkit
+(require 'popup)
+(defvar default-browser "default")
+(setq default-browser "default")
+(defun +browse-url(url)
+  (if (and (string= default-browser "xwidget")
            (featurep 'xwidget-internal))
       (progn
         (xwidget-webkit-browse-url url)
+
         (let ((buf (xwidget-buffer (xwidget-webkit-current-session))))
           (when (buffer-live-p buf)
             (and (eq buf (current-buffer)) (quit-window))
-            (pop-to-buffer buf)
+            (with-popup-rules! '(("^\\*xwidget" :slot 4 :size 0.35 :select nil :side right))
+              (pop-to-buffer buf))
             (set-xwidget-query-on-exit-flag (xwidget-webkit-current-session) nil))))
     (browse-url url)))
 ;; Search provider
@@ -18,7 +23,7 @@
     (lucky         . ("Google lucky"  "http://www.google.com/search?btnI&q=%s"))
     (stackoverflow . ("StackOverflow" "https://stackoverflow.com/search?q=%s"))))
 
-(defun search-using-provider(provider &optional use-webkit)
+(defun search-using-provider(provider)
   (+browse-url
     (let ((provider-data (alist-get provider search-providers)))
       (format (car (cdr provider-data))
@@ -26,7 +31,7 @@
                (if mark-active
                    (buffer-substring (region-beginning) (region-end))
                  (read-string (format "Search using %s: " (car provider-data))
-                              (thing-at-point 'symbol t)))))) use-webkit))
+                              (thing-at-point 'symbol t))))))))
 
 (defun google ()
   "Google the selected region if any, display a query prompt otherwise."
@@ -40,14 +45,16 @@
 (defun duck ()
   "Duck Duck Go the selected region if any, display a query prompt otherwise."
   (interactive)
-  (search-using-provider 'duck t))
+  (let ((default-browser "xwidget"))
+    (search-using-provider 'duck)))
 (defun ducky ()
   "Duck Duck Go the selected region if any, display a query prompt otherwise."
   (interactive)
   (search-using-provider 'ducky))
 (defun devdocs()
   (interactive)
-  (search-using-provider 'devdocs t))
+  (let ((default-browser "xwidget"))
+    (search-using-provider 'devdocs)))
 (defun stackoverflow()
   (interactive)
   (search-using-provider 'stackoverflow))
