@@ -13,17 +13,14 @@
 (blink-cursor-mode -1)
 (setq frame-inhibit-implied-resize t)
 ;; Font/Themes
-(defvar default-font "Source Code Pro 13")
-
+(defvar default-font "Fira Code 12")
+(setq default-font "Fira Code 12")
 (set-frame-font default-font 'keepsize t)
 ;; (set-face-font 'variable-pitch "Baskerville 15")
 (set-face-font 'variable-pitch "ETBembo 17")
 (set-face-font 'fixed-pitch default-font)
 
 (when IS-MAC
-  (setq mac-command-modifier 'meta
-        ;;       mac-option-modifier 'control
-        ns-option-modifier 'super)
   (setq ns-auto-hide-menu-bar nil)
   (setq ns-use-srgb-colorspace t)
   (set-fontset-font
@@ -70,7 +67,7 @@
   (setq doom-modeline-vcs-max-length 20)
   (setq doom-modeline-minor-modes nil)
   (setq doom-modeline-enable-word-count t)
-  (setq doom-modeline-checker-simple-format nil)
+  (setq doom-modeline-checker-simple-format t)
   (doom-modeline-mode +1))
 
 (use-package hide-mode-line)
@@ -83,7 +80,8 @@
   (column-number-mode t))
 
 (use-package display-line-numbers
-  :hook ((prog-mode text-mode conf-mode) . display-line-numbers-mode))
+  :hook ((prog-mode text-mode conf-mode) . display-line-numbers-mode)
+  :bind ("C-c t l". display-line-numbers-mode))
 
 
 (use-package hl-line
@@ -98,6 +96,12 @@
   ;; Temporarily disable `hl-line' when selection is active, since it doesn't
   ;; serve much purpose when the selection is so much more visible.
   (defvar doom--hl-line-mode nil))
+
+(use-package highlight-indent-guides
+  :bind ("C-c t h" . highlight-indent-guides-mode)
+  :hook ((prog-mode conf-mode) . highlight-indent-guides-mode)
+  :config
+  (setq highlight-indent-guides-method 'character))
 
 (use-package dashboard
   :after all-the-icons
@@ -128,7 +132,17 @@
 (setq-default frame-title-format '(buffer-file-name "Emacs - %b"))
 (setq-default line-spacing 0)
 
+(use-package minimap
+  :defer t
+  :bind ("C-c t m" . minimap-mode)
+  :config
+  (setq minimap-window-location 'right
+        minimap-update-delay 0
+        minimap-width-fraction 0.09
+        minimap-minimum-width 15))
+
 (use-package olivetti
+  :bind ("C-c t z" . olivetti-mode)
   :config
   (defun olivetti-custom-width()
     (interactive)
@@ -151,8 +165,6 @@ This functions should be added to the hooks of major modes for programming."
         (cond
          ((eq cursor-type t) 'bar)
          (t 't))))
-
-(add-hook 'prog-mode-hook 'font-lock-comment-annotations)
 
 
 (provide 'core-ui)

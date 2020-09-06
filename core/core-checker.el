@@ -4,7 +4,8 @@
          (flyspell-prog-mode . flyspell-lazy-mode)))
 
 (use-package flyspell
-  :defer 1
+  ;; :defer 5
+  :disabled
   :config
   (add-hook 'prog-mode-hook 'flyspell-prog-mode)
   (add-hook 'conf-mode-hook 'flyspell-prog-mode)
@@ -19,6 +20,13 @@
     '(define-key flyspell-mode-map (kbd "C-.") nil))
   (setq flyspell-prog-text-faces (delq 'font-lock-string-face flyspell-prog-text-faces))
   :diminish flyspell-mode)
+
+(use-package spell-fu
+  :hook (text-mode . spell-fu-mode)
+  :init
+  (setq spell-fu-directory (concat CACHE-DIR "spell-fu"))
+  :config
+  (set-face-attribute 'spell-fu-incorrect-face nil :underline '(:color "#6666ff")))
 
 (use-package flycheck
   :defer 1

@@ -27,6 +27,10 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-c p p" . counsel-projectile-switch-project)))
 
 
+(use-package project
+  :config
+  (setq project-list-file (concat CACHE-DIR "projects")))
+
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer))
 (use-package ibuffer-projectile

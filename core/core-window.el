@@ -38,4 +38,13 @@
   :config (setq +popup-margin-width nil)
   (+popup-mode t))
 
+(use-package winner
+  :config (winner-mode t)
+  :bind (("C-<tab>" . winner-undo)
+         ("C-S-<tab>" . winner-redo)))
+
+
+(use-package ace-window
+  :bind ("C-:" . ace-window))
+
 (provide 'core-window)

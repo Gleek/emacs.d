@@ -12,9 +12,10 @@
          ("C-h v" . counsel-describe-variable)))
 
 (use-package ivy
+  :after popup
   :init
   (setq ivy-sort-max-size 7500
-        ivy-height 15
+        ivy-height 17
         ivy-wrap nil
         ivy-use-selectable-prompt t
         ivy-fixed-height-minibuffer t
@@ -24,6 +25,7 @@
 
   :config
   (ivy-mode t)
+  (set-popup-rule! "^\\*ivy-occur" :size 0.35 :ttl 0 :quit nil)
   ;; (all-the-icons-ivy-setup)
   :bind (("C-x b"   . ivy-switch-buffer)
          ("C-c b r" . ivy-resume))
@@ -49,22 +51,24 @@
 
 
 
-;; (use-package ivy-posframe
-;;   :disabled
-;;   :diminish
-;;   :config
-;;   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
-;;   (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-;;   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
-;;   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
-;;   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
-;;   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
-;;   ;; (setq ivy-posframe-parameters '())
-;;   (setq ivy-posframe-parameters
-;;         '((left-fringe . 8)
-;;           (right-fringe . 8)
-;;           (parent-frame nil)))
-;;   (ivy-posframe-mode 1))
+(use-package ivy-posframe
+  :disabled
+  :diminish
+  :config
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
+  ;; (setq ivy-posframe-parameters '())
+  (setq ivy-posframe-parameters
+        '((left-fringe . 8)
+          (right-fringe . 8)
+          ;; (parent-frame nil)
+          ))
+  (setq ivy-posframe-font "Fira Code 15")
+  (ivy-posframe-mode 1))
 
 (use-package ivy-rich
   :defer 1

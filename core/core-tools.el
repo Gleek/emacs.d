@@ -167,6 +167,7 @@
   :bind (("C-c s w" . duck)
          ("C-c s l" . lucky)
          ("C-c s d" . devdocs)))
+
 ;; (use-package keepass-mode)
 
 (provide 'core-tools)

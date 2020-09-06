@@ -22,6 +22,11 @@
            (line-beginning-position 2)))))
 
 
+(when IS-MAC
+  (setq mac-command-modifier 'meta
+        ;;       mac-option-modifier 'control
+        ns-option-modifier 'super))
+
 ;; Find my cursor
 (use-package beacon
   :disabled

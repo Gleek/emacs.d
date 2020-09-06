@@ -3,14 +3,15 @@
          ("C-c g b" . magit-blame-addition)
          ("C-c g l" . magit-log-buffer-file))
   :config
-  (setq transient-levels-file (concat CACHE-DIR "transient/levels.el"))
-  (setq transient-values-file (concat CACHE-DIR "transient/values.el"))
-  (setq transient-history-file (concat CACHE-DIR "transient/history.el"))
+  (setq transient-levels-file (concat CACHE-DIR "transient/levels.el")
+        transient-values-file (concat CACHE-DIR "transient/values.el")
+        transient-history-file (concat CACHE-DIR "transient/history.el"))
 
   (setq magit-refresh-status-buffer nil)
   (setq magit-auto-revert-mode nil)
-  (setq magit-diff-refine-hunk "all")
-  (magit-auto-revert-mode nil))
+  (setq magit-save-repository-buffers nil)
+  (setq magit-diff-refine-hunk t)
+  (add-hook 'magit-popup-mode-hook #'hide-mode-line-mode))
 
 (use-package browse-at-remote
   :init

@@ -14,14 +14,6 @@
   :bind (("C-\"". avy-goto-word-or-subword-1)
          ("C-'" . avy-goto-char-timer)))
 
-(use-package ace-window
-  :bind ("C-:" . ace-window))
-
-(use-package winner
-  :config (winner-mode t)
-  :bind (("s-<tab>" . winner-undo)
-         ("s-<iso-lefttab>" . winner-redo)))
-
 (use-package isearch
   :ensure nil
   :chords ("df" . isearch-forward)
