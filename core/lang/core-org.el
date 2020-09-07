@@ -1,4 +1,7 @@
 ;; Org mode settings
+(defvar +org-directory "~/Dropbox/org-files/")
+
+
 (use-package org-crypt
   :ensure nil
   :defer 1
@@ -41,67 +44,25 @@
       (progn
         (setq cursor-type 'bar)
         (variable-pitch-mode t))))
-  (defun +switch-to-agenda()
-    (interactive)
-    (org-agenda nil " "))
+
 
   (defun +capture-inbox()
     (interactive)
     (org-capture nil "i"))
   ;; trust certain code as being safe
-  (defvar +org-agenda-directory "~/Dropbox/org-files/")
 
   (setq org-capture-templates
-        `(("i" "inbox" entry (file ,(concat +org-agenda-directory "inbox.org"))
+        `(("i" "inbox" entry (file ,(concat +org-directory "inbox.org"))
            "* TODO %?")
-          ("l" "link" entry (file ,(concat +org-agenda-directory "inbox.org"))
+          ("l" "link" entry (file ,(concat +org-directory "inbox.org"))
            "* TODO %(org-cliplink-capture)" :immediate-finish t)
-          ("c" "org-protocol-capture" entry (file ,(concat +org-agenda-directory "inbox.org"))
+          ("c" "org-protocol-capture" entry (file ,(concat +org-directory "inbox.org"))
            "* TODO [[%:link][%:description]]\n\n %i" :immediate-finish t)))
-  (defvar +my-org-agenda-todo-view)
-  (setq org-agenda-custom-commands
-        `((" " "Agenda"
-           ((agenda ""
-                    ((org-agenda-span 'day)
-                     (org-deadline-warning-days 365)))
-            (todo "TODO"
-                  ((org-agenda-overriding-header "To Refile")
-                   (org-agenda-files '(,(concat +org-agenda-directory "inbox.org")))))
-            (todo "DOING"
-                  ((org-agenda-overriding-header "In Progress")
-                   (org-agenda-files '(,(concat +org-agenda-directory "someday.org")
-                                       ,(concat +org-agenda-directory "projects.org")
-                                       ,(concat +org-agenda-directory "next.org")))
-                   ))
-            (todo "TODO"
-                  ((org-agenda-overriding-header "Projects")
-                   (org-agenda-files '(,(concat +org-agenda-directory "projects.org")))
-                   ))
-            (todo "TODO"
-                  ((org-agenda-overriding-header "One-off Tasks")
-                   (org-agenda-files '(,(concat +org-agenda-directory "next.org")))
-                   (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
-            (todo "BLOCKED"
-                  ((org-agenda-overriding-header "Blocked Tasks")
-                   (org-agenda-files '(,(concat +org-agenda-directory "someday.org")
-                                       ,(concat +org-agenda-directory "projects.org")
-                                       ,(concat +org-agenda-directory "next.org")))))
-            nil))))
-
-  ;; (setq org-agenda-custom-commands `,+my-org-agenda-todo-view)
-
 
   (setq org-ellipsis "…"
-        org-agenda-files '("~/Dropbox/org-files/")
+        org-agenda-files `(,+org-directory)
         org-archive-location "~/Dropbox/org-files/archive.org::* From %s"
-        org-agenda-window-setup 'current-window
         org-startup-align-all-table t
-        org-agenda-skip-unavailable-files t
-        org-agenda-span 10
-        org-agenda-block-separator (aref "━" 0)
-        org-agenda-start-on-weekday nil
-        org-agenda-start-day nil
-        org-agenda-inhibit-startup t
         org-log-done 'time
         org-startup-with-inline-images t
         org-display-remote-inline-images 'download
@@ -157,14 +118,14 @@
 
   ;; (add-hook 'org-mode-hook 'visual-line-mode)
   ;; (add-hook 'org-mode-hook 'toggle-truncate-lines)
+
   (add-hook 'org-mode-hook 'variable-pitch-for-notes)
   (add-hook 'org-mode-hook (lambda() (setq line-spacing 0.1)))
   (add-hook 'org-mode-hook (lambda() (display-line-numbers-mode -1)))
   (add-hook 'org-mode-hook (lambda ()
                              (progn
                                (setq left-margin-width 5)
-                               (setq right-margin-width 5)
-                               (set-window-buffer nil (current-buffer)))))
+                               (setq right-margin-width 5))))
 
   (setq org-modules
         '(;; ol-w3m
@@ -208,20 +169,63 @@
   (add-hook 'org-clock-in-hook (lambda() (org-todo "DOING")) 'append)
 
 
-  :bind (("C-c o A" . org-agenda)
-         ("C-c o e" . org-export-dispatch)
+  :bind (("C-c o e" . org-export-dispatch)
          ("C-c o c" . +capture-inbox)
-         ("<f1>" . +switch-to-agenda)
-         ("C-c o a" . +switch-to-agenda)
          :map org-mode-map
          ("C-s-q" . org-fill-paragraph)))
 
 (use-package org-agenda
+  :after org
   :ensure nil
-  :bind (:map org-agenda-mode-map
+  :bind (("C-c o A" . org-agenda)
+         ("C-c o a" . +switch-to-agenda)
+         ("<f1>" . +switch-to-agenda)
+         :map org-agenda-mode-map
               ("i" . org-agenda-clock-in)
               ("c" . +capture-inbox)
-              ("R" . org-agenda-refile)))
+              ("R" . org-agenda-refile))
+  :config
+  (defun +switch-to-agenda()
+    (interactive)
+    (org-agenda nil " "))
+  (setq org-agenda-custom-commands
+        `((" " "Agenda"
+           ((agenda ""
+                    ((org-agenda-span 'day)
+                     (org-deadline-warning-days 365)))
+            (todo "TODO"
+                  ((org-agenda-overriding-header "To Refile")
+                   (org-agenda-files '(,(concat +org-directory "inbox.org")))))
+            (todo "DOING"
+                  ((org-agenda-overriding-header "In Progress")
+                   (org-agenda-files '(,(concat +org-directory "someday.org")
+                                       ,(concat +org-directory "projects.org")
+                                       ,(concat +org-directory "next.org")))
+                   ))
+            (todo "TODO"
+                  ((org-agenda-overriding-header "Projects")
+                   (org-agenda-files '(,(concat +org-directory "projects.org")))
+                   ))
+            (todo "TODO"
+                  ((org-agenda-overriding-header "One-off Tasks")
+                   (org-agenda-files '(,(concat +org-directory "next.org")))
+                   (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
+            (todo "BLOCKED"
+                  ((org-agenda-overriding-header "Blocked Tasks")
+                   (org-agenda-files '(,(concat +org-directory "someday.org")
+                                       ,(concat +org-directory "projects.org")
+                                       ,(concat +org-directory "next.org")))))
+            nil))))
+
+  ;; (setq org-agenda-files `(,+org-directory)
+  ;;       org-agenda-window-setup 'current-window
+  ;;       org-agenda-skip-unavailable-files t
+  ;;       org-agenda-span 10
+  ;;       org-agenda-block-separator (aref "━" 0)
+  ;;       org-agenda-start-on-weekday nil
+  ;;       org-agenda-start-day nil
+  ;;       org-agenda-inhibit-startup t)
+  )
 
 
 

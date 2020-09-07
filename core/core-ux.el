@@ -21,6 +21,9 @@
      (list (line-beginning-position)
            (line-beginning-position 2)))))
 
+;; Avoid getting read only error with focus on minibuffer
+(setq minibuffer-prompt-properties '(read-only t intangible t cursor-intangible t face minibuffer-prompt))
+(add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
 (when IS-MAC
   (setq mac-command-modifier 'meta

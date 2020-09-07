@@ -18,6 +18,14 @@
 (set-face-font 'variable-pitch "ETBembo 17")
 (set-face-font 'fixed-pitch default-font)
 
+
+(setq-default frame-title-format '(buffer-file-name "%b - Emacs"))
+(setq-default line-spacing 0)
+
+(setq resize-mini-windows 'grow-only
+      ;; But don't let the minibuffer grow beyond this size
+      max-mini-window-height 0.15)
+
 (when IS-MAC
   (setq ns-auto-hide-menu-bar nil)
   (setq ns-use-srgb-colorspace t)
@@ -30,14 +38,19 @@
 
 
 (use-package doom-themes
+  :ensure doom-themes
+  :ensure solaire-mode
   :init
   (defvar doom-themes-treemacs-enable-variable-pitch)
   (setq doom-themes-treemacs-enable-variable-pitch nil)
   :demand
-  :config (load-theme 'doom-one t)
+  :config
+  (solaire-global-mode +1)
+  (load-theme 'doom-one t)
   (setq doom-themes-treemacs-theme "doom-atom")
   (doom-themes-treemacs-config)
   (doom-themes-org-config))
+
 
 
 
@@ -78,7 +91,10 @@
 
 (use-package display-line-numbers
   :hook ((prog-mode text-mode conf-mode) . display-line-numbers-mode)
-  :bind ("C-c t l". display-line-numbers-mode))
+  :bind ("C-c t l". display-line-numbers-mode)
+  :config
+  (setq-default display-line-numbers-widen t))
+
 
 
 (use-package hl-line
@@ -132,9 +148,6 @@
   (defun dashboard-get-banner-path(num)
     (expand-file-name "banner.txt" user-emacs-directory))
    (dashboard-setup-startup-hook))
-
-(setq-default frame-title-format '(buffer-file-name "Emacs - %b"))
-(setq-default line-spacing 0)
 
 (use-package minimap
   :defer t

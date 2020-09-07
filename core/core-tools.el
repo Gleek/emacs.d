@@ -45,9 +45,12 @@
 
 (use-package image-mode :ensure nil
   :init
+  (defun +scale-image()
+    (when (eq major-mode 'image-mode)
+      (scale-image)))
   (defun scale-image-register-hook ()
     "Register the image scaling hook."
-    (add-hook 'text-scale-mode-hook 'scale-image))
+    (add-hook 'text-scale-mode-hook '+scale-image))
 
   :hook (image-mode . scale-image-register-hook)
   :bind (:map image-mode-map

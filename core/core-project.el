@@ -93,7 +93,8 @@ Repeated invocations toggle between the two most recently open buffers."
 
 
 (use-package treemacs
-  :bind ("C-c p t" . +treemacs-toggle)
+  :bind (("C-c t t" . +treemacs-toggle)
+         ("C-c p t" . +show-treemacs))
   :init
   (setq treemacs-follow-after-init t
         treemacs-is-never-other-window t
@@ -101,6 +102,30 @@ Repeated invocations toggle between the two most recently open buffers."
         treemacs-persist-file (concat CACHE-DIR "treemacs-persist")
         treemacs-last-error-persist-file (concat CACHE-DIR "treemacs-last-error-persist"))
   :config
+  (defun +show-treemacs()
+    (interactive)
+    (if (and (projectile-project-root)
+             t)
+        ;; Modified treemacs-add-and-display-current-project to focus on
+        ;; the current file instead of project root
+        (treemacs-block
+         (treemacs-unless-let (root (treemacs--find-current-user-project))
+             (treemacs-error-return-if (null root)
+               "Not in a project.")
+           (let* ((path (treemacs--canonical-path root))
+                  (name (treemacs--filename path)))
+             (unless (treemacs-current-workspace)
+               (treemacs--find-workspace))
+             (if (treemacs-workspace->is-empty?)
+                 (progn
+                   (treemacs-do-add-project-to-workspace path name)
+                   (treemacs-select-window)
+                   (treemacs-pulse-on-success))
+               (treemacs-select-window)
+               (if (treemacs-is-path path :in-workspace)
+                   (treemacs-select-window)
+                 (treemacs-add-project-to-workspace path name))))))
+      (treemacs)))
   (defun +treemacs-toggle ()
     "Initialize or toggle treemacs.
 Ensures that only the current project is present and all other projects have
@@ -109,28 +134,7 @@ Use `treemacs' command for old functionality."
     (interactive)
     (pcase (treemacs-current-visibility)
       (`visible (delete-window (treemacs-get-local-window)))
-      (_ (if (and (projectile-project-root)
-                  t)
-             ;; Modified treemacs-add-and-display-current-project to focus on
-             ;; the current file instead of project root
-             (treemacs-block
-              (treemacs-unless-let (root (treemacs--find-current-user-project))
-                  (treemacs-error-return-if (null root)
-                    "Not in a project.")
-                (let* ((path (treemacs--canonical-path root))
-                       (name (treemacs--filename path)))
-                  (unless (treemacs-current-workspace)
-                    (treemacs--find-workspace))
-                  (if (treemacs-workspace->is-empty?)
-                      (progn
-                        (treemacs-do-add-project-to-workspace path name)
-                        (treemacs-select-window)
-                        (treemacs-pulse-on-success))
-                    (treemacs-select-window)
-                    (if (treemacs-is-path path :in-workspace)
-                        (treemacs-select-window)
-                      (treemacs-add-project-to-workspace path name))))))
-           (treemacs)))))
+      (_ (+show-treemacs))))
   (treemacs-follow-mode -1)
   (setq treemacs-width 30))
 
