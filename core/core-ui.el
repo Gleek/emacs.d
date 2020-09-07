@@ -114,9 +114,10 @@
                                 ;; (bookmarks . 5)
                                 ;; (agenda . 5)
                                 ))
+
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
-  (setq dashboard-startup-banner 3)
+  (setq dashboard-startup-banner -1)
   (setq dashboard-center-content t)
   (setq dashboard-set-navigator t)
   (setq dashboard-set-footer nil)
@@ -127,7 +128,10 @@
             "Restore last session"
             (lambda (&rest _) (restore-from-desktop)) nil "" ""))))
   :config
-  (dashboard-setup-startup-hook))
+  ;; Override this function to get a custom text banner
+  (defun dashboard-get-banner-path(num)
+    (expand-file-name "banner.txt" user-emacs-directory))
+   (dashboard-setup-startup-hook))
 
 (setq-default frame-title-format '(buffer-file-name "Emacs - %b"))
 (setq-default line-spacing 0)
