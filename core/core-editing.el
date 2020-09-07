@@ -245,6 +245,13 @@ https://emacs.stackexchange.com/a/12124/2144"
   :bind (:map undo-tree-map
               ("M-_" . nil))
   :config
+  (defun +undo-tree-save-history (undo-tree-save-history &rest args)
+    "Removes Wrote undo tree messages from Message buffer"
+    (let ((message-log-max nil)
+          (inhibit-message t))
+      (apply undo-tree-save-history args)))
+  (advice-add 'undo-tree-save-history :around '+undo-tree-save-history)
+
   (global-undo-tree-mode 1)
   (setq undo-tree-visualizer-diff nil
         undo-tree-auto-save-history t

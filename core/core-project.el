@@ -68,11 +68,10 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq dumb-jump-force-searcher 'rg)
   (setq dumb-jump-selector 'ivy))
 
-(use-package rg
-  :ensure rg
-  :ensure wgrep-ag
-  :config
-  (add-hook 'ripgrep-search-mode-hook 'wgrep-ag-setup))
+(use-package rg)
+
+(use-package wgrep
+  :config (setq wgrep-auto-save-buffer t))
 
 (use-package smart-jump
   :ensure t

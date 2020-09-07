@@ -122,7 +122,7 @@
   (setq dashboard-set-footer nil)
   (setq dashboard-navigator-buttons
         `(
-          ((,(all-the-icons-octicon "history" :height 1.1 :v-adjust 0.0)
+          ((,(all-the-icons-octicon "sync" :height 1.1 :v-adjust 0.0)
             "Restore"
             "Restore last session"
             (lambda (&rest _) (restore-from-desktop)) nil "" ""))))

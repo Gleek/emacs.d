@@ -1,5 +1,6 @@
 (setq bookmark-file (concat CACHE-DIR "bookmarks"))
-(setq auto-save-list-file-prefix (concat CACHE-DIR "auto-save-list/.saves-"))
+(setq auto-save-list-file-prefix (concat CACHE-DIR "auto-save-list/.saves-")
+      auto-save-file-name-transforms `((".*" ,auto-save-list-file-prefix t)))
 (use-package persistent-scratch
   :init
   :defer 1
