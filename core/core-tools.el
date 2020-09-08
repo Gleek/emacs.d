@@ -163,7 +163,10 @@
 (when IS-MAC
   (use-package exec-path-from-shell
     :demand
-    :config (exec-path-from-shell-initialize)))
+    :config
+    ;; don't load interactive shell
+    (setq exec-path-from-shell-arguments '("-l"))
+    (exec-path-from-shell-initialize)))
 
 
 (use-package "web-search" :ensure nil :demand t

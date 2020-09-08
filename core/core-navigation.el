@@ -24,7 +24,7 @@
 (use-package swiper
   :ensure t
   :bind (("C-s" . swiper-isearch)
-         ("C-c s m" . swiper-mc)))
+         ("C-c c m" . swiper-mc)))
 
 (use-package phi-search :ensure t
   :init (setq phi-search-limit 10000))

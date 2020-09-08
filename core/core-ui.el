@@ -149,8 +149,14 @@
             (lambda (&rest _) (restore-from-desktop)) nil "" ""))))
   :config
   ;; Override this function to get a custom text banner
-  (defun dashboard-get-banner-path(num)
-    (expand-file-name "banner.txt" user-emacs-directory))
+  (advice-add 'dashboard-get-banner-path :around '+get-custom-banner)
+  (defun +get-custom-banner(origin-fun &rest num)
+    ;; If a -ve number is passed it uses the custom banner
+    (message " %s" (car num))
+    (if (< (car num) 0)
+        (expand-file-name "banner.txt" user-emacs-directory)
+      (apply origin-fun num)))
+
    (dashboard-setup-startup-hook))
 
 (use-package minimap

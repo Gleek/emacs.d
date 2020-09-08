@@ -79,7 +79,6 @@
           (?C . success))
         org-startup-indented t
         org-id-link-to-org-use-id t
-        org-plantuml-jar-path (expand-file-name "~/.emacs.d/resources/plantuml.jar")
         org-todo-keywords '((sequence "TODO(t)" "DOING(o)"  "|" "DONE(d)")
                             (sequence "BLOCKED(b@/!)" "DELEGATED(e@/!)" "WAITING(w@/!)" "|" "CANCELLED(c@/!)"))
         org-treat-S-cursor-todo-selection-as-state-change nil
@@ -163,6 +162,14 @@
   :config
   ;; Support for plantuml
   (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+  (add-to-list
+   'org-src-lang-modes '("plantuml" . plantuml))
+
+
+  (advice-add #'org-babel-execute:plantuml
+              :override #'+plantuml-org-babel-execute:plantuml-a)
+  (add-to-list 'org-babel-default-header-args:plantuml
+               '(:cmdline . "-charset utf-8"))
 
   ;; automatically show the resulting image
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)

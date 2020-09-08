@@ -36,6 +36,7 @@
   (add-hook 'after-init-hook 'benchmark-init/deactivate))
 
 (defconst CACHE-DIR (expand-file-name "cache/" user-emacs-directory))
+(defconst RES-DIR (expand-file-name "resources/" user-emacs-directory))
 (defconst IS-MAC     (eq system-type 'darwin))
 (defconst IS-LINUX   (eq system-type 'gnu/linux))
 
@@ -110,6 +111,7 @@
 (use-package "lang/core-elisp" :ensure nil :demand t
   :bind ("C-c e" . eval-and-replace))
 
+(use-package "lang/core-plantuml" :ensure nil :demand t)
 (use-package "lang/core-misc" :ensure nil :demand t)
 
 
