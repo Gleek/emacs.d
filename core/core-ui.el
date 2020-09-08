@@ -152,6 +152,10 @@
   (advice-add 'dashboard-get-banner-path :around '+get-custom-banner)
   (defun +get-custom-banner(origin-fun &rest num)
     ;; If a -ve number is passed it uses the custom banner
+    ;; Figlet fonts:
+    ;; - Bloody
+    ;; - Impossible
+    ;; - Delta Corps Priest 1
     (message " %s" (car num))
     (if (< (car num) 0)
         (expand-file-name "banner.txt" user-emacs-directory)
