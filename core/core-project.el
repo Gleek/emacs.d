@@ -1,8 +1,10 @@
+(defvar +quick-switch-buffer-hook nil)
 (defun switch-to-previous-buffer ()
   "Switch to previously open buffer.
 Repeated invocations toggle between the two most recently open buffers."
   (interactive)
-  (switch-to-buffer (other-buffer (current-buffer) 1)))
+  (switch-to-buffer (other-buffer (current-buffer) 1))
+  (run-hook-with-args-until-success '+quick-switch-buffer-hook))
 
 (use-package projectile
   :ensure projectile
@@ -21,11 +23,13 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-c p s" . projectile-save-project-buffers)))
 
 (use-package counsel-projectile
-  :bind (("M-p" . counsel-projectile-find-file)
+  :bind (("M-p" . counsel-projectile)
          ("C-c p f" . counsel-projectile-find-file)
          ("C-c p b" . counsel-projectile-switch-to-buffer)
          ("C-x B" . counsel-projectile-switch-to-buffer)
-         ("C-c p p" . counsel-projectile-switch-project)))
+         ("C-c p p" . counsel-projectile-switch-project))
+  :config
+  (setq counsel-projectile-find-file-matcher 'counsel-projectile-find-file-matcher-basename))
 
 
 (use-package project

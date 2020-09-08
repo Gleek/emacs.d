@@ -57,6 +57,7 @@
           ("C-x <down>"  . windmove-down)
           ("C-x 2"       . vsplit-last-buffer)
           ("C-x 3"       . hsplit-last-buffer)
+          ("C-c w r"     . rotate-windows)
           ("C-x F"       . find-file-other-window)))
 
 (use-package "core-editing" :ensure nil :demand t

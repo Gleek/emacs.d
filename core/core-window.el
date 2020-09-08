@@ -43,7 +43,8 @@
   :bind (("C-<tab>" . winner-undo)
          ("C-S-<tab>" . winner-redo)))
 
-
+(use-package transpose-frame
+  :bind ("C-c w t" . transpose-frame))
 (use-package ace-window
   :bind ("C-:" . ace-window))
 
