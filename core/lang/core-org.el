@@ -106,6 +106,9 @@
         ;; Show src buffer in popup, and don't monopolize the frame
         org-src-window-setup 'other-window)
 
+  (defadvice org-edit-src-exit (after restore-window-config activate)
+    (winner-undo))
+
   (setq org-display-remote-inline-images 'download) ; TRAMP urls
   (org-link-set-parameters "http"  :image-data-fun #'+org-http-image-data-fn)
   (org-link-set-parameters "https" :image-data-fun #'+org-http-image-data-fn)

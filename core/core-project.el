@@ -148,7 +148,8 @@ Use `treemacs' command for old functionality."
 
 (use-package lsp-treemacs
   :after treemacs lsp
-  :hook (treemacs-select-hook . lsp-treemacs-sync-mode))
+  :hook (treemacs-select-hook . lsp-treemacs-sync-mode)
+  :bind (:map lsp-mode-map ("C-c p e" . lsp-treemacs-errors-list)))
 
 (use-package lsp-mode
   :hook ((js-mode js2-mode js3-mode rjsx-mode go-mode rust-mode php-mode) . lsp)

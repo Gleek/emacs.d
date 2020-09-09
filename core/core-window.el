@@ -41,7 +41,9 @@
 (use-package winner
   :config (winner-mode t)
   :bind (("C-<tab>" . winner-undo)
-         ("C-S-<tab>" . winner-redo)))
+         ("C-S-<tab>" . winner-redo)
+         ("C-c w /" . winner-undo)
+         ("C-c w ?" . winner-redo)))
 
 (use-package transpose-frame
   :bind ("C-c w t" . transpose-frame))

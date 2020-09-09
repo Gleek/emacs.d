@@ -152,7 +152,7 @@
   (advice-add 'dashboard-get-banner-path :around '+get-custom-banner)
   (defun +get-custom-banner(origin-fun &rest num)
     ;; If a -ve number is passed it uses the custom banner
-    ;; Figlet fonts:
+    ;; Favorite Figlet fonts:
     ;; - Bloody
     ;; - Impossible
     ;; - Delta Corps Priest 1
