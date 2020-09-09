@@ -143,11 +143,9 @@ Use `treemacs' command for old functionality."
   (setq treemacs-width 30))
 
 (use-package treemacs-projectile
-  :after treemacs projectile
   :ensure t)
 
 (use-package lsp-treemacs
-  :after treemacs lsp
   :hook (treemacs-select-hook . lsp-treemacs-sync-mode)
   :bind (:map lsp-mode-map ("C-c p e" . lsp-treemacs-errors-list)))
 
@@ -162,8 +160,8 @@ Use `treemacs' command for old functionality."
         lsp-enable-text-document-color nil)
   (setq lsp-enable-indentation nil
         lsp-enable-on-type-formatting nil))
+
 (use-package lsp-ivy
-  :defer 1
   :bind (:map lsp-mode-map ("M-<return>" . lsp-ivy-workspace-symbol)))
 
 (use-package lsp-ui

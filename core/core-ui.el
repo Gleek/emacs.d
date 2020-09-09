@@ -156,7 +156,6 @@
     ;; - Bloody
     ;; - Impossible
     ;; - Delta Corps Priest 1
-    (message " %s" (car num))
     (if (< (car num) 0)
         (expand-file-name "banner.txt" user-emacs-directory)
       (apply origin-fun num)))

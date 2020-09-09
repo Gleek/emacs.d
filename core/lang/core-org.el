@@ -61,7 +61,7 @@
 
   (setq org-ellipsis "…"
         org-agenda-files `(,+org-directory)
-        org-archive-location "~/Dropbox/org-files/archive.org::* From %s"
+        org-archive-location (concat +org-directory "archive.org::* From %s")
         org-startup-align-all-table t
         org-log-done 'time
         org-startup-with-inline-images t
@@ -258,7 +258,7 @@
          ("C-c o d d" . org-download-image)
          ("C-c o d x" . org-download-delete))
   :init
-  (setq-default org-download-image-dir "~/Dropbox/org-files/resource/downloads"))
+  (setq-default org-download-image-dir (concat +org-directory "resource/downloads")))
 
 (use-package org-roam
   :defer 1
@@ -299,7 +299,7 @@
   (setq org-roam-verbose nil
         org-roam-buffer-window-parameters '((no-delete-other-windows . t)))
   ;; (push 'company-org-roam company-backends)
-  (setq org-roam-directory "~/Dropbox/org-files/org-roam/")
+  (setq org-roam-directory (concat +org-directory "org-roam/"))
   (setq org-roam-graph-viewer (lambda(url) (+browse-url url))))
 
 (use-package org-noter)
