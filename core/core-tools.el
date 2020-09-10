@@ -132,7 +132,6 @@
 
 
 (use-package alert
-  :defer 1
   :init
   (defvar alert-default-style)
   (setq alert-default-style 'libnotify))

@@ -4,7 +4,7 @@
 
 (use-package org-crypt
   :ensure nil
-  :defer 1
+  :defer 5
   :init
   (setq org-tags-exclude-from-inheritance (quote ("crypt")))
   (setf epg-pinentry-mode 'loopback)

@@ -163,7 +163,6 @@
    (dashboard-setup-startup-hook))
 
 (use-package minimap
-  :defer t
   :bind ("C-c t m" . minimap-mode)
   :config
   (setq minimap-window-location 'right

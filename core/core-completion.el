@@ -182,7 +182,7 @@
 
 
 (use-package yasnippet
-  :defer 1
+  :defer 5
   :config
   (yas-global-mode 1)
   :diminish (yas-minor-mode . "Ⓨ"))
