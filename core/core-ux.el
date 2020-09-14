@@ -96,7 +96,11 @@
       ring-bell-function 'ignore
       mouse-yank-at-point t
       require-final-newline t
+      ;; scrolling
       fast-but-imprecise-scrolling t
+      auto-window-vscroll nil
+      scroll-preserve-screen-position t
+
       kill-do-not-save-duplicates t
       highlight-nonselected-windows nil
       ediff-window-setup-function 'ediff-setup-windows-plain)

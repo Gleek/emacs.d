@@ -109,6 +109,8 @@
   (setq paradox-automatically-star t)
   (setq paradox-execute-asynchronously t))
 
+(use-package debbugs)
+
 (use-package simple-http
   :ensure nil
   :config
@@ -149,12 +151,59 @@
   (setq counsel-describe-variable-function #'helpful-variable))
 
 
+(use-package async
+  :init
+  (setq async-byte-compile-log-file (concat CACHE-DIR "async-bytecomp.log")))
 
-(use-package restclient :mode ("\\.rest\\'" . restclient-mode) )
-(use-package company-restclient
-  :after company
-  :after restclient
-  :config (add-to-list 'company-backends 'company-restclient))
+(use-package scratch)
+
+(use-package restclient
+  :ensure restclient
+  :ensure company-restclient
+  :hook (restclient-mode . display-line-numbers-mode)
+  :mode ("\\.rest\\'" . restclient-mode)
+  :bind (:map restclient-mode-map (("C-c C-c" . restclient-http-send-current-stay-in-window)
+                                   ("C-c C-v" . restclient-http-send-current)))
+  :config
+  (set-popup-rule! "^\\*HTTP Response" :size 0.4 :quit 'other)
+  (set-popup-rule! "^\\*Restclient Info" :size 0.4 :quit 'other)
+  (add-to-list 'company-backends 'company-restclient)
+  (add-hook 'restclient-mode-hook
+            (lambda()
+              (setq imenu-generic-expression '((nil "^[A-Z]+\s+.+" 0)))))
+
+  (defvar +restclient-debug nil)
+  (setq +restclient-debug t)
+
+  (defun +rest-client-http-call (orig-fn &rest args)
+    "Make a few modifications before making the call"
+    (let ((gnutls-verify-error t)
+          ;; TODO fix
+          (url-debug +restclient-debug))
+      (message "URL debug => %s" url-debug)
+      (apply orig-fn args)))
+  (advice-add '+rest-client-http-call :around #'restclient-http-do))
+
+
+(use-package speed-type
+  :config
+  (defun +speed-type-setup (&rest _)
+    (variable-pitch-mode t)
+    (setq cursor-type 'bar)
+    (olivetti-mode)
+    (text-scale-set 1))
+  (defun +speed-type-skill (wpm)
+    "Updated skill according to my targets!"
+    (cond ((< wpm 55) "Beginner")
+          ((< wpm 60) "Intermediate")
+          ((< wpm 70) "Average")
+          ((< wpm 85) "Pro")
+          ((< wpm 110) "Master")
+          (t          "Racer")))
+  (advice-add 'speed-type--skill :override '+speed-type-skill)
+  (advice-add 'speed-type--setup :after '+speed-type-setup)
+  (setq speed-type-default-lang 'English)
+  (setq speed-type-gb-dir (concat CACHE-DIR "speed-type/")))
 
 (use-package w3m
   :init (setq w3m-search-default-engine "duckduckgo"))

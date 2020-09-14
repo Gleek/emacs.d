@@ -15,10 +15,17 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq projectile-completion-system 'ivy)
   ;; (setq projectile-enable-caching t) ;; Projectile turbo!!
   :config
+  (defun +copy-project-file-name()
+    (interactive)
+    (let ((filename (file-relative-name buffer-file-name (projectile-project-root))))
+      (when filename
+        (kill-new filename)
+        (message "Copied project file name '%s' to the clipboard." filename))))
   (projectile-load-known-projects)
   (setq projectile-mode-line-prefix "")
   (projectile-mode 1)
   :bind (("C-c p z" . counsel-fzf)
+         ("C-c p w" . +copy-project-file-name)
          ("C-c p k" . projectile-kill-buffers)
          ("C-c p s" . projectile-save-project-buffers)))
 
@@ -29,7 +36,42 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-x B" . counsel-projectile-switch-to-buffer)
          ("C-c p p" . counsel-projectile-switch-project))
   :config
-  (setq counsel-projectile-find-file-matcher 'counsel-projectile-find-file-matcher-basename))
+  ;; WIP:
+  (defvar +ivy-project-sort-min-length 1)
+  (defun +ivy-project-sort--exact-match-file-base-name(name x y)
+    (cond ((string= (file-name-nondirectory x) name) 1)
+          ((string= (file-name-nondirectory y) name) 2)
+          (t nil)))
+
+  (defun +ivy-project-sort--exact-match-root-name(name x y)
+    (cond ((string= (file-name-base x) name) 1)
+          ((string= (file-name-base y) name) 2)
+          (t nil)))
+
+  (defun +ivy-project-sort--prefix-match-file-base-name(name x y)
+    (cond ((string-match-p (concat "\\`" (funcall ivy--regex-function name)) (file-name-nondirectory x)) 1)
+          ((string-match-p (concat "\\`" (funcall ivy--regex-function name)) (file-name-nondirectory y)) 2)
+          (t nil)))
+
+  (defun +ivy-project-sort--match-file-base-name(name x y)
+    (cond ((string-match-p (regexp-quote name) (file-name-nondirectory x)) 1)
+          ((string-match-p (regexp-quote name) (file-name-nondirectory y)) 2)
+          (t nil)))
+
+  (defun +ivy-project-sort-files(name candidates)
+    "Assumes all candidates already match name"
+    (if (>= (length name) +ivy-project-sort-min-length)
+        (cl-sort (copy-sequence candidates)
+                 (lambda (x y)
+                   (if (eq (or (+ivy-project-sort--exact-match-file-base-name name x y)
+                               (+ivy-project-sort--exact-match-root-name name x y)
+                               (+ivy-project-sort--prefix-match-file-base-name name x y)
+                               (+ivy-project-sort--match-file-base-name name x y)) 2) nil t)))
+      candidates))
+  ;; FIXME:
+  ;; (add-to-list 'ivy-sort-matches-functions-alist '(read-file-name-internal . +ivy-project-sort-files))
+
+  (setq counsel-projectile-find-file-matcher 'counsel--find-file-matcher))
 
 
 (use-package project

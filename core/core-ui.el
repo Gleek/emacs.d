@@ -128,7 +128,10 @@
   :demand
   :bind (:map dashboard-mode-map
               ("C-n" . widget-forward)
-              ("C-p" . widget-backward))
+              ("C-p" . widget-backward)
+              ("A"   . +switch-to-agenda)
+              ("S"   . +switch-to-scratch)
+              ("R"   . restore-from-desktop))
   :init (setq dashboard-items '((recents  . 5)
                                 (projects . 10)
                                 ;; (bookmarks . 5)
@@ -144,9 +147,19 @@
   (setq dashboard-navigator-buttons
         `(
           ((,(all-the-icons-octicon "sync" :height 1.1 :v-adjust 0.0)
-            "Restore"
+            "Restore (R)"
             "Restore last session"
-            (lambda (&rest _) (restore-from-desktop)) nil "" ""))))
+            (lambda (&rest _) (restore-from-desktop)) nil "" "\t")
+
+           (,(all-the-icons-octicon "calendar" :height 1.1 :v-adjust 0.0)
+            "Agenda (A) "
+            "Open agenda"
+            (lambda (&rest _) (+switch-to-agenda)) nil "" "\t")
+
+           (,(all-the-icons-octicon "pencil" :height 1.1 :v-adjust 0.0)
+            "Scratch (S) "
+            "Open scratch"
+            (lambda (&rest _) (+switch-to-scratch)) nil "" ""))))
   :config
   ;; Override this function to get a custom text banner
   (advice-add 'dashboard-get-banner-path :around '+get-custom-banner)
@@ -159,6 +172,9 @@
     (if (< (car num) 0)
         (expand-file-name "banner.txt" user-emacs-directory)
       (apply origin-fun num)))
+  (defun +switch-to-scratch()
+    (interactive)
+    (switch-to-buffer "*scratch*"))
 
    (dashboard-setup-startup-hook))
 

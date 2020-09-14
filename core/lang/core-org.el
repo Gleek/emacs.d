@@ -118,7 +118,7 @@
   ;;                       '(("^ *\\((-)\\) "
   ;;                          (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
-  ;; (add-hook 'org-mode-hook 'visual-line-mode)
+  (add-hook 'org-mode-hook 'visual-line-mode)
   ;; (add-hook 'org-mode-hook 'toggle-truncate-lines)
 
   (add-hook 'org-mode-hook 'variable-pitch-for-notes)
@@ -227,14 +227,14 @@
                                        ,(concat +org-directory "next.org")))))
             nil))))
 
-  ;; (setq org-agenda-files `(,+org-directory)
-  ;;       org-agenda-window-setup 'current-window
-  ;;       org-agenda-skip-unavailable-files t
-  ;;       org-agenda-span 10
-  ;;       org-agenda-block-separator (aref "━" 0)
-  ;;       org-agenda-start-on-weekday nil
-  ;;       org-agenda-start-day nil
-  ;;       org-agenda-inhibit-startup t)
+  (setq org-agenda-files `(,+org-directory)
+        org-agenda-window-setup 'current-window
+        org-agenda-skip-unavailable-files t
+        org-agenda-span 10
+        org-agenda-block-separator (aref "━" 0)
+        org-agenda-start-on-weekday nil
+        org-agenda-start-day nil
+        org-agenda-inhibit-startup t)
   )
 
 
@@ -298,7 +298,7 @@
   (setq org-roam-buffer-width 0.22)
   (setq org-roam-verbose nil
         org-roam-buffer-window-parameters '((no-delete-other-windows . t)))
-  ;; (push 'company-org-roam company-backends)
+  (push 'company-org-roam company-backends)
   (setq org-roam-directory (concat +org-directory "org-roam/"))
   (setq org-roam-graph-viewer (lambda(url) (+browse-url url))))
 

@@ -9,3 +9,10 @@
            (save-excursion
              ad-do-it)))
        (ad-activate (quote ,command)))))
+
+(defun nshuffle (sequence)
+  "Knuth shuffle for a list"
+  (loop for i from (length sequence) downto 2
+        do (rotatef (elt sequence (random i))
+                    (elt sequence (1- i))))
+  sequence)

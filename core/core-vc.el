@@ -25,7 +25,7 @@
   :diminish git-gutter-mode
   :bind (("C-c g d" . git-gutter:popup-hunk)
          ("C-c g r" . git-gutter:revert-hunk))
-  :init
+  ;; :init
   ;; (defvar vc-gutter-in-remote-files nil)
 
   ;;   (defun vc-gutter-init-maybe ()
@@ -68,7 +68,7 @@
     nil nil '(center repeated))
   (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240]
     nil nil 'bottom)
-  (global-git-gutter-mode t)
+  ;; (global-git-gutter-mode t)
   (setq git-gutter:disabled-modes '(fundamental-mode image-mode pdf-view-mode))
   (advice-add #'magit-stage-file   :after #'+vc-gutter-update-h)
   (advice-add #'magit-unstage-file :after #'+vc-gutter-update-h)

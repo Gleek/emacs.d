@@ -204,9 +204,9 @@ https://emacs.stackexchange.com/a/12124/2144"
   :defer 1
   :ensure t
   :config
-  ;; (smartparens-global-mode t)
-  (add-hook 'prog-mode-hook 'smartparens-mode)
-  (add-hook 'org-mode-hook 'smartparens-mode)
+  (smartparens-global-mode t)
+  ;; (add-hook 'prog-mode-hook 'smartparens-mode)
+  ;; (add-hook 'org-mode-hook 'smartparens-mode)
   (require 'smartparens-config)
   (setq sp-highlight-pair-overlay nil
         sp-highlight-wrap-overlay nil
@@ -304,7 +304,7 @@ https://emacs.stackexchange.com/a/12124/2144"
          ("C-S-<down>" . subtract-number-at-point)))
 
 (delete-selection-mode +1)
-(setq backward-delete-char-untabify-method 'hungry)
+(setq backward-delete-char-untabify-method 'untabify)
 (setq-default cursor-in-non-selected-windows nil)
 (setq-default indent-tabs-mode nil)   ;; don't use tabs to indent
 (setq-default tab-width 4)

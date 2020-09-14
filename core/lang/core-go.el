@@ -1,7 +1,23 @@
+;;  go get -v github.com/rogpeppe/godef
+;;  go get -u golang.org/x/tools/gopls
+;;  go get -u github.com/motemen/gore/cmd/gore
+;;  DEPRECATED: go get -u github.com/stamblerre/gocode
+;;  go get -u golang.org/x/tools/cmd/godoc
+;;  go get -u golang.org/x/tools/cmd/goimports
+;;  go get -u golang.org/x/tools/cmd/gorename
+;;  DEPRECATED: go get -u golang.org/x/tools/cmd/guru
+;;  go get -u github.com/fatih/gomodifytags
+;;
+;;
+;; https://golangci-lint.run/usage/install/#local-installation
+;; brew install golangci/tap/golangci-lint
+;; curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.31.0
+
+
 (use-package go-mode
   :ensure go-mode
   :ensure go-eldoc
-  :ensure go-guru
+  ;; :ensure go-guru
   :ensure gorepl-mode
   :ensure go-tag
   :ensure go-gen-test
