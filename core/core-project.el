@@ -36,8 +36,8 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-x B" . counsel-projectile-switch-to-buffer)
          ("C-c p p" . counsel-projectile-switch-project))
   :config
-  ;; WIP:
   (defvar +ivy-project-sort-min-length 1)
+  (defvar +ivy-project-sort-max-candidates 200)
   (defun +ivy-project-sort--exact-match-file-base-name(name x y)
     (cond ((string= (file-name-nondirectory x) name) 1)
           ((string= (file-name-nondirectory y) name) 2)
@@ -60,7 +60,8 @@ Repeated invocations toggle between the two most recently open buffers."
 
   (defun +ivy-project-sort-files(name candidates)
     "Assumes all candidates already match name"
-    (if (>= (length name) +ivy-project-sort-min-length)
+    (if (and (>= (length name) +ivy-project-sort-min-length)
+             (<= (length candidates) +ivy-project-sort-max-candidates))
         (cl-sort (copy-sequence candidates)
                  (lambda (x y)
                    (if (eq (or (+ivy-project-sort--exact-match-file-base-name name x y)
@@ -68,10 +69,9 @@ Repeated invocations toggle between the two most recently open buffers."
                                (+ivy-project-sort--prefix-match-file-base-name name x y)
                                (+ivy-project-sort--match-file-base-name name x y)) 2) nil t)))
       candidates))
-  ;; FIXME:
-  ;; (add-to-list 'ivy-sort-matches-functions-alist '(read-file-name-internal . +ivy-project-sort-files))
-
-  (setq counsel-projectile-find-file-matcher 'counsel--find-file-matcher))
+  (defun +counsel-projectile-find-file-matcher(regexp candidates)
+    (+ivy-project-sort-files regexp (counsel--find-file-matcher regexp candidates)))
+  (setq counsel-projectile-find-file-matcher '+counsel-projectile-find-file-matcher))
 
 
 (use-package project
