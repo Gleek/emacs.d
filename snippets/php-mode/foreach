@@ -1,5 +1,0 @@
-#name : foreach (...) {...}
-# --
-foreach (${collection} as ${var}) {
-    $0
-}

@@ -1,3 +1,0 @@
-#name : define(..., ...)
-# --
-define(${name}, ${value[, bool case_insensitive]})$0

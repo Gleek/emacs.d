@@ -1,3 +1,0 @@
-#name : implode(..., ...)
-# --
-implode(${glue}, ${pieces})$0

@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: unique
-# key: unique
-# --
-ALTER TABLE  `${table_name}` ADD UNIQUE (`${col_name}`)

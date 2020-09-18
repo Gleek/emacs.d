@@ -1,6 +1,0 @@
-#name : switch (...) {...}
-# --
-switch (${on}) {
-    $0
-    default:
-}

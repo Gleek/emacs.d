@@ -1,3 +1,0 @@
-#name : echo(...)
-# --
-echo(${arg1[, string ...]})$0

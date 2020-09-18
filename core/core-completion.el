@@ -182,9 +182,12 @@
 
 
 (use-package yasnippet
+  :ensure yasnippet
+  :ensure yasnippet-snippets
   :defer 5
   :config
   (yas-global-mode 1)
+  (add-to-list 'company-backends 'company-yasnippet)
   :diminish (yas-minor-mode . "Ⓨ"))
 
 

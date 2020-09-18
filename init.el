@@ -109,7 +109,7 @@
 (use-package "lang/core-proto" :ensure nil :demand t)
 (use-package "lang/core-org" :ensure nil :demand t)
 (use-package "lang/core-elisp" :ensure nil :demand t
-  :bind ("C-c e" . eval-and-replace))
+  :bind ("C-c C-e" . eval-and-replace))
 
 (use-package "lang/core-plantuml" :ensure nil :demand t)
 (use-package "lang/core-misc" :ensure nil :demand t)

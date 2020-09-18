@@ -1,3 +1,0 @@
-#name : printf(...)
-# --
-printf(${format[, mixed args]})$0

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: atl
+# key: atl
+# --
+(add-to-list '${1:list} ${2:var})

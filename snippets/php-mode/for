@@ -1,5 +1,0 @@
-#name : for (...) {...}
-# --
-for (${initial}; ${condition}; ${next}) {
-    $0
-}

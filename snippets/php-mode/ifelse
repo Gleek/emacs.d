@@ -1,8 +1,0 @@
-#name : if (...) {...} else { ... }
-# --
-if (${condition}) {
-    ${consequent}
-}
-else {
-    $0
-}
