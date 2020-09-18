@@ -193,6 +193,9 @@ Use `treemacs' command for old functionality."
 
 (use-package lsp-mode
   :hook ((js-mode js2-mode js3-mode rjsx-mode go-mode rust-mode php-mode) . lsp)
+  :bind (:map lsp-mode-map
+              ("C-c p r" . lsp-rename)
+              ("M-'" . lsp-goto-implementation))
   :init
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
   (setq lsp-session-file (concat CACHE-DIR ".lsp-session-v1"))
@@ -208,6 +211,8 @@ Use `treemacs' command for old functionality."
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
+  :bind (:map lsp-mode-map
+              ("C-c t u" . lsp-ui-mode))
   :ensure t
   :config
 

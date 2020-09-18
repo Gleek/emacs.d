@@ -78,7 +78,8 @@
 (use-package writeroom-mode)
 
 (use-package which-func
-  :disabled t ;; slowing down startup of big files
+  ;; :disabled t ;; slowing down startup of big files
+  :defer 5
   :config
   (which-function-mode)
   (set-face-foreground 'which-func "darkgrey"))

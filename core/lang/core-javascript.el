@@ -4,7 +4,7 @@
 (use-package js2-mode
   :mode ("\\.js\\'" . js2-mode)
   :config
-  (setq js2-basic-offset 4
+  (setq js2-basic-offset 2
         js-chain-indent t
         ;; Don't mishighlight shebang lines
         js2-skip-preprocessor-directives t

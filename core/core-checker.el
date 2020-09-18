@@ -21,6 +21,8 @@
   (setq flyspell-prog-text-faces (delq 'font-lock-string-face flyspell-prog-text-faces))
   :diminish flyspell-mode)
 
+;; TODO: checkout proselint
+
 (use-package spell-fu
   :hook (text-mode . spell-fu-mode)
   :init

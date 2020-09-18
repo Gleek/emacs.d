@@ -43,6 +43,16 @@
   (let ((sort-fold-case t))
     (call-interactively 'sort-lines)))
 
+(defun open-with-dragger(file)
+  (interactive "f")
+  ;; Utility to drag and drop files to outside world
+  ;; Details: https://github.com/gleek/dragger
+  (start-process-shell-command "dragger" nil (concat "dragger " file)))
+
+(defun open-this-with-dragger()
+  (interactive)
+  (open-with-dragger (buffer-file-name)))
+
 (use-package image-mode :ensure nil
   :init
   (defun +scale-image()

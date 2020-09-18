@@ -10,21 +10,36 @@
   :ensure t
   :init
   (setq avy-background t)
-  :chords ("jk" . avy-goto-word-or-subword-1)
+  ;; :chords ("jk" . avy-goto-word-or-subword-1)
   :bind (("C-\"". avy-goto-word-or-subword-1)
          ("C-'" . avy-goto-char-timer)))
 
 (use-package isearch
   :ensure nil
-  :chords ("df" . isearch-forward)
+  ;; :chords ("df" . isearch-forward)
   :bind (("C-r"   . isearch-backward-regexp)
-         ("C-M-s" . isearch-forward)
-         ("C-M-r" . isearch-backward)))
+         ("C-s" . isearch-forward)
+         ("C-M-r" . isearch-backward)
+         (:map isearch-mode-map
+               ("C-o" . swiper-from-isearch)))
+  :config
+  ;; Make it a bit more swiper like. Since I'm used to it now
+  (setq search-highlight t)
+  (setq search-whitespace-regexp ".*?")
+  (setq isearch-lax-whitespace t)
+  (setq isearch-regexp-lax-whitespace nil)
+  (setq isearch-lazy-highlight t)
+  (setq isearch-lazy-count t)
+  (setq lazy-count-prefix-format nil)
+  (setq lazy-count-suffix-format " (%s/%s)")
+  (setq isearch-yank-on-move 'shift)
+  (setq isearch-allow-scroll 'unlimited))
 
 (use-package swiper
   :ensure t
-  :bind (("C-s" . swiper-isearch)
-         ("C-c c m" . swiper-mc)))
+  :bind (("C-M-s" . swiper)
+         :map swiper-map
+         ("C-c m" . swiper-mc)))
 
 (use-package phi-search :ensure t
   :init (setq phi-search-limit 10000))

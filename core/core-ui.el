@@ -49,7 +49,14 @@
   (load-theme 'doom-one t)
   (setq doom-themes-treemacs-theme "doom-atom")
   (doom-themes-treemacs-config)
-  (doom-themes-org-config))
+  (doom-themes-org-config)
+  ;; (add-hook 'ns-system-appearance-change-functions
+  ;;           #'(lambda (appearance)
+  ;;               (mapc #'disable-theme custom-enabled-themes)
+  ;;               (pcase appearance
+  ;;                 ('light (load-theme 'doom-one-light t))
+  ;;                 ('dark (load-theme 'doom-one t)))))
+  )
 
 (use-package posframe
   :defer 5

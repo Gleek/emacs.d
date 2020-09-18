@@ -18,9 +18,23 @@
 
 (use-package shell-pop
   :ensure t
-  :bind ("C-`" . shell-pop)
+  :bind (("C-`" . +shellpop-eshell)
+         ("C-c t v" . +shellpop-vterm))
   :config
   ;; (push (cons "\\*shell\\*" display-buffer--same-window-action) display-buffer-alist)
+  (defun +shellpop-eshell()
+    (interactive)
+    (let ((shell-pop-internal-mode-buffer "*eshell*")
+          (shell-pop-internal-mode-func '(lambda () (eshell)))
+          (shell-pop-shell-type '("eshell" "*eshell*" (lambda nil (eshell)))))
+      (shell-pop nil)))
+
+  (defun +shellpop-vterm()
+    (interactive)
+    (let ((shell-pop-internal-mode-buffer "*vterm*")
+          (shell-pop-internal-mode-func '(lambda () (vterm)))
+          (shell-pop-shell-type '("vterm" "*vterm*" (lambda nil (vterm)))))
+      (shell-pop nil)))
 
   (setq shell-pop-window-position "bottom"
         shell-pop-window-size     40
@@ -48,5 +62,11 @@
   (setq eshell-banner-message "")
   (setq eshell-history-file-name (concat CACHE-DIR "eshell/history"))
   (setq eshell-last-dir-ring-file-name (concat CACHE-DIR "eshell/lastdir")))
+
+(use-package vterm
+  :preface (setq vterm-install t)
+  :hook (vterm-mode . hide-mode-line-mode)
+  :config
+  (setq vterm-kill-buffer-on-exit t))
 
 (provide 'core-shell)
