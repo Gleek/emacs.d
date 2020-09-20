@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: op
+# key: op
+# --
+option go_package = "$1";
+option php_metadata_namespace = "$2";
+option php_namespace = "$2\\\\MetaData";

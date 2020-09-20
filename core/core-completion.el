@@ -104,8 +104,11 @@
   ;; :disabled t
   :bind ("C-." . company-complete)
   :init
-
-  (setq company-idle-delay 0.25
+  (defmacro company-backend-for-hook(hook backends)
+    `(add-hook ,hook (lambda()
+                       (set (make-local-variable 'company-backends)
+                            ,backends))))
+  (setq company-idle-delay 0.05
         company-minimum-prefix-length 2
         company-require-match 'never
         company-global-modes '(not erc-mode message-mode help-mode gud-mode)
@@ -114,13 +117,14 @@
         ;;  (company-semantic company-clang company-capf company-files
         ;;                    (company-dabbrev-code company-keywords)
         ;;                    company-dabbrev))
-        company-backends '(company-capf company-files)
+        company-backends '((company-capf :with company-yasnippet))
         company-frontends '(company-pseudo-tooltip-frontend)
-        company-auto-complete nil
-        company-auto-complete-chars nil
+        company-auto-commit nil
+        company-auto-commit-chars nil
         company-dabbrev-ignore-case nil
         company-dabbrev-downcase nil)
   :config
+
   (global-company-mode)
   :diminish "Ⓒ")
 
@@ -187,7 +191,6 @@
   :defer 5
   :config
   (yas-global-mode 1)
-  (add-to-list 'company-backends 'company-yasnippet)
   :diminish (yas-minor-mode . "Ⓨ"))
 
 

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: fst
+# key: fst
+# --
+string ${1:field_name} = ${2:tag};

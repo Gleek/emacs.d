@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: en
+# key: en
+# --
+enum ${1:EnumName} {
+     UNDEFINED = 0;
+     $0
+}

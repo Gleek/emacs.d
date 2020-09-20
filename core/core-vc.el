@@ -3,10 +3,6 @@
          ("C-c g b" . magit-blame-addition)
          ("C-c g l" . magit-log-buffer-file))
   :config
-  (setq transient-levels-file (concat CACHE-DIR "transient/levels.el")
-        transient-values-file (concat CACHE-DIR "transient/values.el")
-        transient-history-file (concat CACHE-DIR "transient/history.el"))
-
   (setq magit-refresh-status-buffer nil)
   (setq magit-auto-revert-mode nil)
   (setq magit-save-repository-buffers nil)
@@ -68,7 +64,7 @@
     nil nil '(center repeated))
   (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240]
     nil nil 'bottom)
-  ;; (global-git-gutter-mode t)
+  (global-git-gutter-mode t)
   (setq git-gutter:disabled-modes '(fundamental-mode image-mode pdf-view-mode))
   (advice-add #'magit-stage-file   :after #'+vc-gutter-update-h)
   (advice-add #'magit-unstage-file :after #'+vc-gutter-update-h)

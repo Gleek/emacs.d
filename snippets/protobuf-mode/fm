@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: fm
+# key: fm
+# --
+map<${1:key}, ${2:value}> ${3:field_name} = ${4:tag};

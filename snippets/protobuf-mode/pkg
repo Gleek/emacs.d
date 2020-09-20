@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: pkg
+# key: pkg
+# --
+package $0

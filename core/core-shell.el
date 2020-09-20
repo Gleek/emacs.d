@@ -58,6 +58,8 @@
   ;;                            'face 'mode-line-highlight)
   ;;                (propertize (current-time-string)
   ;;                            'face 'font-lock-keyword-face)))
+  (defun cdp (&rest args)
+    (apply #'cd (projectile-project-root) args))
   (setq eshell-directory-name (concat CACHE-DIR "eshell/"))
   (setq eshell-banner-message "")
   (setq eshell-history-file-name (concat CACHE-DIR "eshell/history"))

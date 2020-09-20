@@ -35,9 +35,7 @@
   :config
   ;; (global-flycheck-mode -1)
   (add-hook 'prog-mode-hook 'flycheck-mode)
-  (setq flycheck-protoc-import-path
-        '("~/Development/zomato/zomato-event-registry/"
-          "~/Development/gocode/src/github.com/Zomato/delivery-composite-order-service/"))
+
   ;; (setq flycheck-check-syntax-automatically '(save mode-enabled idle-buffer-switch))
   ;; (setq flycheck-buffer-switch-check-intermediate-buffers nil)
   (setq flycheck-display-errors-delay 0.25)

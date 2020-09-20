@@ -34,8 +34,9 @@
   (defadvice inf-ruby-console-auto (before activate-rvm-for-robe activate)
     (rvm-activate-corresponding-ruby))
   (add-hook 'ruby-mode-hook 'robe-mode)
-  (eval-after-load 'company
-    '(push 'company-robe company-backends)))
+  ;; (eval-after-load 'company
+  ;;   '(push 'company-robe company-backends))
+  (company-backend-for-hook 'robe-mode-hook '(company-capf company-robe :with company-yasnippet)))
 
 
 (provide 'core-lang)

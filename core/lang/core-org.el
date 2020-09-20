@@ -120,7 +120,7 @@
 
   (add-hook 'org-mode-hook 'visual-line-mode)
   ;; (add-hook 'org-mode-hook 'toggle-truncate-lines)
-
+  (company-backend-for-hook 'org-mode-hook '((company-org-roam company-yasnippet company-dabbrev)))
   (add-hook 'org-mode-hook 'variable-pitch-for-notes)
   (add-hook 'org-mode-hook (lambda() (setq line-spacing 0.1)))
   (add-hook 'org-mode-hook (lambda() (display-line-numbers-mode -1)))
@@ -374,7 +374,7 @@
   (setq org-roam-buffer-width 0.22)
   (setq org-roam-verbose nil
         org-roam-buffer-window-parameters '((no-delete-other-windows . t)))
-  (push 'company-org-roam company-backends)
+  ;; (push 'company-org-roam company-backends)
   (setq org-roam-directory (concat +org-directory "org-roam/"))
   (setq org-roam-graph-viewer (lambda(url) (+browse-url url))))
 

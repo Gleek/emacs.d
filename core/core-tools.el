@@ -121,6 +121,12 @@
 
 (use-package debbugs)
 
+(use-package transient
+  :init
+  (setq transient-levels-file (concat CACHE-DIR "transient/levels.el")
+        transient-values-file (concat CACHE-DIR "transient/values.el")
+        transient-history-file (concat CACHE-DIR "transient/history.el")))
+
 (use-package simple-http
   :ensure nil
   :config
@@ -177,7 +183,7 @@
   :config
   (set-popup-rule! "^\\*HTTP Response" :size 0.4 :quit 'other)
   (set-popup-rule! "^\\*Restclient Info" :size 0.4 :quit 'other)
-  (add-to-list 'company-backends 'company-restclient)
+  (company-backend-for-hook 'restclient-mode-hook '((company-restclient company-yasnippet)))
   (add-hook 'restclient-mode-hook
             (lambda()
               (setq imenu-generic-expression '((nil "^[A-Z]+\s+.+" 0)))))
@@ -223,8 +229,17 @@
     :demand
     :config
     ;; don't load interactive shell
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "GOPATH"))
     (setq exec-path-from-shell-arguments '("-l"))
     (exec-path-from-shell-initialize)))
+
+(use-package system-packages
+  :bind (("C-c P s" . system-packages-search)
+         ("C-c P i" . system-packages-install)
+         ("C-c P u" . system-packages-uninstall)
+         ("C-c P l" . system-packages-list-installed-packages))
+  :config
+  (set-popup-rule! "^\\*system-packages\\*" :size 0.4 :quit 'other))
 
 
 (use-package "web-search" :ensure nil :demand t

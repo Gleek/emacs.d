@@ -28,6 +28,8 @@
 (setq use-package-always-defer t)
 (use-package diminish)
 (use-package use-package-chords :demand :config (key-chord-mode 1))
+
+(use-package use-package-ensure-system-package)
 (use-package benchmark-init
   :demand
   :ensure t
@@ -83,6 +85,8 @@
   :chords ("nm" . switch-to-previous-buffer)
   :bind (("C-x k" . kill-current-buffer)
          ("C-x K" . kill-buffer-and-window)))
+
+(use-package "core-debug" :ensure nil :demand t)
 
 (use-package "core-session" :ensure nil :demand t)
 (use-package "core-tramp" :ensure nil :demand t)

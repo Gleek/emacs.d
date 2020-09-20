@@ -39,4 +39,12 @@
     '(push 'company-robe company-backends)))
 
 
+(use-package makefile-executor
+  :hook (makefile-mode . makefile-executor-mode))
+
+(use-package makefile-mode
+  :ensure nil
+  :bind (:map makefile-mode-map
+              ("M-p" . nil)))
+
 (provide 'core-misc)

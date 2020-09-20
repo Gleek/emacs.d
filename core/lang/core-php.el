@@ -11,6 +11,8 @@
               ("C-c C-c" . nil)
               ("C-." . nil))
   :config
+  (require 'dap-php)
+  (dap-php-setup)
   (setq php-template-compatibility nil)
   (setq c-auto-align-backslashes nil)
   (add-hook 'php-mode-hook (lambda() (setq sp-max-pair-length 5)))

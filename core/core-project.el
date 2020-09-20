@@ -144,6 +144,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :init
   (setq treemacs-follow-after-init t
         treemacs-is-never-other-window t
+        treemacs-space-between-root-nodes nil
         treemacs-sorting 'alphabetic-case-insensitive-asc
         treemacs-persist-file (concat CACHE-DIR "treemacs-persist")
         treemacs-last-error-persist-file (concat CACHE-DIR "treemacs-last-error-persist"))
@@ -198,8 +199,14 @@ Use `treemacs' command for old functionality."
               ("M-'" . lsp-goto-implementation))
   :init
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
+  (setq lsp-server-install-dir (concat CACHE-DIR "lsp/"))
   (setq lsp-session-file (concat CACHE-DIR ".lsp-session-v1"))
+
+  (setq lsp-completion-provider nil) ;; We do this ourselves
   :config
+  ;; (company-backend-for-hook 'lsp-mode-hook '((company-capf :with company-yasnippet)))
+  (company-backend-for-hook 'lsp-completion-mode-hook '((company-capf :with company-yasnippet)))
+  (setq lsp-modeline-code-actions-segments '(name icon))
   (setq lsp-enable-file-watchers nil
         lsp-enable-folding nil
         lsp-enable-text-document-color nil)
@@ -217,8 +224,8 @@ Use `treemacs' command for old functionality."
   :config
 
   (setq lsp-prefer-flymake nil
-        lsp-ui-doc-max-height 8
-        lsp-ui-doc-max-width 35
+        lsp-ui-doc-max-height 13
+        lsp-ui-doc-max-width 50
         lsp-ui-sideline-ignore-duplicate t
         lsp-ui-doc-enable t
         ;; Don't show symbol definitions in the sideline. They are pretty noisy,

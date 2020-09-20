@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: fi32
+# key: fi32
+# --
+int32 ${1:field_name} = ${2:tag};
