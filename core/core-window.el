@@ -39,6 +39,7 @@
   (+popup-mode t))
 
 (use-package winner
+  :ensure nil
   :config (winner-mode t)
   :bind (("C-<tab>" . winner-undo)
          ("C-S-<tab>" . winner-redo)

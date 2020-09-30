@@ -181,8 +181,10 @@
 
   :bind (("C-c o e" . org-export-dispatch)
          ("C-c o c" . +capture-inbox)
+         ("C-c o g" . counsel-org-goto-all)
          :map org-mode-map
-         ("C-s-q" . org-fill-paragraph)))
+         ("C-s-q" . org-fill-paragraph)
+         ("C-<tab>" . nil)))
 
 (use-package org-agenda
   :after org

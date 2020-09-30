@@ -27,6 +27,7 @@
   :hook (text-mode . spell-fu-mode)
   :init
   (setq spell-fu-directory (concat CACHE-DIR "spell-fu"))
+  :bind ("C-M-i" . ispell-word)
   :config
   (set-face-attribute 'spell-fu-incorrect-face nil :underline '(:color "#6666ff")))
 
@@ -67,7 +68,7 @@
         flycheck-posframe-error-prefix "✕ ")
   (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p))
 
-(use-package flymake)
+(use-package flymake :ensure nil)
 (use-package flymake-diagnostic-at-point
   :after flymake
   :init

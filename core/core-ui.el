@@ -50,12 +50,12 @@
   (setq doom-themes-treemacs-theme "doom-atom")
   (doom-themes-treemacs-config)
   (doom-themes-org-config)
-  ;; (add-hook 'ns-system-appearance-change-functions
-  ;;           #'(lambda (appearance)
-  ;;               (mapc #'disable-theme custom-enabled-themes)
-  ;;               (pcase appearance
-  ;;                 ('light (load-theme 'doom-one-light t))
-  ;;                 ('dark (load-theme 'doom-one t)))))
+  (add-hook 'ns-system-appearance-change-functions
+            #'(lambda (appearance)
+                (mapc #'disable-theme custom-enabled-themes)
+                (pcase appearance
+                  ('light (progn (load-theme 'doom-one-light t) (solaire-global-mode +1)))
+                  ('dark (progn (load-theme 'doom-one t) (solaire-global-mode +1))))))
   )
 
 (use-package posframe
@@ -101,6 +101,7 @@
   (column-number-mode t))
 
 (use-package display-line-numbers
+  :ensure nil
   :hook ((prog-mode text-mode conf-mode) . display-line-numbers-mode)
   :bind ("C-c t l". display-line-numbers-mode)
   :config
@@ -109,6 +110,7 @@
 
 
 (use-package hl-line
+  :ensure nil
   ;; Highlights the current line
   :hook ((prog-mode text-mode conf-mode special-mode) . hl-line-mode)
   :config

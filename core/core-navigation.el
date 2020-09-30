@@ -55,6 +55,7 @@
          ("M-Z" . zop-up-to-char)))
 
 (use-package hideshow
+  :ensure nil
   :defer 1
   :bind (:map hs-minor-mode-map
               ("<S-mouse-1>" . move-mouse-and-toggle-hide))

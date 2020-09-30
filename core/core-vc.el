@@ -94,18 +94,17 @@
 
 (use-package git-timemachine)
 
+(use-package gitignore-templates)
 
 (use-package vc
-  :init
-  ;; Slows down opening large files.
-  (setq vc-handled-backends '(Git))
-  ;; (remove-hook 'find-file-hooks 'vc-find-file-hook)
-  (add-hook 'find-file-hook 'vc-refresh-state)
-  ;; (remove-hook 'after-save-hook 'vc-find-file-hook)
-  )
+  :ensure nil
+  :defer 5
+  :config
+  (add-hook 'find-file-hook 'vc-refresh-state))
 
 
 (use-package autorevert
+  :ensure nil
   :defer 1
   :bind ("s-u" . revert-buffer)
   :config

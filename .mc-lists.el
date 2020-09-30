@@ -107,6 +107,7 @@
         ivy-done
         ivy-switch-buffer
         kmacro-end-or-call-macro
+        lsp-ui-doc--handle-mouse-movement
         mark-whole-buffer
         mc/insert-numbers
         mc/mark-all-dwim

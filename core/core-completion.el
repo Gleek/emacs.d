@@ -31,6 +31,8 @@
          ("C-c b r" . ivy-resume))
   :diminish ivy-mode)
 
+(use-package ivy-hydra)
+
 ;; Bugging out lsp-ivy
 ;; (use-package all-the-icons-ivy-rich
 ;;   :defer 1
@@ -83,6 +85,7 @@
 
 
 (use-package hippie-exp
+  :ensure nil
   :init
   (setq hippie-expand-try-functions-list '(try-expand-dabbrev
                                            try-expand-dabbrev-all-buffers
@@ -117,14 +120,13 @@
         ;;  (company-semantic company-clang company-capf company-files
         ;;                    (company-dabbrev-code company-keywords)
         ;;                    company-dabbrev))
-        company-backends '((company-capf :with company-yasnippet))
+        company-backends '(company-capf company-yasnippet)
         company-frontends '(company-pseudo-tooltip-frontend)
         company-auto-commit nil
         company-auto-commit-chars nil
         company-dabbrev-ignore-case nil
         company-dabbrev-downcase nil)
   :config
-
   (global-company-mode)
   :diminish "Ⓒ")
 

@@ -10,6 +10,7 @@
   (persistent-scratch-setup-default))
 
 (use-package recentf
+  :ensure nil
   :hook (after-init . recentf-mode)
   :config
   (setq recentf-save-file (concat CACHE-DIR "recentf"))
@@ -18,6 +19,7 @@
           abbreviate-file-name)))
 
 (use-package server
+  :ensure nil
   :defer 1
   :config
   (unless (server-running-p)
@@ -35,6 +37,7 @@
 ;;   (key-chord-define-global "nm" 'switch-to-previous-buffer))
 
 (use-package saveplace
+  :ensure nil
   :defer 1
   :config
   (setq save-place-file (concat CACHE-DIR "places"))
@@ -42,6 +45,7 @@
   (setq-default save-place t))
 
 (use-package savehist
+  :ensure nil
   :init (setq savehist-additional-variables
               ;; search entries
               '(search-ring regexp-search-ring)
@@ -53,6 +57,7 @@
   (savehist-mode 1))
 
 (use-package desktop
+  :ensure nil
   :init
   (add-to-list 'command-switch-alist (cons "--restore" #'restore-from-desktop))
   (setq desktop-dirname CACHE-DIR)

@@ -10,8 +10,6 @@
 (setq gc-cons-threshold 100000000) ;; collect garbage after about 100 MB
 (run-with-idle-timer 2 t (lambda () (garbage-collect)))
 (setq message-log-max 10000) ;; Debugging
-(require 'package)
-(package-initialize)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
 ;; (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))

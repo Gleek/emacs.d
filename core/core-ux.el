@@ -49,6 +49,7 @@
 
 
 (use-package paren
+  :ensure nil
   :defer 1
   :config
   (setq show-paren-delay 0.1
@@ -79,6 +80,7 @@
 
 (use-package which-func
   ;; :disabled t ;; slowing down startup of big files
+  :ensure nil
   :defer 5
   :config
   (which-function-mode)

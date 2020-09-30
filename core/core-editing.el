@@ -158,6 +158,7 @@ https://emacs.stackexchange.com/a/12124/2144"
   :diminish)
 
 (use-package subword
+  :ensure nil
   :init (global-subword-mode t)
   :diminish subword-mode)
 
@@ -185,6 +186,7 @@ https://emacs.stackexchange.com/a/12124/2144"
 
 
 (use-package align
+  :ensure nil
   :bind (("C-x a a" . align)
          ("C-x a r" . align-regexp)
          ("C-x a c" . align-current)))
@@ -269,6 +271,7 @@ https://emacs.stackexchange.com/a/12124/2144"
 
 
 (use-package so-long
+  :ensure nil
   :defer 1
   :config
   (setq so-long-threshold 400)
@@ -286,6 +289,7 @@ https://emacs.stackexchange.com/a/12124/2144"
   :hook (find-file . ws-butler-mode))
 
 (use-package whitespace
+  :ensure nil
   :hook (after-change-major-mode . sane-whitespace)
   :init
   (defun sane-whitespace()
@@ -308,6 +312,9 @@ https://emacs.stackexchange.com/a/12124/2144"
 (setq-default cursor-in-non-selected-windows nil)
 (setq-default indent-tabs-mode nil)   ;; don't use tabs to indent
 (setq-default tab-width 4)
+(setq-default bidi-display-reordering 'left-to-right
+              bidi-paragraph-direction 'left-to-right) ;; To render bidirectional text
+
 (setq tab-always-indent t)
 (put 'narrow-to-region 'disabled nil)
 (provide 'core-editing)

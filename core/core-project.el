@@ -27,6 +27,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :bind (("C-c p z" . counsel-fzf)
          ("C-c p w" . +copy-project-file-name)
          ("C-c p k" . projectile-kill-buffers)
+         ("C-c p c" . projectile-commander)
          ("C-c p s" . projectile-save-project-buffers)))
 
 (use-package counsel-projectile
@@ -75,19 +76,59 @@ Repeated invocations toggle between the two most recently open buffers."
 
 
 (use-package project
+  :ensure nil
   :config
   (setq project-list-file (concat CACHE-DIR "projects")))
 
 (use-package ibuffer
-  :bind ("C-x C-b" . ibuffer))
+  :ensure nil
+  :bind ("C-x C-b" . ibuffer)
+  :config
+  ;; Courtesy doom
+  (set-popup-rule! "^\\*Ibuffer\\*$" :ignore t)
+  (setq ibuffer-show-empty-filter-groups nil
+        ibuffer-filter-group-name-face '(:inherit (success bold))
+        ibuffer-formats
+        `((mark modified read-only locked
+                ,@`(;; Here you may adjust by replacing :right with :center
+                  ;; or :left According to taste, if you want the icon
+                  ;; further from the name
+                  " " (icon 2 2 :left :elide)
+                  ,(propertize " " 'display `(space :align-to 8)))
+                (name 18 18 :left :elide)
+                " " (size 9 -1 :right)
+                " " (mode 16 16 :left :elide)
+                ,@(when (require 'ibuffer-vc nil t)
+                    '(" " (vc-status 12 :left)))
+                " " filename-and-process)
+          (mark " " (name 16 -1) " " filename)))
+  ;; Display buffer icons on GUI
+  (define-ibuffer-column icon (:name "  ")
+    (let ((icon (if (and (buffer-file-name)
+                         (all-the-icons-auto-mode-match?))
+                    (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
+                  (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
+      (if (symbolp icon)
+          (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
+        icon)))
+
+  ;; Redefine size column to display human readable size
+  (define-ibuffer-column size
+    (:name "Size"
+           :inline t
+           :header-mouse-map ibuffer-size-header-map)
+    (file-size-human-readable (buffer-size))))
+
 (use-package ibuffer-projectile
   :ensure t
+  :hook (ibuffer . ibuffer-projectile-set-filter-groups)
   :config
-  (add-hook 'ibuffer-hook
-            (lambda ()
-              (ibuffer-projectile-set-filter-groups)
-              (unless (eq ibuffer-sorting-mode 'alphabetic)
-                (ibuffer-do-sort-by-alphabetic)))))
+
+  (setq ibuffer-projectile-prefix
+        (concat (all-the-icons-octicon
+                 "file-directory"
+                 :face ibuffer-filter-group-name-face
+                 :v-adjust -0.05) " ")))
 
 
 (use-package ivy-xref
@@ -135,7 +176,15 @@ Repeated invocations toggle between the two most recently open buffers."
                        :async 500
                        :order 1)
   (setq smart-jump-find-references-fallback-function 'smart-jump-find-references-with-rg)
-  (smart-jump-register :modes 'go-mode))
+  ;; Prefer lsp over guru and godef for go
+  (smart-jump-register :modes 'go-mode
+                       :jump-fn 'xref-find-definitions
+                       :pop-fn 'xref-pop-marker-stack
+                       :refs-fn 'xref-find-references
+                       :should-jump t
+                       :heuristic 'point
+                       :async 500
+                       :order 0))
 
 
 (use-package treemacs
@@ -254,10 +303,10 @@ Use `treemacs' command for old functionality."
 
 
 (defun copy-current-line-position-to-clipboard ()
-  "Copy current line in file to clipboard as '</path/to/file>:<line-number>'."
+  "Copy current line in file to clipboard as '</path/to/file>::<line-number>'."
   (interactive)
   (let ((path-with-line-number
-         (concat (buffer-file-name) ":" (number-to-string (line-number-at-pos)))))
+         (concat (buffer-file-name) "::" (number-to-string (line-number-at-pos)))))
     (kill-new path-with-line-number)
     (message (concat path-with-line-number " copied to clipboard"))))
 
@@ -266,7 +315,7 @@ Use `treemacs' command for old functionality."
   (interactive)
   (setq line-num 0)
   (save-excursion
-    (search-forward-regexp "[^ ]:" (point-max) t)
+    (search-forward-regexp "[^ ]::" (point-max) t)
     (if (looking-at "[0-9]+")
         (setq line-num (string-to-number (buffer-substring (match-beginning 0) (match-end 0))))))
   ;; (find-file-at-point)

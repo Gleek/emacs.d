@@ -1,4 +1,5 @@
 (use-package tramp
+  :ensure nil
   :init
   (setq tramp-default-method "ssh")
   (setq tramp-auto-save-directory (concat CACHE-DIR "tramp-autosave/"))

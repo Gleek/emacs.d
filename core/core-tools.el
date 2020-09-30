@@ -229,7 +229,7 @@
     :demand
     :config
     ;; don't load interactive shell
-    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "GOPATH"))
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "GOPATH" "LC_ALL" "LANG"))
     (setq exec-path-from-shell-arguments '("-l"))
     (exec-path-from-shell-initialize)))
 

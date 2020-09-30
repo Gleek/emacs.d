@@ -23,4 +23,6 @@
 
 (add-hook 'emacs-lisp-mode-hook 'remove-elc-on-save)
 
+(company-backend-for-hook 'emacs-lisp-mode-hook '((company-capf :with company-yasnippet)))
+
 (provide 'core-elisp)
