@@ -107,9 +107,15 @@
   (ad-activate 'dired-subtree-toggle))
 
 (use-package fd-dired
-  :init
-  (global-set-key [remap find-dired] #'fd-dired)
+  ;; :bind (:map dired-mode-map
+  ;;             ("C-c d s" . fd-dired))
+  :config
   (set-popup-rule! "^\\*F\\(?:d\\|ind\\)\\*$" :ignore t))
+
+(use-package counsel-fd
+  :bind (:map dired-mode-map
+              ("C-c d d" . counsel-fd-dired-jump)
+              ("C-c d s" . counsel-fd-file-jump)))
 
 (when IS-MAC
   (use-package osx-trash
@@ -117,5 +123,9 @@
     :defer 1
     :config
     (osx-trash-setup)))
+
+(defun dired-open-with-dragger()
+  (interactive)
+  (start-process-shell-command "dragger" nil (concat "dragger " (string-join (dired-get-marked-files) " "))))
 
 (provide 'core-dired)
