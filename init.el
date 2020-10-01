@@ -87,6 +87,7 @@
 (use-package "core-debug" :ensure nil :demand t)
 
 (use-package "core-session" :ensure nil :demand t)
+(use-package "core-dired" :ensure nil :demand t)
 (use-package "core-tramp" :ensure nil :demand t)
 (use-package "core-vc" :ensure nil :demand t)
 (use-package "core-tools" :ensure nil :demand t

@@ -58,8 +58,9 @@
 
 
 (use-package indium
-  :config
+  :init
   (setq indium-chrome-data-dir (concat CACHE-DIR "indium-chrome-profile"))
+  :config
   (setq indium-chrome-executable "google-chrome"))
 
 (provide 'core-javascript)

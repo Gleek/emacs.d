@@ -237,6 +237,7 @@
   :bind (("C-c P s" . system-packages-search)
          ("C-c P i" . system-packages-install)
          ("C-c P u" . system-packages-uninstall)
+         ("C-c P U" . system-packages-update)
          ("C-c P l" . system-packages-list-installed-packages))
   :config
   (set-popup-rule! "^\\*system-packages\\*" :size 0.4 :quit 'other))
