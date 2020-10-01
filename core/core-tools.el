@@ -242,6 +242,66 @@
   :config
   (set-popup-rule! "^\\*system-packages\\*" :size 0.4 :quit 'other))
 
+(use-package bongo
+  :bind (("C-c b s" . bongo-seek)
+         ("C-c b b" . +jump-to-music)
+         ("C-c b P" . bongo-playlist)
+         ("C-c b n" . bongo-play-next)
+         ("C-c b x" . +bongo-playlist-terminate)
+         ("C-c b r" . +bongo-playlist-random-toggle)
+         ("C-c b R" . +bongo-playlist-play-random)
+         ("C-c b p" . bongo-play-previous)
+         ("C-c b SPC" . bongo-pause/resume))
+  :config
+  ;; Courtesy: Protesilaos
+  (defun +bongo-playlist-reset ()
+    "Stop playback and reset `bongo' playlist marks.
+To reset the playlist is to undo the marks produced by non-nil
+`bongo-mark-played-tracks'."
+    (interactive)
+    (when (bongo-playlist-buffer-p)
+      (bongo-stop)
+      (bongo-reset-playlist)))
+  (defun +bongo-playlist-random-toggle ()
+    "Toggle `bongo-random-playback-mode' in playlist buffers."
+    (interactive)
+    (if (eq bongo-next-action 'bongo-play-random-or-stop)
+        (bongo-progressive-playback-mode)
+      (bongo-random-playback-mode)))
+  (defun +bongo-playlist-play-random()
+    (interactive)
+    (unless (bongo-playlist-buffer)
+      (bongo-playlist-buffer))
+    (when (or (bongo-playlist-buffer-p)
+              (bongo-library-buffer-p))
+      (unless (bongo-playing-p)
+        (with-current-buffer (bongo-playlist-buffer)
+          (bongo-play-random)
+          (bongo-random-playback-mode)
+          (bongo-recenter)))))
+  (defun +bongo-playlist-terminate ()
+    "Stop playback and clear the entire `bongo' playlist buffer.
+Contrary to the standard `bongo-erase-buffer', this also removes
+the currently playing track."
+    (interactive)
+    (when (bongo-playlist-buffer-p)
+      (bongo-stop)
+      (bongo-erase-buffer)))
+  (setq bongo-default-directory "~/Music")
+  (setq bongo-prefer-library-buffers nil)
+  (setq bongo-mark-played-tracks t)
+  (setq bongo-insert-whole-directory-trees t)
+  (setq bongo-display-inline-playback-progress t)
+  (setq bongo-mode-line-indicator-mode nil)
+  (setq bongo-header-line-mode nil)
+  (setq bongo-logo nil)
+  (setq bongo-enabled-backends '(mpv vlc))
+  (setq bongo-vlc-program-name "vlc")
+
+  (defun +jump-to-music()
+    (interactive)
+    (dired bongo-default-directory)
+    (bongo-dired-library-mode)))
 
 (use-package "web-search" :ensure nil :demand t
   :bind (("C-c s w" . duck)

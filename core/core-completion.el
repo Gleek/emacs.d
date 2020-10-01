@@ -28,7 +28,7 @@
   (set-popup-rule! "^\\*ivy-occur" :size 0.35 :ttl 0 :quit nil)
   ;; (all-the-icons-ivy-setup)
   :bind (("C-x b"   . ivy-switch-buffer)
-         ("C-c b r" . ivy-resume))
+         ("C-c v" . ivy-resume))
   :diminish ivy-mode)
 
 (use-package ivy-hydra)

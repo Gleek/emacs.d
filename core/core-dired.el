@@ -1,6 +1,12 @@
 (use-package dired
   :ensure nil
+  :commands (dired-open-with-dragger)
+  :bind (:map dired-mode-map
+              ("C-c d d" . dired-open-with-dragger))
   :config
+  (defun dired-open-with-dragger()
+    (interactive)
+    (start-process-shell-command "dragger" nil (concat "dragger " (string-join (dired-get-marked-files) " "))))
   (setq dired-recursive-copies 'always
         dired-recursive-deletes 'always
         delete-by-moving-to-trash t
@@ -114,8 +120,7 @@
 
 (use-package counsel-fd
   :bind (:map dired-mode-map
-              ("C-c d d" . counsel-fd-dired-jump)
-              ("C-c d s" . counsel-fd-file-jump)))
+              ("f" . counsel-fd-file-jump)))
 
 (when IS-MAC
   (use-package osx-trash
@@ -124,8 +129,6 @@
     :config
     (osx-trash-setup)))
 
-(defun dired-open-with-dragger()
-  (interactive)
-  (start-process-shell-command "dragger" nil (concat "dragger " (string-join (dired-get-marked-files) " "))))
+
 
 (provide 'core-dired)

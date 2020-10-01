@@ -41,8 +41,9 @@
 
 (use-package makefile-executor
   :hook (makefile-mode . makefile-executor-mode)
-  :bind (:map makefile-executor-mode-map
-              ("C-c C-d" . nil)))
+  :bind (("C-c p m". makefile-executor-execute-project-target)
+         (:map makefile-executor-mode-map
+               ("C-c C-d" . nil))))
 
 (use-package makefile-mode
   :ensure nil

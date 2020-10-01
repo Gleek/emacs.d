@@ -27,7 +27,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :bind (("C-c p z" . counsel-fzf)
          ("C-c p w" . +copy-project-file-name)
          ("C-c p k" . projectile-kill-buffers)
-         ("C-c p c" . projectile-commander)
+         ("C-c p c" . projectile-compile-project)
          ("C-c p s" . projectile-save-project-buffers)))
 
 (use-package counsel-projectile
