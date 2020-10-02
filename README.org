@@ -18,5 +18,8 @@ The UI is heavily inspired by [[https://github.com/hlissner/doom-emacs][Doom Ema
 
 [[file:screen.png]]
 
+Light theme
+
+[[./screen-light.png]]
 ** Usage
 ~git clone https://www.github.com/gleek/.emacs .emacs.d~
