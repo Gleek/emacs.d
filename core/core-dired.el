@@ -1,9 +1,13 @@
 (use-package dired
   :ensure nil
-  :commands (dired-open-with-dragger)
+  :defer 1
   :bind (:map dired-mode-map
-              ("C-c d d" . dired-open-with-dragger))
+              ("f" . nil))
+  :commands (dired-open-with-dragger)
+  ;; :chords ((:map dired-mode-map
+  ;;             ("rd" . dired-open-with-dragger)))
   :config
+  (key-chord-define dired-mode-map "rd" 'dired-open-with-dragger)
   (defun dired-open-with-dragger()
     (interactive)
     (start-process-shell-command "dragger" nil (concat "dragger " (string-join (dired-get-marked-files) " "))))
@@ -28,8 +32,7 @@
         image-dired-temp-rotate-image-file (concat image-dired-dir "temp-rotate-image")
         image-dired-thumb-size 150)
 
-  :hook ((dired-mode . dired-hide-details-mode)
-         (dired-mode . hl-line-mode)))
+  :hook (dired-mode . dired-hide-details-mode))
 
 (use-package wdired
   :ensure nil
@@ -76,6 +79,9 @@
         dired-vc-rename-file t))
 
 (use-package dired-x
+  :ensure nil
+  :bind ("C-x C-j" . dired-jump)
+  :commands (dired-jump)
   :hook (dired-mode . dired-omit-mode)
   :config
   (setq dired-omit-verbose nil
@@ -119,8 +125,10 @@
   (set-popup-rule! "^\\*F\\(?:d\\|ind\\)\\*$" :ignore t))
 
 (use-package counsel-fd
-  :bind (:map dired-mode-map
-              ("f" . counsel-fd-file-jump)))
+  :defer 2
+  :config
+  (key-chord-define dired-mode-map "ff" 'counsel-fd-file-jump)
+  (key-chord-define dired-mode-map "fd" 'counsel-fd-dired-jump))
 
 (when IS-MAC
   (use-package osx-trash
@@ -128,7 +136,5 @@
     :defer 1
     :config
     (osx-trash-setup)))
-
-
 
 (provide 'core-dired)

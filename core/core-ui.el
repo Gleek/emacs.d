@@ -43,19 +43,37 @@
   :init
   (defvar doom-themes-treemacs-enable-variable-pitch)
   (setq doom-themes-treemacs-enable-variable-pitch nil)
+  :bind ("C-c t T" . +switch-theme-type)
   :demand
   :config
+  (defvar +theme-type 'light)
+  (defvar +light-theme 'doom-one-light)
+  (defvar +dark-theme 'doom-one)
+  (defun +switch-theme-type()
+    (interactive)
+    (solaire-global-mode -1)
+    (if (eq +theme-type 'light)
+        (progn
+          (disable-theme +light-theme)
+          (load-theme +dark-theme t)
+          (setq-local +theme-type 'dark))
+      (disable-theme +dark-theme)
+      (load-theme +light-theme t)
+      (setq-local +theme-type 'light))
+    (solaire-global-mode +1))
+
   (solaire-global-mode +1)
-  (load-theme 'doom-one t)
+  ;; Trying out light theme
+  (load-theme +light-theme t)
   (setq doom-themes-treemacs-theme "doom-atom")
   (doom-themes-treemacs-config)
   (doom-themes-org-config)
-  (add-hook 'ns-system-appearance-change-functions
-            #'(lambda (appearance)
-                (mapc #'disable-theme custom-enabled-themes)
-                (pcase appearance
-                  ('light (progn (load-theme 'doom-one-light t) (solaire-global-mode +1)))
-                  ('dark (progn (load-theme 'doom-one t) (solaire-global-mode +1))))))
+  ;; (add-hook 'ns-system-appearance-change-functions
+  ;;           #'(lambda (appearance)
+  ;;               (mapc #'disable-theme custom-enabled-themes)
+  ;;               (pcase appearance
+  ;;                 ('light (progn (load-theme 'doom-one-light t) (solaire-global-mode +1)))
+  ;;                 ('dark (progn (load-theme 'doom-one t) (solaire-global-mode +1))))))
   )
 
 (use-package posframe

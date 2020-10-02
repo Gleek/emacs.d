@@ -295,7 +295,8 @@ the currently playing track."
   (setq bongo-mode-line-indicator-mode nil)
   (setq bongo-header-line-mode nil)
   (setq bongo-logo nil)
-  (setq bongo-enabled-backends '(mpv vlc))
+  ;; https://github.com/dbrock/bongo/pull/53 needs to be merged for mpv to work
+  (setq bongo-enabled-backends '(mpv))
   (setq bongo-vlc-program-name "vlc")
 
   (defun +jump-to-music()
