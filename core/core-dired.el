@@ -146,8 +146,11 @@
     (dired-filter-mode +1)))
 
 (use-package disk-usage
+  :after dired
   :bind (:map dired-mode-map
-              ("C-c d S" . disk-usage-here)))
+              ("C-c d S" . disk-usage-here))
+  :init
+  (setq disk-usage--format-files 'file-name-nondirectory))
 
 ;; https://github.com/Fuco1/dired-hacks/issues/126
 ;; (use-package dired-collapse
