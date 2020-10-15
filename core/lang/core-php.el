@@ -9,6 +9,7 @@
   ;; :ensure php-refactor-mode
   :bind (:map php-mode-map
               ("C-c C-c" . nil)
+              ("C-c C-d" . nil)
               ("C-." . nil))
   :config
   (require 'dap-php)

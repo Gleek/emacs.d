@@ -4,10 +4,9 @@
   :bind (:map dired-mode-map
               ("f" . nil))
   :commands (dired-open-with-dragger)
-  ;; :chords ((:map dired-mode-map
-  ;;             ("rd" . dired-open-with-dragger)))
+  :bind (:map dired-mode-map
+              ("rd" . dired-open-with-dragger))
   :config
-  (key-chord-define dired-mode-map "rd" 'dired-open-with-dragger)
   (defun dired-open-with-dragger()
     (interactive)
     (start-process-shell-command "dragger" nil (concat "dragger " (string-join (dired-get-marked-files) " "))))
@@ -24,7 +23,8 @@
 
   (setq dired-listing-switches
         "-AGFhlv --group-directories-first --time-style=long-iso")
-
+  (set-popup-rule! "^\\*image-dired"
+    :slot 20 :size 0.8 :select t :quit nil :ttl 0)
   (setq image-dired-dir (concat CACHE-DIR "image-dired/")
         image-dired-db-file (concat image-dired-dir "db.el")
         image-dired-gallery-dir (concat image-dired-dir "gallery/")
@@ -54,9 +54,17 @@
   :bind (:map dired-mode-map
               ("P" . peep-dired)))
 
+(use-package dired-posframe
+  :disabled t
+  :bind (:map dired-mode-map
+              ("p" . dired-posframe-show)))
+
 
 (use-package diredfl
   :hook (dired-mode . diredfl-mode))
+
+;; (use-package dired-rainbow
+;;   :hook (dired-mode . dired-rainbow-mode))
 
 (use-package dired-subtree
   :ensure
@@ -67,9 +75,9 @@
               ("<tab>" . dired-subtree-toggle)
               ("<backtab>" . dired-subtree-cycle)))
 
-(use-package dired-du
-  :bind (:map dired-mode-map
-              ("C-c d S" . dired-du-mode)))
+;; (use-package dired-du
+;;   :bind (:map dired-mode-map
+;;               ("C-c d S" . dired-du-mode)))
 
 
 (use-package dired-aux
@@ -124,11 +132,31 @@
   :config
   (set-popup-rule! "^\\*F\\(?:d\\|ind\\)\\*$" :ignore t))
 
-(use-package counsel-fd
-  :defer 2
+(use-package dired-filter
+  :hook ((dired-mode . dired-filter-mode)
+         (dired-mode . dired-filter-by-dot-files))
+  :bind (:map dired-mode-map ("/?" . +toggle-dired-filter-view))
   :config
-  (key-chord-define dired-mode-map "ff" 'counsel-fd-file-jump)
-  (key-chord-define dired-mode-map "fd" 'counsel-fd-dired-jump))
+  ;; Hide filter bar by default
+  (setq dired-filter-show-filters nil)
+  (defun +toggle-dired-filter-view()
+    (interactive)
+    (setq dired-filter-show-filters (if (eq dired-filter-show-filters t) nil t))
+    (dired-filter-mode -1)
+    (dired-filter-mode +1)))
+
+(use-package disk-usage
+  :bind (:map dired-mode-map
+              ("C-c d S" . disk-usage-here)))
+
+;; https://github.com/Fuco1/dired-hacks/issues/126
+;; (use-package dired-collapse
+;;   :hook (dired-mode . dired-collapse-mode))
+
+(use-package counsel-fd
+  :bind (:map dired-mode-map
+              ("ff". counsel-fd-file-jump)
+              ("fd". counsel-fd-dired-jump)))
 
 (when IS-MAC
   (use-package osx-trash

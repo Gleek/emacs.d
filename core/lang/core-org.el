@@ -40,9 +40,12 @@
     (member lang '("plantuml")))
 
   (defun variable-pitch-for-notes ()
+    (interactive)
     (when (string-match "\\(.*Notes.org\\|roam.*org\\)" (format "%s" buffer-file-name))
       (progn
         (setq cursor-type 'bar)
+        (electric-quote-mode t)
+        (setq bidi-paragraph-direction nil)
         (variable-pitch-mode t))))
 
 
@@ -120,7 +123,7 @@
 
   (add-hook 'org-mode-hook 'visual-line-mode)
   ;; (add-hook 'org-mode-hook 'toggle-truncate-lines)
-  (company-backend-for-hook 'org-mode-hook '((company-org-roam company-yasnippet company-dabbrev)))
+  (company-backend-for-hook 'org-mode-hook '((company-org-roam company-capf company-yasnippet company-dabbrev)))
   (add-hook 'org-mode-hook 'variable-pitch-for-notes)
   (add-hook 'org-mode-hook (lambda() (setq line-spacing 0.1)))
   (add-hook 'org-mode-hook (lambda() (display-line-numbers-mode -1)))
@@ -178,6 +181,16 @@
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
   (add-hook 'org-clock-in-hook (lambda() (org-todo "DOING")) 'append)
 
+  (set-popup-rules!
+    '(("^\\*Org Links" :slot -1 :vslot -1 :size 2 :ttl 0)
+      ("^ ?\\*\\(?:Agenda Com\\|Calendar\\|Org Export Dispatcher\\)"
+       :slot -1 :vslot -1 :size #'+popup-shrink-to-fit :ttl 0)
+      ("^\\*Org \\(?:Select\\|Attach\\)" :slot -1 :vslot -2 :ttl 0 :size 0.25)
+      ("^\\*Org Agenda"     :ignore t)
+      ("^\\*Org Src"        :size 0.4  :quit nil :select t :autosave t :modeline t :ttl nil)
+      ("^\\*Org-Babel")
+      ("^CAPTURE-.*\\.org$" :size 0.25 :quit nil :select t :autosave t)))
+
 
   :bind (("C-c o e" . org-export-dispatch)
          ("C-c o c" . +capture-inbox)
@@ -202,7 +215,8 @@
   ;; https://blog.jethro.dev/posts/org_mode_workflow_preview/
   (defun +switch-to-agenda()
     (interactive)
-    (org-agenda nil " "))
+    (org-agenda nil " ")
+    (goto-char (point-min)))
 
   (defvar +org-agenda-bulk-process-key ?f
     "Default key for bulk processing inbox items.")
@@ -289,8 +303,7 @@
                   ((org-agenda-overriding-header "In Progress")
                    (org-agenda-files '(,(concat +org-directory "someday.org")
                                        ,(concat +org-directory "projects.org")
-                                       ,(concat +org-directory "next.org")))
-                   ))
+                                       ,(concat +org-directory "next.org")))))
             (todo "TODO"
                   ((org-agenda-overriding-header "Projects")
                    (org-agenda-files '(,(concat +org-directory "projects.org")))
@@ -304,6 +317,19 @@
                    (org-agenda-files '(,(concat +org-directory "someday.org")
                                        ,(concat +org-directory "projects.org")
                                        ,(concat +org-directory "next.org")))))
+            (todo "WAITING"
+                  ((org-agenda-overriding-header "Waiting on")
+                   (org-agenda-files '(,(concat +org-directory "someday.org")
+                                       ,(concat +org-directory "projects.org")
+                                       ,(concat +org-directory "next.org")))))
+            (todo "DELEGATED"
+                  ((org-agenda-overriding-header "Delegated Tasks")
+                   (org-agenda-files '(,(concat +org-directory "someday.org")
+                                       ,(concat +org-directory "projects.org")
+                                       ,(concat +org-directory "next.org")))))
+            ;; (todo "TODO"
+            ;;       ((org-agenda-overriding-header "Someday")
+            ;;        (org-agenda-files '(,(concat +org-directory "someday.org")))))
             nil))))
 
   (setq org-agenda-files `(,+org-directory)
@@ -342,7 +368,10 @@
   :defer 1
   :ensure org-roam
   :ensure org-roam-server
-  :ensure company-org-roam
+  ;; :ensure company-org-roam
+  :init
+  (setq org-roam-directory (concat +org-directory "org-roam/"))
+  (setq org-roam-db-location (concat CACHE-DIR "org-roam.db"))
   :bind (:map org-roam-mode-map
               ("C-c o n n" . org-roam-find-file)
               ("C-c o n b" . org-roam-switch-to-buffer)
@@ -354,7 +383,7 @@
               ("C-c o r m" . org-roam-dailies-tomorrow)
               ("C-c o r y" . org-roam-dailies-yesterday))
   :config
-  (org-roam-mode t)
+
   (add-hook 'org-roam-backlinks-mode-hook 'turn-on-visual-line-mode)
   (defun +do-org-roam-bindings()
     (when (and
@@ -377,8 +406,10 @@
   (setq org-roam-verbose nil
         org-roam-buffer-window-parameters '((no-delete-other-windows . t)))
   ;; (push 'company-org-roam company-backends)
-  (setq org-roam-directory (concat +org-directory "org-roam/"))
-  (setq org-roam-graph-viewer (lambda(url) (+browse-url url))))
+
+  (setq org-roam-graph-viewer (lambda(url) (+browse-url url)))
+
+  (org-roam-mode t))
 
 (use-package org-noter)
 (use-package ox-clip

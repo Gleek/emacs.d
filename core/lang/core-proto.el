@@ -8,7 +8,7 @@
                                   (run-hooks 'prog-mode-hook)))
   (company-backend-for-hook 'protobuf-mode-hook '((company-capf company-yasnippet)))
   (setq flycheck-protoc-import-path
-        '("/Users/umar/Development/zomato/zomato-event-registry/"))
+        `(,(concat "/Users/umar/Development/" (rot13 "mbzngb/mbzngb-rirag-ertvfgel/"))))
   (defconst my-protobuf-style
     '((c-basic-offset . 2)
       (indent-tabs-mode . nil)))

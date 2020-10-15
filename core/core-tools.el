@@ -146,6 +146,8 @@
 
 (when IS-MAC
   (use-package osx-dictionary
+    :config
+    (set-popup-rule! "^\\*osx-dictionary\\*" :size 0.4 :quit t)
     :bind (("C-c s D" . osx-dictionary-search-input))))
 
 

@@ -17,7 +17,7 @@
 ;; (set-face-font 'variable-pitch "Baskerville 15")
 (set-face-font 'variable-pitch "ETBembo 17")
 (set-face-font 'fixed-pitch default-font)
-
+(set-fontset-font t 'arabic "KFGQPC Uthmanic Script Hafs 25")
 
 (setq-default frame-title-format '(buffer-file-name "%b - Emacs"))
 (setq-default line-spacing 0)
