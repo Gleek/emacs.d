@@ -38,7 +38,7 @@
 
 (use-package phpcbf
   :config
-  (setq phpcbf-standard "~/Development/zomato/phpcs.xml"))
+  (setq phpcbf-standard "~/.config/phpcs/phpcs.xml"))
 
 (use-package geben
   :init

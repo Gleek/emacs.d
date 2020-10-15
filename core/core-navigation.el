@@ -21,6 +21,7 @@
          ("C-s" . isearch-forward)
          ("C-M-r" . isearch-backward)
          (:map isearch-mode-map
+               ("C-M-s" . swiper-from-isearch)
                ("C-o" . swiper-from-isearch)))
   :config
   ;; Make it a bit more swiper like. Since I'm used to it now
