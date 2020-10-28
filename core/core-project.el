@@ -38,7 +38,7 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-c p p" . counsel-projectile-switch-project))
   :config
   (defvar +ivy-project-sort-min-length 1)
-  (defvar +ivy-project-sort-max-candidates 200)
+  (defvar +ivy-project-sort-max-candidates 500)
   (defun +ivy-project-sort--exact-match-file-base-name(name x y)
     (cond ((string= (file-name-nondirectory x) name) 1)
           ((string= (file-name-nondirectory y) name) 2)
@@ -58,6 +58,11 @@ Repeated invocations toggle between the two most recently open buffers."
     (cond ((string-match-p (regexp-quote name) (file-name-nondirectory x)) 1)
           ((string-match-p (regexp-quote name) (file-name-nondirectory y)) 2)
           (t nil)))
+
+  ;; TODO:
+  (defun +ivy-project-sort--file-length(name x y)
+    (if (string< x y) 1
+      2))
 
   (defun +ivy-project-sort-files(name candidates)
     "Assumes all candidates already match name"

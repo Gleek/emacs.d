@@ -51,6 +51,7 @@
         markdown-outdent-or-delete
         move-text-up
         nxml-electric-slash
+        org-archive-subtree-default
         org-beginning-of-line
         org-cycle
         org-delete-char

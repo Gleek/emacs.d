@@ -109,8 +109,8 @@
         ;; Show src buffer in popup, and don't monopolize the frame
         org-src-window-setup 'other-window)
 
-  (defadvice org-edit-src-exit (after restore-window-config activate)
-    (winner-undo))
+  ;; (defadvice org-edit-src-exit (after restore-window-config activate disable)
+  ;;   (winner-undo))
 
   (setq org-display-remote-inline-images 'download) ; TRAMP urls
   (org-link-set-parameters "http"  :image-data-fun #'+org-http-image-data-fn)
@@ -416,5 +416,73 @@
   :bind ("s-w". ox-clip-formatted-copy))
 (use-package org-cliplink
   :bind ("C-c o y" . org-cliplink))
+
+(use-package anki-editor
+  :after org
+  :bind (("C-c o k k" . +org-capture-anki-basic)
+         ("C-c o k c" . +org-capture-anki-cloze))
+  :hook (org-capture-after-finalize . anki-editor-reset-cloze-number)
+  :config
+  (setq anki-editor-create-decks t ;; Allow anki-editor to create a new deck if it doesn't exist
+        anki-editor-org-tags-as-anki-tags t)
+
+  (defvar org-my-anki-file)
+  (setq org-my-anki-file (concat +org-directory "anki.org"))
+
+  (defvar +anki-editor-cloze-number 1)
+  ;; Courtesy : yiufung
+  (defun anki-editor-cloze-region-auto-incr (&optional arg)
+    "Cloze region without hint and increase card number."
+    (interactive)
+    (anki-editor-cloze-region +anki-editor-cloze-number "")
+    (setq +anki-editor-cloze-number (1+ +anki-editor-cloze-number))
+    (forward-sexp))
+  (defun anki-editor-cloze-region-dont-incr (&optional arg)
+    "Cloze region without hint using the previous card number."
+    (interactive)
+    (anki-editor-cloze-region (1- +anki-editor-cloze-number) "")
+    (forward-sexp))
+  (defun anki-editor-reset-cloze-number (&optional arg)
+    "Reset cloze number to ARG or 1"
+    (interactive)
+    (setq +anki-editor-cloze-number (or arg 1)))
+  (defun anki-editor-push-tree ()
+    "Push all notes under a tree."
+    (interactive)
+    (anki-editor-push-notes '(4))
+    (anki-editor-reset-cloze-number))
+
+  (defun +init-anki()
+    (when (string-match "\\(anki.org\\)" (format "%s" buffer-file-name))
+      (progn
+        (anki-editor-mode t)
+        (+anki-keybind))))
+  (defun +anki-keybind()
+    (when (bound-and-true-p anki-editor-mode)
+      (local-set-key (kbd "C-c C-c") 'anki-editor-push-tree)
+      (local-set-key (kbd "C-i") (lambda()  (interactive)
+                                   (anki-editor-reset-cloze-number)
+                                   (anki-editor-insert-note)))
+      (local-set-key (kbd "C-c {") 'anki-editor-cloze-region-auto-incr)
+      (local-set-key (kbd "C-c [") 'anki-editor-cloze-region-dont-incr)
+      (local-set-key (kbd "C-c 0") 'anki-editor-reset-cloze-number)))
+  (add-hook 'org-mode-hook '+init-anki)
+  (add-to-list 'org-capture-templates
+               '("a" "Anki basic"
+                 entry
+                 (file+headline org-my-anki-file "Dispatch Shelf")
+                 "* %<%c>   %^g\n:PROPERTIES:\n:ANKI_NOTE_TYPE: Basic\n:ANKI_DECK: Default\n:END:\n** Front\n%?\n** Back\n%x\n"))
+  (add-to-list 'org-capture-templates
+               '("A" "Anki cloze"
+                 entry
+                 (file+headline org-my-anki-file "Dispatch Shelf")
+                 "* %<%c>   %^g\n:PROPERTIES:\n:ANKI_NOTE_TYPE: Cloze\n:ANKI_DECK: Default\n:END:\n** Text\n%x\n** Extra\n"))
+  (defun +org-capture-anki-basic()
+    (interactive)
+    (org-capture nil "a"))
+
+  (defun +org-capture-anki-cloze()
+    (interactive)
+    (org-capture nil "A")))
 
 (provide 'core-org)
