@@ -39,6 +39,13 @@
     "Do not ask for confirmation to evaluate code for specified languages."
     (member lang '("plantuml")))
 
+  (defun +org-refile-to-pos (file headline &optional arg)
+    (let ((pos (save-excursion
+                 (find-file file)
+                 (org-find-exact-headline-in-buffer headline))))
+      (org-refile arg nil (list headline file nil pos)))
+    (switch-to-buffer (current-buffer)))
+
   (defun variable-pitch-for-notes ()
     (interactive)
     (when (string-match "\\(.*Notes.org\\|roam.*org\\)" (format "%s" buffer-file-name))
@@ -450,9 +457,18 @@
     "Push all notes under a tree."
     (interactive)
     (anki-editor-push-notes '(4))
-    (anki-editor-reset-cloze-number))
+    (anki-editor-reset-cloze-number)
+    (anki-refile-all))
 
-  (defun +init-anki()
+  (defun anki-refile-all()
+    "Refile all tree elements to Exported"
+    (let ((notes (anki-editor-map-note-entries (lambda () (point-marker)) nil 'tree)))
+      (mapc (lambda (marker)
+              (goto-char marker)
+              (+org-refile-to-pos org-my-anki-file "Exported"))
+            notes)))
+
+ (defun +init-anki()
     (when (string-match "\\(anki.org\\)" (format "%s" buffer-file-name))
       (progn
         (anki-editor-mode t)

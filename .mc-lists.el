@@ -61,12 +61,14 @@
         org-open-line
         org-return-indent
         org-self-insert-command
+        org-shiftcontrolup
         org-yank
         rjsx-delete-creates-full-tag
         rjsx-electric-lt
         sgml-slash
         sh-assignment
         sp-backward-unwrap-sexp
+        sp-remove-active-pair-overlay
         string-inflection-all-cycle
         string-inflection-camelcase
         string-inflection-kebab-case

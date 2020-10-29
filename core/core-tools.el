@@ -1,5 +1,6 @@
 (setq url-configuration-directory (concat CACHE-DIR "url"))
 (setq gamegrid-user-score-file-directory (concat CACHE-DIR "games"))
+(setq request-storage-directory (concat CACHE-DIR "request"))
 (defun copy-file-name-to-clipboard ()
   "Copy the current buffer file name to the clipboard."
   (interactive)
