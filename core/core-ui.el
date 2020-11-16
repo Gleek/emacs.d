@@ -46,7 +46,7 @@
   :bind ("C-c t T" . +switch-theme-type)
   :demand
   :config
-  (defvar +theme-type 'light)
+  (defvar +theme-type 'dark)
   (defvar +light-theme 'doom-one-light)
   (defvar +dark-theme 'doom-one)
   (defun +switch-theme-type()
@@ -63,8 +63,7 @@
     (solaire-global-mode +1))
 
   (solaire-global-mode +1)
-  ;; Trying out light theme
-  (load-theme +light-theme t)
+  (load-theme (if (eq +theme-type 'dark) +dark-theme +light-theme) t)
   (setq doom-themes-treemacs-theme "doom-atom")
   (doom-themes-treemacs-config)
   (doom-themes-org-config)

@@ -213,10 +213,10 @@
          ("C-c o a" . +switch-to-agenda)
          ("<f1>" . +switch-to-agenda)
          :map org-agenda-mode-map
-              ("i" . org-agenda-clock-in)
-              ("c" . +capture-inbox)
-              ("r" . +org-agenda-process-inbox-item)
-              ("R" . org-agenda-refile))
+         ("i" . org-agenda-clock-in)
+         ("c" . +capture-inbox)
+         ("r" . +org-agenda-process-inbox-item)
+         ("R" . org-agenda-refile))
   :config
   ;; Courtesy Jethro Kuan.
   ;; https://blog.jethro.dev/posts/org_mode_workflow_preview/
@@ -390,7 +390,6 @@
               ("C-c o r m" . org-roam-dailies-tomorrow)
               ("C-c o r y" . org-roam-dailies-yesterday))
   :config
-
   (add-hook 'org-roam-backlinks-mode-hook 'turn-on-visual-line-mode)
   (defun +do-org-roam-bindings()
     (when (and
@@ -426,8 +425,16 @@
 
 (use-package anki-editor
   :after org
+  :preface
+  ;; TODO:
+  (defvar anki-editor-mode-map (make-keymap) "anki-editor-mode keymap.")
   :bind (("C-c o k k" . +org-capture-anki-basic)
-         ("C-c o k c" . +org-capture-anki-cloze))
+         ("C-c o k c" . +org-capture-anki-cloze)
+         :map anki-editor-mode-map
+         ("C-c C-c" . anki-editor-push-tree)
+         ("C-c {" . 'anki-editor-cloze-region-auto-incr)
+         ("C-c [" . 'anki-editor-cloze-region-dont-incr)
+         ("C-c 0" . 'anki-editor-reset-cloze-number))
   :hook (org-capture-after-finalize . anki-editor-reset-cloze-number)
   :config
   (setq anki-editor-create-decks t ;; Allow anki-editor to create a new deck if it doesn't exist
@@ -468,7 +475,7 @@
               (+org-refile-to-pos org-my-anki-file "Exported"))
             notes)))
 
- (defun +init-anki()
+  (defun +init-anki()
     (when (string-match "\\(anki.org\\)" (format "%s" buffer-file-name))
       (progn
         (anki-editor-mode t)
@@ -487,12 +494,12 @@
                '("a" "Anki basic"
                  entry
                  (file+headline org-my-anki-file "Dispatch Shelf")
-                 "* %<%c>   %^g\n:PROPERTIES:\n:ANKI_NOTE_TYPE: Basic\n:ANKI_DECK: Default\n:END:\n** Front\n%?\n** Back\n%x\n"))
+                 "* %<%c> \n:PROPERTIES:\n:ANKI_NOTE_TYPE: Basic\n:ANKI_DECK: Default\n:END:\n** Front\n%?\n** Back\n%x\n"))
   (add-to-list 'org-capture-templates
                '("A" "Anki cloze"
                  entry
                  (file+headline org-my-anki-file "Dispatch Shelf")
-                 "* %<%c>   %^g\n:PROPERTIES:\n:ANKI_NOTE_TYPE: Cloze\n:ANKI_DECK: Default\n:END:\n** Text\n%x\n** Extra\n"))
+                 "* %<%c> \n:PROPERTIES:\n:ANKI_NOTE_TYPE: Cloze\n:ANKI_DECK: Default\n:END:\n** Text\n%x\n** Extra\n"))
   (defun +org-capture-anki-basic()
     (interactive)
     (org-capture nil "a"))

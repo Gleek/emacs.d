@@ -18,7 +18,9 @@
   :ensure company-terraform)
 
 (use-package json-mode
-  :bind (:map json-mode-map ("C-c C-f" . json-pretty-print)))
+  :bind (:map json-mode-map
+              (("C-c C-f" . json-pretty-print)
+               ("C-c C-d" . nil))))
 (use-package less-css-mode)
 (use-package rainbow-mode :diminish "🌈")
 
