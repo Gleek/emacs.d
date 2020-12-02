@@ -98,6 +98,15 @@
         org-confirm-babel-evaluate nil
         org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
 
+  (setq org-format-latex-options
+        (list :foreground 'auto
+              :background 'auto
+              :scale 1.5
+              :html-foreground "Black"
+              :html-background "Transparent"
+              :html-scale 1.0
+              :matchers '("begin" "$1" "$" "$$" "\\(" "\\[")))
+
   (setq help-at-pt-display-when-idle t)
 
   (setq org-refile-targets
