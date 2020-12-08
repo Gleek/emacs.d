@@ -2,11 +2,21 @@
   :bind (("C-x m" . magit-status)
          ("C-c g b" . magit-blame-addition)
          ("C-c g l" . magit-log-buffer-file))
+  :custom
+  (magit-git-executable "/usr/bin/git")
+  (magit-status-headers-hook '(magit-insert-head-branch-header))
   :config
   (setq magit-refresh-status-buffer nil)
   (setq magit-auto-revert-mode nil)
   (setq magit-save-repository-buffers nil)
   (setq magit-diff-refine-hunk t)
+  ;; This gives some performance boost to magit
+  (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
+  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-status-headers)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-pushremote)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent)
   (add-hook 'magit-popup-mode-hook #'hide-mode-line-mode))
 
 (use-package browse-at-remote
