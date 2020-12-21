@@ -38,6 +38,8 @@
         helm-show-kill-ring
         indent-for-tab-command
         indent-new-comment-line
+        indent-rigidly
+        indent-rigidly-right
         isearch-abort
         isearch-forward-regexp
         isearch-printing-char

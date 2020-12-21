@@ -3,7 +3,7 @@
          ("C-c g b" . magit-blame-addition)
          ("C-c g l" . magit-log-buffer-file))
   :custom
-  (magit-git-executable "/usr/bin/git")
+  (magit-git-executable (executable-find "git"))
   (magit-status-headers-hook '(magit-insert-head-branch-header))
   :config
   (setq magit-refresh-status-buffer nil)

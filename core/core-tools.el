@@ -312,6 +312,50 @@ the currently playing track."
          ("C-c s l" . lucky)
          ("C-c s d" . devdocs)))
 
-;; (use-package keepass-mode)
+(use-package keepass-mode
+  :bind (("C-c s p" . +keepass-quick-switch)
+         (:map keepass-mode-map
+              ("s" . counsel-keepass)))
+  :config
+  (defun +keepass-quick-switch()
+    (interactive)
+    ;; From core-secrets
+    (find-file keepass-password-file)
+    (counsel-keepass))
+  (defun counsel-keepass()
+    (interactive)
+    (ivy-read "Search key: "
+              (+keepass-list-all)
+              :require-match t
+              :action '(1
+                        ("p" +keepass-copy-password "Copy password")
+                        ("u" +keepass-copy-username "Copy username")
+                        ("o" +keepass-open-entry "Open entry"))
+              :caller 'counsel-keepass))
+
+  (defun +keepass-open-entry(entry)
+    (let ((keepass-mode-group-path ""))
+      (keepass-mode-show entry)))
+
+
+  (defun +keepass-copy-password(entry)
+    (kill-new (keepass-mode-get-password entry))
+    (message "Password for '%s' copied to kill-ring" entry))
+
+  (defun +keepass-copy-username(entry)
+    (kill-new (+keepass-mode-get-username entry))
+    (message "Username for '%s' copied to kill-ring" entry))
+  (defun +keepass-mode-get-username (entry)
+    "Retrieve password for ENTRY."
+    (keepass-mode-get-field "UserName" (shell-command-to-string (keepass-mode-command (keepass-mode-quote-unless-empty entry) "show -s"))))
+  (defun +keepass-list-all()
+    (+keepass-locate "/"))
+  (defun +keepass-locate(term)
+    "Search using keepass"
+    (cl-delete-if
+     (lambda (k) (string-match-p "^[^/]" k))
+     (split-string
+      (shell-command-to-string (keepass-mode-command term "locate"))
+      "\n"))))
 
 (provide 'core-tools)

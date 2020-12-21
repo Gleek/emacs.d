@@ -21,6 +21,8 @@
   :bind (:map json-mode-map
               (("C-c C-f" . json-pretty-print)
                ("C-c C-d" . nil))))
+(use-package counsel-jq
+  :bind (:map json-mode-map ("C-c C-s" . counsel-jq)))
 (use-package less-css-mode)
 (use-package rainbow-mode :diminish "🌈")
 

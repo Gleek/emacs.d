@@ -357,6 +357,29 @@
         org-agenda-start-day nil
         org-agenda-inhibit-startup t))
 
+(use-package org-gcal
+  :defer 5
+  :bind (:map org-agenda-mode-map
+              ("S" . org-gcal-sync))
+  :config
+  (defvar org-gcal-file)
+  (setq org-gcal-file (concat +org-directory "schedule.org")
+        org-gcal-dir (concat CACHE-DIR "org-gcal/")
+        persist--directory-location (concat CACHE-DIR "persist")
+        org-gcal-token-file (expand-file-name ".org-gcal-token" org-gcal-dir)
+        org-gcal-notify-p nil)
+
+  (defvar org-gcal--running-timer nil)
+  (unless (eq org-gcal--running-timer nil)
+    (setq org-gcal--running-timer (run-with-timer 300 300 (lambda () (org-gcal-sync t t)))))
+
+  ;; Depends on core-secrets entry
+  ;; (setq org-gcal-client-id "my-app.apps.googleusercontent.com"
+  ;;       org-gcal-client-secret "secret"
+  ;;       org-gcal-calendars '("calendar1" "calendar2" "calendar3"))
+
+  (setq org-gcal-fetch-file-alist (mapcar (lambda(x) `(,x . ,org-gcal-file)) org-gcal-calendars)))
+
 
 
 (use-package org-alert

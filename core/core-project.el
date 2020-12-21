@@ -31,7 +31,7 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-c p s" . projectile-save-project-buffers)))
 
 (use-package counsel-projectile
-  :bind (("M-p" . counsel-projectile)
+  :bind (("M-p" . counsel-projectile-find-file)
          ("C-c p f" . counsel-projectile-find-file)
          ("C-c p b" . counsel-projectile-switch-to-buffer)
          ("C-x B" . counsel-projectile-switch-to-buffer)

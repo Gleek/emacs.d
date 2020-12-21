@@ -145,6 +145,9 @@
     (dired-filter-mode -1)
     (dired-filter-mode +1)))
 
+;; (use-package dired-ranger)
+;; (use-package ranger)
+
 (use-package disk-usage
   :after dired
   :bind (:map dired-mode-map
