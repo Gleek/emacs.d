@@ -222,6 +222,16 @@
            (completing-read "Width" '("160" "150" "100" "70") nil t)))
     (olivetti-set-buffer-windows)))
 
+
+(use-package tree-sitter
+  :ensure tree-sitter
+  :ensure tree-sitter-langs
+  :defer 2
+  :config
+  (require 'tree-sitter-langs)
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+
 (defun font-lock-comment-annotations ()
   "Highlight a bunch of well known comment annotations.
 

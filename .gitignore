@@ -4,3 +4,6 @@ elpa/
 core/core-secrets.el
 cache/
 .yas-compiled-snippets.el
+*.elc
+/package-quickstart.el
+/eln-cache

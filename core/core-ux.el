@@ -31,11 +31,11 @@
         ns-option-modifier 'super))
 
 ;; Find my cursor
-(use-package beacon
-  :disabled
-  :config
-  (beacon-mode)
-  :diminish beacon-mode)
+;; (use-package beacon
+;;   :disabled
+;;   :config
+;;   (beacon-mode)
+;;   :diminish beacon-mode)
 
 (use-package smooth-scroll
   :defer 1

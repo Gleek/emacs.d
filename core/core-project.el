@@ -263,7 +263,8 @@ Use `treemacs' command for old functionality."
   (setq lsp-modeline-code-actions-segments '(name icon))
   (setq lsp-enable-file-watchers nil
         lsp-enable-folding nil
-        lsp-enable-text-document-color nil)
+        lsp-enable-text-document-color nil
+        lsp-headerline-breadcrumb-segments nil)
   (setq lsp-enable-indentation nil
         lsp-enable-on-type-formatting nil))
 

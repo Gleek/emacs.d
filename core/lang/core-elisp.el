@@ -1,7 +1,10 @@
+;;;###autoload
 (defun byte-compile-init-dir ()
   "Byte-compile all your dotfiles."
   (interactive)
   (byte-recompile-directory user-emacs-directory 0))
+
+;;;###autoload
 (defun remove-elc-on-save ()
   "If you're saving an elisp file, likely the .elc is no longer valid."
   (add-hook 'after-save-hook
@@ -21,8 +24,9 @@
     (error (message "Invalid expression")
            (insert (current-kill 0)))))
 
-(add-hook 'emacs-lisp-mode-hook 'remove-elc-on-save)
 
-(company-backend-for-hook 'emacs-lisp-mode-hook '((company-capf :with company-yasnippet)))
+(eval-after-load "company"
+  (company-backend-for-hook 'emacs-lisp-mode-hook '((company-capf :with company-yasnippet))))
+
 
 (provide 'core-elisp)

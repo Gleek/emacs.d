@@ -19,10 +19,6 @@
 ;; (use-package org-bullets
 ;;   :init (remove-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
-;; (use-package org-wunderlist
-;;   :init (setq org-wunderlist-file  "~/.emacs.d/Wunderlist.org"
-;;                 org-wunderlist-dir "~/.emacs.d/org-wunderlist/"))
-
 
 (use-package org-pomodoro
   :config
@@ -221,11 +217,11 @@
   :bind (("C-c o A" . org-agenda)
          ("C-c o a" . +switch-to-agenda)
          ("<f1>" . +switch-to-agenda)
-         :map org-agenda-mode-map
-         ("i" . org-agenda-clock-in)
-         ("c" . +capture-inbox)
-         ("r" . +org-agenda-process-inbox-item)
-         ("R" . org-agenda-refile))
+         (:map org-agenda-mode-map
+               ("i" . org-agenda-clock-in)
+               ("c" . +capture-inbox)
+               ("r" . +org-agenda-process-inbox-item)
+               ("R" . org-agenda-refile)))
   :config
   ;; Courtesy Jethro Kuan.
   ;; https://blog.jethro.dev/posts/org_mode_workflow_preview/

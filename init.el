@@ -9,10 +9,11 @@
 (setq gc-cons-threshold 100000000) ;; collect garbage after about 100 MB
 (run-with-idle-timer 2 t (lambda () (garbage-collect)))
 (setq message-log-max 10000) ;; Debugging
+;; (unless (file-exists-p "package-quickstart.el")
+  ;; (package-quickstart-refresh))
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
 ;; (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))
-
 
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
@@ -113,7 +114,10 @@
 (use-package "lang/core-proto" :ensure nil :demand t)
 (use-package "lang/core-org" :ensure nil :demand t)
 (use-package "lang/core-elisp" :ensure nil :demand t
-  :bind ("C-c C-e" . eval-and-replace))
+  :commands remove-elc-on-save eval-and-replace
+  :bind ("C-c C-e" . eval-and-replace)
+  :config
+  (add-hook 'emacs-lisp-mode-hook 'remove-elc-on-save))
 
 (use-package "lang/core-plantuml" :ensure nil :demand t)
 (use-package "lang/core-misc" :ensure nil :demand t)
