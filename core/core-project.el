@@ -77,7 +77,9 @@ Repeated invocations toggle between the two most recently open buffers."
       candidates))
   (defun +counsel-projectile-find-file-matcher(regexp candidates)
     (+ivy-project-sort-files regexp (counsel--find-file-matcher regexp candidates)))
-  (setq counsel-projectile-find-file-matcher '+counsel-projectile-find-file-matcher))
+  (setq counsel-projectile-find-file-matcher '+counsel-projectile-find-file-matcher)
+  ;; Default counsel-projectile is very slow. Removing it's usage when switching project
+  (advice-add 'counsel-projectile-switch-project-action :override 'counsel-projectile-switch-project-action-find-file))
 
 
 (use-package project
