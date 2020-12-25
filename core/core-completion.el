@@ -189,9 +189,10 @@
 
 (use-package yasnippet
   :ensure yasnippet
-  :ensure yasnippet-snippets
   :defer 5
   :config
+  (setq yasnippet-snippets-dir (expand-file-name "snippets" user-emacs-directory))
+  (setq yas-snippet-dirs `(,yasnippet-snippets-dir))
   (yas-global-mode 1)
   :diminish (yas-minor-mode . "Ⓨ"))
 

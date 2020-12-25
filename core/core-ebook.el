@@ -1,9 +1,16 @@
 (use-package pdf-tools
-  :after popup
   :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
   :magic ("%PDF" . pdf-view-mode)
-  :defer 1
-  :init
+  :bind (:map pdf-view-mode-map
+              ("C-s" . isearch-forward)
+              ("h" . pdf-annot-add-highlight-markup-annotation)
+              ("C-c C-a H" . pdf-annot-choose-highlight-color)
+              ("D" . pdf-annot-delete)
+              ("m" . pdf-view-midnight-minor-mode)
+              ("t" . pdf-annot-add-text-annotation))
+
+  :config
+
   (defvar pdf-annot-highlight-colors '(("blue" . "#40e0d0") ("yellow" . "#face50") ("red" . "#ff69b4")))
   (defun pdf-annot-choose-highlight-color()
     (interactive)
@@ -32,15 +39,6 @@
       (when (and contents-buffer (buffer-live-p contents-buffer))
         (kill-buffer contents-buffer))))
 
-  :bind (:map pdf-view-mode-map
-              ("C-s" . isearch-forward)
-              ("h" . pdf-annot-add-highlight-markup-annotation)
-              ("C-c C-a H" . pdf-annot-choose-highlight-color)
-              ("D" . pdf-annot-delete)
-              ("m" . pdf-view-midnight-minor-mode)
-              ("t" . pdf-annot-add-text-annotation))
-
-  :config
   ;; (remove-hook 'pdf-view-mode-hook
   ;;           (add-hook 'kill-buffer-hook #'pdf-cleanup-windows-h nil t))
   ;; (pdf-view-midnight-colors '("#839496" . "#002b36"))

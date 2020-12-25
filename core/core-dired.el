@@ -45,6 +45,7 @@
 
 
 (use-package peep-dired
+  :after dired
   :config
   (setq peep-dired-cleanup-on-disable t)
   (setq peep-dired-cleanup-eagerly nil)

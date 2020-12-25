@@ -238,7 +238,7 @@ Use `treemacs' command for old functionality."
     (pcase (treemacs-current-visibility)
       (`visible (delete-window (treemacs-get-local-window)))
       (_ (+show-treemacs))))
-  (treemacs-follow-mode -1)
+  (treemacs-follow-mode t)
   (setq treemacs-width 30))
 
 (use-package treemacs-projectile
@@ -271,6 +271,7 @@ Use `treemacs' command for old functionality."
         lsp-enable-on-type-formatting nil))
 
 (use-package lsp-ivy
+  :after lsp-mode
   :bind (:map lsp-mode-map ("M-<return>" . lsp-ivy-workspace-symbol)))
 
 (use-package lsp-ui

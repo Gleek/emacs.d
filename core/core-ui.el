@@ -163,7 +163,7 @@
                                 ;; (bookmarks . 5)
                                 ;; (agenda . 5)
                                 ))
-
+  ;; (setq dashboard-items nil)
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
   (setq dashboard-startup-banner -1)

@@ -101,6 +101,10 @@
    :background "DarkRed"
    :height 70))
 
+(use-package diff-hl
+  :hook (dired-mode . diff-hl-dired-mode-unless-remote)
+  :hook (magit-post-refresh . diff-hl-magit-post-refresh))
+
 ;; (use-package git-gutter-fringe
 ;;   :)
 
@@ -114,15 +118,14 @@
   :config
   (add-hook 'find-file-hook 'vc-refresh-state))
 
-
+(define-globalized-minor-mode global-autorevert-mode auto-revert-mode
+  (lambda ()
+    (auto-revert-mode -1)))
 (use-package autorevert
   :ensure nil
   :defer 1
   :bind ("s-u" . revert-buffer)
   :config
-  (define-globalized-minor-mode global-autorevert-mode auto-revert-mode
-    (lambda ()
-      (auto-revert-mode -1)))
   (setq auto-revert-verbose t ; let us know when it happens
         auto-revert-use-notify nil
         auto-revert-stop-on-user-input nil

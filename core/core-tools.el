@@ -358,4 +358,19 @@ the currently playing track."
       (shell-command-to-string (keepass-mode-command term "locate"))
       "\n"))))
 
+(use-package proced
+  :ensure nil
+  :defer 1
+  :commands proced
+  :config
+  (setq-default proced-auto-update-flag t)
+  (setq proced-auto-update-interval 1)
+  (setq proced-descend t)
+  (setq proced-filter 'user))
+(use-package proced-narrow
+  :after proced
+  :diminish
+  :bind (:map proced-mode-map
+              ("/" . proced-narrow)))
+
 (provide 'core-tools)

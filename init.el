@@ -6,6 +6,11 @@
 ;;; Code:
 
 ;; (setq debug-on-error t)
+(defconst CACHE-DIR (expand-file-name "cache/" user-emacs-directory))
+(defconst RES-DIR   (expand-file-name "resources/" user-emacs-directory))
+(defconst IS-MAC    (eq system-type 'darwin))
+(defconst IS-LINUX  (eq system-type 'gnu/linux))
+
 (setq gc-cons-threshold 100000000) ;; collect garbage after about 100 MB
 (run-with-idle-timer 2 t (lambda () (garbage-collect)))
 (setq message-log-max 10000) ;; Debugging
@@ -16,6 +21,7 @@
 ;; (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))
 
 ;; Bootstrap `use-package'
+(setq package-native-compile t)
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
@@ -36,11 +42,6 @@
   :config
   ;; To disable collection of benchmark data after init is done.
   (add-hook 'after-init-hook 'benchmark-init/deactivate))
-
-(defconst CACHE-DIR (expand-file-name "cache/" user-emacs-directory))
-(defconst RES-DIR (expand-file-name "resources/" user-emacs-directory))
-(defconst IS-MAC     (eq system-type 'darwin))
-(defconst IS-LINUX   (eq system-type 'gnu/linux))
 
 (setq custom-file (concat CACHE-DIR "custom.el"))
 ;; (load custom-file)

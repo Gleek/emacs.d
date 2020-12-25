@@ -354,9 +354,9 @@
         org-agenda-inhibit-startup t))
 
 (use-package org-gcal
-  :defer 5
-  :bind (:map org-agenda-mode-map
-              ("S" . org-gcal-sync))
+  :after org-agenda
+  :commands org-gcal-sync
+  :bind (:map org-agenda-mode-map ("S" . org-gcal-sync))
   :config
   (defvar org-gcal-file)
   (setq org-gcal-file (concat +org-directory "schedule.org")
@@ -413,10 +413,10 @@
               ("C-c o n g" . org-roam-graph)
               ("C-c o n u" . org-roam-unlinked-references)
               ("C-c o m"   . org-roam)
-              ("C-c o r d" . org-roam-dailies-date)
-              ("C-c o r r" . org-roam-dailies-today)
-              ("C-c o r m" . org-roam-dailies-tomorrow)
-              ("C-c o r y" . org-roam-dailies-yesterday))
+              ("C-c o r d" . org-roam-dailies-find-date)
+              ("C-c o r r" . org-roam-dailies-find-today)
+              ("C-c o r m" . org-roam-dailies-find-tomorrow)
+              ("C-c o r y" . org-roam-dailies-find-yesterday))
   :config
   (add-hook 'org-roam-backlinks-mode-hook 'turn-on-visual-line-mode)
   (defun +do-org-roam-bindings()
