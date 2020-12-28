@@ -356,6 +356,10 @@
 (use-package org-gcal
   :after org-agenda
   :commands org-gcal-sync
+  :init
+  (defvar org-gcal--running-timer nil)
+  (unless (eq org-gcal--running-timer nil)
+    (setq org-gcal--running-timer (run-with-timer 300 300 (lambda () (org-gcal-sync t t)))))
   :bind (:map org-agenda-mode-map ("S" . org-gcal-sync))
   :config
   (defvar org-gcal-file)
@@ -364,11 +368,6 @@
         persist--directory-location (concat CACHE-DIR "persist")
         org-gcal-token-file (expand-file-name ".org-gcal-token" org-gcal-dir)
         org-gcal-notify-p nil)
-
-  (defvar org-gcal--running-timer nil)
-  (unless (eq org-gcal--running-timer nil)
-    (setq org-gcal--running-timer (run-with-timer 300 300 (lambda () (org-gcal-sync t t)))))
-
   ;; Depends on core-secrets entry
   ;; (setq org-gcal-client-id "my-app.apps.googleusercontent.com"
   ;;       org-gcal-client-secret "secret"

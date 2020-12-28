@@ -35,6 +35,7 @@
   :hook (dired-mode . dired-hide-details-mode))
 
 (use-package wdired
+  :after dired
   :ensure nil
   :bind (:map dired-mode-map
               ("W" . wdired-change-to-wdired-mode))

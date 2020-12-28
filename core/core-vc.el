@@ -19,6 +19,9 @@
   (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent)
   (add-hook 'magit-popup-mode-hook #'hide-mode-line-mode))
 
+(use-package forge
+  :after magit)
+
 (use-package browse-at-remote
   :bind (("C-c g w" . browse-at-remote-kill)
          ("C-c g o" . browse-at-remote))

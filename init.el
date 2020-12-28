@@ -15,7 +15,7 @@
 (run-with-idle-timer 2 t (lambda () (garbage-collect)))
 (setq message-log-max 10000) ;; Debugging
 ;; (unless (file-exists-p "package-quickstart.el")
-  ;; (package-quickstart-refresh))
+;;   (package-quickstart-refresh))
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
 ;; (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))

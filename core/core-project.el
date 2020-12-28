@@ -262,6 +262,7 @@ Use `treemacs' command for old functionality."
   :config
   ;; (company-backend-for-hook 'lsp-mode-hook '((company-capf :with company-yasnippet)))
   (company-backend-for-hook 'lsp-completion-mode-hook '((company-capf :with company-yasnippet)))
+  (lsp-headerline-breadcrumb-mode -1)
   (setq lsp-modeline-code-actions-segments '(name icon))
   (setq lsp-enable-file-watchers nil
         lsp-enable-folding nil

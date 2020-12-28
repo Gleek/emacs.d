@@ -358,6 +358,12 @@ the currently playing track."
       (shell-command-to-string (keepass-mode-command term "locate"))
       "\n"))))
 
+
+(defalias 'xwwb 'xwidget-webkit-browse-url)
+(use-package xwwp-follow-link-ivy
+  :after xwidget
+  :bind (:map xwidget-webkit-mode-map ("F" . xwwp-follow-link)))
+
 (use-package proced
   :ensure nil
   :defer 1
