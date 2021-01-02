@@ -247,5 +247,16 @@ This functions should be added to the hooks of major modes for programming."
          ((eq cursor-type t) 'bar)
          (t 't))))
 
+(defun reading-mode()
+  (interactive)
+  (setq cursor-type 'bar)
+  (electric-quote-mode t)
+  (setq bidi-paragraph-direction nil)
+  (variable-pitch-mode t)
+  (setq line-spacing 0.1)
+  (display-line-numbers-mode -1)
+  (setq left-margin-width 5)
+  (setq right-margin-width 5))
+
 
 (provide 'core-ui)

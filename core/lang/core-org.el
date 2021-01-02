@@ -29,6 +29,12 @@
 
 (use-package org
   :config
+ ;; Strange bug causing org-version to be empty. Breaking nov.el
+  (setq org-version (if (string= org-version "")
+                        (let ((org-full-dir (file-name-directory (locate-library "org"))))
+                          (save-match-data
+                            (and (string-match "-\\([0-9.]+\\)/" org-full-dir)) (match-string 1 org-full-dir)))
+                      org-version))
   (defvar org-plantuml-jar-path)
   ;; helper function
   (defun my-org-confirm-babel-evaluate (lang body)
@@ -45,11 +51,7 @@
   (defun variable-pitch-for-notes ()
     (interactive)
     (when (string-match "\\(.*Notes.org\\|roam.*org\\)" (format "%s" buffer-file-name))
-      (progn
-        (setq cursor-type 'bar)
-        (electric-quote-mode t)
-        (setq bidi-paragraph-direction nil)
-        (variable-pitch-mode t))))
+      (reading-mode)))
 
 
   (defun +capture-inbox()
@@ -137,12 +139,6 @@
   ;; (add-hook 'org-mode-hook 'toggle-truncate-lines)
   (company-backend-for-hook 'org-mode-hook '((company-org-roam company-capf company-yasnippet company-dabbrev)))
   (add-hook 'org-mode-hook 'variable-pitch-for-notes)
-  (add-hook 'org-mode-hook (lambda() (setq line-spacing 0.1)))
-  (add-hook 'org-mode-hook (lambda() (display-line-numbers-mode -1)))
-  (add-hook 'org-mode-hook (lambda ()
-                             (progn
-                               (setq left-margin-width 5)
-                               (setq right-margin-width 5))))
 
   (setq org-modules
         '(;; ol-w3m
@@ -399,24 +395,27 @@
   (setq-default org-download-image-dir (concat +org-directory "resource/downloads")))
 
 (use-package org-roam
-  :defer 1
   :ensure org-roam
   :ensure org-roam-server
   ;; :ensure company-org-roam
   :init
   (setq org-roam-directory (concat +org-directory "org-roam/"))
   (setq org-roam-db-location (concat CACHE-DIR "org-roam.db"))
-  :bind (:map org-roam-mode-map
-              ("C-c o n n" . org-roam-find-file)
-              ("C-c o n b" . org-roam-switch-to-buffer)
-              ("C-c o n g" . org-roam-graph)
-              ("C-c o n u" . org-roam-unlinked-references)
-              ("C-c o m"   . org-roam)
-              ("C-c o r d" . org-roam-dailies-find-date)
-              ("C-c o r r" . org-roam-dailies-find-today)
-              ("C-c o r m" . org-roam-dailies-find-tomorrow)
-              ("C-c o r y" . org-roam-dailies-find-yesterday))
+  :bind (("C-c o n n" . +org-roam-find-file)
+         (:map org-roam-mode-map
+               ("C-c o n b" . org-roam-switch-to-buffer)
+               ("C-c o n g" . org-roam-graph)
+               ("C-c o n u" . org-roam-unlinked-references)
+               ("C-c o m"   . org-roam)
+               ("C-c o r d" . org-roam-dailies-find-date)
+               ("C-c o r r" . org-roam-dailies-find-today)
+               ("C-c o r m" . org-roam-dailies-find-tomorrow)
+               ("C-c o r y" . org-roam-dailies-find-yesterday)))
   :config
+  (defun +org-roam-find-file()
+      (interactive)
+      (unless ivy-mode (ivy-mode t))
+      (org-roam-find-file))
   (add-hook 'org-roam-backlinks-mode-hook 'turn-on-visual-line-mode)
   (defun +do-org-roam-bindings()
     (when (and
@@ -440,9 +439,7 @@
         org-roam-buffer-window-parameters '((no-delete-other-windows . t)))
   ;; (push 'company-org-roam company-backends)
 
-  (setq org-roam-graph-viewer (lambda(url) (+browse-url url)))
-
-  (org-roam-mode t))
+  (setq org-roam-graph-viewer (lambda(url) (+browse-url url))))
 
 (use-package org-noter)
 (use-package ox-clip

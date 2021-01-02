@@ -62,7 +62,10 @@
                            )))
 
 (use-package nov
+  :ensure nov
+  :ensure dash
   :mode ("\\.epub\\'" . nov-mode)
   :config
+  (add-hook 'nov-mode-hook 'reading-mode)
   (setq nov-save-place-file (concat CACHE-DIR "nov-places")))
 (provide 'core-ebook)

@@ -320,8 +320,9 @@ the currently playing track."
   (defun +keepass-quick-switch()
     (interactive)
     ;; From core-secrets
-    (find-file keepass-password-file)
-    (counsel-keepass))
+    (let ((buf (find-file-noselect keepass-password-file)))
+      (with-current-buffer buf
+        (counsel-keepass))))
   (defun counsel-keepass()
     (interactive)
     (ivy-read "Search key: "
@@ -378,5 +379,11 @@ the currently playing track."
   :diminish
   :bind (:map proced-mode-map
               ("/" . proced-narrow)))
+
+(use-package calibredb
+  :bind ("C-c B" . calibredb-find-counsel)
+  :config
+  (setq calibredb-root-dir "~/Documents/Calibre")
+  (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir)))
 
 (provide 'core-tools)
