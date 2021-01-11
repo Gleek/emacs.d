@@ -401,7 +401,7 @@
   :init
   (setq org-roam-directory (concat +org-directory "org-roam/"))
   (setq org-roam-db-location (concat CACHE-DIR "org-roam.db"))
-  :bind (("C-c o n n" . +org-roam-find-file)
+  :bind (("C-c o n n" . org-roam-find-file)
          (:map org-roam-mode-map
                ("C-c o n b" . org-roam-switch-to-buffer)
                ("C-c o n g" . org-roam-graph)
@@ -412,10 +412,6 @@
                ("C-c o r m" . org-roam-dailies-find-tomorrow)
                ("C-c o r y" . org-roam-dailies-find-yesterday)))
   :config
-  (defun +org-roam-find-file()
-      (interactive)
-      (unless ivy-mode (ivy-mode t))
-      (org-roam-find-file))
   (add-hook 'org-roam-backlinks-mode-hook 'turn-on-visual-line-mode)
   (defun +do-org-roam-bindings()
     (when (and
@@ -435,6 +431,7 @@
   (add-hook 'org-mode-hook '+do-org-roam-bindings)
   (set-popup-rule! "^\\*org-roam unlinked references" :side 'right :size 0.3 :select nil :quit t)
   (setq org-roam-buffer-width 0.22)
+  (setq org-roam-completion-system 'ivy)
   (setq org-roam-verbose nil
         org-roam-buffer-window-parameters '((no-delete-other-windows . t)))
   ;; (push 'company-org-roam company-backends)

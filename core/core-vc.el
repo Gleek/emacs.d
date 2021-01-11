@@ -20,7 +20,9 @@
   (add-hook 'magit-popup-mode-hook #'hide-mode-line-mode))
 
 (use-package forge
-  :after magit)
+  :after magit
+  :config
+  (setq forge-database-file (concat CACHE-DIR "forge-database.sqlite")))
 
 (use-package browse-at-remote
   :bind (("C-c g w" . browse-at-remote-kill)
