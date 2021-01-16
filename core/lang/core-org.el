@@ -67,8 +67,10 @@
           ("c" "org-protocol-capture" entry (file ,(concat +org-directory "inbox.org"))
            "* TODO [[%:link][%:description]]\n\n %i" :immediate-finish t)))
 
+
   (setq org-ellipsis "…"
-        org-agenda-files `(,+org-directory)
+        ;; org-agenda-files `(,+org-directory)
+        org-agenda-files (mapcar (lambda(file) (concat +org-directory file)) '("inbox.org" "next.org" "project.org" "someday.org" "schedule.org"))
         org-archive-location (concat +org-directory "archive.org::* From %s")
         org-startup-align-all-table t
         org-log-done 'time
@@ -209,6 +211,7 @@
 
 (use-package org-agenda
   :after org
+  :commands (+switch-to-agenda)
   :ensure nil
   :bind (("C-c o A" . org-agenda)
          ("C-c o a" . +switch-to-agenda)
@@ -376,9 +379,16 @@
 (use-package org-alert
   :disabled
   :init
-  (setq alert-default-style 'osx-notifier)
+  (setq alert-default-style (if IS-MAC 'osx-notifier 'libnotify))
   (setq org-alert-notification-title "Agenda")
   :config (org-alert-enable))
+
+(use-package org-wild-notifier
+  :defer 5
+  :config
+  (setq alert-default-style (if IS-MAC 'osx-notifier 'libnotify))
+  (setq org-wild-notifier-alert-time '(5))
+  (org-wild-notifier-mode))
 
 (use-package org-superstar
   :hook (org-mode . org-superstar-mode))
@@ -502,7 +512,7 @@
         (anki-editor-mode t)
         (+anki-keybind))))
   (defun +anki-keybind()
-    (when (bound-and-true-p anki-editor-mode)
+    (when (and (bound-and-true-p anki-editor-mode) nil)
       (local-set-key (kbd "C-c C-c") 'anki-editor-push-tree)
       (local-set-key (kbd "C-i") (lambda()  (interactive)
                                    (anki-editor-reset-cloze-number)

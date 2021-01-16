@@ -139,6 +139,8 @@
   (global-auto-revert-mode 1)
   :diminish (auto-revert-mode . "Ⓐ"))
 
+(use-package backup-walker)
+
 (setq version-control t
       kept-new-versions 10
       kept-old-versions 2

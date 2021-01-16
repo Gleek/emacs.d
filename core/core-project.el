@@ -156,6 +156,9 @@ Repeated invocations toggle between the two most recently open buffers."
   ;;        ("M-g q" . dumb-jump-quick-look)
   ;;        ("M-g x" . dumb-jump-go-prefer-external)
   ;;        ("M-g z" . dumb-jump-go-prefer-external-other-window))
+  :commands (dumb-jump-xref-activate)
+  :init
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
   :config
   (setq dumb-jump-rg-cmd "rg")
   (setq dumb-jump-max-find-time 5)
@@ -169,6 +172,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package smart-jump
   :ensure t
+  :after xref
   :defer 1
   :bind (("M-." . smart-jump-go)
          ("M-," . smart-jump-back)
@@ -262,12 +266,12 @@ Use `treemacs' command for old functionality."
   :config
   ;; (company-backend-for-hook 'lsp-mode-hook '((company-capf :with company-yasnippet)))
   (company-backend-for-hook 'lsp-completion-mode-hook '((company-capf :with company-yasnippet)))
-  (lsp-headerline-breadcrumb-mode -1)
   (setq lsp-modeline-code-actions-segments '(name icon))
   (setq lsp-enable-file-watchers nil
         lsp-enable-folding nil
+        lsp-headerline-breadcrumb-enable nil
         lsp-enable-text-document-color nil
-        lsp-headerline-breadcrumb-segments nil)
+        lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
   (setq lsp-enable-indentation nil
         lsp-enable-on-type-formatting nil))
 

@@ -1,12 +1,28 @@
 (use-package shell-pop
   :ensure t
   :bind (("C-`" . +shellpop-eshell)
+         ("C-~" . +shellpop-vterm)
          ("C-c t v" . +shellpop-vterm))
   :config
-  ;; (push (cons "\\*shell\\*" display-buffer--same-window-action) display-buffer-alist)
+
+  (defun shell-pop--cd-to-cwd-vterm(cwd)
+    (interactive)
+    (vterm-send-string (concat "cd " (shell-quote-argument cwd)) t)
+    (vterm-send-return)
+    (setq default-directory cwd))
+
+  ;; shell-pop--cd-to-cwd
+  (defun +shell-pop-cd(o &rest args)
+    (let ((abspath (expand-file-name (car args))))
+      (cond ((string= shell-pop-internal-mode "vterm")
+             (shell-pop--cd-to-cwd-vterm abspath))
+            (t (apply o args)))))
+  (advice-add 'shell-pop--cd-to-cwd :around '+shell-pop-cd)
+
   (defun +shellpop-eshell()
     (interactive)
     (let ((shell-pop-internal-mode-buffer "*eshell*")
+          (shell-pop-internal-mode "eshell")
           (shell-pop-internal-mode-func '(lambda () (eshell)))
           (shell-pop-shell-type '("eshell" "*eshell*" (lambda nil (eshell)))))
       (shell-pop nil)))
@@ -14,6 +30,7 @@
   (defun +shellpop-vterm()
     (interactive)
     (let ((shell-pop-internal-mode-buffer "*vterm*")
+          (shell-pop-internal-mode "vterm")
           (shell-pop-internal-mode-func '(lambda () (vterm)))
           (shell-pop-shell-type '("vterm" "*vterm*" (lambda nil (vterm)))))
       (shell-pop nil)))

@@ -69,7 +69,7 @@
           (right-fringe . 8)
           ;; (parent-frame nil)
           ))
-  (setq ivy-posframe-font "Fira Code 15")
+  (setq ivy-posframe-font "Fira Code 12")
   (ivy-posframe-mode 1))
 
 (use-package ivy-rich
