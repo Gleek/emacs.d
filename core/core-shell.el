@@ -68,7 +68,19 @@
 (use-package vterm
   :preface (setq vterm-install t)
   :hook (vterm-mode . hide-mode-line-mode)
+  :bind (:map vterm-mode-map
+              ("C-c C-a" . +vterm-screen-session))
   :config
-  (setq vterm-kill-buffer-on-exit t))
+  (defun +vterm-screen-session()
+    "Start vterm in default session screen"
+    (interactive)
+    (vterm-send-string "screen -dR \"session\"" t)
+    (vterm-send-return))
+  (setq vterm-kill-buffer-on-exit t)
+  (setq vterm-max-scrollback 5000)
+  ;; (add-hook 'vterm-mode-hook (lambda() (+vterm-screen-session)))
+  (add-hook 'vterm-mode-hook
+            (lambda()
+              (setq confirm-kill-processes nil))))
 
 (provide 'core-shell)
