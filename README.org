@@ -22,4 +22,4 @@ Light theme
 
 [[./screen-light.png]]
 ** Usage
-=git clone https://www.github.com/gleek/.emacs ~/.config/emacs=
+=git clone https://www.github.com/gleek/emacs.d ~/.config/emacs=
