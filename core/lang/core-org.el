@@ -22,10 +22,10 @@
 
 (use-package org-pomodoro
   :config
-  (setq org-pomodoro-finished-sound "~/.emacs.d/resources/doorbell.wav")
-  (setq org-pomodoro-long-break-sound "~/.emacs.d/resources/doorbell.wav")
-  (setq org-pomodoro-short-break-sound "~/.emacs.d/resources/doorbell.wav")
-  (setq org-pomodoro-start-sound "~/.emacs.d/resources/doorbell.wav"))
+  (setq org-pomodoro-finished-sound (concat RES-DIR "doorbell.wav"))
+  (setq org-pomodoro-long-break-sound (concat RES-DIR "doorbell.wav"))
+  (setq org-pomodoro-short-break-sound (concat RES-DIR "doorbell.wav"))
+  (setq org-pomodoro-start-sound (concat RES-DIR "doorbell.wav")))
 
 (use-package org
   :config
@@ -70,7 +70,7 @@
 
   (setq org-ellipsis "…"
         ;; org-agenda-files `(,+org-directory)
-        org-agenda-files (mapcar (lambda(file) (concat +org-directory file)) '("inbox.org" "next.org" "project.org" "someday.org" "schedule.org"))
+        org-agenda-files (mapcar (lambda(file) (concat +org-directory file)) '("inbox.org" "next.org" "project.org" "someday.org" "schedule.org" "repeaters.org"))
         org-archive-location (concat +org-directory "archive.org::* From %s")
         org-startup-align-all-table t
         org-log-done 'time
@@ -375,19 +375,12 @@
   (setq org-gcal-fetch-file-alist (mapcar (lambda(x) `(,x . ,org-gcal-file)) org-gcal-calendars)))
 
 
-
-(use-package org-alert
-  :disabled
-  :init
-  (setq alert-default-style (if IS-MAC 'osx-notifier 'libnotify))
-  (setq org-alert-notification-title "Agenda")
-  :config (org-alert-enable))
-
 (use-package org-wild-notifier
   :defer 5
   :config
-  (setq alert-default-style (if IS-MAC 'osx-notifier 'libnotify))
+  (setq alert-default-style (if IS-MAC 'notifier 'libnotify))
   (setq org-wild-notifier-alert-time '(5))
+  (setq org-wild-notifier-keyword-whitelist '("TODO" "DOING" "BLOCKED" "DELEGATED" "WAITING"))
   (org-wild-notifier-mode))
 
 (use-package org-superstar

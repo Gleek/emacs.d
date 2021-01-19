@@ -18,6 +18,8 @@
   (add-hook 'protobuf-mode-hook
             (function (lambda ()
                         (setq tab-width 2))))
+  (eval-after-load "flycheck"
+    '(flycheck-add-next-checker 'protobuf-protoc '(warning . protobuf-prototool)))
   (defvar prototool-command)
   (setq prototool-command "/usr/local/bin/prototool")
   (defun prototool-format()

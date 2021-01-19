@@ -42,6 +42,8 @@
          :map swiper-map
          ("C-c m" . swiper-mc)))
 
+;; (use-package ace-isearch)
+
 (use-package phi-search :ensure t
   :init (setq phi-search-limit 10000))
 

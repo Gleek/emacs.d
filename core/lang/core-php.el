@@ -16,12 +16,15 @@
   (dap-php-setup)
   (setq php-template-compatibility nil)
   (setq c-auto-align-backslashes nil)
+  (setq flycheck-phpcs-standard "~/.config/phpcs/phpcs.xml")
   (add-hook 'php-mode-hook (lambda() (setq sp-max-pair-length 5)))
   (add-hook 'php-mode-hook 'php-enable-symfony2-coding-style)
+  (add-hook 'php-mode-hook
+            (lambda()
+              (setq flycheck-local-checkers '((lsp . ((next-checkers . (php-phpmd))))))))
   (setq c-basic-offset 4))
 
 (use-package web-mode
-  :ensure t
   :init
   (setq web-mode-code-indent-offset 4)
   (setq web-mode-markup-indent-offset 4)
@@ -35,6 +38,11 @@
         (let ((web-mode-enable-part-face nil))
           ad-do-it)
       ad-do-it)))
+
+
+(use-package flycheck-phpstan
+  :init
+  (add-hook 'php-mode-hook (lambda()(require 'flycheck-phpstan))))
 
 (use-package phpcbf
   :config
