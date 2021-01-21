@@ -19,15 +19,7 @@
   (eval-after-load "flyspell"
     '(define-key flyspell-mode-map (kbd "C-.") nil))
   (setq flyspell-prog-text-faces (delq 'font-lock-string-face flyspell-prog-text-faces))
-
-  ;; Using mode level flycheck checkers instead of chaining them.
-  ;; So that single flycheck checker can used in multiple modes..such as `lsp'
-  (defvar-local flycheck-local-checkers nil)
-  (defun +flycheck-checker-get(fn checker property)
-    (or (alist-get property (alist-get checker flycheck-local-checkers))
-        (funcall fn checker property)))
-  (advice-add 'flycheck-checker-get :around '+flycheck-checker-get)
-  :diminish flyspell-mode)
+ :diminish flyspell-mode)
 
 ;; TODO: checkout proselint
 
@@ -58,6 +50,14 @@
   (set-face-attribute 'flycheck-error nil :underline '(:style line :color "#a52a2a"))
   (set-face-attribute 'flycheck-warning nil :underline '(:style line :color "#ca9532"))
   (set-face-attribute 'flycheck-info nil :underline '(:style line :color "#98be65"))
+
+  ;; Using mode level flycheck checkers instead of chaining them.
+  ;; So that single flycheck checker can used in multiple modes..such as `lsp'
+  (defvar-local flycheck-local-checkers nil)
+  (defun +flycheck-checker-get(fn checker property)
+    (or (alist-get property (alist-get checker flycheck-local-checkers))
+        (funcall fn checker property)))
+  (advice-add 'flycheck-checker-get :around '+flycheck-checker-get)
   :diminish flycheck-mode)
 
 ;; (flycheck-add-next-checker 'lsp '(warning . php-phpmd))

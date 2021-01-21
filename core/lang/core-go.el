@@ -40,7 +40,9 @@
   (setq gofmt-command "goimports")
   ;; (add-hook 'go-mode-hook #'go-eldoc-setup)
   (add-hook 'before-save-hook 'gofmt-before-save)
-  (add-hook 'go-mode-hook 'flycheck-golangci-lint-setup)
+  (add-hook 'go-mode-hook (lambda()
+                            (flycheck-golangci-lint-setup)
+                            (setq flycheck-local-checkers '((lsp . ((next-checkers . (golangci-lint))))))))
   (add-hook 'go-mode-hook #'gorepl-mode)
   (set-popup-rule! "^\\*go-guru-output\\*" :size 0.4 :quit t))
 

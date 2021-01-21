@@ -7,8 +7,7 @@
 
   (defun shell-pop--cd-to-cwd-vterm(cwd)
     (interactive)
-    (vterm-send-string (concat "cd " (shell-quote-argument cwd)) t)
-    (vterm-send-return)
+    (+vterm-run-command (concat "cd " (shell-quote-argument cwd)))
     (setq default-directory cwd))
 
   ;; shell-pop--cd-to-cwd
@@ -71,11 +70,14 @@
   :bind (:map vterm-mode-map
               ("C-c C-a" . +vterm-screen-session))
   :config
+  (defun +vterm-run-command(command)
+    (vterm-send-C-S-a)
+    (vterm-send-string (concat " " command " #") t)
+    (vterm-send-return))
   (defun +vterm-screen-session()
     "Start vterm in default session screen"
     (interactive)
-    (vterm-send-string "screen -dR \"session\"" t)
-    (vterm-send-return))
+    (+vterm-run-command "screen -dR \"session\""))
   (setq vterm-kill-buffer-on-exit t)
   (setq vterm-max-scrollback 5000)
   ;; (add-hook 'vterm-mode-hook (lambda() (+vterm-screen-session)))

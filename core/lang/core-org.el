@@ -70,7 +70,7 @@
 
   (setq org-ellipsis "…"
         ;; org-agenda-files `(,+org-directory)
-        org-agenda-files (mapcar (lambda(file) (concat +org-directory file)) '("inbox.org" "next.org" "project.org" "someday.org" "schedule.org" "repeaters.org"))
+
         org-archive-location (concat +org-directory "archive.org::* From %s")
         org-startup-align-all-table t
         org-log-done 'time
@@ -153,7 +153,7 @@
           ;; ol-mhe
           ;; ol-rmail
           ;; ol-eww
-          org-habit
+          ;; org-habit
           ))
   ;; Save target buffer after archiving a node.
   ;; (setq org-archive-subtree-save-file-p t)
@@ -343,7 +343,7 @@
             ;;        (org-agenda-files '(,(concat +org-directory "someday.org")))))
             nil))))
 
-  (setq org-agenda-files `(,+org-directory)
+  (setq org-agenda-files (mapcar (lambda(file) (concat +org-directory file)) '("inbox.org" "next.org" "projects.org" "someday.org" "schedule.org" "repeaters.org"))
         org-agenda-window-setup 'current-window
         org-agenda-skip-unavailable-files t
         org-agenda-span 10
@@ -353,7 +353,7 @@
         org-agenda-inhibit-startup t))
 
 (use-package org-gcal
-  :after org-agenda
+  :defer 5
   :commands org-gcal-sync
   :init
   (defvar org-gcal--running-timer nil)
