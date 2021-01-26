@@ -116,7 +116,8 @@
 (use-package "lang/core-org" :ensure nil :demand t)
 (use-package "lang/core-elisp" :ensure nil :demand t
   :commands remove-elc-on-save eval-and-replace
-  :bind ("C-c C-e" . eval-and-replace)
+  :bind (("C-c C-e" . eval-and-replace)
+         ("C-c e" . eval-and-replace))
   :config
   (add-hook 'emacs-lisp-mode-hook 'remove-elc-on-save))
 

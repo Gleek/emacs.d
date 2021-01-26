@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Hugo insert front matter
+# key: hugo
+# --
+---
+title: `(capitalize-first-char (string-join (split-string (file-name-base (or (buffer-file-name) "")) "-") " "))`
+date: `(format-time-string "%Y-%m-%dT%T%:z" (current-time))`
+tags:
+    - $0
+draft: true
+---
+
+$1

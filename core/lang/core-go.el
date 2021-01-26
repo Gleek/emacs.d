@@ -11,14 +11,13 @@
 ;;
 ;;
 ;; https://golangci-lint.run/usage/install/#local-installation
-;; brew install golangci/tap/golangci-lint
+;; brew install golangci-lint
 ;; curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.31.0
 
 ;;; Code:
 
 (use-package go-mode
   :ensure go-mode
-  :ensure gorepl-mode
   :ensure go-tag
   :ensure go-gen-test
   :ensure flycheck-golangci-lint
@@ -28,6 +27,7 @@
   :config
   (require 'dap-go)
   (dap-go-setup)
+  (setq flycheck-golangci-lint-enable-linters '("dupl" "gocritic" "gocognit" "gomnd" "maligned"))
 
   (defun +go-tag-add(arg)
     (interactive "P")
@@ -43,7 +43,13 @@
   (add-hook 'go-mode-hook (lambda()
                             (flycheck-golangci-lint-setup)
                             (setq flycheck-local-checkers '((lsp . ((next-checkers . (golangci-lint))))))))
-  (add-hook 'go-mode-hook #'gorepl-mode)
+  
   (set-popup-rule! "^\\*go-guru-output\\*" :size 0.4 :quit t))
+
+(use-package gorepl-mode
+  :bind (:map gorepl-mode-map
+              ("C-c C-g" . nil))
+  :config
+  (add-hook 'go-mode-hook #'gorepl-mode))
 
 (provide 'core-go)

@@ -47,6 +47,7 @@
         js2-line-break
         keyboard-quit
         kill-region
+        kill-visual-line
         kmacro-start-macro-or-insert-counter
         mark-sexp
         markdown-exdent-or-delete

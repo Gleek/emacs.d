@@ -66,6 +66,20 @@
   ;; (which-key-setup-minibuffer)
   :diminish which-key-mode)
 
+(use-package keycast
+  :bind ("C-c t k" . +toggle-keycast)
+  :config
+
+  (defun +toggle-keycast()
+    (interactive)
+    (if (member '("" mode-line-keycast " ") global-mode-string)
+        (progn (setq global-mode-string (delete '("" mode-line-keycast " ") global-mode-string))
+               (message "Keycast disabled"))
+      (add-to-list 'global-mode-string '("" mode-line-keycast " "))
+      (message "Keycast enabled"))))
+
+
+
 (use-package zoom
   ;; :defer 1
   :diminish
@@ -84,6 +98,9 @@
   :defer 5
   :config
   (which-function-mode)
+  (advice-add 'which-function :filter-return
+            (lambda (s) (when s (truncate-string-to-width s 30 nil nil t))))
+
   (set-face-foreground 'which-func "darkgrey"))
 
 (defalias 'yes-or-no-p 'y-or-n-p)

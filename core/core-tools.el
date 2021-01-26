@@ -35,6 +35,14 @@
   (shr-render-region (point-min) (point-max))
   (goto-char (point-min)))
 
+
+(defun capitalize-first-char (&optional string)
+  "Capitalize only the first character of the input STRING."
+  (when (and string (> (length string) 0))
+    (let ((first-char (substring string nil 1))
+          (rest-str   (substring string 1)))
+      (concat (capitalize first-char) rest-str))))
+
 (defun insert-uuid ()
   (interactive)
   (shell-command "echo -n \"$(uuidgen)\"" t))
@@ -110,6 +118,9 @@
     (image-transform-set-scale
      (expt text-scale-mode-step
            text-scale-mode-amount))))
+
+(use-package eimp
+  :hook (image-mode . eimp-mode))
 
 
 (use-package paradox

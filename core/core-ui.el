@@ -104,7 +104,8 @@
   :config
   (setq doom-modeline-vcs-max-length 20)
   (setq doom-modeline-minor-modes nil)
-  (setq doom-modeline-enable-word-count t)
+  (setq doom-modeline-enable-word-count nil)
+  (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
   (setq doom-modeline-checker-simple-format t)
   (doom-modeline-mode +1))
 

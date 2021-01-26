@@ -7,9 +7,6 @@
   :ensure nil
   :diminish "🆎")
 
-
-
-(use-package dap-mode)
 (use-package lua-mode)
 (use-package dockerfile-mode)
 (use-package docker-compose-mode)

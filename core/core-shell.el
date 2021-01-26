@@ -1,7 +1,7 @@
 (use-package shell-pop
   :ensure t
-  :bind (("C-`" . +shellpop-eshell)
-         ("C-~" . +shellpop-vterm)
+  :bind (("C-~" . +shellpop-eshell)
+         ("C-`" . +shellpop-vterm)
          ("C-c t v" . +shellpop-vterm))
   :config
 

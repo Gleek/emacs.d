@@ -532,4 +532,6 @@
     (interactive)
     (org-capture nil "A")))
 
+
+
 (provide 'core-org)

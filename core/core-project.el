@@ -31,55 +31,17 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-c p s" . projectile-save-project-buffers)))
 
 (use-package counsel-projectile
-  :bind (("M-p" . counsel-projectile-find-file)
-         ("C-c p f" . counsel-projectile-find-file)
+  :bind (("C-c p f" . counsel-projectile-find-file)
          ("C-c p b" . counsel-projectile-switch-to-buffer)
          ("C-x B" . counsel-projectile-switch-to-buffer)
          ("C-c p p" . counsel-projectile-switch-project))
   :config
-  (defvar +ivy-project-sort-min-length 1)
-  (defvar +ivy-project-sort-max-candidates 500)
-  (defun +ivy-project-sort--exact-match-file-base-name(name x y)
-    (cond ((string= (file-name-nondirectory x) name) 1)
-          ((string= (file-name-nondirectory y) name) 2)
-          (t nil)))
-
-  (defun +ivy-project-sort--exact-match-root-name(name x y)
-    (cond ((string= (file-name-base x) name) 1)
-          ((string= (file-name-base y) name) 2)
-          (t nil)))
-
-  (defun +ivy-project-sort--prefix-match-file-base-name(name x y)
-    (cond ((string-match-p (concat "\\`" (funcall ivy--regex-function name)) (file-name-nondirectory x)) 1)
-          ((string-match-p (concat "\\`" (funcall ivy--regex-function name)) (file-name-nondirectory y)) 2)
-          (t nil)))
-
-  (defun +ivy-project-sort--match-file-base-name(name x y)
-    (cond ((string-match-p (regexp-quote name) (file-name-nondirectory x)) 1)
-          ((string-match-p (regexp-quote name) (file-name-nondirectory y)) 2)
-          (t nil)))
-
-  ;; TODO:
-  (defun +ivy-project-sort--file-length(name x y)
-    (if (string< x y) 1
-      2))
-
-  (defun +ivy-project-sort-files(name candidates)
-    "Assumes all candidates already match name"
-    (if (and (>= (length name) +ivy-project-sort-min-length)
-             (<= (length candidates) +ivy-project-sort-max-candidates))
-        (cl-sort (copy-sequence candidates)
-                 (lambda (x y)
-                   (if (eq (or (+ivy-project-sort--exact-match-file-base-name name x y)
-                               (+ivy-project-sort--exact-match-root-name name x y)
-                               (+ivy-project-sort--prefix-match-file-base-name name x y)
-                               (+ivy-project-sort--match-file-base-name name x y)) 2) nil t)))
-      candidates))
-  (defun +counsel-projectile-find-file-matcher(regexp candidates)
-    (+ivy-project-sort-files regexp (counsel--find-file-matcher regexp candidates)))
-  (setq counsel-projectile-find-file-matcher '+counsel-projectile-find-file-matcher)
-  ;; Default counsel-projectile is very slow. Removing it's usage when switching project
+   ;; Default counsel-projectile is very slow. Removing it's usage when switching project
   (advice-add 'counsel-projectile-switch-project-action :override 'counsel-projectile-switch-project-action-find-file))
+
+(use-package "+projectile-find-file"
+  :ensure nil
+  :bind ("M-p" . +projectile-find-file))
 
 
 (use-package project

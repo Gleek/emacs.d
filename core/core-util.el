@@ -16,3 +16,11 @@
         do (rotatef (elt sequence (random i))
                     (elt sequence (1- i))))
   sequence)
+
+
+(defun string-length<(str1 str2)
+  "Retuns non-nil if STR1 is less in length than STR2."
+  (< (length str1) (length str2)))
+
+(provide 'core-util)
+;;; core-util ends here

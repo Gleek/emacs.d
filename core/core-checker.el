@@ -58,7 +58,18 @@
     (or (alist-get property (alist-get checker flycheck-local-checkers))
         (funcall fn checker property)))
   (advice-add 'flycheck-checker-get :around '+flycheck-checker-get)
-  :diminish flycheck-mode)
+
+  (flycheck-define-checker proselint
+    "A linter for prose."
+    :command ("proselint" source-inplace)
+    :error-patterns
+    ((warning line-start (file-name) ":" line ":" column ": "
+              (id (one-or-more (not (any " "))))
+              (message) line-end))
+    :modes (text-mode markdown-mode gfm-mode org-mode))
+  (add-to-list 'flycheck-checkers 'proselint))
+
+
 
 ;; (flycheck-add-next-checker 'lsp '(warning . php-phpmd))
 ;; (use-package flycheck-phpstan
