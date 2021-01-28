@@ -29,7 +29,7 @@
   (setq +projectile-find-file--open-file-hash (make-hash-table :size 200 :test 'equal))
   (let ((seq-score 100))
     (dolist (el (delete
-                 (file-relative-name (buffer-file-name) (projectile-project-root))
+                 (file-relative-name (or (buffer-file-name) "") (projectile-project-root))
                  (projectile-project-buffer-files)))
       (puthash el seq-score +projectile-find-file--open-file-hash)
       (if (> seq-score 1)
@@ -92,7 +92,7 @@
 
 
 
-(defun +projectile-find-file(&optional arg)
+(defun +projectile-find-file(&optional arg &rest _)
   (interactive "P")
   (if (and (eq projectile-require-project-root 'prompt)
            (not (projectile-project-p)))
