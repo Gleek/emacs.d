@@ -62,7 +62,7 @@
         (setq score (+ score +projectile-find-file-score-open-file open-file-score)))
     (if recent-file-score
         (setq score (+ score +projectile-find-file-score-recent-file recent-file-score)))
-    (when (> (length search) 1)
+    (when (> (length search) 0)
       (setq score (+ score (* +projectile-find-file-score-length-factor (length file))))
         (setq score (+ score
                        (cond ((string= (file-name-nondirectory file) search) +projectile-find-file-score-filename-exact-match)
