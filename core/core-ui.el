@@ -15,7 +15,8 @@
 (setq default-font "Fira Code 12")
 (set-frame-font default-font 'keepsize t)
 ;; (set-face-font 'variable-pitch "Baskerville 15")
-(set-face-font 'variable-pitch "ETBembo 17")
+;; (set-face-font 'variable-pitch "ETBembo 17")
+(set-face-font 'variable-pitch "Helvetica 14")
 (set-face-font 'fixed-pitch default-font)
 (set-fontset-font t 'arabic "KFGQPC Uthmanic Script Hafs 25")
 

@@ -10,7 +10,7 @@
 (defconst RES-DIR   (expand-file-name "resources/" user-emacs-directory))
 (defconst IS-MAC    (eq system-type 'darwin))
 (defconst IS-LINUX  (eq system-type 'gnu/linux))
-
+(package-initialize)
 (setq gc-cons-threshold 100000000) ;; collect garbage after about 100 MB
 (run-with-idle-timer 2 t (lambda () (garbage-collect)))
 (setq message-log-max 10000) ;; Debugging
@@ -19,9 +19,9 @@
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
 ;; (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))
+(setq package-native-compile t)
 
 ;; Bootstrap `use-package'
-(setq package-native-compile t)
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
@@ -37,8 +37,6 @@
 
 (use-package use-package-ensure-system-package)
 (use-package benchmark-init
-  :demand
-  :ensure t
   :config
   ;; To disable collection of benchmark data after init is done.
   (add-hook 'after-init-hook 'benchmark-init/deactivate))
