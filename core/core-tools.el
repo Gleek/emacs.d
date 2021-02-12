@@ -262,8 +262,8 @@
          ("C-c b P" . bongo-playlist)
          ("C-c b n" . bongo-play-next)
          ("C-c b x" . +bongo-playlist-terminate)
-         ("C-c b r" . +bongo-playlist-random-toggle)
-         ("C-c b R" . +bongo-playlist-play-random)
+         ("C-c b R" . +bongo-playlist-random-toggle)
+         ("C-c b r" . bongo-play-random)
          ("C-c b p" . bongo-play-previous)
          ("C-c b SPC" . bongo-pause/resume))
   :config
@@ -309,6 +309,11 @@ the currently playing track."
   (setq bongo-mode-line-indicator-mode nil)
   (setq bongo-header-line-mode nil)
   (setq bongo-logo nil)
+  (setq bongo-display-track-icons nil)
+  (setq bongo-display-track-lengths nil)
+  (setq bongo-display-header-icons nil)
+  (setq bongo-display-playback-mode-indicator t)
+
   ;; https://github.com/dbrock/bongo/pull/53 needs to be merged for mpv to work
   (setq bongo-enabled-backends '(mpv))
   (setq bongo-vlc-program-name "vlc")
@@ -396,5 +401,6 @@ the currently playing track."
   :config
   (setq calibredb-root-dir "~/Documents/Calibre")
   (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir)))
+
 
 (provide 'core-tools)

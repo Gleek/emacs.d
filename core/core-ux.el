@@ -48,6 +48,9 @@
   :diminish smooth-scroll-mode)
 
 
+;; (use-package good-scroll)
+
+
 (use-package paren
   :ensure nil
   :defer 1

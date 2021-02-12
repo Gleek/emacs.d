@@ -449,13 +449,15 @@
 
 (use-package anki-editor
   :after org
-  :preface
-  ;; TODO:
-  (defvar anki-editor-mode-map (make-keymap) "anki-editor-mode keymap.")
+  :init
+  (defvar anki-editor-mode-map (make-sparse-keymap) "anki-editor-mode keymap.")
+  (add-to-list 'minor-mode-map-alist (cons 'anki-editor-mode
+                                           anki-editor-mode-map))
   :bind (("C-c o k k" . +org-capture-anki-basic)
          ("C-c o k c" . +org-capture-anki-cloze)
          :map anki-editor-mode-map
          ("C-c C-c" . anki-editor-push-tree)
+         ("C-i" . anki-editor-insert-note)
          ("C-c {" . 'anki-editor-cloze-region-auto-incr)
          ("C-c [" . 'anki-editor-cloze-region-dont-incr)
          ("C-c 0" . 'anki-editor-reset-cloze-number))
@@ -502,17 +504,8 @@
   (defun +init-anki()
     (when (string-match "\\(anki.org\\)" (format "%s" buffer-file-name))
       (progn
-        (anki-editor-mode t)
-        (+anki-keybind))))
-  (defun +anki-keybind()
-    (when (and (bound-and-true-p anki-editor-mode) nil)
-      (local-set-key (kbd "C-c C-c") 'anki-editor-push-tree)
-      (local-set-key (kbd "C-i") (lambda()  (interactive)
-                                   (anki-editor-reset-cloze-number)
-                                   (anki-editor-insert-note)))
-      (local-set-key (kbd "C-c {") 'anki-editor-cloze-region-auto-incr)
-      (local-set-key (kbd "C-c [") 'anki-editor-cloze-region-dont-incr)
-      (local-set-key (kbd "C-c 0") 'anki-editor-reset-cloze-number)))
+        (anki-editor-mode t))))
+
   (add-hook 'org-mode-hook '+init-anki)
   (add-to-list 'org-capture-templates
                '("a" "Anki basic"
@@ -524,6 +517,11 @@
                  entry
                  (file+headline org-my-anki-file "Dispatch Shelf")
                  "* %<%c> \n:PROPERTIES:\n:ANKI_NOTE_TYPE: Cloze\n:ANKI_DECK: Default\n:END:\n** Text\n%x\n** Extra\n"))
+
+  (defun anki-insert-new-note()
+    (interactive)
+    (anki-editor-reset-cloze-number)
+    (anki-editor-insert-note))
   (defun +org-capture-anki-basic()
     (interactive)
     (org-capture nil "a"))
