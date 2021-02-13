@@ -5,7 +5,7 @@
 (setq menu-bar-mode nil
       tool-bar-mode nil
       scroll-bar-mode nil)
-
+(menu-bar-mode -1)
 (setq inhibit-startup-screen t
       initial-scratch-message "")
 (blink-cursor-mode -1)

@@ -196,5 +196,23 @@
   (yas-global-mode 1)
   :diminish (yas-minor-mode . "Ⓨ"))
 
+(use-package autoinsert
+  :ensure nil
+  :defer 5
+  :config
+  (defun +autoinsert-yas-expand()
+    "Replace text in yasnippet template."
+    (yas-expand-snippet (buffer-string) (point-min) (point-max)))
+
+  (auto-insert-mode t)
+  (setq auto-insert-directory (expand-file-name "auto-insert" user-emacs-directory))
+
+  (add-to-list 'auto-insert-alist '((php-mode . "PHP source code") . ["template.php" +autoinsert-yas-expand]))
+  (add-to-list 'auto-insert-alist '((go-mode . "Go source code") . ["template.go" +autoinsert-yas-expand]))
+  (add-to-list 'auto-insert-alist '((sh-mode . "Shell scripts") . ["template.sh" +autoinsert-yas-expand]))
+  (add-to-list 'auto-insert-alist '(("blog-src/.*\\.org" . "Hugo blog") . ["hugo-template.org" +autoinsert-yas-expand]))
+
+  (setq auto-insert-query nil))
+
 
 (provide 'core-completion)
