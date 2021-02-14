@@ -133,6 +133,16 @@ https://emacs.stackexchange.com/a/12124/2144"
   (yank))
 
 
+(use-package selected
+  :demand t
+  :diminish selected-minor-mode
+  :bind (:map selected-keymap
+              ("d" . downcase-region)
+              ("u" . upcase-region)
+              ("r" . reverse-region)
+              ("s" . sort-lines))
+  :config
+  (selected-global-mode 1))
 
 (use-package move-text
   :defer 1
@@ -167,12 +177,70 @@ https://emacs.stackexchange.com/a/12124/2144"
   :config
   (define-key mc/keymap (kbd "C-s") #'phi-search)
   (define-key mc/keymap (kbd "C-r") #'phi-search-backward)
-  :bind (("C-S-c C-S-c" . mc/edit-lines)
-         ("C-$" . mc/mark-more-like-this-extended)
-         ("C->" . mc/mark-next-like-this)
-         ("C-<" . mc/mark-previous-like-this)
-         ("C-c m" . mc/mark-all-dwim)
-         ("M-<down-mouse-1>" . mc/add-cursor-on-click)))
+  :bind (("C-S-c C-S-c"      . mc/edit-lines)
+         ("C-$"              . mc/mark-more-like-this-extended)
+         ("C->"              . mc/mark-next-like-this)
+         ("C-<"              . mc/mark-previous-like-this)
+         ;; Courtesy: jwiegley
+         ("C-c m"       . mc/mark-all-dwim)
+         ("<C-m> ^"     . mc/edit-beginnings-of-lines)
+         ("<C-m> `"     . mc/edit-beginnings-of-lines)
+         ("<C-m> $"     . mc/edit-ends-of-lines)
+         ("<C-m> '"     . mc/edit-ends-of-lines)
+         ("<C-m> R"     . mc/reverse-regions)
+         ("<C-m> S"     . mc/sort-regions)
+         ("<C-m> W"     . mc/mark-all-words-like-this)
+         ("<C-m> Y"     . mc/mark-all-symbols-like-this)
+         ("<C-m> a"     . mc/mark-all-like-this-dwim)
+         ("<C-m> c"     . mc/mark-all-dwim)
+         ("<C-m> l"     . mc/insert-letters)
+         ("<C-m> n"     . mc/insert-numbers)
+         ("<C-m> r"     . mc/mark-all-in-region)
+         ("<C-m> s"     . set-rectangular-region-anchor)
+         ("<C-m> %"     . mc/mark-all-in-region-regexp)
+         ("<C-m> t"     . mc/mark-sgml-tag-pair)
+         ("<C-m> w"     . mc/mark-next-like-this-word)
+         ("<C-m> x"     . mc/mark-more-like-this-extended)
+         ("<C-m> y"     . mc/mark-next-like-this-symbol)
+         ("<C-m> C-x"   . reactivate-mark)
+         ("<C-m> C-SPC" . mc/mark-pop)
+         ("<C-m> ("     . mc/mark-all-symbols-like-this-in-defun)
+         ("<C-m> C-("   . mc/mark-all-words-like-this-in-defun)
+         ("<C-m> M-("   . mc/mark-all-like-this-in-defun)
+         ("<C-m> ["     . mc/vertical-align-with-space)
+         ("<C-m> {"     . mc/vertical-align)
+
+         ("M-<down-mouse-1>" . mc/add-cursor-on-click)
+         :map selected-keymap
+         ("c"   . mc/edit-lines)
+         ("."   . mc/mark-next-like-this)
+         ("<"   . mc/unmark-next-like-this)
+         ("C->" . mc/skip-to-next-like-this)
+         (","   . mc/mark-previous-like-this)
+         (">"   . mc/unmark-previous-like-this)
+         ("C-<" . mc/skip-to-previous-like-this)
+         ("y"   . mc/mark-next-symbol-like-this)
+         ("Y"   . mc/mark-previous-symbol-like-this)
+         ("w"   . mc/mark-next-word-like-this)
+         ("W"   . mc/mark-previous-word-like-this))
+  :config
+  (defun reactivate-mark ()
+    (interactive)
+    (activate-mark)))
+;; Courtesy jwiegley
+(use-package mc-extras
+  :after multiple-cursors
+  :bind (("<C-m> M-C-f" . mc/mark-next-sexps)
+         ("<C-m> M-C-b" . mc/mark-previous-sexps)
+         ("<C-m> <"     . mc/mark-all-above)
+         ("<C-m> >"     . mc/mark-all-below)
+         ("<C-m> f"     . mc/freeze-fake-cursors-dwim)
+         ("<C-m> C-d"   . mc/remove-current-cursor)
+         ("<C-m> C-k"   . mc/remove-cursors-at-eol)
+         ("<C-m> M-d"   . mc/remove-duplicated-cursors)
+         ("<C-m> ]"     . mc/rect-rectangle-to-multiple-cursors)
+         ("<C-m> |"     . mc/move-to-column)
+         ("<C-m> ~"     . mc/compare-chars)))
 
 (use-package string-inflection
   :bind (("M-_" . string-inflection-all-cycle)
@@ -307,7 +375,7 @@ https://emacs.stackexchange.com/a/12124/2144"
   :bind (("C-S-<up>" . change-number-at-point)
          ("C-S-<down>" . subtract-number-at-point)))
 
-(delete-selection-mode +1)
+;; (delete-selection-mode +1)
 (setq backward-delete-char-untabify-method 'untabify)
 (setq-default cursor-in-non-selected-windows nil)
 (setq-default indent-tabs-mode nil)   ;; don't use tabs to indent

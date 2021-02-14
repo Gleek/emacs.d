@@ -21,6 +21,8 @@
 ;; (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))
 (setq package-native-compile t)
 
+(define-key input-decode-map [?\C-m] [C-m])
+
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)

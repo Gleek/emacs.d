@@ -441,6 +441,15 @@
 
   (setq org-roam-graph-viewer (lambda(url) (+browse-url url))))
 
+(use-package calfw-org
+  :bind (:map org-agenda-mode-map
+              ("C" . cfw:open-org-calendar))
+  :config
+  (setq cfw:display-calendar-holidays nil)
+  (cfw:org-create-source "Blue"))
+
+
+
 (use-package org-noter)
 (use-package ox-clip
   :bind ("s-w". ox-clip-formatted-copy))

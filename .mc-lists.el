@@ -52,6 +52,8 @@
         mark-sexp
         markdown-exdent-or-delete
         markdown-outdent-or-delete
+        mc/vertical-align
+        mc/vertical-align-with-space
         move-text-up
         nxml-electric-slash
         org-archive-subtree-default
