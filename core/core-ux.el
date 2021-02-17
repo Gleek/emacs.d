@@ -72,13 +72,14 @@
 (use-package keycast
   :bind ("C-c t k" . +toggle-keycast)
   :config
-
-  (defun +toggle-keycast()
+ (defun +toggle-keycast()
     (interactive)
     (if (member '("" mode-line-keycast " ") global-mode-string)
         (progn (setq global-mode-string (delete '("" mode-line-keycast " ") global-mode-string))
+               (remove-hook 'pre-command-hook 'keycast--update)
                (message "Keycast disabled"))
       (add-to-list 'global-mode-string '("" mode-line-keycast " "))
+      (add-hook 'pre-command-hook 'keycast--update t)
       (message "Keycast enabled"))))
 
 

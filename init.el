@@ -20,6 +20,7 @@
              '("melpa" . "https://melpa.org/packages/") t)
 ;; (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))
 (setq package-native-compile t)
+(setq comp-async-report-warnings-errors nil)
 
 (define-key input-decode-map [?\C-m] [C-m])
 

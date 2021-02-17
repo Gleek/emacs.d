@@ -68,6 +68,9 @@
         org-self-insert-command
         org-shiftcontrolup
         org-yank
+        reactivate-mark
+        rectangle-backward-char
+        rectangle-previous-line
         rjsx-delete-creates-full-tag
         rjsx-electric-lt
         sgml-slash

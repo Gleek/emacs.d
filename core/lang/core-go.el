@@ -52,4 +52,6 @@
   :config
   (add-hook 'go-mode-hook #'gorepl-mode))
 
+(use-package go-playground)
+
 (provide 'core-go)

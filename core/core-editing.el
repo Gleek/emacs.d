@@ -173,14 +173,19 @@ https://emacs.stackexchange.com/a/12124/2144"
   :diminish subword-mode)
 
 (use-package multiple-cursors
+  ;; C-v M-v to go through cursors
+  ;; C-' to only show places where cursor is. Again to unhide
+  ;; RET to switch from rrm to multiple cursors
   :ensure t
   :config
   (define-key mc/keymap (kbd "C-s") #'phi-search)
   (define-key mc/keymap (kbd "C-r") #'phi-search-backward)
-  :bind (("C-S-c C-S-c"      . mc/edit-lines)
-         ("C-$"              . mc/mark-more-like-this-extended)
-         ("C->"              . mc/mark-next-like-this)
-         ("C-<"              . mc/mark-previous-like-this)
+  :bind (("C-S-c C-S-c". mc/edit-lines)
+         ("C-$".         mc/mark-more-like-this-extended)
+         ("C->".         mc/mark-next-like-this)
+         ("C-<".         mc/mark-previous-like-this)
+         ("<C-m> C-.".   mc/mark-next-like-this)
+         ("<C-m> C-,".   mc/mark-previous-like-this)
          ;; Courtesy: jwiegley
          ("C-c m"       . mc/mark-all-dwim)
          ("<C-m> ^"     . mc/edit-beginnings-of-lines)
@@ -196,7 +201,7 @@ https://emacs.stackexchange.com/a/12124/2144"
          ("<C-m> l"     . mc/insert-letters)
          ("<C-m> n"     . mc/insert-numbers)
          ("<C-m> r"     . mc/mark-all-in-region)
-         ("<C-m> s"     . set-rectangular-region-anchor)
+         ("<C-m> C-s"     . set-rectangular-region-anchor)
          ("<C-m> %"     . mc/mark-all-in-region-regexp)
          ("<C-m> t"     . mc/mark-sgml-tag-pair)
          ("<C-m> w"     . mc/mark-next-like-this-word)
@@ -214,10 +219,10 @@ https://emacs.stackexchange.com/a/12124/2144"
          :map selected-keymap
          ("c"   . mc/edit-lines)
          ("."   . mc/mark-next-like-this)
-         ("<"   . mc/unmark-next-like-this)
+         ("<"   . mc/unmark-previous-like-this)
          ("C->" . mc/skip-to-next-like-this)
          (","   . mc/mark-previous-like-this)
-         (">"   . mc/unmark-previous-like-this)
+         (">"   . mc/unmark-next-like-this)
          ("C-<" . mc/skip-to-previous-like-this)
          ("y"   . mc/mark-next-symbol-like-this)
          ("Y"   . mc/mark-previous-symbol-like-this)
@@ -229,7 +234,6 @@ https://emacs.stackexchange.com/a/12124/2144"
     (activate-mark)))
 ;; Courtesy jwiegley
 (use-package mc-extras
-  :after multiple-cursors
   :bind (("<C-m> M-C-f" . mc/mark-next-sexps)
          ("<C-m> M-C-b" . mc/mark-previous-sexps)
          ("<C-m> <"     . mc/mark-all-above)
@@ -264,7 +268,10 @@ https://emacs.stackexchange.com/a/12124/2144"
   :ensure expand-region
   :init (setq shift-select-mode nil)
   :bind (("C-=" . er/expand-region)
-         ("C-+" . er/contract-region)))
+         ("C-+" . er/contract-region)
+         :map selected-keymap
+         ("=" . er/expand-region)
+         ("+" . er/contract-region)))
 
 ;; (use-package easy-kill
 ;;   :init
