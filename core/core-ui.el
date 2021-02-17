@@ -47,7 +47,7 @@
   :bind ("C-c t T" . +switch-theme-type)
   :demand
   :config
-  (defvar +theme-type 'dark)
+  (defvar +theme-type 'light)
   (defvar +light-theme 'doom-one-light)
   (defvar +dark-theme 'doom-one)
   (defun +switch-theme-type()
@@ -166,6 +166,13 @@
                                 ;; (agenda . 5)
                                 ))
   ;; (setq dashboard-items nil)
+  (face-spec-set
+   'dashboard-text-banner
+   '((t :inherit font-lock-keyword-face
+        :font "Fira Mono 2"
+        ))
+   'face-defface-spec
+   )
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
   (setq dashboard-startup-banner -1)
@@ -200,6 +207,19 @@
     (if (< (car num) 0)
         (expand-file-name "banner.txt" user-emacs-directory)
       (apply origin-fun num)))
+
+  (advice-add 'dashboard-insert-ascii-banner-centered :around '+recenter-large-banner)
+  (defun +recenter-large-banner(f &rest arg)
+    (let ((dashboard-banner-length (* 7 (window-width)))
+          (title dashboard-banner-logo-title))
+      (apply f arg)
+      (insert "\n\n")))
+
+  (face-spec-set
+   'dashboard-text-banner
+   '((t :inherit font-lock-keyword-face :font "Fira Mono 2"))
+   'face-defface-spec)
+
   (defun +switch-to-scratch()
     (interactive)
     (switch-to-buffer "*scratch*"))
