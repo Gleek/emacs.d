@@ -168,11 +168,8 @@
   ;; (setq dashboard-items nil)
   (face-spec-set
    'dashboard-text-banner
-   '((t :inherit font-lock-keyword-face
-        :font "Fira Mono 2"
-        ))
-   'face-defface-spec
-   )
+   '((t :inherit font-lock-keyword-face :font "Fira Mono 2"))
+   'face-defface-spec)
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
   (setq dashboard-startup-banner -1)
@@ -214,11 +211,6 @@
           (title dashboard-banner-logo-title))
       (apply f arg)
       (insert "\n\n")))
-
-  (face-spec-set
-   'dashboard-text-banner
-   '((t :inherit font-lock-keyword-face :font "Fira Mono 2"))
-   'face-defface-spec)
 
   (defun +switch-to-scratch()
     (interactive)
