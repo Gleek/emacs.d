@@ -76,16 +76,17 @@
 ;;   :init
 ;;   (setq phpstan-memory-limit "1G")
 ;; )
+(unless IS-TERM
+  (use-package flycheck-posframe
+    :hook (flycheck-mode . flycheck-posframe-mode)
+    :config
+    ;; (flycheck-posframe-configure-pretty-defaults)
+    (setq flycheck-posframe-warning-prefix "⚠ "
+          flycheck-posframe-info-prefix "··· "
+          flycheck-posframe-prefix "··· "
+          flycheck-posframe-error-prefix "✕ ")
+    (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p)))
 
-(use-package flycheck-posframe
-  :hook (flycheck-mode . flycheck-posframe-mode)
-  :config
-  ;; (flycheck-posframe-configure-pretty-defaults)
-  (setq flycheck-posframe-warning-prefix "⚠ "
-        flycheck-posframe-info-prefix "··· "
-        flycheck-posframe-prefix "··· "
-        flycheck-posframe-error-prefix "✕ ")
-  (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p))
 
 (use-package flymake :ensure nil)
 (use-package flymake-diagnostic-at-point

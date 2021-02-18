@@ -10,6 +10,7 @@
 (defconst RES-DIR   (expand-file-name "resources/" user-emacs-directory))
 (defconst IS-MAC    (eq system-type 'darwin))
 (defconst IS-LINUX  (eq system-type 'gnu/linux))
+(defconst IS-TERM   (not (display-graphic-p)))
 (package-initialize)
 (setq gc-cons-threshold 100000000) ;; collect garbage after about 100 MB
 (run-with-idle-timer 2 t (lambda () (garbage-collect)))
@@ -22,7 +23,8 @@
 (setq package-native-compile t)
 (setq comp-async-report-warnings-errors nil)
 
-(define-key input-decode-map [?\C-m] [C-m])
+(unless IS-TERM
+  (define-key input-decode-map [?\C-m] [C-m]))
 
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
