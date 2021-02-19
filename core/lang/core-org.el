@@ -380,7 +380,7 @@
   :config
   (setq alert-default-style (if IS-MAC 'notifier 'libnotify))
   (setq org-wild-notifier-alert-time '(5))
-  (setq org-wild-notifier-keyword-whitelist '("TODO" "DOING" "BLOCKED" "DELEGATED" "WAITING"))
+  (setq org-wild-notifier-keyword-whitelist nil)
   (org-wild-notifier-mode))
 
 (use-package org-superstar
