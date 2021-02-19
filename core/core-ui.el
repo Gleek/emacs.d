@@ -195,10 +195,7 @@
                                 ;; (agenda . 5)
                                 ))
   ;; (setq dashboard-items nil)
-  (face-spec-set
-   'dashboard-text-banner
-   '((t :inherit font-lock-keyword-face :font "Fira Mono 2"))
-   'face-defface-spec)
+
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
   (setq dashboard-banner-logo-title nil)
@@ -223,24 +220,17 @@
             "Open scratch"
             (lambda (&rest _) (+switch-to-scratch)) nil "" ""))))
   :config
-  ;; Override this function to get a custom text banner
-  (advice-add 'dashboard-get-banner-path :around '+get-custom-banner)
-  (defun +get-custom-banner(origin-fun &rest num)
-    ;; If a -ve number is passed it uses the custom banner
-    ;; Favorite Figlet fonts:
-    ;; - Bloody
-    ;; - Impossible
-    ;; - Delta Corps Priest 1
-    (if (< (car num) 0)
-        (expand-file-name "banner.txt" user-emacs-directory)
-      (apply origin-fun num)))
 
-  (advice-add 'dashboard-insert-ascii-banner-centered :around '+recenter-large-banner)
   (defun +recenter-large-banner(f &rest arg)
+    (face-spec-set
+     'dashboard-text-banner
+     '((t :inherit font-lock-keyword-face :font "Fira Mono 2"))
+     'face-defface-spec)
     (let ((dashboard-banner-length (* 7 (window-width)))
           (title dashboard-banner-logo-title))
       (apply f arg)
       (insert "\n\n")))
+  (advice-add 'dashboard-insert-ascii-banner-centered :around '+recenter-large-banner)
 
   (defun +switch-to-scratch()
     (interactive)

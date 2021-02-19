@@ -120,7 +120,32 @@
            text-scale-mode-amount))))
 
 (use-package eimp
-  :hook (image-mode . eimp-mode))
+  :hook (image-mode . eimp-mode)
+  :config
+  (defun +eimp-remove-background(arg)
+    (interactive "P")
+    (let ((color (+choose-color "Background color: "))
+          (fuzz (if arg (format "%d%%" arg) "15%")))
+      (eimp-mogrify-image (list "-fuzz" fuzz "-transparent" color))))
+
+  (defun +choose-color(prompt)
+      (let* ((colors
+              (delete nil
+                      (mapcar (lambda (cell)
+                                (let* ((name (car cell))
+                                       (dups (cdr cell))
+                                       (hex (counsel-colors--name-to-hex name)))
+                                  (when hex
+                                    (propertize name 'hex hex 'dups dups))))
+                              (list-colors-duplicates))))
+             (counsel--colors-format
+              (format "%%-%ds %%s %%s%%s"
+                      (apply #'max 0 (mapcar #'string-width colors))))
+             (chosen-color (ivy-read prompt colors
+                                     :require-match t
+                                     :history 'counsel-colors-emacs-history
+                                     :caller 'counsel-colors-emacs)))
+        (get-text-property 0 'hex chosen-color))))
 
 
 (use-package paradox
