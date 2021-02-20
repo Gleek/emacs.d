@@ -159,9 +159,10 @@
 ;;
 ;; 1. Quit active states; e.g. highlights, searches, snippets, iedit,
 ;;    multiple-cursors, recording macros, etc.
-;; 2. Close popup windows remotely (if it is allowed to)
-;; 3. Refresh buffer indicators, like git-gutter and flycheck
-;; 4. Or fall back to `keyboard-quit'
+;; 2. Deactivate mark if present.
+;; 3. Close popup windows remotely (if it is allowed to)
+;; 4. Refresh buffer indicators, like git-gutter and flycheck
+;; 5. Or fall back to `keyboard-quit'
 ;;
 ;; And it should do these things incrementally, rather than all at once. And it
 ;; shouldn't interfere with recording macros or the minibuffer. This may require
@@ -173,19 +174,27 @@
 More specifically, when `escape-quit' is pressed.   If any hook returns non-nil,
 all hooks after it are ignored.")
 
-(defun escape-quit ()
+(defun escape-quit (&optional interactive)
   "Run `escape-hook'."
-  (interactive)
+  (interactive (list 'interactive))
   (cond ((minibuffer-window-active-p (minibuffer-window))
          ;; quit the minibuffer if open.
+         (when interactive
+           (setq this-command 'abort-recursive-edit))
          (abort-recursive-edit))
+
+        ;; Deactivate active mark
+        ((if (region-active-p)
+             (or (let (select-active-regions)
+                   (deactivate-mark))
+                 t)))
         ;; Run all escape hooks. If any returns non-nil, then stop there.
         ((run-hook-with-args-until-success 'escape-hook))
         ;; don't abort macros
         ((or defining-kbd-macro executing-kbd-macro) nil)
         ;; Back to the default
-        ((keyboard-quit))))
-
-
+        ((unwind-protect (keyboard-quit)
+           (when interactive
+             (setq this-command 'keyboard-quit))))))
 
 (provide 'core-ux)
