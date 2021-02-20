@@ -477,11 +477,30 @@
 
 (use-package calfw-org
   :bind (:map org-agenda-mode-map
-              ("C" . cfw:open-org-calendar))
+              ("C" . +open-calendar))
   :config
-  (setq cfw:display-calendar-holidays nil)
-  (cfw:org-create-source "Blue"))
+  (defun +open-calendar()
+    (interactive)
+    (cfw:open-calendar-buffer
+     ;; :custom-map cfw:my-cal-map
+     :contents-sources
+     (list
+      (cfw:org-create-source (doom-color 'fg)))))
+  ;; Courtesy: fuxialexander
+  (setq cfw:face-item-separator-color nil
+        cfw:render-line-breaker 'cfw:render-line-breaker-none
+        cfw:fchar-junction ?╋
+        cfw:fchar-vertical-line ?┃
+        cfw:fchar-horizontal-line ?━
+        cfw:fchar-left-junction ?┣
+        cfw:fchar-right-junction ?┫
+        cfw:fchar-top-junction ?┯
+        cfw:fchar-top-left-corner ?┏
+        cfw:fchar-top-right-corner ?┓)
+  (setq cfw:display-calendar-holidays nil))
 
+(use-package org-appear :ensure nil
+  :hook (org-mode . org-appear-mode))
 
 
 (use-package org-noter)

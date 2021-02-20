@@ -358,11 +358,16 @@ the currently playing track."
          (:map keepass-mode-map
               ("s" . counsel-keepass)))
   :config
+  (defvar +keepass-password-expiry (* 10 60)
+    "Expire keepass password after seconds")
   (defun +keepass-quick-switch()
     (interactive)
     ;; From core-secrets
     (let ((buf (find-file-noselect keepass-password-file)))
       (with-current-buffer buf
+        (when (string= "" keepass-mode-password)
+          (+keepass-set-password))
+        (+keepass-start-expiry-timer)
         (counsel-keepass))))
   (defun counsel-keepass()
     (interactive)
@@ -378,7 +383,6 @@ the currently playing track."
   (defun +keepass-open-entry(entry)
     (let ((keepass-mode-group-path ""))
       (keepass-mode-show entry)))
-
 
   (defun +keepass-copy-password(entry)
     (kill-new (keepass-mode-get-password entry))
@@ -398,7 +402,24 @@ the currently playing track."
      (lambda (k) (string-match-p "^[^/]" k))
      (split-string
       (shell-command-to-string (keepass-mode-command term "locate"))
-      "\n"))))
+      "\n")))
+
+  (defvar +keepass--expiry-timer nil)
+  (defun +keepass-start-expiry-timer()
+    (if +keepass--expiry-timer
+        (cancel-timer +keepass--expiry-timer))
+    (setq +keepass--expiry-timer (run-with-timer +keepass-password-expiry nil #'+keepass-reset-password)))
+  (defun +keepass-reset-password()
+    (let ((buff (get-file-buffer keepass-password-file)))
+      (if buff
+          (with-current-buffer buff
+            (setq-local keepass-mode-password "")
+            (message "Keepass password reset done")))))
+  (defun +keepass-set-password()
+    (let ((buff (get-file-buffer keepass-password-file)))
+      (if buff
+          (with-current-buffer buff
+            (setq-local keepass-mode-password (keepass-mode-ask-password)))))))
 
 
 (defalias 'xwwb 'xwidget-webkit-browse-url)
