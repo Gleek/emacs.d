@@ -922,6 +922,7 @@ prevent the popup(s) from messing up the UI (or vice versa)."
     ("^\\*Backtrace" :vslot 99 :size 0.4 :quit nil)
     ("^\\*CPU-Profiler-Report "    :side bottom :vslot 100 :slot 1 :height 0.4 :width 0.5 :quit nil)
     ("^\\*Memory-Profiler-Report " :side bottom :vslot 100 :slot 2 :height 0.4 :width 0.5 :quit nil)
+    ("^\\*Process List\\*" :side bottom :vslot 101 :size 0.25 :select t :quit t)
     ("^\\*\\(?:Proced\\|timer-list\\|Process List\\|Abbrevs\\|Output\\|Occur\\|unsent mail\\)\\*" :ignore t)))
 
 ;; (add-hook 'after-init-hook #'+popup-mode 'append)
@@ -930,5 +931,9 @@ prevent the popup(s) from messing up the UI (or vice versa)."
 (add-hook '+popup-buffer-mode-hook #'+popup-adjust-margins-h)
 (add-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
 (add-hook '+popup-buffer-mode-hook #'+popup-unset-modeline-on-disable-h)
+
+;;; hacks
+(advice-add #'balance-windows :around #'+popup-save-a)
+
 (provide 'popup)
 ;;; popup.el ends here

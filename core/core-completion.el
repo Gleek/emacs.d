@@ -76,6 +76,39 @@
   :defer 1
   :after ivy
   :config
+  ;; Courtesy: doom emacs
+  (defun +ivy-rich-describe-variable-transformer (cand)
+    "Previews the value of the variable in the minibuffer"
+    (let* ((sym (intern cand))
+           (val (and (boundp sym) (symbol-value sym)))
+           (print-level 3))
+      (replace-regexp-in-string
+       "[\n\t\^[\^M\^@\^G]" " "
+       (cond ((booleanp val)
+              (propertize (format "%s" val) 'face
+                          (if (null val)
+                              'font-lock-comment-face
+                            'success)))
+             ((symbolp val)
+              (propertize (format "'%s" val)
+                          'face 'highlight-quoted-symbol))
+             ((keymapp val)
+              (propertize "<keymap>" 'face 'font-lock-constant-face))
+             ((listp val)
+              (prin1-to-string val))
+             ((stringp val)
+              (propertize (format "%S" val) 'face 'font-lock-string-face))
+             ((numberp val)
+              (propertize (format "%s" val) 'face 'highlight-numbers-number))
+             ((format "%s" val)))
+       t)))
+  (plist-put
+   ivy-rich-display-transformers-list
+   'counsel-describe-variable
+   '(:columns
+     ((counsel-describe-variable-transformer (:width 40)) ; the original transformer
+      (+ivy-rich-describe-variable-transformer (:width 50)) ; display variable value
+      (ivy-rich-counsel-variable-docstring (:face font-lock-doc-face)))))
   (ivy-rich-mode t))
 ;; (use-package all-the-icons-ivy-rich
 ;;   :defer 1

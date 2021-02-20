@@ -322,6 +322,13 @@ https://emacs.stackexchange.com/a/12124/2144"
   :bind (:map undo-tree-map
               ("M-_" . nil))
   :config
+  ;; Quiting undo tree resets undo-tree-visualizer-diff value.
+  ;; This masks it so that it can’t be changed
+  (defun +undo-tree-visualizer-quit(f &rest args)
+    (cl-letf ((undo-tree-visualizer-diff))
+            (apply f args)))
+  (advice-add 'undo-tree-visualizer-quit :around '+undo-tree-visualizer-quit)
+
   (defun +undo-tree-save-history (undo-tree-save-history &rest args)
     "Removes Wrote undo tree messages from Message buffer"
     (let ((message-log-max nil)
@@ -330,7 +337,8 @@ https://emacs.stackexchange.com/a/12124/2144"
   (advice-add 'undo-tree-save-history :around '+undo-tree-save-history)
 
   (global-undo-tree-mode 1)
-  (setq undo-tree-visualizer-diff nil
+
+  (setq undo-tree-visualizer-diff t
         undo-tree-auto-save-history t
         undo-tree-enable-undo-in-region t
         ;; Increase undo-limits by a factor of ten to avoid emacs prematurely
@@ -339,6 +347,7 @@ https://emacs.stackexchange.com/a/12124/2144"
         undo-limit 800000
         undo-strong-limit 12000000
         undo-outer-limit 120000000)
+  (set-popup-rule! "^\\*undo-tree Diff\\*" :select nil :size '+popup-shrink-to-fit)
   (remove-hook 'undo-tree-mode-hook 'hide-mode-line-mode)
   (setq undo-tree-auto-save-history t)
   (setq undo-tree-history-directory-alist `(("." . ,(concat CACHE-DIR "undo"))))

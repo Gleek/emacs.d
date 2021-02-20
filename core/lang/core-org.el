@@ -191,6 +191,40 @@
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
   (add-hook 'org-clock-in-hook (lambda() (org-todo "DOING")) 'append)
 
+  ;; Courtesy: doom emacs (popup/+hacks.el)
+  (defun +popup--supress-delete-other-windows-a (origin-fn &rest args)
+    (if +popup-mode
+        (cl-letf (((symbol-function #'delete-other-windows) #'ignore)
+                  ((symbol-function #'delete-window)        #'ignore))
+          (apply origin-fn args))
+      (apply origin-fn args)))
+  (advice-add #'org-add-log-note :around #'+popup--supress-delete-other-windows-a)
+  (advice-add #'org-capture-place-template :around #'+popup--supress-delete-other-windows-a)
+  (advice-add #'org-export--dispatch-ui :around #'+popup--supress-delete-other-windows-a)
+  (advice-add #'org-agenda-get-restriction-and-command :around #'+popup--supress-delete-other-windows-a)
+  (advice-add #'org-goto-location :around #'+popup--supress-delete-other-windows-a)
+  (advice-add #'org-fast-tag-selection :around #'+popup--supress-delete-other-windows-a)
+  (advice-add #'org-fast-todo-selection :around #'+popup--supress-delete-other-windows-a)
+
+  ;; Ensure todo, agenda, and other minor popups are delegated to the popup system.
+  (defun +popup--org-pop-to-buffer-a(orig-fn buf &optional norecord)
+    (if +popup-mode
+        (pop-to-buffer buf nil norecord)
+      (funcall orig-fn buf norecord)))
+
+  (advice-add #'org-switch-to-buffer-other-window :around #'+popup--org-pop-to-buffer-a)
+
+  ;; Courtesy: doomemacs
+  ;; HACK `pop-to-buffer-same-window' consults `display-buffer-alist', which is
+  ;;      what our popup manager uses to manage popup windows. However,
+  ;;      `org-src-switch-to-buffer' already does its own window management
+  ;;      prior to calling `pop-to-buffer-same-window', so there's no need to
+  ;;      _then_ hand off the buffer to the pop up manager.
+  (defun +popup--org-src-switch-to-buffer-a (orig-fn &rest args)
+    (cl-letf (((symbol-function #'pop-to-buffer-same-window) #'switch-to-buffer))
+      (apply orig-fn args)))
+  (advice-add #'org-src-switch-to-buffer :around #'+popup--org-src-switch-to-buffer-a)
+
   (set-popup-rules!
     '(("^\\*Org Links" :slot -1 :vslot -1 :size 2 :ttl 0)
       ("^ ?\\*\\(?:Agenda Com\\|Calendar\\|Org Export Dispatcher\\)"

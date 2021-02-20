@@ -102,6 +102,7 @@
 
 (setq mc/cmds-to-run-once
       '(
+        +shellpop-vterm
         company-complete
         company-complete-selection
         counsel-M-x
