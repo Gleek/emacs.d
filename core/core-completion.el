@@ -109,6 +109,11 @@
      ((counsel-describe-variable-transformer (:width 40)) ; the original transformer
       (+ivy-rich-describe-variable-transformer (:width 50)) ; display variable value
       (ivy-rich-counsel-variable-docstring (:face font-lock-doc-face)))))
+
+  (plist-put
+   ivy-rich-display-transformers-list
+   'counsel-projectile-switch-to-buffer
+   (plist-get ivy-rich-display-transformers-list 'ivy-switch-buffer))
   (ivy-rich-mode t))
 ;; (use-package all-the-icons-ivy-rich
 ;;   :defer 1

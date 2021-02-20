@@ -347,8 +347,11 @@ https://emacs.stackexchange.com/a/12124/2144"
         undo-limit 800000
         undo-strong-limit 12000000
         undo-outer-limit 120000000)
-  (set-popup-rule! "^\\*undo-tree Diff\\*" :select nil :size '+popup-shrink-to-fit)
-  (remove-hook 'undo-tree-mode-hook 'hide-mode-line-mode)
+
+  (add-hook 'escape-hook (lambda()
+                           (when (eq major-mode 'undo-tree-visualizer-mode)
+                             (undo-tree-visualizer-quit))))
+
   (setq undo-tree-auto-save-history t)
   (setq undo-tree-history-directory-alist `(("." . ,(concat CACHE-DIR "undo"))))
   :diminish undo-tree-mode)

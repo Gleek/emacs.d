@@ -78,6 +78,7 @@ configurations."
     (call-interactively 'tab-bar-rename-tab)
     (+tab-bar-create-main)
     (tab-bar-switch-to-recent-tab))
-  (tab-bar-mode t))
+  (tab-bar-mode t)
+  (+tab-bar-create-main))
 
 (provide 'core-window)

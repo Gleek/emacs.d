@@ -19,6 +19,11 @@
   (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent)
   (add-hook 'magit-popup-mode-hook #'hide-mode-line-mode))
 
+(use-package magit-delta
+  :hook (magit-mode . magit-delta-mode)
+  :config
+  (setq magit-delta-default-dark-theme "1337"))
+
 (use-package forge
   :after magit
   :config
