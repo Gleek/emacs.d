@@ -36,13 +36,21 @@
           (call-interactively 'go-tag-add))
       (let ((go-tag-args nil))
         (call-interactively 'go-tag-add))))
+
+  (defun +go-setup-checkers()
+    (flycheck-golangci-lint-setup)
+
+    ;; Demote golangci errors to info
+    (dolist (patt (get 'golangci-lint 'flycheck-error-patterns))
+      (setcdr patt 'warning))
+    (setq flycheck-local-checkers '((lsp . ((next-checkers . ((warning . golangci-lint))))))))
+
   ;; (setq dap-go-debug-program `("node" ,(concat dap-go-debug-path "/extension/dist/debugAdapter.js")))
   (setq gofmt-command "goimports")
   ;; (add-hook 'go-mode-hook #'go-eldoc-setup)
   (add-hook 'before-save-hook 'gofmt-before-save)
-  (add-hook 'go-mode-hook (lambda()
-                            (flycheck-golangci-lint-setup)
-                            (setq flycheck-local-checkers '((lsp . ((next-checkers . (golangci-lint))))))))
+
+  (add-hook 'go-mode-hook #'+go-setup-checkers)
   
   (set-popup-rule! "^\\*go-guru-output\\*" :size 0.4 :quit t))
 

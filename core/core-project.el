@@ -96,7 +96,7 @@ Repeated invocations toggle between the two most recently open buffers."
     (file-size-human-readable (buffer-size))))
 
 (use-package ibuffer-projectile
-  :ensure t
+  :disabled t ;; Very slow https://github.com/purcell/ibuffer-projectile/issues/11
   :hook (ibuffer . ibuffer-projectile-set-filter-groups)
   :config
 
@@ -105,6 +105,9 @@ Repeated invocations toggle between the two most recently open buffers."
                  "file-directory"
                  :face ibuffer-filter-group-name-face
                  :v-adjust -0.05) " ")))
+
+(use-package ibuffer-vc
+  :hook (ibuffer . ibuffer-vc-set-filter-groups-by-vc-root))
 
 
 (use-package ivy-xref
@@ -230,8 +233,6 @@ Use `treemacs' command for old functionality."
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
   (setq lsp-server-install-dir (concat CACHE-DIR "lsp/"))
   (setq lsp-session-file (concat CACHE-DIR ".lsp-session-v1"))
-
-  (setq lsp-completion-provider nil) ;; We do this ourselves
   :config
   ;; (company-backend-for-hook 'lsp-mode-hook '((company-capf :with company-yasnippet)))
   (company-backend-for-hook 'lsp-completion-mode-hook '((company-capf :with company-yasnippet)))
@@ -255,8 +256,7 @@ Use `treemacs' command for old functionality."
   :ensure t
   :config
 
-  (setq lsp-prefer-flymake nil
-        lsp-ui-doc-max-height 13
+  (setq lsp-ui-doc-max-height 13
         lsp-ui-doc-max-width 50
         lsp-ui-sideline-ignore-duplicate t
         lsp-ui-doc-enable t

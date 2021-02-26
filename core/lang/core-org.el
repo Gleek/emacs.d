@@ -502,6 +502,9 @@
 (use-package org-appear :ensure nil
   :hook (org-mode . org-appear-mode))
 
+(use-package org-pretty-table :ensure nil
+  :hook (org-mode . org-pretty-table-mode))
+
 
 (use-package org-noter)
 (use-package ox-clip

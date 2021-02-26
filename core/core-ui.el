@@ -11,9 +11,13 @@
 (blink-cursor-mode -1)
 (setq frame-inhibit-implied-resize t)
 ;; Font/Themes
-(defvar default-font "Fira Code 12")
-(setq default-font "Fira Code 12")
-(set-frame-font default-font 'keepsize t)
+(defvar default-font "Fira Code")
+(set-frame-font (concat default-font " 12") 'keepsize t)
+;; (set-face-font 'variable-pitch "Baskerville 15")
+;; (set-face-font 'variable-pitch "ETBembo 17")
+(set-face-attribute 'variable-pitch nil :family "Helvetica" :height 1.1)
+(set-face-attribute 'fixed-pitch nil :family default-font :height 0.9)
+(set-fontset-font t 'arabic "KFGQPC Uthmanic Script Hafs 25")
 
 ;; ligatures
 (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
@@ -46,11 +50,6 @@
     (set-char-table-range composition-function-table (car char-regexp)
                           `([,(cdr char-regexp) 0 font-shape-gstring]))))
 
-;; (set-face-font 'variable-pitch "Baskerville 15")
-;; (set-face-font 'variable-pitch "ETBembo 17")
-(set-face-font 'variable-pitch "Helvetica 14")
-(set-face-font 'fixed-pitch default-font)
-(set-fontset-font t 'arabic "KFGQPC Uthmanic Script Hafs 25")
 
 (setq-default frame-title-format '(buffer-file-name "%b - Emacs"))
 (setq-default line-spacing 0)
@@ -84,7 +83,7 @@
   (defvar +dark-theme 'doom-one)
   (defun +switch-theme-type()
     (interactive)
-    (solaire-global-mode -1)
+    (disable-theme 'solaire-swap-bg-theme)
     (if (eq +theme-type 'light)
         (progn
           (disable-theme +light-theme)
@@ -92,8 +91,7 @@
           (setq-local +theme-type 'dark))
       (disable-theme +dark-theme)
       (load-theme +light-theme t)
-      (setq-local +theme-type 'light))
-    (solaire-global-mode +1))
+      (setq-local +theme-type 'light)))
 
   (solaire-global-mode +1)
   (load-theme (if (eq +theme-type 'dark) +dark-theme +light-theme) t)

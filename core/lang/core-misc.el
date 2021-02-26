@@ -49,8 +49,7 @@
          (:map makefile-executor-mode-map
                ("C-c C-d" . nil))))
 
-(use-package makefile-mode
-  :ensure nil
+(use-package make-mode
   :bind (:map makefile-mode-map
               ("M-p" . nil)))
 

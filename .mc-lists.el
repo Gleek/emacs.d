@@ -64,9 +64,11 @@
         org-force-self-insert
         org-kill-line
         org-open-line
+        org-return-and-maybe-indent
         org-return-indent
         org-self-insert-command
         org-shiftcontrolup
+        org-transpose-words
         org-yank
         reactivate-mark
         rectangle-backward-char

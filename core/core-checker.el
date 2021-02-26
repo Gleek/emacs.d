@@ -89,8 +89,12 @@
           flycheck-posframe-info-prefix "··· "
           flycheck-posframe-prefix "··· "
           flycheck-posframe-error-prefix "✕ ")
+    (add-hook 'post-command-hook #'flycheck-posframe-hide-posframe)
     (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p)))
 
+(use-package flycheck-popup-tip
+  :disabled t
+  :hook (flycheck-mode . flycheck-popup-tip-mode))
 
 (use-package flymake :ensure nil)
 (use-package flymake-diagnostic-at-point

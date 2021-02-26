@@ -34,7 +34,8 @@
             (set-window-buffer-start-and-point w2 b1 s1 p1)))))))
 
 ;; Courtesy: Doom emacs
-(use-package popup :ensure nil :demand
+(use-package +popup :ensure nil :demand
+  :bind ("C-c w p" . +popup/buffer)
   :config (setq +popup-margin-width nil)
   (+popup-mode t))
 

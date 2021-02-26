@@ -1,5 +1,5 @@
+;;; custom/packages/+popup.el -*- lexical-binding: t; -*-
 ;; Courtesy : Doom Emacs
-;;; custom/packages/popup.el -*- lexical-binding: t; -*-
 (defvar +popup--internal nil)
 
 (defun +popup--remember (windows)
@@ -935,5 +935,5 @@ prevent the popup(s) from messing up the UI (or vice versa)."
 ;;; hacks
 (advice-add #'balance-windows :around #'+popup-save-a)
 
-(provide 'popup)
+(provide '+popup)
 ;;; popup.el ends here
