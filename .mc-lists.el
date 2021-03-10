@@ -67,6 +67,7 @@
         org-return-and-maybe-indent
         org-return-indent
         org-self-insert-command
+        org-set-tags-command
         org-shiftcontrolup
         org-transpose-words
         org-yank

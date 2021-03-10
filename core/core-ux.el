@@ -97,6 +97,7 @@
       (message "Keycast enabled"))))
 
 
+(use-package emacs-everywhere)
 
 (use-package zoom
   ;; :defer 1

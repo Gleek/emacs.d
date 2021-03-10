@@ -268,10 +268,7 @@ https://emacs.stackexchange.com/a/12124/2144"
   :ensure expand-region
   :init (setq shift-select-mode nil)
   :bind (("C-=" . er/expand-region)
-         ("C-+" . er/contract-region)
-         :map selected-keymap
-         ("=" . er/expand-region)
-         ("+" . er/contract-region)))
+         ("C-+" . er/contract-region)))
 
 ;; (use-package easy-kill
 ;;   :init

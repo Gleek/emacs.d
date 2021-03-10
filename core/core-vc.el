@@ -22,7 +22,7 @@
 (use-package magit-delta
   :hook (magit-mode . magit-delta-mode)
   :config
-  (setq magit-delta-default-dark-theme "1337"))
+  (setq magit-delta-default-dark-theme "Monokai Extended Bright"))
 
 (use-package forge
   :after magit

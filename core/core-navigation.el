@@ -59,15 +59,48 @@
 
 (use-package hideshow
   :ensure nil
-  :defer 1
-  :bind (:map hs-minor-mode-map
-              ("<S-mouse-1>" . move-mouse-and-toggle-hide))
+  :disabled t ;; Trying out origami
+  ;; :defer 1
+  ;; :bind (:map hs-minor-mode-map
+  ;;             ("<S-mouse-1>" . move-mouse-and-toggle-hide))
   :config
   (add-hook 'prog-mode-hook 'hs-minor-mode)
   (defun move-mouse-and-toggle-hide(e)
     (interactive "e")
     (mouse-set-point e)
     (hs-toggle-hiding e)))
+
+
+(use-package origami
+  :after hydra
+  :hook (prog-mode . origami-mode)
+  :bind (:map origami-mode-map
+              ("C-{" . hydra-folding/body)
+              ("<S-mouse-1>" . +mouse-origami-toggle))
+  :config
+  (defhydra hydra-folding (:color red)
+    "
+  _o_pen node    _n_ext fold       toggle _f_orward  _s_how current only
+  _c_lose node   _p_revious fold   toggle _a_ll      undo _/_
+  redo _?_      _R_eset
+  "
+    ("o" origami-open-node)
+    ("c" origami-close-node)
+    ("n" origami-next-fold)
+    ("p" origami-previous-fold)
+    ("f" origami-forward-toggle-node)
+    ("a" origami-toggle-all-nodes)
+    ("s" origami-show-only-node)
+    ("<tab>" origami-recursively-toggle-node)
+    ("/" origami-undo)
+    ("?" origami-redo)
+    ("R" origami-reset))
+
+  (defun +mouse-origami-toggle(e)
+    (interactive "e")
+    (mouse-set-point e)
+    (call-interactively 'origami-toggle-node)))
+
 (use-package imenu-anywhere :ensure t)
 
 (provide 'core-navigation)

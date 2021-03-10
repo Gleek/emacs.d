@@ -28,6 +28,7 @@
   (setq org-pomodoro-start-sound (concat RES-DIR "doorbell.wav")))
 
 (use-package org
+  :defer 2
   :config
  ;; Strange bug causing org-version to be empty. Breaking nov.el
   (setq org-version (if (string= org-version "")
@@ -79,6 +80,7 @@
         org-hide-emphasis-markers t
         org-hide-leading-stars t
         org-id-locations-file (concat CACHE-DIR ".org-id-locations")
+        org-generic-id-locations-file (concat CACHE-DIR ".org-generic-id-locations-file")
         org-image-actual-width 500
         org-imenu-depth 8
         org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a."))
@@ -301,6 +303,28 @@
                              skipped))
                    (if (not org-agenda-persistent-marks) "" " (kept marked)")))))
 
+  ;; Courtesy: https://orgmode.org/worg/org-hacks.html
+  (defun org-agenda-log-mode-colorize-block ()
+    "Set different line spacing based on clock time duration."
+    (save-excursion
+      (let ((colors `(,(doom-color 'selection) ,(doom-lighten (doom-color 'selection) 0.2)))
+             pos
+             duration)
+        (goto-char (point-min))
+        (while (setq pos (next-single-property-change (point) 'duration))
+          (goto-char pos)
+          (when (and (not (equal pos (point-at-eol)))
+                     (setq duration (org-get-at-bol 'duration)))
+            ;; larger duration bar height
+            (let ((line-height (if (< duration 15) 1.0 (+ 0.5 (/ duration 60))))
+                  (ov (make-overlay (point-at-bol) (1+ (point-at-eol)))))
+              (overlay-put ov 'face `(:background ,(car colors) :foreground "white"))
+              (setq colors (append (cdr colors) (cons (car colors) ())))
+              (overlay-put ov 'line-height line-height)
+              (overlay-put ov 'line-spacing (1- line-height))))))))
+
+  ;; (add-hook 'org-agenda-finalize-hook #'org-agenda-log-mode-colorize-block)
+
 
   (defvar +org-current-effort "1:00"
     "Current effort for agenda items.")
@@ -384,16 +408,22 @@
         org-agenda-block-separator (aref "━" 0)
         org-agenda-start-on-weekday nil
         org-agenda-start-day nil
+        org-agenda-time-grid `((daily today require-timed remove-match)
+                               ,(number-sequence 800 2000 200)
+                               "......"
+                               "----------------")
         org-agenda-inhibit-startup t))
 
 (use-package org-gcal
   :defer 5
-  :commands org-gcal-sync
+  :commands (org-gcal-sync org-gcal-post-at-point)
   :init
   (defvar org-gcal--running-timer nil)
   (unless (eq org-gcal--running-timer nil)
     (setq org-gcal--running-timer (run-with-timer 300 300 (lambda () (org-gcal-sync t t)))))
-  :bind (:map org-agenda-mode-map ("S" . org-gcal-sync))
+  :bind (:map org-agenda-mode-map
+         ("S" . org-gcal-sync)
+         ("P" . org-gcal-post-at-point))
   :config
   (defvar org-gcal-file)
   (setq org-gcal-file (concat +org-directory "schedule.org")
@@ -476,9 +506,16 @@
   (setq org-roam-graph-viewer (lambda(url) (+browse-url url))))
 
 (use-package calfw-org
-  :bind (:map org-agenda-mode-map
-              ("C" . +open-calendar))
+  :after org-agenda
+  :demand t
+  :bind (:map org-agenda-mode-map ("C" . +open-calendar)
+              :map cfw:calendar-mode-map ("?" . +calendar/show-keys))
   :config
+  (set-popup-rule! "^\\*cfw:details\\*$")
+  (setq cfw:org-overwrite-default-keybinding t)
+  (defun +calendar/show-keys()
+    (interactive)
+    (which-key-show-full-keymap 'cfw:calendar-mode-map))
   (defun +open-calendar()
     (interactive)
     (cfw:open-calendar-buffer
@@ -498,6 +535,16 @@
         cfw:fchar-top-left-corner ?┏
         cfw:fchar-top-right-corner ?┓)
   (setq cfw:display-calendar-holidays nil))
+
+
+(use-package org-timeline
+  :commands (org-timeline-insert-timeline)
+  :hook (org-agenda-finalize . org-timeline-insert-timeline)
+  :config
+  (setq org-timeline-space-out-consecutive t)
+  (setq org-timeline-overlap-in-new-line t)
+  (setq org-timeline-show-title-in-blocks t)
+  (set-face-attribute 'org-timeline-block nil :inherit 'highlight :background nil))
 
 (use-package org-appear :ensure nil
   :hook (org-mode . org-appear-mode))
