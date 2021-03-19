@@ -264,7 +264,8 @@ Use `treemacs' command for old functionality."
         ;; and there is a bug preventing Flycheck errors from being shown (the
         ;; errors flash briefly and then disappear).
         lsp-ui-sideline-enable nil
-        lsp-ui-sideline-show-hover nil)
+        lsp-ui-sideline-show-hover nil
+        lsp-completion-provider :none)
 
   (remove-hook 'lsp-ui-doc-frame-hook
                (lambda (frame _w)

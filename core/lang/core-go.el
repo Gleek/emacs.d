@@ -60,6 +60,8 @@
   :config
   (add-hook 'go-mode-hook #'gorepl-mode))
 
-(use-package go-playground)
+(use-package go-playground
+  :init
+  (setq go-playground-basedir (expand-file-name "src/example.com/playground/" (getenv "GOPATH"))))
 
 (provide 'core-go)

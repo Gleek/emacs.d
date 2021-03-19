@@ -64,8 +64,19 @@
 (use-package nov
   :ensure nov
   :ensure dash
-  :mode ("\\.epub\\'" . nov-mode)
+   :mode ("\\.epub\\'" . nov-mode)
   :config
   (add-hook 'nov-mode-hook 'reading-mode)
   (setq nov-save-place-file (concat CACHE-DIR "nov-places")))
+
+(use-package spray
+  :after nov
+  :bind (:map nov-mode-map
+              ("S" . spray-mode))
+  :config
+  (setq spray-wpm 400
+        spray-height 700)
+  (setq spray-margin-left 7
+        spray-margin-top 2))
+
 (provide 'core-ebook)

@@ -285,7 +285,7 @@ This functions should be added to the hooks of major modes for programming."
   (electric-quote-mode t)
   (setq bidi-paragraph-direction nil)
   (variable-pitch-mode t)
-  (setq line-spacing 0.1)
+  (setq line-spacing 0.2)
   (display-line-numbers-mode -1)
   (setq left-margin-width 5)
   (setq right-margin-width 5))

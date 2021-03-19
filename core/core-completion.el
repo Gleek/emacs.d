@@ -143,13 +143,16 @@
   :ensure company-web
   :ensure company-quickhelp
   ;; :disabled t
+  :hook ((prog-mode . +enable-company)
+         (text-mode . +enable-company)
+         (conf-mode . +enable-company))
   :bind ("C-." . company-complete)
   :init
   (defmacro company-backend-for-hook(hook backends)
     `(add-hook ,hook (lambda()
                        (set (make-local-variable 'company-backends)
                             ,backends))))
-  (setq company-idle-delay 0.05
+  (setq company-idle-delay 0.5
         company-minimum-prefix-length 2
         company-require-match 'never
         company-global-modes '(not erc-mode message-mode help-mode gud-mode)
@@ -165,7 +168,10 @@
         company-dabbrev-ignore-case nil
         company-dabbrev-downcase nil)
   :config
-  (global-company-mode)
+  ;; (global-company-mode)
+  (defun +enable-company()
+    "Only enable company mode if the buffer is not huge"
+    (company-mode (if (< (buffer-size) 1000000) t -1)))
   :diminish "Ⓒ")
 
 (use-package company-box
