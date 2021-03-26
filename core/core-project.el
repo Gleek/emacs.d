@@ -228,6 +228,7 @@ Use `treemacs' command for old functionality."
   :hook ((js-mode js2-mode js3-mode rjsx-mode go-mode rust-mode php-mode) . lsp)
   :bind (:map lsp-mode-map
               ("C-c p r" . lsp-rename)
+              ("M-p" . nil)
               ("M-'" . lsp-goto-implementation))
   :init
   (setq read-process-output-max (* 1024 1024)) ;; 1mb

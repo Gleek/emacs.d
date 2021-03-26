@@ -52,7 +52,10 @@
 
 
 (setq-default frame-title-format '(buffer-file-name "%b - Emacs"))
-(setq-default line-spacing 0)
+(setq-default line-spacing 0.2) ;; Space out a little
+(setq x-underline-at-descent-line nil)
+(setq x-use-underline-position-properties t)
+
 
 (setq resize-mini-windows 'grow-only
       ;; But don't let the minibuffer grow beyond this size
@@ -285,7 +288,6 @@ This functions should be added to the hooks of major modes for programming."
   (electric-quote-mode t)
   (setq bidi-paragraph-direction nil)
   (variable-pitch-mode t)
-  (setq line-spacing 0.2)
   (display-line-numbers-mode -1)
   (setq left-margin-width 5)
   (setq right-margin-width 5))

@@ -131,7 +131,6 @@
       kill-do-not-save-duplicates t
       apropos-do-all t
       use-dialog-box nil
-      x-underline-at-descent-line t
       ring-bell-function 'ignore
       mouse-yank-at-point t
       require-final-newline t

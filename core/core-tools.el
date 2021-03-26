@@ -448,5 +448,8 @@ the currently playing track."
   (setq calibredb-root-dir "~/Documents/Calibre")
   (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir)))
 
+(use-package calc
+  :bind ("C-*" . calc))
+
 
 (provide 'core-tools)
