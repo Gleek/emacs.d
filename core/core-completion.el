@@ -32,7 +32,7 @@
   ;; hide few candidates if the spacing is made too large, but works
   ;; fine for smaller values.
   (defun +ivy-change-line-spacing(&rest _)
-    (setq-local line-spacing 0.2))
+    (setq-local line-spacing (default-value 'line-spacing)))
   (advice-add 'ivy--minibuffer-setup :after #'+ivy-change-line-spacing)
   :bind (("C-x b"   . ivy-switch-buffer)
          ("C-c v" . ivy-resume))

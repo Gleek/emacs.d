@@ -52,7 +52,10 @@
 
 
 (setq-default frame-title-format '(buffer-file-name "%b - Emacs"))
-(setq-default line-spacing 0.2) ;; Space out a little
+
+;; Space out a little
+(setq-default line-spacing 0.2)
+(setq default-text-properties '(line-spacing 0.20 line-height 1.20))
 (setq x-underline-at-descent-line nil)
 (setq x-use-underline-position-properties t)
 
