@@ -27,6 +27,13 @@
   (ivy-mode t)
   (set-popup-rule! "^\\*ivy-occur" :size 0.35 :ttl 0 :quit nil)
   ;; (all-the-icons-ivy-setup)
+
+  ;; Force change line spacing in ivy. There's a bug which makes ivy
+  ;; hide few candidates if the spacing is made too large, but works
+  ;; fine for smaller values.
+  (defun +ivy-change-line-spacing(&rest _)
+    (setq-local line-spacing 0.2))
+  (advice-add 'ivy--minibuffer-setup :after #'+ivy-change-line-spacing)
   :bind (("C-x b"   . ivy-switch-buffer)
          ("C-c v" . ivy-resume))
   :diminish ivy-mode)

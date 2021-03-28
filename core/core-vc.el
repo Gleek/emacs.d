@@ -154,5 +154,4 @@
       vc-make-backup-files t
       backup-directory-alist `(("" . ,(concat CACHE-DIR "backups/per-save")))
       browse-url-browser-function 'browse-url-default-browser)
-
 (provide 'core-vc)

@@ -17,6 +17,9 @@
                     (elt sequence (1- i))))
   sequence)
 
+(defun return-false(&rest _)
+  nil)
+
 
 (defun string-length<(str1 str2)
   "Retuns non-nil if STR1 is less in length than STR2."

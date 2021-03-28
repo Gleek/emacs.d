@@ -452,4 +452,10 @@ the currently playing track."
   :bind ("C-*" . calc))
 
 
+(use-package profiler
+  :bind (("<f12>" . profiler-start)
+         ("<C-f12>" . profiler-report)
+         ("<M-f12>" . profiler-stop)))
+
+
 (provide 'core-tools)

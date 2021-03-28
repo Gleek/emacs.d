@@ -160,6 +160,7 @@ https://emacs.stackexchange.com/a/12124/2144"
 
 
 (use-package auto-indent-mode
+  :disabled t ;; makes stuff super slow
   :init
   (setq auto-indent-assign-indent-level nil)
   :hook prog-mode
@@ -386,6 +387,10 @@ https://emacs.stackexchange.com/a/12124/2144"
   :diminish whitespace-mode)
 
 (use-package reformatter :disabled)
+
+(use-package cc-mode
+  ;; Use hungry delete everywhere
+  :bind ("C-<backspace>" . c-hungry-delete-backwards))
 
 (use-package "mod-number" :ensure nil :demand t
   :bind (("C-S-<up>" . change-number-at-point)

@@ -12,6 +12,12 @@
               ("C-c C-d" . nil)
               ("C-." . nil))
   :config
+   ;; Makes typing smooth with very little affect on syntax
+   ;; highlighting. We're using tree-sitter anyway.
+  (setq php-syntax-propertize-functions nil)
+  ;; Applying syntax propertize on extended region is slow. Disable
+  ;; that and instead depend on tree-sitter to do the highlighting.
+  (advice-add 'php-syntax-propertize-extend-region :override #'return-false)
   (require 'dap-php)
   (dap-php-setup)
   (setq php-template-compatibility nil)

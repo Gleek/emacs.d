@@ -39,7 +39,7 @@
 
   ;; (setq flycheck-check-syntax-automatically '(save mode-enabled idle-buffer-switch))
   ;; (setq flycheck-buffer-switch-check-intermediate-buffers nil)
-  (setq flycheck-display-errors-delay 0.25)
+  (setq flycheck-display-errors-delay 0.9)
 
   (set-popup-rules!
     '(("^\\*Flycheck error messages\\*" :select nil)
