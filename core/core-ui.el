@@ -55,7 +55,7 @@
 
 ;; Space out a little
 (setq-default line-spacing 0.2)
-(setq default-text-properties '(line-spacing 0.20 line-height 1.20))
+(setq-default default-text-properties '(line-spacing 0.20 line-height 1.20))
 (setq x-underline-at-descent-line nil)
 (setq x-use-underline-position-properties t)
 
@@ -245,6 +245,8 @@
 (use-package minimap
   :bind ("C-c t m" . minimap-mode)
   :config
+  (add-hook 'minimap-sb-mode-hook (lambda()
+                                    (setq-local default-text-properties '(line-spacing 0.0 line-height 1.0))))
   (setq minimap-window-location 'right
         minimap-update-delay 0
         minimap-width-fraction 0.09

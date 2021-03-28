@@ -18,6 +18,7 @@
   ;; Applying syntax propertize on extended region is slow. Disable
   ;; that and instead depend on tree-sitter to do the highlighting.
   (advice-add 'php-syntax-propertize-extend-region :override #'return-false)
+  (remove-hook 'syntax-propertize-extend-region-functions #'php-syntax-propertize-extend-region)
   (require 'dap-php)
   (dap-php-setup)
   (setq php-template-compatibility nil)
