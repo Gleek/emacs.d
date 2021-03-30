@@ -22,6 +22,7 @@
 
 (defvar +projectile-find-file--open-file-hash)
 (defvar +projectile-find-file--recent-file-hash)
+(defvar +projectile-find-file--project-files)
 
 
 (defun +projectile-find-file--initialize()
@@ -35,8 +36,9 @@
       (if (> seq-score 1)
           (setq seq-score (1- seq-score)))))
   (setq +projectile-find-file--recent-file-hash (make-hash-table :size 200 :test 'equal))
-    (dolist (el (projectile-recentf-files))
-      (puthash el 100 +projectile-find-file--recent-file-hash)))
+  (dolist (el (projectile-recentf-files))
+    (puthash el 100 +projectile-find-file--recent-file-hash))
+  (setq +projectile-find-file--project-files (+projectile-find-file--sort-file-with-scores (projectile-current-project-files))))
 
 (defun +projectile-find-file--score-files(file-list &optional search)
   "Gives scores to all the files in the FILE-LIST.
@@ -91,6 +93,9 @@
    (counsel--find-file-matcher regexp candidates) regexp))
 
 
+(defun +projectile-find-file--dynamic-matcher(str)
+  (+projectile-find-file--matcher (regexp-quote str) +projectile-find-file--project-files))
+
 
 (defun +projectile-find-file(&optional arg &rest _)
   (interactive "P")
@@ -99,13 +104,26 @@
       (counsel-projectile-find-file-action-switch-project)
     (projectile-maybe-invalidate-cache arg)
     (+projectile-find-file--initialize)
-    (let* ((project-files (+projectile-find-file--sort-file-with-scores (projectile-current-project-files))))
-      (ivy-read (projectile-prepend-project-name "Find file: ")
-                project-files
+    (ivy-read (projectile-prepend-project-name "Find file: ")
+                +projectile-find-file--project-files
                 :matcher #'+projectile-find-file--matcher
                 :require-match t
                 :action counsel-projectile-find-file-action
-                :caller '+projectile-find-file))))
+                :caller '+projectile-find-file)))
+
+(defun +projectile-find-file-dynamic(&optional arg &rest _)
+  (interactive)
+  (if (and (eq projectile-require-project-root 'prompt)
+           (not (projectile-project-p)))
+      (counsel-projectile-find-file-action-switch-project)
+    (projectile-maybe-invalidate-cache arg)
+    (+projectile-find-file--initialize)
+    (ivy-read (projectile-prepend-project-name "Find file: ")
+              #'+projectile-find-file--dynamic-matcher
+              :require-match t
+              :dynamic-collection t
+              :action counsel-projectile-find-file-action
+              :caller '+projectile-find-file)))
 
 (provide '+projectile-find-file)
 ;;; +projectile-find-file.el ends here

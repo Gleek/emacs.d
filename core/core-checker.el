@@ -89,7 +89,6 @@
           flycheck-posframe-info-prefix "··· "
           flycheck-posframe-prefix "··· "
           flycheck-posframe-error-prefix "✕ ")
-    (add-hook 'post-command-hook #'flycheck-posframe-hide-posframe)
     (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p)))
 
 (use-package flycheck-popup-tip

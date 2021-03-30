@@ -92,7 +92,7 @@
   :ensure nil
   :bind ("C-x C-j" . dired-jump)
   :commands (dired-jump)
-  :hook (dired-mode . dired-omit-mode)
+  ;; :hook (dired-mode . dired-omit-mode)
   :config
   (setq dired-omit-verbose nil
         dired-omit-files
@@ -136,7 +136,8 @@
 
 (use-package dired-filter
   :hook ((dired-mode . dired-filter-mode)
-         (dired-mode . dired-filter-by-dot-files))
+         (dired-mode . dired-filter-by-dot-files)
+         (dired-mode . dired-filter-by-omit))
   :bind (:map dired-mode-map ("/?" . +toggle-dired-filter-view))
   :config
   ;; Hide filter bar by default

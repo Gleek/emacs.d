@@ -4,10 +4,24 @@
 (use-package persistent-scratch
   :init
   :defer 1
+  :bind ("<f6>" . persistent-scratch-quick-open)
   :config
+  (eval-after-load '+popup
+    '(set-popup-rule! "\\^*scratch:" :vslot -4 :size 0.35 :autosave t :select t :modeline t :quit nil :ttl t))
   (setq persistent-scratch-save-file (concat CACHE-DIR ".persistent-scratch"))
   (persistent-scratch-restore)
-  (persistent-scratch-setup-default))
+  (persistent-scratch-setup-default)
+  (defun persistent-scratch-buffer-identifier()
+    (string-match "^*scratch:" (buffer-name)))
+  (defun persistent-scratch-quick-open()
+    (interactive)
+    (let ((scratch-buffers))
+      (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (funcall persistent-scratch-scratch-buffer-p-function)
+          (push (substring (buffer-name buffer) (length "*scratch:")) scratch-buffers))))
+      (pop-to-buffer (concat "*scratch:" (completing-read "Choose a scratch:" scratch-buffers)))))
+  (setq persistent-scratch-scratch-buffer-p-function 'persistent-scratch-buffer-identifier))
 
 (use-package recentf
   :ensure nil
@@ -70,6 +84,14 @@
     (desktop-read desktop-dirname))
   (add-hook 'kill-emacs-hook #'quick-desktop-save))
 
+;; (use-package real-auto-save
+;;   :bind ("<f6>" . +quick-jot)
+;;   :config
+;;   (defun +quick-jot()
+;;     (interactive)
+;;     (pop-to-buffer
+;;      (find-file-noselect (concat CACHE-DIR  "jots.org")))
+;;     (real-auto-save-mode)))
 
 (use-package restart-emacs
   :init

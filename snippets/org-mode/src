@@ -2,6 +2,5 @@
 # name: src
 # key: <src
 # --
-#+begin_src $1
-  $0
+#+begin_src $0
 #+end_src

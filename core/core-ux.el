@@ -112,11 +112,13 @@
 (use-package writeroom-mode)
 
 (use-package which-func
-  ;; :disabled t ;; slowing down startup of big files
+  :disabled t ;; slowing down startup of big files
   :ensure nil
   :defer 5
   :config
-  (which-function-mode)
+  ;; Causes slight delay in start up of files as it builds imenu indexes
+  ;; emacs-async can probably be used to initialize imenu. Disabling for now
+  ;; (which-function-mode)
   (advice-add 'which-function :filter-return
             (lambda (s) (when s (truncate-string-to-width s 30 nil nil t))))
 

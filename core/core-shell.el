@@ -68,8 +68,12 @@
   :preface (setq vterm-install t)
   :hook (vterm-mode . hide-mode-line-mode)
   :bind (:map vterm-mode-map
-              ("C-c C-a" . +vterm-screen-session))
+              ("C-c C-a" . +vterm-screen-session)
+              ("C-c C-d" . +vterm-cd-default-directory))
   :config
+  (defun +vterm-cd-default-directory()
+    (interactive)
+    (+vterm-run-command (concat "cd " default-directory)))
   (defun +vterm-run-command(command)
     (vterm-send-C-S-a)
     (vterm-send-string (concat " " command " #") t)
