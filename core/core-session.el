@@ -7,20 +7,65 @@
   :bind ("<f6>" . persistent-scratch-quick-open)
   :config
   (eval-after-load '+popup
-    '(set-popup-rule! "\\^*scratch:" :vslot -4 :size 0.35 :autosave t :select t :modeline t :quit nil :ttl t))
+    '(set-popup-rule! "\\^*scratch:" :vslot -4 :autosave t :size 0.35 :select t :quit nil :ttl nil :modeline t))
   (setq persistent-scratch-save-file (concat CACHE-DIR ".persistent-scratch"))
-  (persistent-scratch-restore)
-  (persistent-scratch-setup-default)
+  ;; (persistent-scratch-restore)
+  ;; (persistent-scratch-setup-default)
+  (persistent-scratch-autosave-mode)
   (defun persistent-scratch-buffer-identifier()
     (string-match "^*scratch:" (buffer-name)))
+  (defun persistent-scratch-get-scratches()
+    (let ((scratch-buffers)
+          (save-data
+           (read
+            (with-temp-buffer
+              (let ((coding-system-for-read 'utf-8-unix))
+                (insert-file-contents persistent-scratch-save-file))
+              (buffer-string)))))
+      (dolist (saved-buffer save-data)
+        (push (substring (aref saved-buffer 0) (length "*scratch:")) scratch-buffers))
+      scratch-buffers))
+
+  (defun persistent-scratch-restore-this(&optional file)
+    (interactive)
+    (let ((current-buf (buffer-name (current-buffer)))
+          (save-data
+           (read
+            (with-temp-buffer
+              (let ((coding-system-for-read 'utf-8-unix))
+                (insert-file-contents (or file persistent-scratch-save-file)))
+              (buffer-string)))))
+      (dolist (saved-buffer save-data)
+        (when (string= current-buf (aref saved-buffer 0))
+          (with-current-buffer (get-buffer-create (aref saved-buffer 0))
+            (erase-buffer)
+            (insert (aref saved-buffer 1))
+            (funcall (or (aref saved-buffer 3) #'ignore))
+            (let ((point-and-mark (aref saved-buffer 2)))
+              (when point-and-mark
+                (goto-char (car point-and-mark))
+                (set-mark (cdr point-and-mark))))
+            (let ((narrowing (aref saved-buffer 4)))
+              (when narrowing
+                (narrow-to-region (car narrowing) (cdr narrowing))))
+            ;; Handle version 2 fields if present.
+            (when (>= (length saved-buffer) 6)
+              (unless (aref saved-buffer 5)
+                (deactivate-mark))))))))
+
   (defun persistent-scratch-quick-open()
     (interactive)
-    (let ((scratch-buffers))
-      (dolist (buffer (buffer-list))
-      (with-current-buffer buffer
-        (when (funcall persistent-scratch-scratch-buffer-p-function)
-          (push (substring (buffer-name buffer) (length "*scratch:")) scratch-buffers))))
-      (pop-to-buffer (concat "*scratch:" (completing-read "Choose a scratch:" scratch-buffers)))))
+    (let* ((scratch-buffers (persistent-scratch-get-scratches))
+          (chosen-scratch (concat "*scratch:"
+                                  (completing-read
+                                   "Choose a scratch: "
+                                   scratch-buffers nil nil nil nil
+                                   (random-alnum 4))))
+          (buffer-exists-p (get-buffer chosen-scratch)))
+      (pop-to-buffer chosen-scratch)
+      (unless buffer-exists-p
+        (persistent-scratch-restore-this))
+      (persistent-scratch-mode)))
   (setq persistent-scratch-scratch-buffer-p-function 'persistent-scratch-buffer-identifier))
 
 (use-package recentf
@@ -39,16 +84,6 @@
   (unless (server-running-p)
     (server-start))
   (remove-hook 'kill-buffer-query-functions 'server-kill-buffer-query-function))
-
-;; (use-package key-chord
-;;   :defer 1
-;;   :config
-;;   (key-chord-mode 1)
-;;   (setq key-chord-two-keys-delay .015
-;;         key-chord-one-key-delay .040)
-;;   (key-chord-define-global "df" 'isearch-forward)
-;;   (key-chord-define-global "jk" 'avy-goto-word-or-subword-1)
-;;   (key-chord-define-global "nm" 'switch-to-previous-buffer))
 
 (use-package saveplace
   :ensure nil
@@ -83,15 +118,6 @@
     (interactive)
     (desktop-read desktop-dirname))
   (add-hook 'kill-emacs-hook #'quick-desktop-save))
-
-;; (use-package real-auto-save
-;;   :bind ("<f6>" . +quick-jot)
-;;   :config
-;;   (defun +quick-jot()
-;;     (interactive)
-;;     (pop-to-buffer
-;;      (find-file-noselect (concat CACHE-DIR  "jots.org")))
-;;     (real-auto-save-mode)))
 
 (use-package restart-emacs
   :init
