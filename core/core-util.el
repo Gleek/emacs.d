@@ -29,13 +29,13 @@ Useful to override functions to become empty"
 
 
 (defun random-alnum (&optional length)
-  (let ((times (or length 5))
+  (let ((times (or length 1))
         (random ""))
     (setq-local random "")
     (dotimes (_ times)
       (setq random (concat random (let* ((alnum "abcdefghijklmnopqrstuvwxyz0123456789")
-             (i (% (abs (random)) (length alnum))))
-                       (substring alnum i (1+ i))))))
+                                         (i (% (abs (random)) (length alnum))))
+                                    (substring alnum i (1+ i))))))
     random))
 
 
