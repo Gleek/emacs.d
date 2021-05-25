@@ -41,7 +41,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package "+projectile-find-file"
   :ensure nil
-  :bind ("M-p" . +projectile-find-file-dynamic)
+  :bind ("M-p" . +projectile-find-file)
   :defer 2
   :config
   (eval-after-load "all-the-icons-ivy"

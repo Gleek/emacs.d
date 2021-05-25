@@ -304,9 +304,10 @@ To reset the playlist is to undo the marks produced by non-nil
   (defun +bongo-playlist-random-toggle ()
     "Toggle `bongo-random-playback-mode' in playlist buffers."
     (interactive)
-    (if (eq bongo-next-action 'bongo-play-random-or-stop)
-        (bongo-progressive-playback-mode)
-      (bongo-random-playback-mode)))
+    (with-bongo-playlist-buffer
+      (if (eq bongo-next-action 'bongo-play-random-or-stop)
+          (bongo-progressive-playback-mode)
+        (bongo-random-playback-mode))))
   (defun +bongo-playlist-play-random()
     (interactive)
     (unless (bongo-playlist-buffer)
@@ -410,6 +411,7 @@ the currently playing track."
         (cancel-timer +keepass--expiry-timer))
     (setq +keepass--expiry-timer (run-with-timer +keepass-password-expiry nil #'+keepass-reset-password)))
   (defun +keepass-reset-password()
+    (interactive)
     (let ((buff (get-file-buffer keepass-password-file)))
       (if buff
           (with-current-buffer buff

@@ -27,7 +27,7 @@
   :config
   (require 'dap-go)
   (dap-go-setup)
-  (setq flycheck-golangci-lint-enable-linters '("dupl" "gocritic" "gocognit" "gomnd" "maligned"))
+  (setq flycheck-golangci-lint-enable-linters '("dupl" "gocritic" "gocognit" "gomnd" "maligned" "lll"))
 
   (defun +go-tag-add(arg)
     (interactive "P")

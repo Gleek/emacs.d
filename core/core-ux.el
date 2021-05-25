@@ -99,16 +99,6 @@
 
 (use-package emacs-everywhere)
 
-(use-package zoom
-  ;; :defer 1
-  :diminish
-  :init
-  (setq zoom-ignored-buffer-name-regexps '("^\*ansi-term.*"))
-  (setq zoom-size '(0.618 0.618))
-  :config
-  ;; (zoom-mode t)
-  )
-
 (use-package writeroom-mode)
 
 (use-package which-func

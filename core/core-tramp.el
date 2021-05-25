@@ -12,4 +12,6 @@
                '("scripts" nil "/ssh:entry:"))
   (add-to-list 'tramp-default-proxies-alist
                '("aa102" nil "/ssh:entry:")))
+
+(use-package docker-tramp)
 (provide 'core-tramp)

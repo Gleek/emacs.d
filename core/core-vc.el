@@ -43,14 +43,18 @@
   :diminish git-gutter-mode
   :bind (("C-c g d" . git-gutter:popup-hunk)
          ("C-c g r" . git-gutter:revert-hunk))
-  ;; :init
+  :init
   ;; (defvar vc-gutter-in-remote-files nil)
 
-  ;;   (defun vc-gutter-init-maybe ()
-  ;;     "Enable `git-gutter-mode' in the current buffer.
+  (defun vc-gutter-init-maybe()
+    (let ((file-name (buffer-file-name (buffer-base-buffer))))
+      (unless (file-remote-p file-name)
+        (git-gutter-mode t))))
 
-  ;; If the buffer doesn't represent an existing file, `git-gutter-mode's activation
-  ;; is deferr1 until the file is saved. Respects `git-gutter:disabled-modes'."
+  ;; (defun vc-gutter-init-maybe ()
+  ;;   ;; "Enable `git-gutter-mode' in the current buffer.
+  ;;   ;; If the buffer doesn't represent an existing file, `git-gutter-mode's activation
+  ;;   ;; is deferr1 until the file is saved. Respects `git-gutter:disabled-modes'."
   ;;     (let ((file-name (buffer-file-name (buffer-base-buffer))))
   ;;       (when (or vc-gutter-in-remote-files
   ;;                 (not (file-remote-p (or file-name default-directory))))
@@ -72,7 +76,7 @@
   ;;                           git-gutter:window-width 1))
   ;;             (git-gutter-mode +1)
   ;;             (remove-hook 'after-save-hook #'vc-gutter-init-maybe 'local))))))
-  ;;   (add-hook 'find-file-hook 'vc-gutter-init-maybe)
+  (add-hook 'find-file-hook 'vc-gutter-init-maybe)
   :config
   (set-popup-rule! "^\\*git-gutter" :select nil :size '+popup-shrink-to-fit)
 
@@ -86,7 +90,7 @@
     nil nil '(center repeated))
   (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240]
     nil nil 'bottom)
-  (global-git-gutter-mode t)
+  ;; (global-git-gutter-mode t)
   (setq git-gutter:disabled-modes '(fundamental-mode image-mode pdf-view-mode))
   (advice-add #'magit-stage-file   :after #'+vc-gutter-update-h)
   (advice-add #'magit-unstage-file :after #'+vc-gutter-update-h)

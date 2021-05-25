@@ -62,7 +62,7 @@
                                    scratch-buffers nil nil nil nil
                                    (random-alnum 4))))
           (buffer-exists-p (get-buffer chosen-scratch)))
-      (pop-to-buffer chosen-scratch)
+      (switch-to-buffer chosen-scratch)
       (unless buffer-exists-p
         (persistent-scratch-restore-this))
       (persistent-scratch-mode)))

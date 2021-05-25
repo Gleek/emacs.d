@@ -83,6 +83,7 @@
   :defer 1
   :after ivy
   :config
+  (setq ivy-rich-parse-remote-buffer nil)
   ;; Courtesy: doom emacs
   (defun +ivy-rich-describe-variable-transformer (cand)
     "Previews the value of the variable in the minibuffer"

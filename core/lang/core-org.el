@@ -644,5 +644,7 @@
     (org-capture nil "A")))
 
 
+(use-package org-pdftools
+  :hook (org-mode . org-pdftools-setup-link))
 
 (provide 'core-org)

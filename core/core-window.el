@@ -82,4 +82,13 @@ configurations."
   (tab-bar-mode t)
   (+tab-bar-create-main))
 
+(use-package zoom
+  ;; :defer 1
+  :diminish
+  :bind ("C-c w z" . zoom)
+  :init
+  (setq zoom-ignored-buffer-name-regexps '("^\*ansi-term.*"))
+   ;; slightly bigger than what golden ration gives me.
+  (setq zoom-size '(0.7 . 0.7)))
+
 (provide 'core-window)
