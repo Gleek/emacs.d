@@ -285,6 +285,7 @@
   :bind (("C-c b s" . bongo-seek)
          ("C-c b b" . +jump-to-music)
          ("C-c b P" . bongo-playlist)
+         ("C-c b i" . bongo-show)
          ("C-c b n" . bongo-play-next)
          ("C-c b x" . +bongo-playlist-terminate)
          ("C-c b R" . +bongo-playlist-random-toggle)
@@ -455,9 +456,15 @@ the currently playing track."
 
 
 (use-package profiler
-  :bind (("<f12>" . profiler-start)
-         ("<C-f12>" . profiler-report)
+  :bind (("<C-f12>" . profiler-start)
+         ("<C-S-f12>" . profiler-report)
          ("<M-f12>" . profiler-stop)))
 
+(use-package explain-pause-mode
+  :ensure nil
+  :bind ("<f12>" . explain-pause-top)
+  :defer 1
+  :config
+  (explain-pause-mode))
 
 (provide 'core-tools)

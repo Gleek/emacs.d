@@ -123,10 +123,12 @@
    'counsel-projectile-switch-to-buffer
    (plist-get ivy-rich-display-transformers-list 'ivy-switch-buffer))
   (ivy-rich-mode t))
-;; (use-package all-the-icons-ivy-rich
-;;   :defer 1
-;;   :after ivy-rich
-;;   :config (all-the-icons-ivy-rich-mode t))
+
+
+
+(use-package all-the-icons-ivy-rich
+  :defer 1
+  :config (all-the-icons-ivy-rich-mode t))
 
 
 

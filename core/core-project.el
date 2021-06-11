@@ -225,10 +225,12 @@ Use `treemacs' command for old functionality."
 
 (use-package lsp-mode
   :hook ((js-mode js2-mode js3-mode rjsx-mode go-mode rust-mode php-mode) . lsp)
-  :bind (:map lsp-mode-map
-              ("C-c p r" . lsp-rename)
-              ("M-p" . nil)
-              ("M-'" . lsp-goto-implementation))
+  :bind ((:map lsp-mode-map
+               ("C-c p r" . lsp-rename)
+               ("M-p" . nil)
+               ("M-'" . lsp-goto-implementation))
+         (:map lsp-signature-mode-map
+               ("M-p" . nil)))
   :init
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
   (setq lsp-server-install-dir (concat CACHE-DIR "lsp/"))

@@ -68,6 +68,7 @@
           ("c" "org-protocol-capture" entry (file ,(concat +org-directory "inbox.org"))
            "* TODO [[%:link][%:description]]\n\n %i" :immediate-finish t)))
 
+  (setq org-capture-bookmark nil)
 
   (setq org-ellipsis "…"
         ;; org-agenda-files `(,+org-directory)
@@ -458,9 +459,21 @@
 (use-package org-download
   :bind (("C-c o d c" . org-download-clipboard)
          ("C-c o d d" . org-download-image)
-         ("C-c o d x" . org-download-delete))
+         ("C-c o d x" . org-download-delete)
+         ("C-c o d " . org-download-screenshot)
+         :map org-mode-map
+         ("C-y" . +org-yank))
+
   :init
-  (setq-default org-download-image-dir (concat +org-directory "resource/downloads")))
+  (setq-default org-download-image-dir (concat +org-directory "resource/downloads"))
+  (when IS-MAC (setq org-download-screenshot-method "screencapture -i %s"))
+  :config
+  (defun +org-yank()
+    "Yanks image or text in the buffer"
+    (interactive)
+    (if (or (not IS-MAC) (> (length (shell-command-to-string "pngpaste -b | cut -b 1")) 2))
+        (org-yank nil)
+      (org-download-clipboard nil))))
 
 (use-package org-roam
   :ensure org-roam

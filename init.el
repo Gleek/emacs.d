@@ -12,8 +12,8 @@
 (defconst IS-LINUX  (eq system-type 'gnu/linux))
 (defconst IS-TERM   (not (display-graphic-p)))
 (package-initialize)
-(setq gc-cons-threshold 100000000) ;; collect garbage after about 100 MB
-(run-with-idle-timer 2 t (lambda () (garbage-collect)))
+;; (setq gc-cons-threshold 10000000) ;; collect garbage after about 100 MB
+;; (run-with-idle-timer 2 t (lambda () (garbage-collect)))
 (setq message-log-max 10000) ;; Debugging
 ;; (unless (file-exists-p "package-quickstart.el")
 ;;   (package-quickstart-refresh))
@@ -74,6 +74,8 @@
          ("C-c C-d" . duplicate-current-line-or-region)
          ("C-c C-;" . duplicate-and-comment-current-line-or-region)
          ("C-^" . top-join-line)
+         ("C-@" . mark-inside-sexp)
+         ("C-M-@" . mark-non-whitespace)
          ([remap kill-whole-line] . smart-kill-whole-line)
          ([(shift return)] . smart-open-line)
          ("C-S-<return>" . open-line-above)
@@ -89,6 +91,7 @@
 (use-package "core-project" :ensure nil :demand t
   :chords ("nm" . switch-to-previous-buffer)
   :bind (("C-x k" . kill-current-buffer)
+         ("C-z" . bury-buffer)
          ("C-x K" . kill-buffer-and-window)))
 
 (use-package "core-debug" :ensure nil :demand t)

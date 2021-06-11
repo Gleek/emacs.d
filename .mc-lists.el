@@ -80,6 +80,7 @@
         sh-assignment
         sp-backward-unwrap-sexp
         sp-remove-active-pair-overlay
+        sp-unwrap-sexp
         string-inflection-all-cycle
         string-inflection-camelcase
         string-inflection-kebab-case
