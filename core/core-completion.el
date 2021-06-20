@@ -21,6 +21,7 @@
         ivy-fixed-height-minibuffer t
         ivy-use-virtual-buffers nil
         ivy-virtual-abbreviate 'full
+        ivy-read-action-function 'ivy-hydra-read-action
         ivy-use-selectable-prompt t)
 
   :config

@@ -94,7 +94,8 @@
 
 
 (defun +projectile-find-file--dynamic-matcher(str)
-  (+projectile-find-file--matcher (regexp-quote str) +projectile-find-file--project-files))
+  "Runs matcher on STR."
+  (+projectile-find-file--matcher (funcall ivy--regex-function str) +projectile-find-file--project-files))
 
 
 (defun +projectile-find-file(&optional arg &rest _)

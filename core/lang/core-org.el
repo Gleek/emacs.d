@@ -21,6 +21,8 @@
 
 
 (use-package org-pomodoro
+  :bind (:map org-agenda-mode-map
+              ("I" . org-pomodoro))
   :config
   (setq org-pomodoro-finished-sound (concat RES-DIR "doorbell.wav"))
   (setq org-pomodoro-long-break-sound (concat RES-DIR "doorbell.wav"))
@@ -62,11 +64,11 @@
 
   (setq org-capture-templates
         `(("i" "inbox" entry (file ,(concat +org-directory "inbox.org"))
-           "* TODO %?")
+           "* TODO %?\n  CAPTURED: %U")
           ("l" "link" entry (file ,(concat +org-directory "inbox.org"))
-           "* TODO %(org-cliplink-capture)" :immediate-finish t)
+           "* TODO %(org-cliplink-capture) \n  CAPTURED: %U" :immediate-finish t)
           ("c" "org-protocol-capture" entry (file ,(concat +org-directory "inbox.org"))
-           "* TODO [[%:link][%:description]]\n\n %i" :immediate-finish t)))
+           "* TODO [[%:link][%:description]]\n  CAPTURED: %U\n\n %i" :immediate-finish t)))
 
   (setq org-capture-bookmark nil)
 
@@ -156,7 +158,7 @@
           ;; ol-mhe
           ;; ol-rmail
           ;; ol-eww
-          ;; org-habit
+          org-habit
           ))
   ;; Save target buffer after archiving a node.
   ;; (setq org-archive-subtree-save-file-p t)

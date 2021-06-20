@@ -21,7 +21,7 @@ Repeated invocations toggle between the two most recently open buffers."
       (when filename
         (kill-new filename)
         (message "Copied project file name '%s' to the clipboard." filename))))
-  (projectile-load-known-projects)
+  ;; (projectile-load-known-projects)
   (setq projectile-mode-line-prefix "")
   (projectile-mode 1)
   :bind (("C-c p z" . counsel-fzf)
@@ -36,19 +36,37 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-x B" . counsel-projectile-switch-to-buffer)
          ("C-c p p" . counsel-projectile-switch-project))
   :config
-   ;; Default counsel-projectile is very slow. Removing it's usage when switching project
+  (setq counsel-projectile-switch-project-action
+        '(1
+          ("o" counsel-projectile-switch-project-action "jump to a project buffer or file")
+          ("f" counsel-projectile-switch-project-action-find-file "jump to a project file")
+          ("d" counsel-projectile-switch-project-action-find-dir "jump to a project directory")
+          ("D" counsel-projectile-switch-project-action-dired "open project in dired")
+          ("b" counsel-projectile-switch-project-action-switch-to-buffer "jump to a project buffer")
+          ("m" counsel-projectile-switch-project-action-find-file-manually "find file manually from project root")
+          ("S" counsel-projectile-switch-project-action-save-all-buffers "save all project buffers")
+          ("k" counsel-projectile-switch-project-action-kill-buffers "kill all project buffers")
+          ("K" counsel-projectile-switch-project-action-remove-known-project "remove project from known projects")
+          ("c" counsel-projectile-switch-project-action-compile "run project compilation command")
+          ("C" counsel-projectile-switch-project-action-configure "run project configure command")
+          ("E" counsel-projectile-switch-project-action-edit-dir-locals "edit project dir-locals")
+          ("v" counsel-projectile-switch-project-action-vc "open project in vc-dir / magit / monky")
+          ("s" counsel-projectile-switch-project-action-rg "search project with rg")
+          ("x" counsel-projectile-switch-project-action-run-vterm "invoke vterm from project root")))
+
+  ;; Default counsel-projectile is very slow. Removing it's usage when switching project
   (advice-add 'counsel-projectile-switch-project-action :override 'counsel-projectile-switch-project-action-find-file))
 
 (use-package "+projectile-find-file"
   :ensure nil
-  :bind ("M-p" . +projectile-find-file)
+  :bind ("M-p" . +projectile-find-file-dynamic)
   :defer 2
   :config
   (eval-after-load "all-the-icons-ivy"
-    '(progn (add-to-list 'all-the-icons-ivy-file-commands '+projectile-find-file)
-           (all-the-icons-ivy-setup)))
+    '(progn (add-to-list 'all-the-icons-ivy-file-commands '+projectile-find-file-dynamic)
+            (all-the-icons-ivy-setup)))
 
-  (advice-add 'counsel-projectile-find-file :override '+projectile-find-file))
+  (advice-add 'counsel-projectile-find-file :override '+projectile-find-file-dynamic))
 
 (use-package project
   :ensure nil
@@ -66,10 +84,10 @@ Repeated invocations toggle between the two most recently open buffers."
         ibuffer-formats
         `((mark modified read-only locked
                 ,@`(;; Here you may adjust by replacing :right with :center
-                  ;; or :left According to taste, if you want the icon
-                  ;; further from the name
-                  " " (icon 2 2 :left :elide)
-                  ,(propertize " " 'display `(space :align-to 8)))
+                    ;; or :left According to taste, if you want the icon
+                    ;; further from the name
+                    " " (icon 2 2 :left :elide)
+                    ,(propertize " " 'display `(space :align-to 8)))
                 (name 18 18 :left :elide)
                 " " (size 9 -1 :right)
                 " " (mode 16 16 :left :elide)

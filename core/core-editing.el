@@ -419,7 +419,7 @@ https://emacs.stackexchange.com/a/12124/2144"
   ;; This masks it so that it can’t be changed
   (defun +undo-tree-visualizer-quit(f &rest args)
     (cl-letf ((undo-tree-visualizer-diff))
-            (apply f args)))
+      (apply f args)))
   (advice-add 'undo-tree-visualizer-quit :around '+undo-tree-visualizer-quit)
 
   (defun +undo-tree-save-history (undo-tree-save-history &rest args)
@@ -482,6 +482,10 @@ https://emacs.stackexchange.com/a/12124/2144"
   :diminish whitespace-mode)
 
 (use-package reformatter :disabled)
+
+(use-package format-all
+  :bind (("C-c f" . format-all-buffer)
+         ("C-c C-f" . format-all-buffer)))
 
 (use-package cc-mode
   ;; Use hungry delete everywhere
