@@ -32,7 +32,7 @@
 (use-package org
   :defer 2
   :config
- ;; Strange bug causing org-version to be empty. Breaking nov.el
+  ;; Strange bug causing org-version to be empty. Breaking nov.el
   (setq org-version (if (string= org-version "")
                         (let ((org-full-dir (file-name-directory (locate-library "org"))))
                           (save-match-data
@@ -312,8 +312,8 @@
     "Set different line spacing based on clock time duration."
     (save-excursion
       (let ((colors `(,(doom-color 'selection) ,(doom-lighten (doom-color 'selection) 0.2)))
-             pos
-             duration)
+            pos
+            duration)
         (goto-char (point-min))
         (while (setq pos (next-single-property-change (point) 'duration))
           (goto-char pos)
@@ -426,8 +426,8 @@
   (unless (eq org-gcal--running-timer nil)
     (setq org-gcal--running-timer (run-with-timer 300 300 (lambda () (org-gcal-sync t t)))))
   :bind (:map org-agenda-mode-map
-         ("S" . org-gcal-sync)
-         ("P" . org-gcal-post-at-point))
+              ("S" . org-gcal-sync)
+              ("P" . org-gcal-post-at-point))
   :config
   (defvar org-gcal-file)
   (setq org-gcal-file (concat +org-directory "schedule.org")
@@ -462,7 +462,7 @@
   :bind (("C-c o d c" . org-download-clipboard)
          ("C-c o d d" . org-download-image)
          ("C-c o d x" . org-download-delete)
-         ("C-c o d " . org-download-screenshot)
+         ("C-c o d s" . org-download-screenshot)
          :map org-mode-map
          ("C-y" . +org-yank))
 
