@@ -224,7 +224,7 @@ https://emacs.stackexchange.com/a/12124/2144"
 
 
 (use-package selected
-  :demand t
+  :defer 1
   :diminish selected-minor-mode
   :bind (:map selected-keymap
               ("d" . downcase-region)
@@ -397,17 +397,17 @@ https://emacs.stackexchange.com/a/12124/2144"
   :diminish smartparens-mode)
 
 
-(use-package evil
-  :ensure t
-  :disabled t
-  :config (evil-mode 1))
+;; (use-package evil
+;;   :ensure t
+;;   :disabled t
+;;   :config (evil-mode 1))
 
 (use-package vimrc-mode)
 
-(use-package god-mode
-  :ensure t
-  ;; :bind ([escape] . god-local-mode)
-  :config (define-key god-local-mode-map (kbd ".") 'repeat))
+;; (use-package god-mode
+;;   :ensure t
+;;   ;; :bind ([escape] . god-local-mode)
+;;   :config (define-key god-local-mode-map (kbd ".") 'repeat))
 
 (use-package undo-tree
   :defer 1
@@ -491,7 +491,7 @@ https://emacs.stackexchange.com/a/12124/2144"
   ;; Use hungry delete everywhere
   :bind ("C-<backspace>" . c-hungry-delete-backwards))
 
-(use-package "mod-number" :ensure nil :demand t
+(use-package "mod-number" :ensure nil
   :bind (("C-S-<up>" . change-number-at-point)
          ("C-S-<down>" . subtract-number-at-point)))
 

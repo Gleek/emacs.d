@@ -23,23 +23,22 @@
   ;; (add-hook 'js2-mode-hook (lambda ()
   ;;                            (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
   :bind (:map js2-mode-map ("M-." . nil))
-  :ensure t
-  :ensure prettier-js)
+  :ensure t)
 
 
 (use-package rjsx-mode :mode ("\\.jsx\\'" . rjsx-mode) )
-(use-package tern                       ; Javascript IDE backend
-  :disabled t
-  :ensure t
-  :init
-  (add-hook 'js2-mode-hook #'tern-mode)
-  :config
-  ;; Don't generate port files
-  (add-to-list 'tern-command "--no-port-file" 'append)
-  :bind (:map tern-mode-keymap
-              ("M-." . nil)
-              ("M-," . nil))
-  :diminish "🕊")
+;; (use-package tern                       ; Javascript IDE backend
+;;   :disabled t
+;;   :ensure t
+;;   :init
+;;   (add-hook 'js2-mode-hook #'tern-mode)
+;;   :config
+;;   ;; Don't generate port files
+;;   (add-to-list 'tern-command "--no-port-file" 'append)
+;;   :bind (:map tern-mode-keymap
+;;               ("M-." . nil)
+;;               ("M-," . nil))
+;;   :diminish "🕊")
 
 ;; (use-package company-tern               ; Auto-completion for javascript
 ;;   :ensure t
@@ -57,10 +56,10 @@
 ;;          (rjsx-mode . lsp-javascript-typescript-enable)))
 
 
-(use-package indium
-  :init
-  (setq indium-chrome-data-dir (concat CACHE-DIR "indium-chrome-profile"))
-  :config
-  (setq indium-chrome-executable "google-chrome"))
+;; (use-package indium
+;;   :init
+;;   (setq indium-chrome-data-dir (concat CACHE-DIR "indium-chrome-profile"))
+;;   :config
+;;   (setq indium-chrome-executable "google-chrome"))
 
 (provide 'core-javascript)

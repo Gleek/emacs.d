@@ -250,9 +250,13 @@
          ("C-<tab>" . nil)))
 
 (use-package org-agenda
-  :after org
-  :commands (+switch-to-agenda)
+  ;; :after org
   :ensure nil
+  :init
+  (defun +switch-to-agenda()
+    (interactive)
+    (org-agenda nil " ")
+    (goto-char (point-min)))
   :bind (("C-c o A" . org-agenda)
          ("C-c o a" . +switch-to-agenda)
          ("<f1>" . +switch-to-agenda)
@@ -264,11 +268,6 @@
   :config
   ;; Courtesy Jethro Kuan.
   ;; https://blog.jethro.dev/posts/org_mode_workflow_preview/
-  (defun +switch-to-agenda()
-    (interactive)
-    (org-agenda nil " ")
-    (goto-char (point-min)))
-
   (defvar +org-agenda-bulk-process-key ?f
     "Default key for bulk processing inbox items.")
 
@@ -500,7 +499,7 @@
     (when (and
            (bound-and-true-p org-roam-mode)
            (org-roam--org-roam-file-p (buffer-file-name (buffer-base-buffer))))
-      (local-set-key (kbd "C-i") 'org-roam-insert)))
+      (local-set-key (kbd "C-i") 'org-roam-insert-immediate)))
   (defun open-org-roam ()
     (interactive)
     (and (memq 'org-roam-buffer--update-maybe post-command-hook)
@@ -569,7 +568,7 @@
   :hook (org-mode . org-pretty-table-mode))
 
 
-(use-package org-noter)
+;; (use-package org-noter)
 (use-package ox-clip
   :bind ("s-w". ox-clip-formatted-copy))
 (use-package org-cliplink
@@ -662,4 +661,14 @@
 (use-package org-pdftools
   :hook (org-mode . org-pdftools-setup-link))
 
-(provide 'core-org)
+(use-package org-ql
+  :config
+  (defun +org-archive-archivable()
+    "Automatically archive all items that were closed 60 days ago or before"
+    (interactive)
+    (org-ql-select
+      org-agenda-files
+      `(closed :to ,(ts-format (ts-adjust 'day -60 (ts-now))))
+      :action 'org-archive-subtree-default)))
+
+  (provide 'core-org)

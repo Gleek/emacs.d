@@ -31,6 +31,7 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-c p s" . projectile-save-project-buffers)))
 
 (use-package counsel-projectile
+  :defer 1
   :bind (("C-c p f" . counsel-projectile-find-file)
          ("C-c p b" . counsel-projectile-switch-to-buffer)
          ("C-x B" . counsel-projectile-switch-to-buffer)
@@ -60,11 +61,18 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package "+projectile-find-file"
   :ensure nil
   :bind ("M-p" . +projectile-find-file-dynamic)
-  :defer 2
+  :defer 4
   :config
+
   (eval-after-load "all-the-icons-ivy"
-    '(progn (add-to-list 'all-the-icons-ivy-file-commands '+projectile-find-file-dynamic)
-            (all-the-icons-ivy-setup)))
+    '(progn (let ((all-the-icons-ivy-file-commands
+                   '(counsel-projectile
+                     counsel-projectile-find-file
+                     +projectile-find-file-dynamic
+                     +projectile-find-file
+                     counsel-projectile-find-dir)))
+              (all-the-icons-ivy-setup))
+            ))
 
   (advice-add 'counsel-projectile-find-file :override '+projectile-find-file-dynamic))
 
@@ -112,16 +120,16 @@ Repeated invocations toggle between the two most recently open buffers."
            :header-mouse-map ibuffer-size-header-map)
     (file-size-human-readable (buffer-size))))
 
-(use-package ibuffer-projectile
-  :disabled t ;; Very slow https://github.com/purcell/ibuffer-projectile/issues/11
-  :hook (ibuffer . ibuffer-projectile-set-filter-groups)
-  :config
+;; (use-package ibuffer-projectile
+;;   :disabled t ;; Very slow https://github.com/purcell/ibuffer-projectile/issues/11
+;;   :hook (ibuffer . ibuffer-projectile-set-filter-groups)
+;;   :config
 
-  (setq ibuffer-projectile-prefix
-        (concat (all-the-icons-octicon
-                 "file-directory"
-                 :face ibuffer-filter-group-name-face
-                 :v-adjust -0.05) " ")))
+;;   (setq ibuffer-projectile-prefix
+;;         (concat (all-the-icons-octicon
+;;                  "file-directory"
+;;                  :face ibuffer-filter-group-name-face
+;;                  :v-adjust -0.05) " ")))
 
 (use-package ibuffer-vc
   :hook (ibuffer . ibuffer-vc-set-filter-groups-by-vc-root))

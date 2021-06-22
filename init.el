@@ -12,11 +12,17 @@
 (defconst IS-LINUX  (eq system-type 'gnu/linux))
 (defconst IS-TERM   (not (display-graphic-p)))
 (package-initialize)
+
+
 ;; (setq gc-cons-threshold 10000000) ;; collect garbage after about 100 MB
 ;; (run-with-idle-timer 2 t (lambda () (garbage-collect)))
 (setq message-log-max 10000) ;; Debugging
-;; (unless (file-exists-p "package-quickstart.el")
+;; (package-quickstart-refresh)
+;; (if (file-exists-p "package-quickstart.el")
+;;     (load (expand-file-name "package-quickstart.el" user-emacs-directory))
 ;;   (package-quickstart-refresh))
+
+
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
 ;; (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))
@@ -35,13 +41,15 @@
 (require 'bind-key)
 (setq use-package-always-ensure t)
 (setq use-package-always-defer t)
-(use-package diminish)
-(use-package use-package-chords
-  :demand
-  :config (key-chord-mode 1))
+;; (use-package diminish)
+;; (use-package use-package-chords
+;;   :demand
+;;   :config (key-chord-mode 1))
 
-(use-package use-package-ensure-system-package)
+;; (use-package use-package-ensure-system-package)
 (use-package benchmark-init
+  ;; :disabled
+  :demand
   :config
   ;; To disable collection of benchmark data after init is done.
   (add-hook 'after-init-hook 'benchmark-init/deactivate))
@@ -74,7 +82,7 @@
          ("C-c C-;" . duplicate-and-comment-current-line-or-region)
          ("C-^" . top-join-line)
          ("C-@" . mark-inside-sexp)
-         ("C-M-@" . mark-non-whitespace)
+         ;; ("C-M-@" . mark-non-whitespace)
          ([remap kill-whole-line] . smart-kill-whole-line)
          ([(shift return)] . smart-open-line)
          ("C-S-<return>" . open-line-above)
@@ -129,7 +137,6 @@
 
 (use-package "lang/core-plantuml" :ensure nil :demand t)
 (use-package "lang/core-misc" :ensure nil :demand t)
-
 
 (provide 'init)
 ;;; init.el ends here

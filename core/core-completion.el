@@ -8,6 +8,7 @@
          ("C-c C-SPC" . counsel-mark-ring)
          ("M-y"     . counsel-yank-pop)
          ("C-x c i" . counsel-imenu)
+         ("C-x r r" . counsel-recentf)
          ("C-x C-f" . counsel-find-file)
          ("C-h v" . counsel-describe-variable)))
 
@@ -49,15 +50,9 @@
 
 (use-package all-the-icons-ivy
   :defer 1
-  :after counsel-projectile
   :config
   (setq all-the-icons-ivy-buffer-commands nil)
-  (all-the-icons-ivy-setup)
-  (let ((all-the-icons-ivy-file-commands
-         '(counsel-projectile
-           counsel-projectile-find-file
-           counsel-projectile-find-dir)))
-    (all-the-icons-ivy-setup)))
+  (all-the-icons-ivy-setup))
 
 
 

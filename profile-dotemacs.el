@@ -105,6 +105,7 @@ grayed out.")
 (defun profile-dotemacs ()
   "Load `profile-dotemacs-file' and benchmark its sexps."
   (interactive)
+  (load (expand-file-name "early-init.el" user-emacs-directory))
   (with-current-buffer (find-file-noselect profile-dotemacs-file t)
     (setq buffer-read-only t) ;; just to be sure
     (goto-char (point-min))

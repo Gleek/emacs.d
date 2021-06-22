@@ -156,7 +156,7 @@
   (setq paradox-automatically-star t)
   (setq paradox-execute-asynchronously t))
 
-(use-package debbugs)
+;; (use-package debbugs)
 
 (use-package transient
   :init
@@ -177,9 +177,9 @@
 
   (setq httpd-root "~/Development/testing"))
 
-(use-package zeal-at-point
-  :config (setq zeal-at-point-zeal-version "0.3.1"))
-(use-package howdoi :disabled t)
+;; (use-package zeal-at-point
+;;   :config (setq zeal-at-point-zeal-version "0.3.1"))
+;; (use-package howdoi :disabled t)
 
 (when IS-MAC
   (use-package osx-dictionary
@@ -210,7 +210,7 @@
   :init
   (setq async-byte-compile-log-file (concat CACHE-DIR "async-bytecomp.log")))
 
-(use-package scratch)
+;; (use-package scratch)
 
 (use-package restclient
   :ensure restclient

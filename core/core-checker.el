@@ -32,10 +32,11 @@
   (set-face-attribute 'spell-fu-incorrect-face nil :underline '(:color "#6666ff")))
 
 (use-package flycheck
-  :defer 1
+  :defer 2
+  :hook (prog-mode . flycheck-mode)
   :config
   ;; (global-flycheck-mode -1)
-  (add-hook 'prog-mode-hook 'flycheck-mode)
+  ;; (add-hook 'prog-mode-hook 'flycheck-mode)
 
   ;; (setq flycheck-check-syntax-automatically '(save mode-enabled idle-buffer-switch))
   ;; (setq flycheck-buffer-switch-check-intermediate-buffers nil)
@@ -95,10 +96,10 @@
   :disabled t
   :hook (flycheck-mode . flycheck-popup-tip-mode))
 
-(use-package flymake :ensure nil)
-(use-package flymake-diagnostic-at-point
-  :after flymake
-  :init
-  (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode))
+;; (use-package flymake :ensure nil)
+;; (use-package flymake-diagnostic-at-point
+;;   :after flymake
+;;   :init
+;;   (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode))
 
 (provide 'core-checker)

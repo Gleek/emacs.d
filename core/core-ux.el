@@ -31,24 +31,28 @@
         ns-option-modifier 'super))
 
 ;; Find my cursor
-;; (use-package beacon
-;;   :disabled
-;;   :config
-;;   (beacon-mode)
-;;   :diminish beacon-mode)
-
-(use-package smooth-scroll
-  :defer 1
-  :ensure t
+(use-package beacon
+  :disabled
+  :defer 5
   :config
-  (smooth-scroll-mode t)
-  ;; (setq scroll-conservatively 101)
-  ;; (setq inhibit-compacting-font-caches t)
-  (setq smooth-scroll/vscroll-step-size 5)
-  :diminish smooth-scroll-mode)
+  (setq beacon-blink-duration 0.1)
+  (beacon-mode -1))
+
+;; (use-package smooth-scroll
+;;   :defer 1
+;;   :ensure t
+;;   :config
+;;   (smooth-scroll-mode t)
+;;   ;; (setq scroll-conservatively 101)
+;;   ;; (setq inhibit-compacting-font-caches t)
+;;   (setq smooth-scroll/vscroll-step-size 5)
+;;   :diminish smooth-scroll-mode)
 
 
-;; (use-package good-scroll)
+(use-package good-scroll
+  :defer 5
+  :config
+  (good-scroll-mode t))
 
 
 (use-package paren
@@ -97,9 +101,9 @@
       (message "Keycast enabled"))))
 
 
-(use-package emacs-everywhere)
+;; (use-package emacs-everywhere)
 
-(use-package writeroom-mode)
+;; (use-package writeroom-mode)
 
 (use-package which-func
   :disabled t ;; slowing down startup of big files

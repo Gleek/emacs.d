@@ -120,7 +120,7 @@
   (add-hook '+quick-switch-buffer-hook 'posframe-delete-all))
 
 (use-package all-the-icons
-  :demand)
+  :defer 1)
 ;; mode line settings
 ;; (use-package spaceline-config
 ;;   :defer 1
@@ -184,7 +184,22 @@
   :config
   (setq highlight-indent-guides-method 'character))
 
+(use-package doom-dashboard :ensure nil :demand t
+  :bind (:map +doom-dashboard-mode-map
+              ([left-margin mouse-1]  .  #'ignore)
+              ([remap forward-button] .  #'+doom-dashboard/forward-button)
+              ([remap backward-button].  #'+doom-dashboard/backward-button)
+              ("n"      .  #'forward-button)
+              ("p"      .  #'backward-button)
+              ("C-n"    .  #'forward-button)
+              ("C-p"    .  #'backward-button)
+              ([down]   .  #'forward-button)
+              ([up]     .  #'backward-button)
+              ([tab]    .  #'forward-button)
+              ([backtab].  #'backward-button)))
+
 (use-package dashboard
+  :disabled
   :after all-the-icons
   :demand
   :bind (:map dashboard-mode-map
@@ -242,15 +257,15 @@
 
    (dashboard-setup-startup-hook))
 
-(use-package minimap
-  :bind ("C-c t m" . minimap-mode)
-  :config
-  (add-hook 'minimap-sb-mode-hook (lambda()
-                                    (setq-local default-text-properties '(line-spacing 0.0 line-height 1.0))))
-  (setq minimap-window-location 'right
-        minimap-update-delay 0
-        minimap-width-fraction 0.09
-        minimap-minimum-width 15))
+;; (use-package minimap
+;;   :bind ("C-c t m" . minimap-mode)
+;;   :config
+;;   (add-hook 'minimap-sb-mode-hook (lambda()
+;;                                     (setq-local default-text-properties '(line-spacing 0.0 line-height 1.0))))
+;;   (setq minimap-window-location 'right
+;;         minimap-update-delay 0
+;;         minimap-width-fraction 0.09
+;;         minimap-minimum-width 15))
 
 (use-package olivetti
   :bind ("C-c t z" . olivetti-mode)
