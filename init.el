@@ -27,7 +27,7 @@
              '("melpa" . "https://melpa.org/packages/") t)
 ;; (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))
 (setq package-native-compile t)
-(setq comp-async-report-warnings-errors nil)
+(setq native-comp-async-report-warnings-errors nil)
 
 (unless IS-TERM
   (define-key input-decode-map [?\C-m] [C-m]))

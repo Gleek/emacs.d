@@ -350,7 +350,7 @@ the currently playing track."
     (dired bongo-default-directory)
     (bongo-dired-library-mode)))
 
-(use-package "web-search" :ensure nil :demand t
+(use-package "web-search" :ensure nil
   :bind (("C-c s w" . duck)
          ("C-c s l" . lucky)
          ("C-c s d" . devdocs)))
