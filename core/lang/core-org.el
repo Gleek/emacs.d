@@ -64,11 +64,19 @@
 
   (setq org-capture-templates
         `(("i" "inbox" entry (file ,(concat +org-directory "inbox.org"))
-           "* TODO %?\n  CAPTURED: %U")
+           "* TODO %?")
           ("l" "link" entry (file ,(concat +org-directory "inbox.org"))
-           "* TODO %(org-cliplink-capture) \n  CAPTURED: %U" :immediate-finish t)
+           "* TODO %(org-cliplink-capture)" :immediate-finish t)
           ("c" "org-protocol-capture" entry (file ,(concat +org-directory "inbox.org"))
-           "* TODO [[%:link][%:description]]\n  CAPTURED: %U\n\n %i" :immediate-finish t)))
+           "* TODO [[%:link][%:description]]\n\n %i" :immediate-finish t)))
+
+
+  (defun add-property-with-date-captured ()
+    "Add CAPTURED property to the current item."
+    (interactive)
+    (org-set-property "CAPTURED" (format-time-string "[%F %a %R]")))
+
+  (add-hook 'org-capture-before-finalize-hook 'add-property-with-date-captured)
 
   (setq org-capture-bookmark nil)
 
@@ -78,6 +86,7 @@
         org-archive-location (concat +org-directory "archive.org::* From %s")
         org-startup-align-all-table t
         org-log-done 'time
+        org-return-follows-link t
         org-startup-with-inline-images t
         org-display-remote-inline-images 'download
         org-hide-emphasis-markers t
