@@ -264,8 +264,7 @@
   :init
   (defun +switch-to-agenda()
     (interactive)
-    (org-agenda nil " ")
-    (goto-char (point-min)))
+    (org-agenda nil " "))
   :bind (("C-c o A" . org-agenda)
          ("C-c o a" . +switch-to-agenda)
          ("<f1>" . +switch-to-agenda)
@@ -575,8 +574,12 @@
 
 (use-package org-timeline
   :commands (org-timeline-insert-timeline)
-  :hook (org-agenda-finalize . org-timeline-insert-timeline)
+  :hook (org-agenda-finalize . +org-insert-timeline)
   :config
+  (defun +org-insert-timeline()
+    (if (or (not (boundp 'org-ql-view-buffers-files))
+            (not org-ql-view-buffers-files))
+        (org-timeline-insert-timeline)))
   (setq org-timeline-space-out-consecutive t)
   (setq org-timeline-overlap-in-new-line t)
   (setq org-timeline-show-title-in-blocks t)
@@ -683,7 +686,13 @@
   :hook (org-mode . org-pdftools-setup-link))
 
 (use-package org-ql
+  :commands (+org-archive-archivable +org-show-archivable)
   :config
+  (defun +org-show-archivable()
+    (interactive)
+    (org-ql-search
+      org-agenda-files
+      `(closed :to ,(ts-format (ts-adjust 'day -60 (ts-now))))))
   (defun +org-archive-archivable()
     "Automatically archive all items that were closed 60 days ago or before"
     (interactive)
