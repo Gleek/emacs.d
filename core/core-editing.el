@@ -495,6 +495,10 @@ https://emacs.stackexchange.com/a/12124/2144"
   :bind (("C-S-<up>" . change-number-at-point)
          ("C-S-<down>" . subtract-number-at-point)))
 
+
+(use-package dtrt-indent
+  :hook (prog-mode . dtrt-indent-mode))
+
 ;; (delete-selection-mode +1)
 (setq backward-delete-char-untabify-method 'untabify)
 (setq-default cursor-in-non-selected-windows nil)
