@@ -49,10 +49,10 @@
 ;;   :diminish smooth-scroll-mode)
 
 
-(use-package good-scroll
-  :defer 5
-  :config
-  (good-scroll-mode t))
+;; (use-package good-scroll
+;;   :defer 5
+;;   :config
+;;   (good-scroll-mode t))
 
 
 (use-package paren
