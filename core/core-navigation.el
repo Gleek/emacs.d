@@ -57,6 +57,14 @@
   :bind (("M-z" . zop-to-char)
          ("M-Z" . zop-up-to-char)))
 
+(use-package gumshoe :ensure nil
+  :defer 2
+  :bind (("s-[" . gumshoe-backtrack-back)
+         ("s-]" . gumshoe-backtrack-forward))
+  :config
+  (global-gumshoe-mode t))
+
+
 (use-package hideshow
   :ensure nil
   :disabled t ;; Trying out origami
