@@ -268,6 +268,7 @@ https://emacs.stackexchange.com/a/12124/2144"
   ;; C-' to only show places where cursor is. Again to unhide
   ;; RET to switch from rrm to multiple cursors
   :ensure t
+  :after selected
   :config
   (define-key mc/keymap (kbd "C-s") #'phi-search)
   (define-key mc/keymap (kbd "C-r") #'phi-search-backward)

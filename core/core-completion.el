@@ -13,7 +13,7 @@
          ("C-h v" . counsel-describe-variable)))
 
 (use-package ivy
-  :after popup
+  :defer 1
   :init
   (setq ivy-sort-max-size 7500
         ivy-height 17
@@ -27,7 +27,9 @@
 
   :config
   (ivy-mode t)
-  (set-popup-rule! "^\\*ivy-occur" :size 0.35 :ttl 0 :quit nil)
+  (eval-after-load '+popup
+    '(set-popup-rule! "^\\*ivy-occur" :size 0.35 :ttl 0 :quit nil))
+
   ;; (all-the-icons-ivy-setup)
 
   ;; Force change line spacing in ivy. There's a bug which makes ivy

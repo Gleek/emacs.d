@@ -13,8 +13,7 @@
 (defconst IS-TERM   (not (display-graphic-p)))
 (package-initialize)
 
-
-;; (setq gc-cons-threshold 10000000) ;; collect garbage after about 100 MB
+(setq gc-cons-threshold 8000000) ;; collect garbage after about 100 MB
 ;; (run-with-idle-timer 2 t (lambda () (garbage-collect)))
 (setq message-log-max 10000) ;; Debugging
 ;; (package-quickstart-refresh)
@@ -52,7 +51,8 @@
   :demand
   :config
   ;; To disable collection of benchmark data after init is done.
-  (add-hook 'after-init-hook 'benchmark-init/deactivate))
+  ;; (add-hook 'after-init-hook 'benchmark-init/deactivate)
+  )
 
 (setq custom-file (concat CACHE-DIR "custom.el"))
 ;; (load custom-file)

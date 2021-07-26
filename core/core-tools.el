@@ -82,35 +82,35 @@
   :config
 
   (defun image-forward-hscroll-small()
-      (interactive)
+    (interactive)
     (image-forward-hscroll 5))
 
   (defun image-backward-hscroll-small()
-      (interactive)
+    (interactive)
     (image-backward-hscroll 5))
 
   (defun image-forward-hscroll-large()
-      (interactive)
+    (interactive)
     (image-forward-hscroll 30))
 
   (defun image-backward-hscroll-large()
-      (interactive)
+    (interactive)
     (image-backward-hscroll 30))
 
   (defun image-forward-vscroll-small()
-      (interactive)
-      (image-next-line 5))
+    (interactive)
+    (image-next-line 5))
 
   (defun image-backward-vscroll-small()
-      (interactive)
-      (image-previous-line 5))
+    (interactive)
+    (image-previous-line 5))
 
   (defun image-forward-vscroll-large()
-      (interactive)
+    (interactive)
     (image-next-line 30))
 
   (defun image-backward-vscroll-large()
-      (interactive)
+    (interactive)
     (image-previous-line 30))
 
   (defun scale-image ()
@@ -129,23 +129,23 @@
       (eimp-mogrify-image (list "-fuzz" fuzz "-transparent" color))))
 
   (defun +choose-color(prompt)
-      (let* ((colors
-              (delete nil
-                      (mapcar (lambda (cell)
-                                (let* ((name (car cell))
-                                       (dups (cdr cell))
-                                       (hex (counsel-colors--name-to-hex name)))
-                                  (when hex
-                                    (propertize name 'hex hex 'dups dups))))
-                              (list-colors-duplicates))))
-             (counsel--colors-format
-              (format "%%-%ds %%s %%s%%s"
-                      (apply #'max 0 (mapcar #'string-width colors))))
-             (chosen-color (ivy-read prompt colors
-                                     :require-match t
-                                     :history 'counsel-colors-emacs-history
-                                     :caller 'counsel-colors-emacs)))
-        (get-text-property 0 'hex chosen-color))))
+    (let* ((colors
+            (delete nil
+                    (mapcar (lambda (cell)
+                              (let* ((name (car cell))
+                                     (dups (cdr cell))
+                                     (hex (counsel-colors--name-to-hex name)))
+                                (when hex
+                                  (propertize name 'hex hex 'dups dups))))
+                            (list-colors-duplicates))))
+           (counsel--colors-format
+            (format "%%-%ds %%s %%s%%s"
+                    (apply #'max 0 (mapcar #'string-width colors))))
+           (chosen-color (ivy-read prompt colors
+                                   :require-match t
+                                   :history 'counsel-colors-emacs-history
+                                   :caller 'counsel-colors-emacs)))
+      (get-text-property 0 'hex chosen-color))))
 
 
 (use-package paradox
@@ -351,6 +351,7 @@ the currently playing track."
     (bongo-dired-library-mode)))
 
 (use-package "web-search" :ensure nil
+  :commands (+browse-url)
   :bind (("C-c s w" . duck)
          ("C-c s l" . lucky)
          ("C-c s d" . devdocs)))
@@ -358,7 +359,7 @@ the currently playing track."
 (use-package keepass-mode
   :bind (("C-c s p" . +keepass-quick-switch)
          (:map keepass-mode-map
-              ("s" . counsel-keepass)))
+               ("s" . counsel-keepass)))
   :config
   (defvar +keepass-password-expiry (* 10 60)
     "Expire keepass password after seconds")

@@ -62,12 +62,13 @@ This function is called by `org-babel-execute-src-block'."
 
 (use-package plantuml-mode
   :mode ("\\.puml\\'" . plantuml-mode)
-  :after popup
   :init
   (setq plantuml-jar-path (concat RES-DIR "plantuml.jar")
         org-plantuml-jar-path plantuml-jar-path)
   :config
-  (set-popup-rule! "^\\*PLANTUML" :size 0.4 :select nil :ttl 0 :side 'right)
+  (eval-after-load '+popup
+    '(set-popup-rule! "^\\*PLANTUML" :size 0.4 :select nil :ttl 0 :side 'right))
+
   (setq plantuml-default-exec-mode 'jar))
 
 (use-package flycheck-plantuml

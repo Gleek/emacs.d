@@ -37,7 +37,6 @@
 
 (use-package git-gutter
   :defer 1
-  :after popup
   :ensure git-gutter
   :ensure git-gutter-fringe
   :diminish git-gutter-mode

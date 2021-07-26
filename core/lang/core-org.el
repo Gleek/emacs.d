@@ -21,6 +21,7 @@
 
 
 (use-package org-pomodoro
+  :after org-agenda
   :bind (:map org-agenda-mode-map
               ("I" . org-pomodoro))
   :config
@@ -30,7 +31,7 @@
   (setq org-pomodoro-start-sound (concat RES-DIR "doorbell.wav")))
 
 (use-package org
-  :defer 2
+  ;; :defer 2
   :config
   ;; Strange bug causing org-version to be empty. Breaking nov.el
   (setq org-version (if (string= org-version "")
@@ -96,6 +97,7 @@
         org-image-actual-width 500
         org-imenu-depth 8
         org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a."))
+        org-export-with-sub-superscripts "{}"
         org-html-checkbox-type 'html
         org-priority-faces
         '((?A . error)
@@ -134,7 +136,6 @@
         org-outline-path-complete-in-steps nil)
 
   (setq org-src-preserve-indentation t  ; use native major-mode indentation
-        org-src-tab-acts-natively t     ; we do this ourselves
         org-link-elisp-confirm-function nil
         ;; Show src buffer in popup, and don't monopolize the frame
         org-src-window-setup 'other-window)
@@ -701,4 +702,6 @@
       `(closed :to ,(ts-format (ts-adjust 'day -60 (ts-now))))
       :action 'org-archive-subtree-default)))
 
-  (provide 'core-org)
+
+(provide 'core-org)
+;;; core-org.el ends here
