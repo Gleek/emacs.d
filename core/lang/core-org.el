@@ -490,43 +490,55 @@
   :ensure org-roam-server
   ;; :ensure company-org-roam
   :init
+  (setq org-roam-v2-ack t)
   (setq org-roam-directory (concat +org-directory "org-roam/"))
   (setq org-roam-db-location (concat CACHE-DIR "org-roam.db"))
-  :bind (("C-c o n n" . org-roam-find-file)
+  :bind (("C-c o n n" . org-roam-node-find)
+         ("C-c o m" . org-roam-buffer-toggle)
          (:map org-roam-mode-map
                ("C-c o n b" . org-roam-switch-to-buffer)
                ("C-c o n g" . org-roam-graph)
                ("C-c o n u" . org-roam-unlinked-references)
                ("C-c o m"   . org-roam)
-               ("C-c o r d" . org-roam-dailies-find-date)
-               ("C-c o r r" . org-roam-dailies-find-today)
-               ("C-c o r m" . org-roam-dailies-find-tomorrow)
-               ("C-c o r y" . org-roam-dailies-find-yesterday)))
+               ("C-c o r d" . org-roam-dailies-goto-date)
+               ("C-c o r r" . org-roam-dailies-goto-today)
+               ("C-c o r m" . org-roam-dailies-goto-tomorrow)
+               ("C-c o r y" . org-roam-dailies-goto-yesterday)))
   :config
-  (add-hook 'org-roam-backlinks-mode-hook 'turn-on-visual-line-mode)
+  (org-roam-setup)
+  (defvar org-roam-capture-immediate-template
+    (append (car org-roam-capture-templates) '(:immediate-finish t)))
+  (defun org-roam-insert-immediate (arg &rest args)
+    (interactive "P")
+    (let ((args (push arg args))
+          (org-roam-capture-templates (list org-roam-capture-immediate-template)))
+      (apply #'org-roam-node-insert args)))
   (defun +do-org-roam-bindings()
-    (when (and
-           (bound-and-true-p org-roam-mode)
-           (org-roam--org-roam-file-p (buffer-file-name (buffer-base-buffer))))
+    (when (org-roam-file-p (buffer-file-name (buffer-base-buffer)))
       (local-set-key (kbd "C-i") 'org-roam-insert-immediate)))
-  (defun open-org-roam ()
-    (interactive)
-    (and (memq 'org-roam-buffer--update-maybe post-command-hook)
-         (not (window-parameter nil 'window-side)) ; don't proc for popups
+
+  (defun +org-roam-open-with-buffer-maybe-h ()
+    (and (not org-roam-capture--node) ; don't proc for capture buffers
          (not (eq 'visible (org-roam-buffer--visibility)))
-         (with-current-buffer (window-buffer)
-           (org-roam-buffer--get-create))))
+         (org-roam-buffer-toggle)))
+
+  (add-hook 'org-roam-find-file-hook  '+org-roam-open-with-buffer-maybe-h :append)
+  (add-hook 'org-roam-mode-hook #'turn-on-visual-line-mode)
   (require 'org-roam-protocol)
   ;; (add-hook 'find-file-hook 'open-org-roam)
-  (add-hook 'org-roam-buffer-prepare-hook #'hide-mode-line-mode)
   (add-hook 'org-mode-hook '+do-org-roam-bindings)
-  (set-popup-rule! "^\\*org-roam unlinked references" :side 'right :size 0.3 :select nil :quit t)
-  (setq org-roam-buffer-width 0.22)
-  (setq org-roam-completion-system 'ivy)
-  (setq org-roam-verbose nil
-        org-roam-buffer-window-parameters '((no-delete-other-windows . t)))
-  ;; (push 'company-org-roam company-backends)
+  (set-popup-rules!
+    `((,(regexp-quote org-roam-buffer) ; persistent org-roam buffer
+       :side right :width .33 :height .5 :ttl nil :modeline nil :quit nil :slot 1)
+      ("^\\*org-roam: " ; node dedicated org-roam buffer
+       :side right :width .33 :height .5 :ttl nil :modeline nil :quit nil :slot 2)))
 
+
+  (setq org-roam-completion-everywhere t)
+  (setq org-roam-verbose nil)
+  (setq org-roam-mode-section-functions '(org-roam-backlinks-section
+                                          org-roam-reflinks-section
+                                          org-roam-unlinked-references-section))
   (setq org-roam-graph-viewer (lambda(url) (+browse-url url))))
 
 (use-package calfw-org
