@@ -262,6 +262,8 @@
   (add-to-list 'auto-insert-alist '((php-mode . "PHP source code") . ["template.php" +autoinsert-yas-expand]))
   (add-to-list 'auto-insert-alist '((go-mode . "Go source code") . ["template.go" +autoinsert-yas-expand]))
   (add-to-list 'auto-insert-alist '((sh-mode . "Shell scripts") . ["template.sh" +autoinsert-yas-expand]))
+  (add-to-list 'auto-insert-alist '((sh-mode . "Shell scripts") . ["template.sh" +autoinsert-yas-expand]))
+  (add-to-list 'auto-insert-alist '((emacs-lisp-mode . "Elisp source code") . ["template.el" +autoinsert-yas-expand]))
   (add-to-list 'auto-insert-alist '(("blog-src/.*\\.org" . "Hugo blog") . ["hugo-template.org" +autoinsert-yas-expand]))
 
   (setq auto-insert-query nil))
