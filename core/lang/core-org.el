@@ -173,6 +173,9 @@
   ;; Save target buffer after archiving a node.
   ;; (setq org-archive-subtree-save-file-p t)
 
+  (setq org-habit-completed-glyph 8226) ; bullet point
+  (setq org-habit-today-glyph 0215) ; multiplication sign
+
   ;; Prevent modifications made in invisible sections of an org document, as
   ;; unintended changes can easily go unseen otherwise.
   (setq org-catch-invisible-edits 'smart)
