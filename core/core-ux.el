@@ -38,23 +38,6 @@
   (setq beacon-blink-duration 0.1)
   (beacon-mode -1))
 
-;; (use-package smooth-scroll
-;;   :defer 1
-;;   :ensure t
-;;   :config
-;;   (smooth-scroll-mode t)
-;;   ;; (setq scroll-conservatively 101)
-;;   ;; (setq inhibit-compacting-font-caches t)
-;;   (setq smooth-scroll/vscroll-step-size 5)
-;;   :diminish smooth-scroll-mode)
-
-
-;; (use-package good-scroll
-;;   :defer 5
-;;   :config
-;;   (good-scroll-mode t))
-
-
 (use-package paren
   :ensure nil
   :defer 1

@@ -11,7 +11,7 @@
 (blink-cursor-mode -1)
 (setq frame-inhibit-implied-resize t)
 ;; Font/Themes
-(defvar default-font "Fira Code")
+(defvar default-font "Jetbrains Mono")
 (set-frame-font (concat default-font " 12") 'keepsize t)
 ;; (set-face-font 'variable-pitch "Baskerville 15")
 ;; (set-face-font 'variable-pitch "ETBembo 17")
