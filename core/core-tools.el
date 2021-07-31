@@ -243,7 +243,7 @@
 (use-package speed-type
   :config
   (defun +speed-type-setup (&rest _)
-    (variable-pitch-mode t)
+    ;; (variable-pitch-mode t)
     (setq cursor-type 'bar)
     (olivetti-mode)
     (text-scale-set 1))
