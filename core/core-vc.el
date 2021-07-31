@@ -47,8 +47,8 @@
 
   (defun vc-gutter-init-maybe()
     (let ((file-name (buffer-file-name (buffer-base-buffer))))
-      (unless (file-remote-p file-name)
-        (git-gutter-mode t))))
+      (if file-name (unless (file-remote-p file-name)
+        (git-gutter-mode t)))))
 
   ;; (defun vc-gutter-init-maybe ()
   ;;   ;; "Enable `git-gutter-mode' in the current buffer.
