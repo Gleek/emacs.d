@@ -15,7 +15,10 @@
 (set-frame-font (concat default-font " 12") 'keepsize t)
 ;; (set-face-font 'variable-pitch "Baskerville 15")
 ;; (set-face-font 'variable-pitch "ETBembo 17")
-(set-face-attribute 'variable-pitch nil :family "Helvetica" :height 1.1)
+
+(if IS-MAC
+    (set-face-attribute 'variable-pitch nil :family "Avenir Next" :height 1.2)
+  (set-face-attribute 'variable-pitch nil :family "Helvetica" :height 1.1))
 (set-face-attribute 'fixed-pitch nil :family default-font :height 1.0)
 (set-fontset-font t 'arabic "KFGQPC Uthmanic Script Hafs 25")
 
