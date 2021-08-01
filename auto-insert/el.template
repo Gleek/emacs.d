@@ -4,7 +4,7 @@
 ;; Created: `(format-time-string "%B %d, %Y")`
 ;; Modified: `(format-time-string "%B %d, %Y")`
 ;; Version: 0.0.1
-;; Author: Umar Ahmad
+;; Author: `user-full-name`
 ;;; Commentary:
 
 ;; 

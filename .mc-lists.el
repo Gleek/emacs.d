@@ -93,6 +93,7 @@
         top-join-line
         transpose-words
         undefined
+        wdired--self-insert
         wdired-capitalize-word
         wdired-finish-edit
         web-mode-navigate
