@@ -3,7 +3,6 @@
       auto-save-file-name-transforms `((".*" ,auto-save-list-file-prefix t)))
 (use-package persistent-scratch
   :init
-  :defer 1
   :bind ("<f6>" . persistent-scratch-quick-open)
   :config
   (eval-after-load '+popup

@@ -40,13 +40,14 @@
 
 (use-package paren
   :ensure nil
-  :defer 1
+  :hook (prog-mode . +show-paren-mode)
   :config
   (setq show-paren-delay 0.1
         show-paren-highlight-openparen t
         show-paren-when-point-inside-paren t
         show-paren-when-point-in-periphery nil)
-  (show-paren-mode))
+  (defun +show-paren-mode()
+    (unless show-paren-mode (show-paren-mode))))
 
 
 (use-package which-key

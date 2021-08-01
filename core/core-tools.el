@@ -433,7 +433,6 @@ the currently playing track."
 
 (use-package proced
   :ensure nil
-  :defer 1
   :commands proced
   :config
   (setq-default proced-auto-update-flag t)

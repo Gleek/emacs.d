@@ -4,7 +4,7 @@
 
 (use-package org-crypt
   :ensure nil
-  :defer 5
+  :commands org-encrypt-entries org-encrypt-entry org-decrypt-entries org-decrypt-entry
   :init
   (setq org-tags-exclude-from-inheritance (quote ("crypt")))
   (setf epg-pinentry-mode 'loopback)
@@ -430,7 +430,6 @@
         org-agenda-inhibit-startup t))
 
 (use-package org-gcal
-  :defer 5
   :commands (org-gcal-sync org-gcal-post-at-point)
   :init
   (defvar org-gcal--running-timer nil)
@@ -545,7 +544,7 @@
   (setq org-roam-graph-viewer (lambda(url) (+browse-url url))))
 
 (use-package calfw-org
-  :after org-agenda
+  :commands (+open-calendar)
   :demand t
   :bind (:map org-agenda-mode-map ("C" . +open-calendar)
               :map cfw:calendar-mode-map ("?" . +calendar/show-keys))

@@ -36,6 +36,7 @@
   (setq browse-at-remote-add-line-number-if-no-region-selected nil))
 
 (use-package git-gutter
+  ;; :disabled t
   :defer 1
   :ensure git-gutter
   :ensure git-gutter-fringe
@@ -118,8 +119,6 @@
   :hook (dired-mode . diff-hl-dired-mode-unless-remote)
   :hook (magit-post-refresh . diff-hl-magit-post-refresh))
 
-;; (use-package git-gutter-fringe
-;;   :)
 
 (use-package git-timemachine)
 
@@ -127,9 +126,7 @@
 
 (use-package vc
   :ensure nil
-  :defer 5
-  :config
-  (add-hook 'find-file-hook 'vc-refresh-state))
+  :hook (find-file . vc-refresh-state))
 
 (define-globalized-minor-mode global-autorevert-mode auto-revert-mode
   (lambda ()

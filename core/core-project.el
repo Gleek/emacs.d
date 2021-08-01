@@ -61,7 +61,6 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package "+projectile-find-file"
   :ensure nil
   :bind ("M-p" . +projectile-find-file-dynamic)
-  :defer 4
   :config
 
   (eval-after-load "all-the-icons-ivy"
@@ -170,7 +169,6 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package smart-jump
   :ensure t
   :after xref
-  :defer 1
   :bind (("M-." . smart-jump-go)
          ("M-," . smart-jump-back)
          ("M-?" . smart-jump-references))
