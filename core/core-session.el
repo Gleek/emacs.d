@@ -91,7 +91,9 @@
   :config
   (setq save-place-file (concat CACHE-DIR "places"))
   (save-place-mode 1)
-  (setq-default save-place t))
+  (setq-default save-place t)
+  ;; Add a fail safe in case of a crash
+  (run-with-idle-timer 20 t 'save-place-alist-to-file))
 
 (use-package savehist
   :ensure nil
