@@ -64,6 +64,11 @@
   :config
   (global-gumshoe-mode t))
 
+(use-package counsel-gumshoe :ensure nil
+  :bind ("C-c C-SPC" . counsel-gumshoe-ring)
+  :config
+  (advice-add 'gumshoe--jump-to-marker :override #'gumshoe-open-mark))
+
 
 (use-package hideshow
   :ensure nil

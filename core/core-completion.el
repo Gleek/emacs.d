@@ -5,7 +5,7 @@
   :bind (("M-x"     . counsel-M-x)
          ("C-c s s" . counsel-rg)
          ("C-x B"   . counsel-switch-buffer-other-window)
-         ("C-c C-SPC" . counsel-mark-ring)
+         ;; ("C-c C-SPC" . counsel-mark-ring)
          ("M-y"     . counsel-yank-pop)
          ("C-x c i" . counsel-imenu)
          ("C-x r r" . counsel-recentf)
