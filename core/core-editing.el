@@ -230,7 +230,8 @@ https://emacs.stackexchange.com/a/12124/2144"
               ("d" . downcase-region)
               ("u" . upcase-region)
               ("r" . reverse-region)
-              ("s" . sort-lines))
+              ("s" . sort-lines)
+              ("x" . eval-region))
   :config
   (selected-global-mode 1))
 
@@ -505,6 +506,7 @@ https://emacs.stackexchange.com/a/12124/2144"
 (setq-default cursor-in-non-selected-windows nil)
 (setq-default indent-tabs-mode nil)   ;; don't use tabs to indent
 (setq-default tab-width 4)
+(setq-default fill-column 100)
 (setq-default bidi-display-reordering 'left-to-right
               bidi-paragraph-direction 'left-to-right) ;; To render bidirectional text
 
