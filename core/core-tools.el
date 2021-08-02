@@ -473,9 +473,9 @@ the currently playing track."
          ("<M-f12>" . profiler-stop)))
 
 (use-package explain-pause-mode
+  :disabled t
   :ensure nil
   :bind ("<f12>" . explain-pause-top)
-  :defer 1
   :config
   (explain-pause-mode))
 
