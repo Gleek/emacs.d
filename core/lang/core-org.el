@@ -57,6 +57,20 @@
     (when (string-match "\\(.*Notes.org\\|roam.*org\\)" (format "%s" buffer-file-name))
       (reading-mode)))
 
+  (defun copy-current-line-link-for-org ()
+    "Copy current line in file to clipboard as an org file link"
+    (interactive)
+    (let ((org-link
+           (format "[[file:%s::%d][%s::%d]]"
+                   (buffer-file-name)
+                   (line-number-at-pos)
+                   (file-name-nondirectory (buffer-file-name))
+                   (line-number-at-pos))))
+      (kill-new org-link)
+      (message (format "%s::%d link copied to clipboard"
+                       (file-name-nondirectory (buffer-file-name))
+                       (line-number-at-pos)))))
+
 
   (defun +capture-inbox()
     (interactive)
@@ -256,6 +270,7 @@
 
   :bind (("C-c o e" . org-export-dispatch)
          ("C-c o c" . +capture-inbox)
+         ("C-c o w" . copy-current-line-link-for-org)
          ("<f5>" . +capture-inbox)
          ("C-c o g" . counsel-org-goto-all)
          :map org-mode-map
