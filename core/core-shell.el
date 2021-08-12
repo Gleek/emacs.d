@@ -7,7 +7,11 @@
 
   (defun shell-pop--cd-to-cwd-vterm(cwd)
     (interactive)
-    (+vterm-run-command (concat "cd " (shell-quote-argument cwd)))
+    (+vterm-run-command
+     (concat "cd " (shell-quote-argument
+                    (if (projectile-project-root cwd)
+                        (projectile-project-root cwd)
+                      cwd))))
     (setq default-directory cwd))
 
   ;; shell-pop--cd-to-cwd
@@ -69,11 +73,18 @@
   :hook (vterm-mode . hide-mode-line-mode)
   :bind (:map vterm-mode-map
               ("C-c C-a" . +vterm-screen-session)
-              ("C-c C-d" . +vterm-cd-default-directory))
+              ("C-c C-d" . +vterm-cd-root-or-current))
   :config
   (defun +vterm-cd-default-directory()
     (interactive)
     (+vterm-run-command (concat "cd " default-directory)))
+  (defun +vterm-cd-root-or-current(&optional prefix)
+    (interactive "P")
+    (let (jump-directory)
+      (if (and (not prefix) (projectile-project-root default-directory))
+          (setq jump-directory (projectile-project-root default-directory))
+        (setq jump-directory default-directory))
+      (+vterm-run-command (concat "cd " jump-directory))))
   (defun +vterm-run-command(command)
     (vterm-send-C-S-a)
     (vterm-send-string (concat " " command " #") t)
