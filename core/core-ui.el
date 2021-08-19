@@ -85,7 +85,9 @@
   :bind ("C-c t T" . +switch-theme-type)
   :demand
   :config
-  (defvar +theme-type 'dark)
+  (defvar +theme-type 'light)
+  (when IS-MAC
+    (setq +theme-type ns-system-appearance))
   (defvar +light-theme 'doom-one-light)
   (defvar +dark-theme 'doom-one)
   (defun +switch-theme-type()
