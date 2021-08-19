@@ -269,8 +269,18 @@
 ;;         minimap-minimum-width 15))
 
 (use-package olivetti
-  :bind ("C-c t z" . olivetti-mode)
+  :init
+  (setq-default olivetti-body-width 130)
+  :bind ("C-c t z" . +focus-mode)
   :config
+  (defun +focus-mode()
+    (interactive)
+    (if olivetti-mode
+        (progn
+          (display-line-numbers-mode +1)
+          (olivetti-mode -1))
+      (display-line-numbers-mode -1)
+      (olivetti-mode +1)))
   (defun olivetti-custom-width()
     (interactive)
     (setq olivetti-body-width
