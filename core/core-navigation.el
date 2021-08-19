@@ -57,7 +57,7 @@
   :bind (("M-z" . zop-to-char)
          ("M-Z" . zop-up-to-char)))
 
-(use-package gumshoe :ensure nil
+(use-package gumshoe
   :defer 2
   :bind (("s-[" . gumshoe-backtrack-back)
          ("s-]" . gumshoe-backtrack-forward))
