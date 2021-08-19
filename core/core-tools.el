@@ -419,11 +419,22 @@ the currently playing track."
           (with-current-buffer buff
             (setq-local keepass-mode-password "")
             (message "Keepass password reset done")))))
+  (defun +keepass-verify-password(password)
+    (let ((buff (get-file-buffer keepass-password-file)))
+      (if buff
+          (with-current-buffer buff
+            (if (string-match-p "Invalid credentials" (shell-command-to-string (keepass-mode-command "" "db-info")))
+                nil
+              t)))))
   (defun +keepass-set-password()
     (let ((buff (get-file-buffer keepass-password-file)))
       (if buff
           (with-current-buffer buff
-            (setq-local keepass-mode-password (keepass-mode-ask-password)))))))
+            (setq-local keepass-mode-password (keepass-mode-ask-password))
+            (if (not (+keepass-verify-password keepass-mode-password))
+                (progn
+                  (setq-local keepass-mode-password "")
+                  (error "Invalid password")))))))
 
 
 (defalias 'xwwb 'xwidget-webkit-browse-url)
