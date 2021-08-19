@@ -332,7 +332,7 @@ This functions should be added to the hooks of major modes for programming."
 (defun reading-mode()
   (interactive)
   (setq cursor-type 'bar)
-  (electric-quote-mode t)
+  (electric-quote-local-mode t)
   (setq bidi-paragraph-direction nil)
   (variable-pitch-mode t)
   (display-line-numbers-mode -1)
