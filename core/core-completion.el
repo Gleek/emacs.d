@@ -21,7 +21,7 @@
         ivy-fixed-height-minibuffer t
         ivy-use-virtual-buffers nil
         ivy-virtual-abbreviate 'full
-        ivy-read-action-function 'ivy-hydra-read-action
+        ivy-read-action-function 'ivy-read-action-by-key
         ivy-use-selectable-prompt t)
 
   :config
@@ -37,6 +37,11 @@
   (defun +ivy-change-line-spacing(&rest _)
     (if (not ivy-posframe-mode)
         (setq-local line-spacing (default-value 'line-spacing))))
+
+  (defun +ivy-shrink-after-dispatching-a(f &rest a)
+    (unless mini-frame-mode
+      (apply f a)))
+  (advice-add 'ivy-shrink-after-dispatching :around #'+ivy-shrink-after-dispatching-a)
   (advice-add 'ivy--minibuffer-setup :after #'+ivy-change-line-spacing)
   :bind (("C-x b"   . ivy-switch-buffer)
          ("C-c v" . ivy-resume))
