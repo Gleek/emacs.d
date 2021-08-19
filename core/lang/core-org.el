@@ -95,7 +95,7 @@
 
   (setq org-capture-bookmark nil)
 
-  (setq org-ellipsis "…"
+  (setq org-ellipsis "↴"
         ;; org-agenda-files `(,+org-directory)
 
         org-archive-location (concat +org-directory "archive.org::* From %s")
@@ -109,6 +109,7 @@
         org-id-locations-file (concat CACHE-DIR ".org-id-locations")
         org-generic-id-locations-file (concat CACHE-DIR ".org-generic-id-locations-file")
         org-image-actual-width 500
+        org-startup-folded t
         org-imenu-depth 8
         org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a."))
         org-export-with-sub-superscripts "{}"
@@ -207,7 +208,11 @@
    '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
    '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
    '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
-  :config
+  (set-face-attribute 'org-ellipsis nil
+                      :inherit '(font-lock-comment-face default)
+                      :weight 'normal)
+
+
   ;; Support for plantuml
   (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
   (add-to-list
