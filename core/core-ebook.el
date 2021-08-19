@@ -58,8 +58,7 @@
 (use-package saveplace-pdf-view
   :hook (pdf-view-mode . (lambda ()
                            (require 'saveplace-pdf-view)
-                           (save-place-mode t)
-                           )))
+                           (save-place-mode t))))
 
 (use-package nov
   :ensure nov
