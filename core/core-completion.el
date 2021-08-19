@@ -18,7 +18,6 @@
   (setq ivy-sort-max-size 7500
         ivy-height 17
         ivy-wrap nil
-        ivy-use-selectable-prompt t
         ivy-fixed-height-minibuffer t
         ivy-use-virtual-buffers nil
         ivy-virtual-abbreviate 'full
@@ -36,7 +35,8 @@
   ;; hide few candidates if the spacing is made too large, but works
   ;; fine for smaller values.
   (defun +ivy-change-line-spacing(&rest _)
-    (setq-local line-spacing (default-value 'line-spacing)))
+    (if (not ivy-posframe-mode)
+        (setq-local line-spacing (default-value 'line-spacing))))
   (advice-add 'ivy--minibuffer-setup :after #'+ivy-change-line-spacing)
   :bind (("C-x b"   . ivy-switch-buffer)
          ("C-c v" . ivy-resume))
@@ -62,19 +62,28 @@
   :disabled
   :diminish
   :config
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
-  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
   ;; (setq ivy-posframe-parameters '())
+  (add-to-list 'ivy-posframe-display-functions-alist '(swiper . ivy-display-function-fallback))
+
   (setq ivy-posframe-parameters
         '((left-fringe . 8)
           (right-fringe . 8)
           ;; (parent-frame nil)
           ))
-  (setq ivy-posframe-font "Fira Code 12")
+  (defun +ivy-posframe-get-size ()
+    "Set the ivy-posframe size according to the current frame."
+    (let ((height (or ivy-posframe-height (or ivy-height 10)))
+          (width (min (or ivy-posframe-width 100) (round (* .6 (frame-width))))))
+      (list :height height :width width :min-height height :min-width width)))
+
+  (setq ivy-posframe-size-function '+ivy-posframe-get-size)
+  (setq ivy-posframe-font (concat default-font " 12"))
   (ivy-posframe-mode 1))
 
 (use-package ivy-rich

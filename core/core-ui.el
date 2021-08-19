@@ -278,6 +278,17 @@
            (completing-read "Width" '("160" "150" "100" "70") nil t)))
     (olivetti-set-buffer-windows)))
 
+(use-package mini-frame
+  :defer 1
+  :config
+  (setq mini-frame-show-parameters
+        '((left . 0.5)
+          (top . 0.3)
+          (width . 0.6)))
+  (mini-frame-mode 1)
+  (add-to-list 'mini-frame-ignore-commands 'swiper)
+  (add-to-list 'mini-frame-ignore-commands 'git-gutter:revert-hunk))
+
 
 (use-package tree-sitter
   :ensure tree-sitter
