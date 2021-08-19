@@ -85,6 +85,8 @@
   :bind ("C-c t T" . +switch-theme-type)
   :demand
   :config
+  (defvar +theme-toggle-hook nil)
+
   (defvar +theme-type 'light)
   (when IS-MAC
     (setq +theme-type ns-system-appearance))
@@ -100,7 +102,8 @@
           (setq-local +theme-type 'dark))
       (disable-theme +dark-theme)
       (load-theme +light-theme t)
-      (setq-local +theme-type 'light)))
+      (setq-local +theme-type 'light))
+    (run-hook-with-args-until-success '+theme-toggle-hook))
 
   (solaire-global-mode +1)
   (load-theme (if (eq +theme-type 'dark) +dark-theme +light-theme) t)

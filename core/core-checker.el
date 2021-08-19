@@ -29,7 +29,10 @@
   (setq spell-fu-directory (concat CACHE-DIR "spell-fu"))
   :bind ("C-M-i" . ispell-word)
   :config
-  (set-face-attribute 'spell-fu-incorrect-face nil :underline '(:color "#6666ff")))
+  (defun +spell-fu-set-face()
+    (set-face-attribute 'spell-fu-incorrect-face nil :underline '(:color "#6666ff")))
+  (+spell-fu-set-face)
+  (add-hook '+theme-toggle-hook '+spell-fu-set-face))
 
 (use-package flycheck
   :defer 2
@@ -52,9 +55,13 @@
   (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
     [16 48 112 240 112 48 16] nil nil 'center)
 
-  (set-face-attribute 'flycheck-error nil :underline '(:style line :color "#a52a2a"))
-  (set-face-attribute 'flycheck-warning nil :underline '(:style line :color "#ca9532"))
-  (set-face-attribute 'flycheck-info nil :underline '(:style line :color "#98be65"))
+  (defun +flycheck-set-face()
+    (set-face-attribute 'flycheck-error nil :underline '(:style line :color "#a52a2a"))
+    (set-face-attribute 'flycheck-warning nil :underline '(:style line :color "#ca9532"))
+    (set-face-attribute 'flycheck-info nil :underline '(:style line :color "#98be65")))
+  (+flycheck-set-face)
+  (add-hook '+theme-toggle-hook '+flycheck-set-face)
+
 
   ;; Using mode level flycheck checkers instead of chaining them.
   ;; So that single flycheck checker can used in multiple modes..such as `lsp'
