@@ -434,7 +434,7 @@ the currently playing track."
             (if (not (+keepass-verify-password keepass-mode-password))
                 (progn
                   (setq-local keepass-mode-password "")
-                  (error "Invalid password")))))))
+                  (error "Invalid password"))))))))
 
 
 (defalias 'xwwb 'xwidget-webkit-browse-url)
