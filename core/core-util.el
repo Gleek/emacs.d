@@ -38,6 +38,9 @@ Useful to override functions to become empty"
                                     (substring alnum i (1+ i))))))
     random))
 
+(defun inhibit-message-a(orig-fun &rest args)
+  (let ((inhibit-message t))
+    (apply orig-fun args)))
 
 (provide 'core-util)
 ;;; core-util ends here
