@@ -33,7 +33,7 @@
     (when mark
       (gumshoe-open-mark mark))))
 
-(defun marker-equal(m1 m2)
+(defun marker-almost-equal(m1 m2)
   (and (eq (marker-buffer m1) (marker-buffer m2))
        (eq (marker-position m1) (marker-position m2))))
 
@@ -55,8 +55,7 @@
         ;; and for `buffer-substring' to work.
         (widen)
         (let* (buffer
-               (max-buffer-name-width 25)
-               (fmt (format "%%%ds:  %%s" 1)))
+               (max-buffer-name-width 25))
           (mapcar (lambda (mark)
                     (setq buffer (marker-buffer mark))
                     (when buffer
