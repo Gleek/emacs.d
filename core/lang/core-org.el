@@ -25,10 +25,10 @@
   :bind (:map org-agenda-mode-map
               ("I" . org-pomodoro))
   :config
-  (setq org-pomodoro-finished-sound (concat RES-DIR "doorbell.wav"))
-  (setq org-pomodoro-long-break-sound (concat RES-DIR "doorbell.wav"))
-  (setq org-pomodoro-short-break-sound (concat RES-DIR "doorbell.wav"))
-  (setq org-pomodoro-start-sound (concat RES-DIR "doorbell.wav")))
+  (setq org-pomodoro-finished-sound (concat RES-DIR "bell.wav"))
+  (setq org-pomodoro-long-break-sound (concat RES-DIR "bell.wav"))
+  (setq org-pomodoro-short-break-sound (concat RES-DIR "bell.wav"))
+  (setq org-pomodoro-start-sound (concat RES-DIR "bell.wav")))
 
 (use-package org
   ;; :defer 2

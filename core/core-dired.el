@@ -52,7 +52,7 @@
   (setq peep-dired-cleanup-eagerly nil)
   (setq peep-dired-enable-on-directories nil)
   (setq peep-dired-ignored-extensions
-        '("mkv" "webm" "mp4" "mp3" "ogg" "iso" "mov"))
+        '("mkv" "webm" "mp4" "mp3" "ogg" "iso" "mov" "wav"))
   :bind (:map dired-mode-map
               ("P" . peep-dired)))
 
@@ -113,6 +113,7 @@
             ("\\.\\(?:xcf\\)\\'" ,cmd)
             ("\\.csv\\'" ,cmd)
             ("\\.tex\\'" ,cmd)
+            ("\\.wav\\'" ,(if IS-MAC "afplay" "aplay"))
             ("\\.\\(?:mp4\\|mkv\\|avi\\|flv\\|rm\\|rmvb\\|ogv\\)\\(?:\\.part\\)?\\'" ,cmd)
             ("\\.\\(?:mp3\\|flac\\)\\'" ,cmd)
             ("\\.html?\\'" ,cmd)
