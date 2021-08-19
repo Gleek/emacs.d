@@ -469,6 +469,16 @@ the currently playing track."
 (use-package shortdoc :ensure nil
   :bind ("C-h s" . shortdoc-display-group))
 
+(use-package impostman :ensure nil
+  :commands (impostman-import-file impostman-import-string +impostman-import-only-collection)
+  :config
+  (defun +impostman-import-only-collection()
+    (interactive)
+    (let* ((collection (impostman-read-collection-filename))
+           (output-name "restclient")
+           (output-alist (impostman--get-output-alist output-name)))
+      (impostman-parse-file collection nil output-alist))))
+
 
 (use-package profiler
   :bind (("<C-f12>" . profiler-start)
