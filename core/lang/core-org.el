@@ -95,7 +95,7 @@
 
   (setq org-capture-bookmark nil)
 
-  (setq org-ellipsis "↴"
+  (setq org-ellipsis "⤶"
         ;; org-agenda-files `(,+org-directory)
 
         org-archive-location (concat +org-directory "archive.org::* From %s")
@@ -564,8 +564,8 @@
   (setq org-roam-graph-viewer (lambda(url) (+browse-url url))))
 
 (use-package calfw-org
+  :after org-agenda
   :commands (+open-calendar)
-  :demand t
   :bind (:map org-agenda-mode-map ("C" . +open-calendar)
               :map cfw:calendar-mode-map ("?" . +calendar/show-keys))
   :config
@@ -608,7 +608,7 @@
   (setq org-timeline-show-title-in-blocks t)
   (set-face-attribute 'org-timeline-block nil :inherit 'highlight :background nil))
 
-(use-package org-appear :ensure nil
+(use-package org-appear
   :hook (org-mode . org-appear-mode))
 
 (use-package org-pretty-table :ensure nil
