@@ -21,14 +21,33 @@
   (setq flyspell-prog-text-faces (delq 'font-lock-string-face flyspell-prog-text-faces))
  :diminish flyspell-mode)
 
-;; TODO: checkout proselint
 
 (use-package spell-fu
   :hook (text-mode . spell-fu-mode)
   :init
   (setq spell-fu-directory (concat CACHE-DIR "spell-fu"))
-  :bind ("C-M-i" . ispell-word)
+  :bind (("C-M-i" . +spell-fu-fix-last-error)
+         (:map text-mode-map
+               ("C-M-i" . +spell-fu-fix-last-error)))
   :config
+  ;; Courtesy: https://emacs.stackexchange.com/a/55545 (ideasman42)
+  ;; rotation logic is also in the link
+  (defun +ispell-word-immediate ()
+    "Run `ispell-word', using the first suggestion."
+    (interactive)
+    (cl-letf
+        (((symbol-function 'ispell-command-loop)
+          (lambda (miss _guess _word _start _end) (car miss))))
+      (ispell-word)))
+
+  (defun +spell-fu-fix-last-error()
+    (interactive)
+    (save-excursion
+      (ispell-set-spellchecker-params)
+      (ispell-accept-buffer-local-defs)
+      (if (ispell-correct-p)
+          (spell-fu-goto-previous-error))
+      (+ispell-word-immediate)))
   (defun +spell-fu-set-face()
     (set-face-attribute 'spell-fu-incorrect-face nil :underline '(:color "#6666ff")))
   (+spell-fu-set-face)
