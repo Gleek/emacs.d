@@ -59,4 +59,7 @@
   :init
   (setq geben-temporary-file-directory (concat CACHE-DIR "geben")))
 
+(use-package php-doc-block :ensure nil
+  :commands (php-doc-block))
+
 (provide 'core-php)
