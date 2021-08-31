@@ -14,7 +14,7 @@
   :config
    ;; Makes typing smooth with very little affect on syntax
    ;; highlighting. We're using tree-sitter anyway.
-  (setq php-syntax-propertize-functions nil)
+  (advice-add 'php-syntax-propertize-function :override #'return-false)
   ;; Applying syntax propertize on extended region is slow. Disable
   ;; that and instead depend on tree-sitter to do the highlighting.
   (advice-add 'php-syntax-propertize-extend-region :override #'return-false)
