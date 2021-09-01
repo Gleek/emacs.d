@@ -172,25 +172,27 @@ Repeated invocations toggle between the two most recently open buffers."
   :bind (("M-." . smart-jump-go)
          ("M-," . smart-jump-back)
          ("M-?" . smart-jump-references))
-  :config (smart-jump-setup-default-registers)
+  :config
+  ;; (smart-jump-setup-default-registers)
   (smart-jump-register :modes 'php-mode
                        :jump-fn 'xref-find-definitions
                        :pop-fn 'xref-pop-marker-stack
                        :refs-fn 'xref-find-references
                        :should-jump t
                        :heuristic 'point
-                       :async 500
                        :order 1)
   (setq smart-jump-find-references-fallback-function 'smart-jump-find-references-with-rg)
-  ;; Prefer lsp over guru and godef for go
-  (smart-jump-register :modes 'go-mode
-                       :jump-fn 'xref-find-definitions
-                       :pop-fn 'xref-pop-marker-stack
-                       :refs-fn 'xref-find-references
-                       :should-jump t
-                       :heuristic 'point
-                       :async 500
-                       :order 0))
+  (defun +smart-jump-go-mode-register()
+    ;; Prefer lsp(gopls) over guru and godef for go
+    (smart-jump-register :modes 'go-mode
+                         :jump-fn 'xref-find-definitions
+                         :pop-fn 'xref-pop-marker-stack
+                         :refs-fn 'xref-find-references
+                         :should-jump t
+                         :heuristic 'point
+                         :order 1))
+  ;; Disable initialization of guru and def
+  (advice-add 'smart-jump-go-mode-register :override '+smart-jump-go-mode-register))
 
 
 (use-package treemacs
