@@ -503,6 +503,11 @@ the currently playing track."
   :load-path "packages/epaint/"
   :commands (epaint))
 
+(when IS-MAC
+  (use-package spotlight
+    :bind ("C-c s S" . spotlight)))
+
+
 (use-package explain-pause-mode
   :disabled t
   :ensure nil
