@@ -477,6 +477,9 @@ the currently playing track."
           (b "B / 8" "Bit"))
         math-units-table nil))
 
+(use-package counsel-calc :ensure nil
+  :bind ("M-*" . counsel-calc))
+
 (use-package shortdoc :ensure nil
   :bind ("C-h s" . shortdoc-display-group))
 
