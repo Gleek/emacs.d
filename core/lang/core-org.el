@@ -295,6 +295,7 @@
          (:map org-agenda-mode-map
                ("i" . org-agenda-clock-in)
                ("c" . +capture-inbox)
+               ("M-*" . nil)
                ("r" . +org-agenda-process-inbox-item)
                ("R" . org-agenda-refile)))
   :config

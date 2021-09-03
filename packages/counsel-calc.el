@@ -19,12 +19,20 @@
             `(,(format  "%s at %s" (car (cdr out)) (- (car out) 10)))
           `(,out)))))
 
+(defun counsel-calc--push-to-calc(str)
+  (require 'calc-aent)
+  ;; (calc-evaluate str)
+  (calc)
+  (calc-wrapper
+   (calc-alg-entry str)))
+
 (defun counsel-calc()
   (interactive)
   (ivy-read "Expression: "
             #'counsel-calc--eval
-            :action (lambda (x)
-                      (kill-new x))
+            :action '(1
+                      ("k" kill-new "copy")
+                      ("c" counsel-calc--push-to-calc "Open in cal"))
             :dynamic-collection t
             :caller 'counsel-calc))
 (provide 'counsel-calc)
