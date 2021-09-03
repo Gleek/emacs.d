@@ -130,12 +130,10 @@ Will also prompt for a file to visit if current
 buffer is not visiting a file."
   (interactive "P")
   (if (or arg (not buffer-file-name))
-      (find-file (concat "/sudo:root@localhost:"
-                         (ido-read-file-name "Find file(as root): ")))
-    (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
-(defun find-alternate-file-as-root (filename)
-  "Wraps `find-alternate-file' with opening a file as root."
-  (find-alternate-file (concat "/sudo:root@localhost:" filename)))
+      (counsel-find-file "/sudo:root@localhost:")
+    (let ((pos (point)))
+      (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))
+      (goto-char pos))))
 
 (defun get-positions-of-line-or-region ()
   "Return positions (beg . end) of the current line or region."
