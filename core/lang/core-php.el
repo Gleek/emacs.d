@@ -51,10 +51,6 @@
   :init
   (add-hook 'php-mode-hook (lambda()(require 'flycheck-phpstan))))
 
-(use-package phpcbf
-  :config
-  (setq phpcbf-standard "~/.config/phpcs/phpcs.xml"))
-
 (use-package geben
   :init
   (setq geben-temporary-file-directory (concat CACHE-DIR "geben")))

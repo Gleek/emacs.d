@@ -510,7 +510,6 @@
 
 (use-package org-roam
   :ensure org-roam
-  :ensure org-roam-server
   ;; :ensure company-org-roam
   :init
   (setq org-roam-v2-ack t)
@@ -597,6 +596,7 @@
 
 
 (use-package org-timeline
+  :ensure nil
   :commands (org-timeline-insert-timeline)
   :hook (org-agenda-finalize . +org-insert-timeline)
   :config

@@ -46,13 +46,13 @@
 ;;   :config (key-chord-mode 1))
 
 ;; (use-package use-package-ensure-system-package)
-(use-package benchmark-init
-  ;; :disabled
-  :demand
-  :config
-  ;; To disable collection of benchmark data after init is done.
-  ;; (add-hook 'after-init-hook 'benchmark-init/deactivate)
-  )
+;; (use-package benchmark-init
+;;   ;; :disabled
+;;   :demand
+;;   :config
+;;   ;; To disable collection of benchmark data after init is done.
+;;   ;; (add-hook 'after-init-hook 'benchmark-init/deactivate)
+;;   )
 
 (setq custom-file (concat CACHE-DIR "custom.el"))
 ;; (load custom-file)

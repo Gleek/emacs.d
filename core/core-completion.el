@@ -34,15 +34,11 @@
   ;; Force change line spacing in ivy. There's a bug which makes ivy
   ;; hide few candidates if the spacing is made too large, but works
   ;; fine for smaller values.
-  (defun +ivy-change-line-spacing(&rest _)
-    (if (not ivy-posframe-mode)
-        (setq-local line-spacing (default-value 'line-spacing))))
 
   (defun +ivy-shrink-after-dispatching-a(f &rest a)
     (unless mini-frame-mode
       (apply f a)))
   (advice-add 'ivy-shrink-after-dispatching :around #'+ivy-shrink-after-dispatching-a)
-  (advice-add 'ivy--minibuffer-setup :after #'+ivy-change-line-spacing)
   :bind (("C-x b"   . ivy-switch-buffer)
          ("C-c v" . ivy-resume))
   :diminish ivy-mode)
@@ -87,8 +83,15 @@
           (width (min (or ivy-posframe-width 100) (round (* .6 (frame-width))))))
       (list :height height :width width :min-height height :min-width width)))
 
+  (defun +ivy-change-line-spacing(&rest _)
+    (if (not ivy-posframe-mode)
+        (setq-local line-spacing (default-value 'line-spacing))))
+
+  (advice-add 'ivy--minibuffer-setup :after #'+ivy-change-line-spacing)
+
   (setq ivy-posframe-size-function '+ivy-posframe-get-size)
   (setq ivy-posframe-font (concat default-font " 12"))
+  
   (ivy-posframe-mode 1))
 
 (use-package ivy-rich

@@ -499,6 +499,8 @@ the currently playing track."
          ("<C-S-f12>" . profiler-report)
          ("<M-f12>" . profiler-stop)))
 
+(use-package package-safe-delete)
+
 (use-package epaint :ensure nil
   :load-path "packages/epaint/"
   :commands (epaint))
