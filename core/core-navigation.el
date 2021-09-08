@@ -72,21 +72,32 @@
 
 (use-package hideshow
   :ensure nil
-  :disabled t ;; Trying out origami
-  ;; :defer 1
-  ;; :bind (:map hs-minor-mode-map
-  ;;             ("<S-mouse-1>" . move-mouse-and-toggle-hide))
+  :hook (prog-mode . hs-minor-mode)
+  :bind (:map hs-minor-mode-map
+              ("C-{" . hydra-hs-folding/body)
+              ("<S-mouse-1>" . +mouse-hs-toggle))
   :config
-  (add-hook 'prog-mode-hook 'hs-minor-mode)
-  (defun move-mouse-and-toggle-hide(e)
+  (defhydra hydra-hs-folding (:color red)
+    "
+  _o_pen node    _c_lose node  _t_oggle fold
+  close _l_evel  _s_how all    _h_ide all
+  "
+    ("o" hs-show-block)
+    ("c" hs-hide-block)
+    ("t" hs-toggle-hiding)
+    ("l" hs-hide-level)
+    ("s" hs-show-all)
+    ("h" hs-hide-all)
+    ("<tab>" hs-toggle-hiding))
+  (defun +mouse-hs-toggle(e)
     (interactive "e")
     (mouse-set-point e)
     (hs-toggle-hiding e)))
 
-
 (use-package origami
+  :disabled t
   :after hydra
-  :hook (prog-mode . origami-mode)
+  ;; :hook (prog-mode . origami-mode)
   :bind (:map origami-mode-map
               ("C-{" . hydra-folding/body)
               ("<S-mouse-1>" . +mouse-origami-toggle))
