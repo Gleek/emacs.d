@@ -295,14 +295,22 @@
 
 (use-package mini-frame
   :defer 1
+  :bind ("C-c t m" . +toggle-mini-frame)
   :config
+  (defun +toggle-mini-frame()
+    (interactive)
+    (if mini-frame-mode
+        (mini-frame-mode -1)
+      (mini-frame-mode 1)))
   (setq mini-frame-show-parameters
         '((left . 0.5)
           (top . 0.3)
           (width . 0.6)))
-  (mini-frame-mode 1)
+  (setq mini-frame-ignore-functions '(y-or-n-p))
   (add-to-list 'mini-frame-ignore-commands 'swiper)
-  (add-to-list 'mini-frame-ignore-commands 'git-gutter:revert-hunk))
+  (add-to-list 'mini-frame-ignore-commands 'swiper-from-isearch)
+  (add-to-list 'mini-frame-ignore-commands 'git-gutter:revert-hunk)
+  (mini-frame-mode 1))
 
 
 (use-package tree-sitter

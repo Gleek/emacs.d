@@ -60,9 +60,9 @@
 
 
 (use-package ivy-posframe
-  :disabled
   :diminish
   :config
+  :disabled t
   (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
@@ -75,12 +75,12 @@
   (setq ivy-posframe-parameters
         '((left-fringe . 8)
           (right-fringe . 8)
-          ;; (parent-frame nil)
+          ;; (parent-frame nil) ;; For exwm
           ))
   (defun +ivy-posframe-get-size ()
     "Set the ivy-posframe size according to the current frame."
     (let ((height (or ivy-posframe-height (or ivy-height 10)))
-          (width (min (or ivy-posframe-width 100) (round (* .6 (frame-width))))))
+          (width (min (or ivy-posframe-width 200) (round (* .6 (frame-width))))))
       (list :height height :width width :min-height height :min-width width)))
 
   (defun +ivy-change-line-spacing(&rest _)
@@ -91,7 +91,6 @@
 
   (setq ivy-posframe-size-function '+ivy-posframe-get-size)
   (setq ivy-posframe-font (concat default-font " 12"))
-  
   (ivy-posframe-mode 1))
 
 (use-package ivy-rich
