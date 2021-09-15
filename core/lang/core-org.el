@@ -710,8 +710,33 @@
   :hook (org-mode . org-pdftools-setup-link))
 
 (use-package org-ql
-  :commands (+org-archive-archivable +org-show-archivable)
+  :commands (+org-archive-archivable +org-show-archivable +org-show-pending)
   :config
+
+  (org-ql-defpred captured (&key from to _on)
+    "Return non-nil if current entry was captured in given period.
+Without arguments, return non-nil if entry is captured."
+    :normalizers ((`(,predicate-names ,(and num-days (pred numberp)))
+                   (let* ((from-day (* -1 num-days))
+                          (rest (list :from from-day)))
+                     (org-ql--normalize-from-to-on
+                       `(captured :from ,from))))
+                  (`(,predicate-names . ,rest)
+                   (org-ql--normalize-from-to-on
+                     `(captured :from ,from :to ,to))))
+    :body
+    (let ((org-captured-time (org-entry-get (point) "captured")))
+      (when org-captured-time
+        (and (if from (ts> (ts-parse org-captured-time) from) t)
+             (if to (ts< (ts-parse org-captured-time) to) t)))))
+
+  (defun +org-show-pending(&optional arg)
+    (interactive "P")
+    (let ((days (if arg arg 30)))
+      (org-ql-search
+        org-agenda-files
+        `(and (todo "TODO" "DELEGATED" "BLOCKED" "WAITING" "DOING") (captured :to ,(ts-format (ts-adjust 'day (* -1 days) (ts-now))))))))
+
   (defun +org-show-archivable()
     (interactive)
     (org-ql-search
