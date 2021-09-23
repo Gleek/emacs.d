@@ -563,8 +563,17 @@
                                           org-roam-unlinked-references-section))
   (setq org-roam-graph-viewer (lambda(url) (+browse-url url))))
 
+(use-package org-roam-ui
+  :after org-roam
+  :load-path "packages/org-roam-ui"
+  :commands (org-roam-ui-mode)
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
+
 (use-package calfw-org
-  :after org-agenda
   :commands (+open-calendar)
   :bind (:map org-agenda-mode-map ("C" . +open-calendar)
               :map cfw:calendar-mode-map ("?" . +calendar/show-keys))

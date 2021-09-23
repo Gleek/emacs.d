@@ -1,0 +1,3 @@
+[submodule "org-roam-ui"]
+	path = packages/org-roam-ui
+	url = git@github.com:org-roam/org-roam-ui.git
