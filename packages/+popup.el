@@ -907,6 +907,8 @@ prevent the popup(s) from messing up the UI (or vice versa)."
      :vslot -6 :size 0.45 :select t :quit t :ttl 0)
     ("^\\*Calc"
      :vslot -7 :side bottom :size 0.4 :select t :quit nil :ttl 0)
+    ("^\\*wclock"
+     :vslot -7 :side bottom :size 0.4 :select t :quit t :ttl 0)
     ("^\\*Customize"
      :slot 2 :side right :size 0.5 :select t :quit nil)
     ("^ \\*undo-tree\\*"
@@ -914,8 +916,6 @@ prevent the popup(s) from messing up the UI (or vice versa)."
     ;; `help-mode', `helpful-mode'
     ("^\\*[Hh]elp"
      :slot 2 :vslot -8 :size 0.35 :select t)
-    ("^\\*eww\\*"  ; `eww' (and used by dash docsets)
-     :vslot -11 :size 0.35 :select t)
     ("^\\*info\\*$"  ; `Info-mode'
      :slot 2 :vslot 2 :size 0.45 :select t))
   '(("^\\*Warnings" :vslot 99 :size 0.25)
