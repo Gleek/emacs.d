@@ -98,8 +98,11 @@
     (setq +theme-type ns-system-appearance))
   (defvar +light-theme 'doom-one-light)
   (defvar +dark-theme 'doom-one)
-  (defun +switch-theme-type()
+
+  (defun +switch-theme-type(&optional theme)
     (interactive)
+    (let ((rev-theme (pcase theme ('light 'dark) ('dark 'light))))
+      (setq +theme-type (if rev-theme rev-theme +theme-type)))
     (disable-theme 'solaire-swap-bg-theme)
     (if (eq +theme-type 'light)
         (progn
@@ -118,10 +121,12 @@
   (doom-themes-org-config)
   ;; (add-hook 'ns-system-appearance-change-functions
   ;;           #'(lambda (appearance)
-  ;;               (mapc #'disable-theme custom-enabled-themes)
-  ;;               (pcase appearance
-  ;;                 ('light (progn (load-theme 'doom-one-light t) (solaire-global-mode +1)))
-  ;;                 ('dark (progn (load-theme 'doom-one t) (solaire-global-mode +1))))))
+  ;;               (+switch-theme-type appearance)
+  ;;               ;; (mapc #'disable-theme custom-enabled-themes)
+  ;;               ;; (pcase appearance
+  ;;               ;;   ('light (progn (load-theme 'doom-one-light t) (solaire-global-mode +1)))
+  ;;               ;;   ('dark (progn (load-theme 'doom-one t) (solaire-global-mode +1))))
+  ;;               ))
   )
 
 (use-package posframe
