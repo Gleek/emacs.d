@@ -56,7 +56,13 @@
 
 ;; Space out a little
 (setq-default line-spacing 0.2)
-(setq-default default-text-properties '(line-spacing 0.20 line-height 1.20))
+;; (setq-default default-text-properties '(line-spacing 0.2 line-height 0))
+(defun set-bigger-spacing ()
+  (setq-local default-text-properties '(line-spacing 0.20 line-height 1.20)))
+(add-hook 'text-mode-hook 'set-bigger-spacing)
+(add-hook 'prog-mode-hook 'set-bigger-spacing)
+
+
 (setq x-underline-at-descent-line nil)
 (setq x-use-underline-position-properties t)
 
