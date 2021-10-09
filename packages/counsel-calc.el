@@ -12,12 +12,12 @@
 ;;; Code:
 
 (defun counsel-calc--eval(str)
-  (if (> (length str) 0)
+  (ignore-errors (if (> (length str) 0)
       (let* ((str (format "usimplify(%s)" str))
              (out (calc-eval str)))
         (if (listp out)
             `(,(format  "%s at %s" (car (cdr out)) (- (car out) 10)))
-          `(,out)))))
+          `(,out))))))
 
 (defun counsel-calc--push-to-calc(str)
   (require 'calc-aent)
