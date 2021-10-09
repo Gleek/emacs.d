@@ -20,9 +20,7 @@
   (add-hook 'magit-popup-mode-hook #'hide-mode-line-mode))
 
 (use-package magit-delta
-  :hook (magit-mode . magit-delta-mode)
-  :config
-  (setq magit-delta-default-dark-theme "Monokai Extended Bright"))
+  :hook (magit-mode . magit-delta-mode))
 
 (use-package forge
   :after magit
