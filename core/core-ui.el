@@ -108,10 +108,11 @@
         (progn
           (disable-theme +light-theme)
           (load-theme +dark-theme t)
-          (setq-local +theme-type 'dark))
+          (setq +theme-type 'dark))
       (disable-theme +dark-theme)
       (load-theme +light-theme t)
-      (setq-local +theme-type 'light))
+      (setq +theme-type 'light))
+    (set-frame-parameter nil 'background-mode +theme-type)
     (run-hook-with-args-until-success '+theme-toggle-hook))
 
   (solaire-global-mode +1)
