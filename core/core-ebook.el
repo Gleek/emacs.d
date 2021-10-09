@@ -68,6 +68,20 @@
   (add-hook 'nov-mode-hook 'reading-mode)
   (setq nov-save-place-file (concat CACHE-DIR "nov-places")))
 
+(use-package djvu)
+
+(use-package calibredb
+  :commands (+calibredb-add)
+  :bind ("C-c B" . calibredb-find-counsel)
+  :config
+  (defun +calibredb-add()
+    (interactive)
+    (calibredb-add nil)
+    (setq calibredb-search-entries (calibredb-candidates))
+    (setq calibredb-full-entries calibredb-search-entries))
+  (setq calibredb-root-dir "~/Documents/Calibre")
+  (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir)))
+
 (use-package spray
   :after nov
   :bind (:map nov-mode-map

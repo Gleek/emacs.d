@@ -456,12 +456,6 @@ the currently playing track."
   :bind (:map proced-mode-map
               ("/" . proced-narrow)))
 
-(use-package calibredb
-  :bind ("C-c B" . calibredb-find-counsel)
-  :config
-  (setq calibredb-root-dir "~/Documents/Calibre")
-  (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir)))
-
 (use-package calc
   :bind ("C-*" . calc)
   :config
