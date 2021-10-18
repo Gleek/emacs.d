@@ -714,6 +714,53 @@
     (interactive)
     (org-capture nil "A")))
 
+(use-package incremental-reading
+  :commands (incremental-reading-extract-basic incremental-reading-extract-cloze +incremental-reading-extract-basic)
+  :ensure nil
+  :bind (:map org-mode-map
+              ("C-z k k" . +incremental-reading-extract-basic)
+              ("C-z k p" . incremental-reading-parse-cards))
+  :config
+  (defvar incremental-reading-basic-template-back-front
+    ":ANKI-CARD:
+#+ATTR_DECK: %s
+#+ATTR_TYPE: Basic
+#+ATTR_TAGS: %s
+#+BEGIN_ANKI org
+#+ATTR_FIELD: Front
+#+BEGIN_FIELD
+%s
+#+END_FIELD
+
+#+ATTR_FIELD: Back
+#+BEGIN_FIELD
+%s
+#+END_FIELD
+#+END_ANKI
+:END:
+")
+  (defun +incremental-reading-extract-basic ()
+    "Extract current region into a basic anki card.  Differs from the
+    default basic card creation by Asking for a question and
+    using that as the front. And uses the selection as the answer.
+    Also hides the block so as to keep the content clean."
+    (interactive)
+    (let* ((element (org-element-at-point))
+           (selection-start (region-beginning))
+           (selection-end (region-end))
+           (question (read-string "Question : ")))
+      (goto-char (org-element-property :end element))
+      (insert (format incremental-reading-basic-template-back-front
+                      incremental-reading-default-deck
+                      incremental-reading-default-tags
+                      question
+                      (incremental-reading--extract-text selection-start
+                                                         selection-end))))
+    ;; Close the block as well
+    (save-excursion
+      (forward-line -1)
+      (call-interactively 'org-cycle))))
+
 
 (use-package org-pdftools
   :hook (org-mode . org-pdftools-setup-link))

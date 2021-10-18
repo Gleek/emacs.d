@@ -99,7 +99,6 @@
 (use-package "core-project" :ensure nil :demand t
   ;; :chords ("nm" . switch-to-previous-buffer)
   :bind (("C-x k" . kill-current-buffer)
-         ("C-z" . bury-buffer)
          ("C-x K" . kill-buffer-and-window)))
 
 (use-package "core-debug" :ensure nil :demand t)
