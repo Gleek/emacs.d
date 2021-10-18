@@ -321,6 +321,7 @@
   (setq mini-frame-ignore-functions '(y-or-n-p))
   (add-to-list 'mini-frame-ignore-commands 'swiper)
   (add-to-list 'mini-frame-ignore-commands 'swiper-from-isearch)
+  (add-to-list 'mini-frame-ignore-commands 'counsel-rg)
   (add-to-list 'mini-frame-ignore-commands 'git-gutter:revert-hunk)
   (mini-frame-mode 1))
 
