@@ -537,7 +537,7 @@
       (apply #'org-roam-node-insert args)))
   (defun +do-org-roam-bindings()
     (when (org-roam-file-p (buffer-file-name (buffer-base-buffer)))
-      (local-set-key (kbd "C-i") 'org-roam-insert-immediate)))
+      (local-set-key (kbd "<C-i>") 'org-roam-insert-immediate)))
 
   (defun +org-roam-open-with-buffer-maybe-h ()
     (and (not org-roam-capture--node) ; don't proc for capture buffers
@@ -641,7 +641,7 @@
          ("C-c o k c" . +org-capture-anki-cloze)
          :map anki-editor-mode-map
          ("C-c C-c" . anki-editor-push-tree)
-         ("C-i" . anki-editor-insert-note)
+         ("<C-i>" . anki-editor-insert-note)
          ("C-c {" . 'anki-editor-cloze-region-auto-incr)
          ("C-c [" . 'anki-editor-cloze-region-dont-incr)
          ("C-c 0" . 'anki-editor-reset-cloze-number))

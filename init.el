@@ -29,7 +29,8 @@
 (setq native-comp-async-report-warnings-errors nil)
 
 (unless IS-TERM
-  (define-key input-decode-map [?\C-m] [C-m]))
+  (define-key input-decode-map [?\C-m] [C-m])
+  (define-key input-decode-map [?\C-i] [C-i]))
 
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
