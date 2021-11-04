@@ -45,6 +45,17 @@
       (when (and contents-buffer (buffer-live-p contents-buffer))
         (kill-buffer contents-buffer))))
 
+  (defun +pdf-reload-midnight-minor-mode-h ()
+    (when pdf-view-midnight-minor-mode
+      (pdf-info-setoptions
+       :render/foreground (car pdf-view-midnight-colors)
+       :render/background (cdr pdf-view-midnight-colors)
+       :render/usecolors t)
+      (pdf-cache-clear-images)
+      (pdf-view-redisplay t)))
+
+  (add-hook '+theme-toggle-hook #'+pdf-reload-midnight-minor-mode-h)
+
   ;; (remove-hook 'pdf-view-mode-hook
   ;;           (add-hook 'kill-buffer-hook #'pdf-cleanup-windows-h nil t))
   ;; (pdf-view-midnight-colors '("#839496" . "#002b36"))
