@@ -1,3 +1,8 @@
+(defun +pdf-suppress-large-files-prompt-a(fn size op-type filename &optional offer-raw)
+  (unless (string-match-p "\\.pdf\\'" filename)
+    (funcall fn size op-type filename offer-raw)))
+(advice-add 'abort-if-file-too-large :around #'+pdf-suppress-large-files-prompt-a)
+
 (use-package pdf-tools
   :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
   :magic ("%PDF" . pdf-view-mode)
@@ -11,10 +16,7 @@
 
   :config
   ;; Silence "File *.pdf is large (X MiB), really open?" prompts for pdfs
-  (defun +pdf-suppress-large-files-prompt-a(fn size op-type filename &optional offer-raw)
-    (unless (string-match-p "\\.pdf\\'" filename)
-      (funcall fn size op-type filename offer-raw)))
-  (advice-add 'abort-if-file-too-large :around #'+pdf-suppress-large-files-prompt-a)
+
   (defvar pdf-annot-highlight-colors '(("blue" . "#40e0d0") ("yellow" . "#face50") ("red" . "#ff69b4")))
   (defun pdf-annot-choose-highlight-color()
     (interactive)

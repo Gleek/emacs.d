@@ -717,6 +717,7 @@
 (use-package incremental-reading
   :commands (incremental-reading-extract-basic incremental-reading-extract-cloze +incremental-reading-extract-basic)
   :ensure nil
+  :after org
   :bind (:map org-mode-map
               ("C-z k k" . +incremental-reading-extract-basic)
               ("C-z k p" . incremental-reading-parse-cards))
@@ -745,7 +746,6 @@
     using that as the front. And uses the selection as the answer.
     Also hides the block so as to keep the content clean."
     (interactive "P")
-    (message "prefix => %s" prefix)
     (let* ((element (org-element-at-point))
            (selection-start (region-beginning))
            (selection-end (region-end))

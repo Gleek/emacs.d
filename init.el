@@ -60,6 +60,9 @@
 (add-to-list 'load-path (expand-file-name "packages/" user-emacs-directory))
 (add-to-list 'load-path (expand-file-name "core/" user-emacs-directory))
 
+;; Reserve C-z as a prefix for mode level keymaps
+(global-unset-key (kbd "C-z"))
+
 (use-package "core-util" :ensure nil :demand t)
 (use-package "core-ui" :ensure nil :demand t
   :hook (prog-mode . font-lock-comment-annotations))
