@@ -739,27 +739,30 @@
 #+END_ANKI
 :END:
 ")
-  (defun +incremental-reading-extract-basic ()
+  (defun +incremental-reading-extract-basic (prefix)
     "Extract current region into a basic anki card.  Differs from the
     default basic card creation by Asking for a question and
     using that as the front. And uses the selection as the answer.
     Also hides the block so as to keep the content clean."
-    (interactive)
+    (interactive "P")
+    (message "prefix => %s" prefix)
     (let* ((element (org-element-at-point))
            (selection-start (region-beginning))
            (selection-end (region-end))
+           (tags (if prefix (read-string "tags: ") incremental-reading-default-tags))
            (question (read-string "Question : ")))
       (goto-char (org-element-property :end element))
+      (setq incremental-reading-default-tags tags)
       (insert (format incremental-reading-basic-template-back-front
                       incremental-reading-default-deck
-                      incremental-reading-default-tags
+                      tags
                       question
                       (incremental-reading--extract-text selection-start
                                                          selection-end))))
     ;; Close the block as well
     (save-excursion
       (forward-line -1)
-      (call-interactively 'org-cycle))))
+      (org-cycle))))
 
 
 (use-package org-pdftools
