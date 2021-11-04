@@ -319,7 +319,7 @@
         '((left . 0.5)
           (top . 0.3)
           (width . 0.6)))
-  (setq mini-frame-ignore-functions '(y-or-n-p))
+  (setq mini-frame-ignore-functions '(y-or-n-p yes-or-no-p))
   (add-to-list 'mini-frame-ignore-commands 'swiper)
   (add-to-list 'mini-frame-ignore-commands 'swiper-from-isearch)
   (add-to-list 'mini-frame-ignore-commands 'counsel-rg)
