@@ -628,8 +628,10 @@
 ;; (use-package org-noter)
 (use-package ox-clip
   :bind ("s-w". ox-clip-formatted-copy))
-(use-package org-cliplink
-  :bind ("C-c o y" . org-cliplink))
+;; (use-package org-cliplink
+;;   :bind ("C-c o y" . org-cliplink))
+(use-package org-web-tools)
+
 
 (use-package anki-editor
   :after org
@@ -809,6 +811,76 @@ Without arguments, return non-nil if entry is captured."
       `(closed :to ,(ts-format (ts-adjust 'day -60 (ts-now))))
       :action 'org-archive-subtree-default)))
 
+(use-package org-tree-slide
+  :after org
+  :commands org-tree-slide-mode
+  :bind (:map org-mode-map
+              ("C-z P" . org-tree-slide-mode))
+  :config
+  (org-tree-slide-simple-profile)
+  (setq org-tree-slide-activate-message " "
+        org-tree-slide-deactivate-message " "
+        org-tree-slide-modeline-display nil
+        org-tree-slide-heading-emphasis t)
+  (add-hook 'org-tree-slide-after-narrow-hook #'org-display-inline-images)
+  (add-hook 'org-tree-slide-mode-hook #'+org-present-prettify-slide-h)
+  (add-hook 'org-tree-slide-play-hook #'+org-present-hide-blocks-h)
+  (defvar +org-present-text-scale 5
+    "The `text-scale-amount' for `org-tree-slide-mode'.")
+  (defun +org-present-hide-blocks-h ()
+    "Hide org #+ constructs."
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "^[[:space:]]*\\(#\\+\\)\\(\\(?:BEGIN\\|END\\|ATTR\\)[^[:space:]]+\\).*" nil t)
+        (org-flag-region (match-beginning 1)
+                         (match-end 0)
+                         org-tree-slide-mode
+                         t))))
+  (defvar +org-present--last-wconf nil)
+  (defvar +org-present--last-line-num nil)
+  (defun +org-present-prettify-slide-h ()
+  "Set up the org window for presentation."
+  (let ((arg (if org-tree-slide-mode +1 -1)))
+    (if (not org-tree-slide-mode)
+        (progn
+          (when +org-present--last-wconf
+            (set-window-configuration +org-present--last-wconf))
+          (when +org-present--last-line-num
+            (display-line-numbers-mode +org-present--last-line-num)))
+      (setq +org-present--last-wconf (current-window-configuration))
+      (delete-other-windows)
+      (setq +org-present--last-line-num display-line-numbers-mode)
+      (display-line-numbers-mode -1))
+    (when (fboundp 'centered-window-mode)
+      (setq-local cwm-use-vertical-padding t)
+      (setq-local cwm-frame-internal-border 100)
+      (setq-local cwm-left-fringe-ratio -10)
+      (setq-local cwm-centered-window-width 300)
+      (centered-window-mode arg))
+    (hide-mode-line-mode arg)
+
+    (cond (org-tree-slide-mode
+           (set-window-fringes nil 0 0)
+           (when (bound-and-true-p flyspell-mode)
+             (flyspell-mode -1))
+           (add-hook 'kill-buffer-hook #'+org-present--cleanup-org-tree-slides-mode
+                     nil 'local)
+           (text-scale-set +org-present-text-scale)
+           (ignore-errors (org-latex-preview '(4))))
+          (t
+           (text-scale-set 0)
+           (set-window-fringes nil fringe-mode fringe-mode)
+           (org-clear-latex-preview)
+           (org-remove-inline-images)
+           (org-mode)))
+    (redraw-display)))
+  (defun +org-present--cleanup-org-tree-slides-mode ()
+    (unless (cl-loop for buf in (doom-buffers-in-mode 'org-mode)
+                     if (buffer-local-value 'org-tree-slide-mode buf)
+                     return t)
+      (org-tree-slide-mode -1)
+      (remove-hook 'kill-buffer-hook #'+org-present--cleanup-org-tree-slides-mode
+                   'local))))
 
 (provide 'core-org)
 ;;; core-org.el ends here
