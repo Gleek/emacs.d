@@ -50,6 +50,7 @@
         kill-visual-line
         kmacro-start-macro-or-insert-counter
         mark-sexp
+        markdown-electric-backquote
         markdown-exdent-or-delete
         markdown-outdent-or-delete
         mc/vertical-align

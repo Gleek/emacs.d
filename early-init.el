@@ -24,7 +24,15 @@
     (dolist (handler file-name-handler-alist)
       (add-to-list 'file-name-handler-alist-backup handler))
     (setq file-name-handler-alist file-name-handler-alist-backup))
-  (add-hook 'emacs-startup-hook #'reset-file-handler-alist-h))
+  (add-hook 'emacs-startup-hook #'reset-file-handler-alist-h)
+
+  (setq-default inhibit-redisplay t
+                inhibit-message t)
+  (add-hook 'window-setup-hook
+            (lambda ()
+              (setq-default inhibit-redisplay nil
+                            inhibit-message nil)
+              (redisplay))))
 
 
 (defvar gc-cons-threshold-backup gc-cons-threshold)
