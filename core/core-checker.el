@@ -114,6 +114,40 @@
                   (+spell--correct wrd poss word orig-pt start end))))))
           (ispell-pdict-save t))))))
 
+
+  (defun +spell--correct (replace poss word orig-pt start end)
+    (cond ((eq replace 'ignore)
+           (goto-char orig-pt)
+           nil)
+          ((eq replace 'save)
+           (goto-char orig-pt)
+           (ispell-send-string (concat "*" word "\n"))
+           (ispell-send-string "#\n")
+           (setq ispell-pdict-modified-p '(t)))
+          ((or (eq replace 'buffer) (eq replace 'session))
+           (ispell-send-string (concat "@" word "\n"))
+           (add-to-list 'ispell-buffer-session-localwords word)
+           (or ispell-buffer-local-name ; session localwords might conflict
+               (setq ispell-buffer-local-name (buffer-name)))
+           (if (null ispell-pdict-modified-p)
+               (setq ispell-pdict-modified-p
+                     (list ispell-pdict-modified-p)))
+           (goto-char orig-pt)
+           (if (eq replace 'buffer)
+               (ispell-add-per-file-word-list word)))
+          (replace
+           (let ((new-word (if (atom replace)
+                               replace
+                             (car replace)))
+                 (orig-pt (+ (- (length word) (- end start))
+                             orig-pt)))
+             (unless (equal new-word (car poss))
+               (delete-region start end)
+               (goto-char start)
+               (insert new-word))))
+          ((goto-char orig-pt)
+           nil)))
+
   (setq-default spell-fu-faces-exclude
                 '(org-block org-block-begin-line
                 org-block-end-line org-code org-date org-footnote
