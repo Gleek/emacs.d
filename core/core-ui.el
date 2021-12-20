@@ -114,7 +114,7 @@
       (load-theme +light-theme t)
       (setq +theme-type 'light))
     (set-frame-parameter nil 'background-mode +theme-type)
-    (run-hook-with-args-until-success '+theme-toggle-hook))
+    (run-hooks '+theme-toggle-hook))
 
   (solaire-global-mode +1)
   (load-theme (if (eq +theme-type 'dark) +dark-theme +light-theme) t)
