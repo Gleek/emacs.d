@@ -291,20 +291,67 @@
   (setq-default olivetti-body-width 130)
   :bind ("C-c t z" . +focus-mode)
   :config
+  ;; Global mode for olivetti
+  ;; Courtesy: KaratasFurkan https://github.com/rnkn/olivetti/pull/56/files#
+  (defvar olivetti-excluded-buffer-regexps '("\\` " "\\`\\*helm" "\\`\\*ivy" "\\`\\*dashboard\\*" "\\*Org Agenda\\*"))
+  (defvar olivetti-exclude-buffer-predicates '(olivetti-excluded-buffer-p olivetti-window-not-full-span-p))
+  (defvar olivetti--manually-enabled-buffers nil)
+  (defun olivetti-excluded-buffer-p ()
+    "Return t if current buffer-name matches at least one of
+`olivetti-excluded-buffer-regexps'"
+    (catch 'found
+      (dolist (regexp olivetti-excluded-buffer-regexps)
+        (when (string-match-p regexp (buffer-name))
+          (throw 'found t)))))
+
+  (defun olivetti-window-not-full-span-p ()
+    "Return t if current window spans full width of current frame."
+    (let ((margin-width (+ (or (car (window-margins)) 0)
+                           (or (cdr (window-margins)) 0))))
+      (not (= (+ (window-width) margin-width) (frame-width)))))
+  (defun olivetti-global-set-windows ()
+    "Enable `olivetti-mode' for windows that pass all
+`olivetti-exclude-buffer-predicates' or disable it if fail at
+least one of them."
+    (dolist (window (window-list nil 'no-minibuf))
+      (unless (member (window-buffer window) olivetti--manually-enabled-buffers)
+        (with-selected-window window
+          (if (run-hook-with-args-until-success 'olivetti-exclude-buffer-predicates)
+              (olivetti-mode -1)
+            (olivetti-mode 1))))))
+
+  (define-minor-mode global-olivetti-mode
+    "Enable `olivetti-mode' on windows that pass
+`olivetti-exclude-buffer-predicates' automatically."
+    :global t
+    (if global-olivetti-mode
+        (progn
+          (olivetti-global-set-windows)
+          (add-hook 'window-configuration-change-hook 'olivetti-global-set-windows))
+      (remove-hook 'window-configuration-change-hook 'olivetti-global-set-windows)
+      (olivetti-mode -1)
+      (olivetti-reset-all-windows)
+      (setq olivetti--manually-enabled-buffers nil)))
+
   (defun +focus-mode()
     (interactive)
-    (if olivetti-mode
+    (if (and (fboundp 'olivetti-mode) olivetti-mode)
         (progn
-          (display-line-numbers-mode +1)
+          ;; (display-line-numbers-mode +1)
           (olivetti-mode -1))
-      (display-line-numbers-mode -1)
-      (olivetti-mode +1)))
+      ;; (display-line-numbers-mode -1)
+
+      (olivetti-mode +1))
+    (add-to-list 'olivetti--manually-enabled-buffers (current-buffer)))
+
+
   (defun olivetti-custom-width()
     (interactive)
-    (setq olivetti-body-width
+    (setq-default olivetti-body-width
           (string-to-number
-           (completing-read "Width" '("160" "150" "100" "70") nil t)))
-    (olivetti-set-buffer-windows)))
+           (completing-read "Width" '("200" "160" "150" "100" "70") nil t)))
+    (olivetti-reset-all-windows)))
+
 
 (use-package mini-frame
   :defer 1
