@@ -53,8 +53,14 @@
        :render/usecolors t)
       (pdf-cache-clear-images)
       (pdf-view-redisplay t)))
-
-  (add-hook '+theme-toggle-hook #'+pdf-reload-midnight-minor-mode-h)
+  (defun +pdf-reload-all-buff()
+    (mapc (lambda(buf)
+            (with-current-buffer buf
+              (if (eq (buffer-local-value 'major-mode buf) 'pdf-view-mode)
+                  (+pdf-reload-midnight-minor-mode-h))))
+          (buffer-list))
+    t)
+  (add-hook '+theme-toggle-hook #'+pdf-reload-all-buff)
 
   ;; (remove-hook 'pdf-view-mode-hook
   ;;           (add-hook 'kill-buffer-hook #'pdf-cleanup-windows-h nil t))
