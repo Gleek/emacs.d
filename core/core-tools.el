@@ -411,7 +411,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
       (keepass-mode-show entry)))
 
   (defun +keepass-copy-password(entry)
-    (kill-new (keepass-mode-get-password entry))
+    (kill-new (keepass-mode-get "Password" entry))
     (message "Password for '%s' copied to kill-ring" entry))
 
   (defun +keepass-copy-username(entry)
