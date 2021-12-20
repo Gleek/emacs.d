@@ -119,12 +119,13 @@
       (counsel-projectile-find-file-action-switch-project)
     (projectile-maybe-invalidate-cache arg)
     (+projectile-find-file--initialize)
-    (ivy-read (projectile-prepend-project-name "Find file: ")
+    (let ((ivy-dynamic-exhibit-delay-ms 100))
+      (ivy-read (projectile-prepend-project-name "Find file: ")
               #'+projectile-find-file--dynamic-matcher
               :require-match t
               :dynamic-collection t
               :action counsel-projectile-find-file-action
-              :caller '+projectile-find-file)))
+              :caller '+projectile-find-file))))
 
 (provide '+projectile-find-file)
 ;;; +projectile-find-file.el ends here
