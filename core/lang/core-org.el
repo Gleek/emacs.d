@@ -843,41 +843,41 @@ Without arguments, return non-nil if entry is captured."
   (defvar +org-present--last-wconf nil)
   (defvar +org-present--last-line-num nil)
   (defun +org-present-prettify-slide-h ()
-  "Set up the org window for presentation."
-  (let ((arg (if org-tree-slide-mode +1 -1)))
-    (if (not org-tree-slide-mode)
-        (progn
-          (when +org-present--last-wconf
-            (set-window-configuration +org-present--last-wconf))
-          (when +org-present--last-line-num
-            (display-line-numbers-mode +org-present--last-line-num)))
-      (setq +org-present--last-wconf (current-window-configuration))
-      (delete-other-windows)
-      (setq +org-present--last-line-num display-line-numbers-mode)
-      (display-line-numbers-mode -1))
-    (when (fboundp 'centered-window-mode)
-      (setq-local cwm-use-vertical-padding t)
-      (setq-local cwm-frame-internal-border 100)
-      (setq-local cwm-left-fringe-ratio -10)
-      (setq-local cwm-centered-window-width 300)
-      (centered-window-mode arg))
-    (hide-mode-line-mode arg)
+    "Set up the org window for presentation."
+    (let ((arg (if org-tree-slide-mode +1 -1)))
+      (if (not org-tree-slide-mode)
+          (progn
+            (when +org-present--last-wconf
+              (set-window-configuration +org-present--last-wconf))
+            (when +org-present--last-line-num
+              (display-line-numbers-mode +org-present--last-line-num)))
+        (setq +org-present--last-wconf (current-window-configuration))
+        (delete-other-windows)
+        (setq +org-present--last-line-num display-line-numbers-mode)
+        (display-line-numbers-mode -1))
+      (when (fboundp 'centered-window-mode)
+        (setq-local cwm-use-vertical-padding t)
+        (setq-local cwm-frame-internal-border 100)
+        (setq-local cwm-left-fringe-ratio -10)
+        (setq-local cwm-centered-window-width 300)
+        (centered-window-mode arg))
+      (hide-mode-line-mode arg)
 
-    (cond (org-tree-slide-mode
-           (set-window-fringes nil 0 0)
-           (when (bound-and-true-p flyspell-mode)
-             (flyspell-mode -1))
-           (add-hook 'kill-buffer-hook #'+org-present--cleanup-org-tree-slides-mode
-                     nil 'local)
-           (text-scale-set +org-present-text-scale)
-           (ignore-errors (org-latex-preview '(4))))
-          (t
-           (text-scale-set 0)
-           (set-window-fringes nil fringe-mode fringe-mode)
-           (org-clear-latex-preview)
-           (org-remove-inline-images)
-           (org-mode)))
-    (redraw-display)))
+      (cond (org-tree-slide-mode
+             (set-window-fringes nil 0 0)
+             (when (bound-and-true-p flyspell-mode)
+               (flyspell-mode -1))
+             (add-hook 'kill-buffer-hook #'+org-present--cleanup-org-tree-slides-mode
+                       nil 'local)
+             (text-scale-set +org-present-text-scale)
+             (ignore-errors (org-latex-preview '(4))))
+            (t
+             (text-scale-set 0)
+             (set-window-fringes nil fringe-mode fringe-mode)
+             (org-clear-latex-preview)
+             (org-remove-inline-images)
+             (org-mode)))
+      (redraw-display)))
   (defun +org-present--cleanup-org-tree-slides-mode ()
     (unless (cl-loop for buf in (doom-buffers-in-mode 'org-mode)
                      if (buffer-local-value 'org-tree-slide-mode buf)
