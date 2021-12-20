@@ -724,6 +724,8 @@
               ("C-z k k" . +incremental-reading-extract-basic)
               ("C-z k p" . incremental-reading-parse-cards))
   :config
+  (defvar incremental-reading-local-tags nil)
+  (setq-default incremental-reading-local-tags nil)
   (defvar incremental-reading-basic-template-back-front
     ":ANKI-CARD:
 #+ATTR_DECK: %s
@@ -751,10 +753,12 @@
     (let* ((element (org-element-at-point))
            (selection-start (region-beginning))
            (selection-end (region-end))
-           (tags (if prefix (read-string "tags: ") incremental-reading-default-tags))
+           (tags (if (or (eq incremental-reading-local-tags nil) prefix)
+                     (read-string "tags: ")
+                   incremental-reading-local-tags))
            (question (read-string "Question : ")))
       (goto-char (org-element-property :end element))
-      (setq incremental-reading-default-tags tags)
+      (setq-local incremental-reading-local-tags tags)
       (insert (format incremental-reading-basic-template-back-front
                       incremental-reading-default-deck
                       tags
@@ -775,21 +779,21 @@
   :config
 
   (org-ql-defpred captured (&key from to _on)
-    "Return non-nil if current entry was captured in given period.
+                  "Return non-nil if current entry was captured in given period.
 Without arguments, return non-nil if entry is captured."
-    :normalizers ((`(,predicate-names ,(and num-days (pred numberp)))
-                   (let* ((from-day (* -1 num-days))
-                          (rest (list :from from-day)))
-                     (org-ql--normalize-from-to-on
-                       `(captured :from ,from))))
-                  (`(,predicate-names . ,rest)
-                   (org-ql--normalize-from-to-on
-                     `(captured :from ,from :to ,to))))
-    :body
-    (let ((org-captured-time (org-entry-get (point) "captured")))
-      (when org-captured-time
-        (and (if from (ts> (ts-parse org-captured-time) from) t)
-             (if to (ts< (ts-parse org-captured-time) to) t)))))
+                  :normalizers ((`(,predicate-names ,(and num-days (pred numberp)))
+                                 (let* ((from-day (* -1 num-days))
+                                        (rest (list :from from-day)))
+                                   (org-ql--normalize-from-to-on
+                                    `(captured :from ,from))))
+                                (`(,predicate-names . ,rest)
+                                 (org-ql--normalize-from-to-on
+                                  `(captured :from ,from :to ,to))))
+                  :body
+                  (let ((org-captured-time (org-entry-get (point) "captured")))
+                    (when org-captured-time
+                      (and (if from (ts> (ts-parse org-captured-time) from) t)
+                           (if to (ts< (ts-parse org-captured-time) to) t)))))
 
   (defun +org-show-pending(&optional arg)
     (interactive "P")
