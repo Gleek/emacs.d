@@ -31,6 +31,18 @@
 
   ;; (all-the-icons-ivy-setup)
 
+  ;; Ivy debounces all inputs when ivy-dynamic-exhibit-delay-ms is set to some value The following
+  ;; code snippet only debounces the ivy--exhibit if there is a change in input This helps in
+  ;; dynamic filtering by not debouncing any commands such as up and down arrow keys while at the
+  ;; same time running filter functions only if some actual filtering is required.
+  (defvar +ivy--queue-last-input nil)
+  (defun +ivy-queue-exhibit-a(f &rest args)
+    (if (equal +ivy--queue-last-input (ivy--input))
+        (ivy--exhibit)
+      (apply f args))
+    (setq +ivy--queue-last-input (ivy--input)))
+  (advice-add 'ivy--queue-exhibit :around #'+ivy-queue-exhibit-a)
+
   ;; Force change line spacing in ivy. There's a bug which makes ivy
   ;; hide few candidates if the spacing is made too large, but works
   ;; fine for smaller values.
