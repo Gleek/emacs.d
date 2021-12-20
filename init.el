@@ -83,6 +83,7 @@
 (use-package "core-editing" :ensure nil :demand t
   :bind (("M-;" . comment-or-uncomment-region-or-line)
          ("C-c C-d" . duplicate-current-line-or-region)
+         ("C-c d" . duplicate-current-line-or-region)
          ("C-c C-;" . duplicate-and-comment-current-line-or-region)
          ("C-^" . top-join-line)
          ("C-@" . mark-inside-sexp)
