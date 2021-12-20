@@ -373,6 +373,19 @@ To actually enable this, evaluate `+bongo-remove-headers'."
     (dired bongo-default-directory)
     (bongo-dired-library-mode)))
 
+(use-package eww :ensure nil
+  :init (add-to-list 'org-protocol-protocol-alist
+                     '("eww"
+                       :protocol "eww"
+                       :function +start-eww-for-url))
+  :config
+  ;; Courtesy : marcowahl
+  (defun +start-eww-for-url (plist)
+    "Raise Emacs and call eww with the url in PLIST."
+    (raise-frame)
+    (eww (plist-get plist :url))
+    nil))
+
 (use-package "web-search" :ensure nil
   :commands (+browse-url)
   :bind (("C-c s w" . duck)
