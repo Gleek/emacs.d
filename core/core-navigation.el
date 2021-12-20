@@ -58,6 +58,8 @@
          ("M-Z" . zop-up-to-char)))
 
 (use-package gumshoe
+  ;; Gumshoe dumping a big stack in the Messages buffer and effectively making Emacs unresponsive
+  :disabled
   :defer 2
   :bind (("s-[" . gumshoe-backtrack-back)
          ("s-]" . gumshoe-backtrack-forward)
@@ -74,8 +76,16 @@
   ;; (advice-add #'gumshoe--peruse :override #'counsel-gumshoe-peruse)
   )
 
-
-
+(use-package point-stack
+  :ensure nil
+  :defer 2
+  :bind (("s-[" . point-stack-pop)
+         ("s-]" . point-stack-forward-stack-pop))
+  :config
+  (add-to-list 'point-stack-advised-functions 'swiper)
+  (add-to-list 'point-stack-advised-functions 'counsel-rg)
+  (add-to-list 'point-stack-advised-functions 'lsp-find-implementation)
+  (point-stack-setup-advices))
 
 (use-package hideshow
   :ensure nil
