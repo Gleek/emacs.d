@@ -341,9 +341,32 @@ the currently playing track."
   (setq bongo-display-header-icons nil)
   (setq bongo-display-playback-mode-indicator t)
 
-  ;; https://github.com/dbrock/bongo/pull/53 needs to be merged for mpv to work
   (setq bongo-enabled-backends '(mpv))
   (setq bongo-vlc-program-name "vlc")
+
+  ;; Courtesy: Protesilaos
+  (defun +bongo-playlist-buffer-no-banner ()
+    "Set up a Bongo playlist buffer without its header commentary.
+To be advised as override for `bongo-default-playlist-buffer'.
+To actually enable this, evaluate `+bongo-remove-headers'."
+    (with-current-buffer (get-buffer-create bongo-default-playlist-buffer-name)
+      (unless (derived-mode-p 'bongo-playlist-mode)
+        (bongo-playlist-mode))
+      (current-buffer)))
+  (defun +bongo-library-buffer-no-banner ()
+    "Set up a Bongo library buffer without its header commentary.
+To be advised as override for `bongo-default-library-buffer'.
+
+To actually enable this, evaluate `+bongo-remove-headers'."
+    (with-current-buffer (get-buffer-create bongo-default-library-buffer-name)
+      (unless (derived-mode-p 'bongo-library-mode)
+        (bongo-library-mode))
+      (current-buffer)))
+  (defun +bongo-remove-headers ()
+    "Remove comment headers from Bongo buffers."
+    (advice-add 'bongo-default-playlist-buffer :override #'+bongo-playlist-buffer-no-banner)
+    (advice-add 'bongo-default-library-buffer :override #'+bongo-library-buffer-no-banner))
+  (+bongo-remove-headers)
 
   (defun +jump-to-music()
     (interactive)

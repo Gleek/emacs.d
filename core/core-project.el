@@ -72,6 +72,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package "+projectile-find-file"
   :ensure nil
+  :after counsel-projectile
   :bind ("M-p" . +projectile-find-file-dynamic)
   :config
 
