@@ -6,6 +6,12 @@
   (magit-git-executable (executable-find "git"))
   (magit-status-headers-hook '(magit-insert-head-branch-header))
   :config
+  (defun magit-remove-git-lock-file ()
+    "Remove git's index lock file, if it exists."
+    (interactive)
+    (let ((base (magit-toplevel)))
+      (delete-file (concat base "/.git/index.lock"))))
+
   (setq magit-refresh-status-buffer nil)
   (setq magit-auto-revert-mode nil)
   (setq magit-save-repository-buffers nil)
