@@ -33,6 +33,13 @@
   :config
   (setq forge-database-file (concat CACHE-DIR "forge-database.sqlite")))
 
+
+(use-package code-review
+  :bind ("C-c g R" . code-review-start)
+  :config
+  (setq code-review-log-file (concat CACHE-DIR "code-review-error.log"))
+  (setq code-review-db-database-file (concat CACHE-DIR "code-review-db-file.sqlite")))
+
 (use-package browse-at-remote
   :bind (("C-c g w" . browse-at-remote-kill)
          ("C-c g o" . browse-at-remote))
