@@ -28,7 +28,8 @@
   (add-hook 'php-mode-hook 'php-enable-symfony2-coding-style)
   (add-hook 'php-mode-hook
             (lambda()
-              (setq flycheck-local-checkers '((lsp . ((next-checkers . ((warning . php-phpmd)))))))))
+              (setq flycheck-local-checkers 
+                    '((php . ((next-checkers . (lsp . ((next-checkers . ((warning . php-phpmd))))))))))))
   (setq c-basic-offset 4))
 
 (use-package web-mode
