@@ -1,6 +1,6 @@
 <?php
 
-class `(capitalize (file-name-base (buffer-file-name)))` {
+class `(string-inflection-pascal-case-function (file-name-base (buffer-file-name)))` {
 
     public function __construct() {
         $0
