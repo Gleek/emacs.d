@@ -79,6 +79,7 @@ configurations."
     (call-interactively 'tab-bar-rename-tab)
     (+tab-bar-create-main)
     (tab-bar-switch-to-recent-tab))
+  (setq tab-bar-show nil)
   (tab-bar-mode t)
   (+tab-bar-create-main))
 

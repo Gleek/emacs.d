@@ -374,10 +374,10 @@ To actually enable this, evaluate `+bongo-remove-headers'."
     (bongo-dired-library-mode)))
 
 (use-package eww :ensure nil
-  :init (add-to-list 'org-protocol-protocol-alist
+  :init (eval-after-load "org-protocol" `(add-to-list 'org-protocol-protocol-alist
                      '("eww"
                        :protocol "eww"
-                       :function +start-eww-for-url))
+                       :function +start-eww-for-url)))
   :config
   ;; Courtesy : marcowahl
   (defun +start-eww-for-url (plist)
