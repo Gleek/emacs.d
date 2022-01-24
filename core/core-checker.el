@@ -196,9 +196,9 @@
     [16 48 112 240 112 48 16] nil nil 'center)
 
   (defun +flycheck-set-face()
-    (set-face-attribute 'flycheck-error nil :underline '(:style line :color "#a52a2a"))
-    (set-face-attribute 'flycheck-warning nil :underline '(:style line :color "#ca9532"))
-    (set-face-attribute 'flycheck-info nil :underline '(:style line :color "#98be65")))
+    (set-face-attribute 'flycheck-error nil :underline '(:style wave :color "#a52a2a"))
+    (set-face-attribute 'flycheck-warning nil :underline '(:style wave :color "#ca9532"))
+    (set-face-attribute 'flycheck-info nil :underline '(:style wave :color "#98be65")))
   (+flycheck-set-face)
   (add-hook '+theme-toggle-hook '+flycheck-set-face)
 
