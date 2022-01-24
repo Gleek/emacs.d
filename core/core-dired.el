@@ -9,7 +9,11 @@
   :config
   (defun dired-open-with-dragger()
     (interactive)
-    (start-process-shell-command "dragger" nil (concat "dragger " (string-join (dired-get-marked-files) " "))))
+
+    (start-process-shell-command "dragger"
+                                 nil (concat "dragger " (string-join (mapcar (lambda (el) (shell-quote-argument el))
+                                                                             (dired-get-marked-files))
+                                                                     " "))))
   (setq dired-recursive-copies 'always
         dired-recursive-deletes 'always
         delete-by-moving-to-trash t
