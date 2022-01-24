@@ -19,6 +19,7 @@
   ;; that and instead depend on tree-sitter to do the highlighting.
   (advice-add 'php-syntax-propertize-extend-region :override #'return-false)
   (remove-hook 'syntax-propertize-extend-region-functions #'php-syntax-propertize-extend-region)
+  (setq flycheck-phpmd-rulesets '("cleancode" "codesize" "controversial" "design" "naming"))
   (require 'dap-php)
   (dap-php-setup)
   (setq php-template-compatibility nil)
@@ -26,10 +27,30 @@
   (setq flycheck-phpcs-standard "~/.config/phpcs/phpcs.xml")
   (add-hook 'php-mode-hook (lambda() (setq sp-max-pair-length 5)))
   (add-hook 'php-mode-hook 'php-enable-symfony2-coding-style)
-  (add-hook 'php-mode-hook
-            (lambda()
-              (setq flycheck-local-checkers 
-                    '((php . ((next-checkers . (lsp . ((next-checkers . ((warning . php-phpmd))))))))))))
+
+  ;; Fix phpmd to not return error code on invalid syntax
+  (let* ((phpmd-checker (flycheck-checker-get 'php-phpmd 'command))
+         (ex (car phpmd-checker))
+         (rest (cdr phpmd-checker)))
+    (push "--ignore-errors-on-exit" rest)
+    (setf (flycheck-checker-get 'php-phpmd 'command) (cons ex rest)))
+
+  ;; Demote phpmd errors to info
+  (defun +flycheck-phpmd-parse(f &rest args)
+    (let ((out (apply f args)))
+      (mapcar
+       (lambda(el)
+         (setf (flycheck-error-level el) 'info)
+         el)
+       out)))
+  (advice-add 'flycheck-parse-phpmd :around #'+flycheck-phpmd-parse)
+
+
+  (defun php-local-checkers()
+    (setq flycheck-local-checkers '((lsp . ((next-checkers . ((warning . phpstan)))))
+      (phpstan . ((next-checkers . ((warning . php-phpmd))))))))
+
+  (add-hook 'php-mode-hook 'php-local-checkers)
   (setq c-basic-offset 4))
 
 (use-package web-mode
@@ -50,7 +71,12 @@
 
 (use-package flycheck-phpstan
   :init
-  (add-hook 'php-mode-hook (lambda()(require 'flycheck-phpstan))))
+  (add-hook 'php-mode-hook (lambda()(require 'flycheck-phpstan)))
+  :config
+  (setq-default phpstan-level 9)
+  (setq-default phpstan-memory-limit "4G")
+  ;; Demote phpstan errors to warnings. Errors should be sytanctical errors only.
+  (setcdr (rassoc 'error (flycheck-checker-get 'phpstan 'error-patterns)) 'warning))
 
 (use-package geben
   :init
