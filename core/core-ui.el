@@ -131,12 +131,12 @@
   ;;               ))
   )
 
-(use-package posframe
-  :defer 5
-  :config
-  ;; Switching buffers with keychords keeps the posframe open.
-  ;; Adding a custom hook and running this fixes this
-  (add-hook '+quick-switch-buffer-hook 'posframe-delete-all))
+;; (use-package posframe
+;;   :defer 5
+;;   :config
+;;   ;; Switching buffers with keychords keeps the posframe open.
+;;   ;; Adding a custom hook and running this fixes this
+;;   (add-hook '+quick-switch-buffer-hook 'posframe-delete-all))
 
 (use-package all-the-icons
   :defer 1)

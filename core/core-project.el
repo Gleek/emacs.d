@@ -275,9 +275,17 @@ Use `treemacs' command for old functionality."
   (setq lsp-server-install-dir (concat CACHE-DIR "lsp/"))
   (setq lsp-session-file (concat CACHE-DIR ".lsp-session-v1"))
   :config
+  (defun +lsp-set-priority (server priority)
+    (setf (lsp--client-priority (gethash server lsp-clients)) priority))
+
   ;; (company-backend-for-hook 'lsp-mode-hook '((company-capf :with company-yasnippet)))
   (company-backend-for-hook 'lsp-completion-mode-hook '((company-capf :with company-yasnippet)))
   (setq lsp-modeline-code-actions-segments '(name icon))
+  ;; (setq lsp-signature-function 'lsp-signature-posframe)
+
+  ;; (setq lsp-disabled-clients '(intelephense))
+  (eval-after-load '+popup
+    '(set-popup-rule! "^\\*lsp-help" :size 0.35 :ttl 0 :quit t))
   (setq lsp-enable-file-watchers nil
         lsp-enable-folding nil
         lsp-headerline-breadcrumb-enable nil
