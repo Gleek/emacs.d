@@ -73,7 +73,7 @@
   :init
   (add-hook 'php-mode-hook (lambda()(require 'flycheck-phpstan)))
   :config
-  (setq-default phpstan-level 9)
+  (setq-default phpstan-level 8)
   (setq-default phpstan-memory-limit "4G")
   ;; Demote phpstan errors to warnings. Errors should be sytanctical errors only.
   (setcdr (rassoc 'error (flycheck-checker-get 'phpstan 'error-patterns)) 'warning))
