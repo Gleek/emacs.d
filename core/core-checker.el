@@ -170,7 +170,7 @@
                 font-lock-variable-name-face))
 
   (defun +spell-fu-set-face()
-    (set-face-attribute 'spell-fu-incorrect-face nil :underline '(:color "#6666ff")))
+    (set-face-attribute 'spell-fu-incorrect-face nil :underline '(:style wave :color "#6666ff")))
   (+spell-fu-set-face)
   (add-hook '+theme-toggle-hook '+spell-fu-set-face))
 
