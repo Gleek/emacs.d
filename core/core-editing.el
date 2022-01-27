@@ -61,7 +61,7 @@ characters. With argument, do this that many times."
     (forward-char (if (> arg 0) -1 1))))
 
 (def-thing-marker mark-non-whitespace "vim WORDS"
-  forward-to-whitespace)
+                  forward-to-whitespace)
 
 
 
@@ -484,8 +484,17 @@ https://emacs.stackexchange.com/a/12124/2144"
 (use-package reformatter :disabled)
 
 (use-package format-all
-  :bind (("C-c f" . format-all-buffer)
-         ("C-c C-f" . format-all-buffer)))
+  :bind (("C-c f" . +format)
+         ("C-c C-f" . +format))
+  :config
+  (defun +format()
+    (interactive)
+    (if (gethash (format-all--language-id-buffer) format-all--language-table)
+        (if (region-active-p)
+            (call-interactively 'format-all-region)
+          (call-interactively 'format-all-buffer))
+      (message "No formatter found. Cleaning buffer")
+      (cleanup-buffer))))
 
 (use-package cc-mode
   ;; Use hungry delete everywhere
