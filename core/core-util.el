@@ -59,5 +59,10 @@ Useful to override functions to become empty"
   (interactive "r")
   (func-region start end #'url-unhex-string))
 
+(defun advice-unadvice (sym)
+  "Remove all advices from symbol SYM."
+  (interactive "aFunction symbol: ")
+  (advice-mapc (lambda (advice _props) (advice-remove sym advice)) sym))
+
 (provide 'core-util)
 ;;; core-util ends here
