@@ -543,6 +543,12 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :load-path "packages/epaint/"
   :commands (epaint))
 
+(use-package +sync-remote
+  :after dtache
+  :bind ("C-c x a z" . +sync-remote-start)
+  :ensure nil)
+
+
 (when IS-MAC
   (use-package spotlight
     :bind ("C-c s S" . spotlight)))
