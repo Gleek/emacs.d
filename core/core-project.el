@@ -290,6 +290,7 @@ Use `treemacs' command for old functionality."
         lsp-enable-folding nil
         lsp-headerline-breadcrumb-enable nil
         lsp-enable-text-document-color nil
+        lsp-ui-doc-enable nil
         lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
   (setq lsp-enable-indentation nil
         lsp-enable-on-type-formatting nil))
