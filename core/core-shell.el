@@ -1,7 +1,7 @@
 (use-package shell-pop
   :ensure t
-  :bind (("C-~" . +shellpop-eshell)
-         ("C-`" . +shellpop-vterm)
+  :bind (("C-`" . +shellpop-eshell)
+         ("C-~" . +shellpop-vterm)
          ("C-c t v" . +shellpop-vterm))
   :config
 
@@ -99,5 +99,34 @@
   (add-hook 'vterm-mode-hook
             (lambda()
               (setq confirm-kill-processes nil))))
+
+
+(use-package dtache
+  :bind (("C-c x x" . dtache-shell-command)
+         ("C-c x a s" . +quick-sshuttle))
+  :config
+  (eval-after-load '+popup
+    '(set-popup-rule! "^\\*Dtache Shell Command*" :vslot 99 :size 0.4 :quit t))
+
+  (defun +dtache-state-transition-alert-notification (session)
+    "Send an `alert' notification when SESSION becomes inactive."
+    (let ((status (car (dtache--session-status session)))
+          (host (car (dtache--session-host session))))
+      (alert (dtache--session-command session)
+             :title (pcase status
+                      ('success (format "Dtache finished [%s]" host))
+                      ('failure (format "Dtache failed [%s]" host)))
+             :severity (pcase status
+                         ('success 'moderate)
+                         ('failure 'high)))))
+  (setq dtache-notification-function #'+dtache-state-transition-alert-notification)
+
+  (defun +quick-sshuttle()
+    (interactive)
+    (defvar sshuttle-endpoints) ;; present in core-secrets.el
+    (let ((command (cdr (assoc-string (completing-read "Server" sshuttle-endpoints) sshuttle-endpoints))))
+      (dtache-start-session (concat "sshuttle -l 0.0.0.0 -r " command) t))))
+
+
 
 (provide 'core-shell)
