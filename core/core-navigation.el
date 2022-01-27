@@ -86,6 +86,7 @@
   (add-to-list 'point-stack-advised-functions 'counsel-rg)
   (add-to-list 'point-stack-advised-functions 'xref-find-references)
   (add-to-list 'point-stack-advised-functions 'lsp-find-implementation)
+  (add-to-list 'point-stack-advised-functions 'lsp-find-definition-mouse)
   (point-stack-setup-advices))
 
 (use-package hideshow
