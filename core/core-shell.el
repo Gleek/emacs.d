@@ -24,10 +24,14 @@
 
   (defun +shellpop-eshell()
     (interactive)
-    (let ((shell-pop-internal-mode-buffer "*eshell*")
+    (let ((display-buffer-alist display-buffer-alist)
+          ;; Have local copy of `display-buffer-alist' to make eshell take full window to avoid
+          ;; flicker wrong window positioning on start
+          (shell-pop-internal-mode-buffer "*eshell*")
           (shell-pop-internal-mode "eshell")
           (shell-pop-internal-mode-func '(lambda () (eshell)))
           (shell-pop-shell-type '("eshell" "*eshell*" (lambda nil (eshell)))))
+      (push (cons "^\\*eshell" display-buffer--same-window-action) display-buffer-alist)
       (shell-pop nil)))
 
   (defun +shellpop-vterm()
@@ -57,12 +61,13 @@
 
 (use-package eshell
   :init
-  ;; Not sure whey eshell-mode key-map are not defined at start.
-  ;; But without this the bindings fail.
   (defvar eshell-hist-mode-map (make-sparse-keymap))
   :ensure nil
-  :bind (:map eshell-hist-mode-map ("M-r" . +eshell/search-history))
+  :bind ((:map eshell-hist-mode-map ("M-r" . +eshell/search-history))
+         (:map eshell-mode-map ("C-z p" . eshell/cdp)))
   :config
+
+  (set-popup-rule! "^\\*eshell" :ignore t)
   (setq eshell-banner-message ""
         eshell-scroll-to-bottom-on-input 'all
         eshell-scroll-to-bottom-on-output 'all
@@ -111,9 +116,9 @@
                 :initial-input input
                 :action #'ivy-completion-in-region-action)))
 
-
-  (defun cdp (&rest args)
-    (apply #'cd (projectile-project-root) args))
+  (defun eshell/cdp()
+    (interactive)
+    (eshell/cd (projectile-project-root)))
   (setq eshell-directory-name (concat CACHE-DIR "eshell/"))
   (setq eshell-aliases-file (expand-file-name "eshell-aliases" user-emacs-directory))
   (setq eshell-banner-message "")
@@ -125,7 +130,9 @@
 
 (use-package eshell-vterm
   :after eshell
-  :hook (eshell-mode . eshell-vterm-mode))
+  :hook (eshell-mode . eshell-vterm-mode)
+  :config
+  (defalias 'eshell/v 'eshell-exec-visual))
 
 (use-package esh-help
   :init (setup-esh-help-eldoc))
