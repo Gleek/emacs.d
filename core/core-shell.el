@@ -39,7 +39,7 @@
       (shell-pop nil)))
 
   (setq shell-pop-window-position "bottom"
-        shell-pop-window-size     40
+        shell-pop-window-size     45
         shell-pop-internal-mode   "eshell"
         shell-pop-internal-mode-buffer "*eshell*"
         shell-pop-internal-mode-func '(lambda () (eshell))
@@ -49,24 +49,153 @@
         shell-pop-cleanup-buffer-at-process-exit t
         shell-pop-shell-type '("eshell" "*eshell*" (lambda nil (eshell)))))
 
+(use-package shrink-path)
+
+(use-package bash-completion
+  :after eshell
+  (bash-completion-setup))
+
 (use-package eshell
   :ensure nil
-  ;; :ensure eshell-git-prompt
-  ;;   https://github.com/ekaschalk/dotspacemacs/blob/master/.spacemacs
-  ;; :init (eshell-git-prompt-use-theme 'robbyrussell)
   :config
-  ;; (setq eshell-banner-message
-  ;;       '(format "%s %s\n"
-  ;;                (propertize (format " %s " (string-trim (buffer-name)))
-  ;;                            'face 'mode-line-highlight)
-  ;;                (propertize (current-time-string)
-  ;;                            'face 'font-lock-keyword-face)))
+  (setq eshell-banner-message ""
+        eshell-scroll-to-bottom-on-input 'all
+        eshell-scroll-to-bottom-on-output 'all
+        eshell-kill-processes-on-exit t
+        eshell-hist-ignoredups t
+        ;; don't record command in history if prefixed with whitespace
+        ;; TODO Use `eshell-input-filter-initial-space' when Emacs 25 support is dropped
+        eshell-input-filter (lambda (input) (not (string-match-p "\\`\\s-+" input)))
+        ;; em-prompt
+        eshell-prompt-regexp "^.* λ "
+        eshell-prompt-function #'+eshell-default-prompt-fn
+        ;; em-glob
+        eshell-glob-case-insensitive t
+        eshell-error-if-no-glob t)
+
+  (defface +eshell-prompt-pwd '((t (:inherit font-lock-constant-face)))
+    "TODO"
+    :group 'eshell)
+  (defun +eshell-default-prompt-fn ()
+    "Generate the prompt string for eshell. Use for `eshell-prompt-function'."
+    (require 'shrink-path)
+    (concat (let ((pwd (eshell/pwd)))
+              (propertize (if (equal pwd "~")
+                              pwd
+                            (abbreviate-file-name (shrink-path-file pwd)))
+                          'face '+eshell-prompt-pwd))
+            (propertize " λ" 'face (if (zerop eshell-last-command-status) 'success 'error))
+            " "))
+
+
   (defun cdp (&rest args)
     (apply #'cd (projectile-project-root) args))
+  ;; (defun +eshell-remove-pcomplete ()
+  ;;   (remove-hook 'completion-at-point-functions #'pcomplete-completions-at-point t))
+  ;; (remove-hook 'eshell-mode-hook #'+eshell-remove-pcomplete)
+
+
+  (defvar company-pcomplete-available 'unknown)
+
+  (defun company-pcomplete--prefix ()
+    (with-no-warnings
+      (let* ((pcomplete-stub)
+             pcomplete-seen
+             pcomplete-norm-func
+             pcomplete-args
+             pcomplete-last pcomplete-index
+             (pcomplete-autolist pcomplete-autolist)
+             (pcomplete-suffix-list pcomplete-suffix-list))
+        (pcomplete-completions)
+        (buffer-substring (pcomplete-begin) (point)))))
+
+  (defun company-pcomplete--candidates ()
+    (with-no-warnings
+      (let* ((pcomplete-stub)
+             (pcomplete-show-list t)
+             pcomplete-seen pcomplete-norm-func
+             pcomplete-args pcomplete-last pcomplete-index
+             (pcomplete-autolist pcomplete-autolist)
+             (pcomplete-suffix-list pcomplete-suffix-list)
+             (candidates (pcomplete-completions))
+             (prefix (buffer-substring (pcomplete-begin) (point)))
+             ;; Collect all possible completions for the current stub
+             (cnds (all-completions pcomplete-stub candidates))
+             (bnds (completion-boundaries pcomplete-stub candidates nil ""))
+             (skip (- (length pcomplete-stub) (car bnds))))
+        ;; Replace the stub at the beginning of each candidate by the prefix
+        (mapcar (lambda (cand)
+                  (concat prefix (substring cand skip)))
+                cnds))))
+
+  (defun company-pcomplete-available ()
+    (when (eq company-pcomplete-available 'unknown)
+      (condition-case _err
+          (progn
+            (company-pcomplete--candidates)
+            (setq company-pcomplete-available t))
+        (error
+         (message "Company: pcomplete not found")
+         (setq company-pcomplete-available nil))))
+    company-pcomplete-available)
+
+  (defun +eshell/pcomplete ()
+    "Use pcomplete with completion-in-region backend instead of popup window at
+bottom. This ties pcomplete into ivy or helm, if they are enabled."
+    (interactive)
+    (require 'pcomplete)
+    (if (and (bound-and-true-p company-mode)
+             (or company-candidates
+                 (and (company-pcomplete-available)
+                      (company-pcomplete--prefix)
+                      (company-pcomplete--candidates))))
+        (call-interactively #'company-pcomplete)
+      (ignore-errors (pcomplete-std-complete))))
+
+  (defun company-pcomplete (command &optional _arg &rest ignored)
+    "`company-mode' completion backend using `pcomplete'."
+    (interactive (list 'interactive))
+    (cl-case command
+      (interactive (company-begin-backend 'company-pcomplete))
+      (prefix (when (company-pcomplete-available)
+                (company-pcomplete--prefix)))
+      (candidates (company-pcomplete--candidates))
+      (sorted t)))
+
+
+
   (setq eshell-directory-name (concat CACHE-DIR "eshell/"))
+  (setq eshell-aliases-file (expand-file-name "eshell-aliases" user-emacs-directory))
   (setq eshell-banner-message "")
   (setq eshell-history-file-name (concat CACHE-DIR "eshell/history"))
   (setq eshell-last-dir-ring-file-name (concat CACHE-DIR "eshell/lastdir")))
+
+(use-package eshell-up
+  :commands eshell-up eshell-up-peek)
+
+(use-package eshell-vterm
+  :after eshell
+  :hook (eshell-mode . eshell-vterm-mode))
+
+(use-package esh-help
+  :after eshell
+  :config (setup-esh-help-eldoc))
+
+(use-package eshell-did-you-mean
+  :after esh-mode ; Specifically esh-mode, not eshell
+  :config
+  (eshell-did-you-mean-setup)
+  ;; Courtesy: Doom
+  ;; HACK There is a known issue with `eshell-did-you-mean' where it does not
+  ;;      work on first invocation, so we invoke it once manually by setting the
+  ;;      last command and then calling the output filter.
+  (setq eshell-last-command-name "catt")
+  (eshell-did-you-mean-output-filter "catt: command not found"))
+
+(use-package eshell-syntax-highlighting
+  :hook (eshell-mode . eshell-syntax-highlighting-mode))
+
+
 
 (use-package vterm
   :preface (setq vterm-install t)

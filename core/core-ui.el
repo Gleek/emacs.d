@@ -370,6 +370,7 @@ least one of them."
   (add-to-list 'mini-frame-ignore-commands 'swiper)
   (add-to-list 'mini-frame-ignore-commands 'swiper-from-isearch)
   (add-to-list 'mini-frame-ignore-commands 'counsel-rg)
+  (add-to-list 'mini-frame-ignore-commands 'completion-at-point)
   (add-to-list 'mini-frame-ignore-commands 'git-gutter:revert-hunk)
   (mini-frame-mode 1))
 
