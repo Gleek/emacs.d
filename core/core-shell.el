@@ -232,10 +232,24 @@ bottom. This ties pcomplete into ivy or helm, if they are enabled."
 
 (use-package dtache
   :bind (("C-c x x" . dtache-shell-command)
+         ("C-c x t" . dtache-tail-session)
+         ("C-c x k" . +dtache-kill-and-delete-session)
+         ("C-c x K" . dtache-delete-sessions)
          ("C-c x a s" . +quick-sshuttle))
   :config
+  (dtache-setup)
+  (setq dtache-db-directory CACHE-DIR)
+
   (eval-after-load '+popup
     '(set-popup-rule! "^\\*Dtache Shell Command*" :vslot 99 :size 0.4 :quit t))
+
+  (defun +dtache-kill-and-delete-session (session)
+    "Kill session with `dtache-kill-session' and delete the session."
+    (interactive
+     (list (dtache-completing-read (dtache-get-sessions))))
+    (dtache-kill-session session)
+    (dtache--db-remove-entry session))
+
 
   (defun +dtache-state-transition-alert-notification (session)
     "Send an `alert' notification when SESSION becomes inactive."
@@ -255,6 +269,10 @@ bottom. This ties pcomplete into ivy or helm, if they are enabled."
     (defvar sshuttle-endpoints) ;; present in core-secrets.el
     (let ((command (cdr (assoc-string (completing-read "Server" sshuttle-endpoints) sshuttle-endpoints))))
       (dtache-start-session (concat "sshuttle -l 0.0.0.0 -r " command) t))))
+
+(use-package counsel-dtache
+    :ensure nil
+    :bind ("C-c x o" . counsel-dtache))
 
 
 
