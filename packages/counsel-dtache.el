@@ -23,6 +23,7 @@
                       ("k" counsel-dtache--kill-and-delete "Kill")
                       ("s" counsel-dtache--kill "Stop")
                       ("t" counsel-dtache--tail "Tail")
+                      ("R" counsel-dtache--rerun "Rerun")
                       ("d" counsel-dtache--delete "Delete"))
             :caller 'counsel-dtache)
   )
@@ -45,6 +46,10 @@
 (defun counsel-dtache--delete(cand)
   (dtache-delete-session (counsel-dtache--decode cand))
   (ivy-update-candidates (counsel-dtache--get-sessions)))
+
+
+(defun counsel-dtache--rerun(cand)
+  (dtache-rerun-session (counsel-dtache--decode cand)))
 
 (defun counsel-dtache--kill-and-delete(cand)
   (counsel-dtache--kill cand)
