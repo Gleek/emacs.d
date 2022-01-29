@@ -56,16 +56,21 @@
   (bash-completion-setup))
 
 (use-package eshell
+  :init
+  ;; Not sure whey eshell-mode key-map are not defined at start.
+  ;; But without this the bindings fail.
+  (defvar eshell-hist-mode-map (make-sparse-keymap))
   :ensure nil
+  :bind (:map eshell-hist-mode-map ("M-r" . +eshell/search-history))
   :config
   (setq eshell-banner-message ""
         eshell-scroll-to-bottom-on-input 'all
         eshell-scroll-to-bottom-on-output 'all
         eshell-kill-processes-on-exit t
+        eshell-history-size 10000
         eshell-hist-ignoredups t
         ;; don't record command in history if prefixed with whitespace
-        ;; TODO Use `eshell-input-filter-initial-space' when Emacs 25 support is dropped
-        eshell-input-filter (lambda (input) (not (string-match-p "\\`\\s-+" input)))
+        eshell-input-filter 'eshell-input-filter-initial-space
         ;; em-prompt
         eshell-prompt-regexp "^.* λ "
         eshell-prompt-function #'+eshell-default-prompt-fn
@@ -87,6 +92,25 @@
             (propertize " λ" 'face (if (zerop eshell-last-command-status) 'success 'error))
             " "))
 
+  ;; Courtesy: Doom
+  (defun +eshell/search-history ()
+    "Search the eshell command history with helm, ivy or `eshell-list-history'."
+    (interactive)
+    (require 'em-hist)
+    (let* ((ivy-completion-beg (eshell-bol))
+           (ivy-completion-end (point-at-eol))
+           (input (buffer-substring-no-properties
+                   ivy-completion-beg
+                   ivy-completion-end)))
+      ;; Better than `counsel-esh-history' because that doesn't
+      ;; pre-populate the initial input or selection.
+      (ivy-read "Command: "
+                (delete-dups
+                 (when (> (ring-size eshell-history-ring) 0)
+                   (ring-elements eshell-history-ring)))
+                :initial-input input
+                :action #'ivy-completion-in-region-action)))
+
 
   (defun cdp (&rest args)
     (apply #'cd (projectile-project-root) args))
@@ -104,24 +128,10 @@
   :hook (eshell-mode . eshell-vterm-mode))
 
 (use-package esh-help
-  :after eshell
-  :config (setup-esh-help-eldoc))
-
-(use-package eshell-did-you-mean
-  :after esh-mode ; Specifically esh-mode, not eshell
-  :config
-  (eshell-did-you-mean-setup)
-  ;; Courtesy: Doom
-  ;; HACK There is a known issue with `eshell-did-you-mean' where it does not
-  ;;      work on first invocation, so we invoke it once manually by setting the
-  ;;      last command and then calling the output filter.
-  (setq eshell-last-command-name "catt")
-  (eshell-did-you-mean-output-filter "catt: command not found"))
+  :init (setup-esh-help-eldoc))
 
 (use-package eshell-syntax-highlighting
   :hook (eshell-mode . eshell-syntax-highlighting-mode))
-
-
 
 (use-package vterm
   :preface (setq vterm-install t)
