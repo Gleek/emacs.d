@@ -82,11 +82,17 @@
   :bind (("s-[" . point-stack-pop)
          ("s-]" . point-stack-forward-stack-pop))
   :config
-  (add-to-list 'point-stack-advised-functions 'swiper)
-  (add-to-list 'point-stack-advised-functions 'counsel-rg)
-  (add-to-list 'point-stack-advised-functions 'xref-find-references)
-  (add-to-list 'point-stack-advised-functions 'lsp-find-implementation)
-  (add-to-list 'point-stack-advised-functions 'lsp-find-definition-mouse)
+  (setf point-stack-advised-functions
+        (cl-list*
+         'swiper
+         'counsel-rg
+         'xref-find-references
+         'lsp-find-implementation
+         'lsp-find-definition-mouse
+         'php-beginning-of-defun
+         'php-end-of-defun
+         'backward-up-list
+         point-stack-advised-functions))
   (point-stack-setup-advices))
 
 (use-package sow-mode
