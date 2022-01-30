@@ -89,6 +89,11 @@
   (add-to-list 'point-stack-advised-functions 'lsp-find-definition-mouse)
   (point-stack-setup-advices))
 
+(use-package sow-mode
+  :ensure nil
+  :bind (("C-M-v" . sow-scroll-other-window)
+         ("C-S-M-v". sow-scroll-other-window-down)))
+
 (use-package hideshow
   :ensure nil
   :hook (prog-mode . hs-minor-mode)
