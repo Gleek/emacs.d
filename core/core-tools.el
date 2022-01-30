@@ -544,7 +544,8 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :commands (epaint))
 
 (use-package +sync-remote
-  :after dtache
+  :defer 2
+  ;; Need to load early so that the custom variables can be marked safe to be used in .dir-locals.
   :bind ("C-c x a z" . +sync-remote-start)
   :ensure nil)
 

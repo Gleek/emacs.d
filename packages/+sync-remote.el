@@ -12,8 +12,16 @@
 ;;; Code:
 (require 'dtache)
 
-(defvar +sync-local-path nil)
-(defvar +sync-remote-path nil)
+(defcustom +sync-local-path nil
+  "Local path to consider for syncing."
+  :safe #'stringp
+  :type '(string)
+  :group '+sync-remote)
+(defcustom +sync-remote-path nil
+  "Remote path to sync to."
+  :safe #'stringp
+  :type '(string)
+  :group '+sync-remote)
 (defvar +sync-transfer-excludes '(".git/" "vendor/" "rendered/" "build/"))
 (defvar +sync-listen-excludes '("^flycheck_.*$" ".git/" "rendered/" "build/" "^\\.#.*" "vendor/"))
 
