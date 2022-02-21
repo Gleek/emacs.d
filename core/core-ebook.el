@@ -3,6 +3,11 @@
     (funcall fn size op-type filename offer-raw)))
 (advice-add 'abort-if-file-too-large :around #'+pdf-suppress-large-files-prompt-a)
 
+(use-package speak-region
+  :ensure nil
+  :commands (speak-region-buf speak-region-pdf))
+
+
 (use-package pdf-tools
   :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
   :magic ("%PDF" . pdf-view-mode)
@@ -11,12 +16,10 @@
               ("h" . pdf-annot-add-highlight-markup-annotation)
               ("C-c C-a H" . pdf-annot-choose-highlight-color)
               ("D" . pdf-annot-delete)
+              ("R" . speak-region-pdf)
               ("m" . pdf-view-midnight-minor-mode)
               ("t" . pdf-annot-add-text-annotation))
-
   :config
-  ;; Silence "File *.pdf is large (X MiB), really open?" prompts for pdfs
-
   (defvar pdf-annot-highlight-colors '(("blue" . "#40e0d0") ("yellow" . "#face50") ("red" . "#ff69b4")))
   (defun pdf-annot-choose-highlight-color()
     (interactive)
@@ -83,11 +86,20 @@
                            (require 'saveplace-pdf-view)
                            (save-place-mode t))))
 
+
 (use-package nov
   :ensure nov
   :ensure dash
-   :mode ("\\.epub\\'" . nov-mode)
+  :bind (:map nov-mode-map
+              ("R" . speak-region-buf)
+              ("s-u" . reload-nov))
+  :mode ("\\.epub\\'" . nov-mode)
   :config
+  (defun reload-nov()
+    "Revert buffer to work with epub files. "
+    (interactive)
+    (find-alternate-file nov-file-name)
+    )
   (add-hook 'nov-mode-hook 'reading-mode)
   (setq nov-save-place-file (concat CACHE-DIR "nov-places")))
 
