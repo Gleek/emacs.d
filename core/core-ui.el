@@ -168,7 +168,7 @@
   (setq doom-modeline-minor-modes nil)
   (setq doom-modeline-enable-word-count nil)
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
-  (setq doom-modeline-checker-simple-format t)
+  (setq doom-modeline-checker-simple-format nil)
   (doom-modeline-mode +1))
 
 (use-package hide-mode-line
@@ -368,10 +368,16 @@ least one of them."
     (if mini-frame-mode
         (mini-frame-mode -1)
       (mini-frame-mode 1)))
+
+  (setq mini-frame-resize t)
   (setq mini-frame-show-parameters
         '((left . 0.5)
           (top . 0.3)
-          (width . 0.6)))
+          (left-fringe . 12)
+          (child-frame-border-width . 3)
+          (internal-border-width . 1)
+          (right-fringe . 12)
+          (width . 0.80)))
   (setq mini-frame-ignore-functions '(y-or-n-p yes-or-no-p))
   (add-to-list 'mini-frame-ignore-commands 'swiper)
   (add-to-list 'mini-frame-ignore-commands 'swiper-from-isearch)
