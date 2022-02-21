@@ -22,6 +22,10 @@
 (set-face-attribute 'fixed-pitch nil :family default-font :height 1.0)
 (set-fontset-font t 'arabic "KFGQPC Uthmanic Script Hafs 25")
 
+(defun +italic-comments()
+  (set-face-attribute 'font-lock-comment-face nil :inherit 'italic))
+(add-hook '+theme-toggle-hook '+italic-comments)
+
 ;; ligatures
 (let ((alist
        '(
@@ -118,9 +122,11 @@
 
   (solaire-global-mode +1)
   (load-theme (if (eq +theme-type 'dark) +dark-theme +light-theme) t)
+  (+italic-comments)
   (setq doom-themes-treemacs-theme "doom-atom")
   (doom-themes-treemacs-config)
   (doom-themes-org-config)
+  ;; (add-hook '+theme-toggle-hook '+italic-comments)
   ;; (add-hook 'ns-system-appearance-change-functions
   ;;           #'(lambda (appearance)
   ;;               (+switch-theme-type appearance)
