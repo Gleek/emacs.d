@@ -263,7 +263,8 @@ Use `treemacs' command for old functionality."
   :bind (:map lsp-mode-map ("C-c p e" . lsp-treemacs-errors-list)))
 
 (use-package lsp-mode
-  :hook ((js-mode js2-mode js3-mode rjsx-mode go-mode rust-mode php-mode) . lsp)
+  :hook ((js-mode js2-mode js3-mode rjsx-mode go-mode rust-mode php-mode) . lsp-deferred)
+  :commands lsp
   :bind ((:map lsp-mode-map
                ("C-c p r" . lsp-rename)
                ("M-p" . nil)
@@ -272,6 +273,7 @@ Use `treemacs' command for old functionality."
                ("M-p" . nil)))
   :init
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
+
   (setq lsp-server-install-dir (concat CACHE-DIR "lsp/"))
   (setq lsp-session-file (concat CACHE-DIR ".lsp-session-v1"))
   :config
@@ -290,8 +292,13 @@ Use `treemacs' command for old functionality."
         lsp-enable-folding nil
         lsp-headerline-breadcrumb-enable nil
         lsp-enable-text-document-color nil
+        lsp-log-io nil
+        lsp-enable-on-type-formatting nil
+        lsp-enable-symbol-highlighting nil
+        ;; lsp-enable-on-type-formatting nil
         lsp-ui-doc-enable nil
-        lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+        ;; lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols)
+        )
   (setq lsp-enable-indentation nil
         lsp-enable-on-type-formatting nil))
 
