@@ -119,7 +119,7 @@
           (?B . warning)
           (?C . success))
         org-startup-indented t
-        org-id-link-to-org-use-id t
+        org-id-link-to-org-use-id 'create-if-interactive
         org-todo-keywords '((sequence "TODO(t)" "DOING(o)"  "|" "DONE(d)")
                             (sequence "BLOCKED(b@/!)" "DELEGATED(e@/!)" "WAITING(w@/!)" "|" "CANCELLED(c@/!)"))
         org-treat-S-cursor-todo-selection-as-state-change nil
@@ -169,7 +169,7 @@
 
   (add-hook 'org-mode-hook 'visual-line-mode)
   ;; (add-hook 'org-mode-hook 'toggle-truncate-lines)
-  (company-backend-for-hook 'org-mode-hook '((company-org-roam company-capf company-yasnippet company-dabbrev)))
+  (company-backend-for-hook 'org-mode-hook '((company-capf company-yasnippet company-dabbrev)))
   (add-hook 'org-mode-hook 'variable-pitch-for-notes)
 
   (setq org-modules
@@ -188,8 +188,11 @@
   ;; Save target buffer after archiving a node.
   ;; (setq org-archive-subtree-save-file-p t)
 
-  (setq org-habit-completed-glyph 8226) ; bullet point
-  (setq org-habit-today-glyph 0215) ; multiplication sign
+  (setq org-habit-completed-glyph ?•) ; bullet point
+  ;; (setq org-habit-today-glyph 0215) ; multiplication sign
+  ;; For some reason the above glyph comes up as \327 in agenda
+  ;; using a similar gliph
+  (setq org-habit-today-glyph ?⨯) ; vector cross product sign
 
   ;; Prevent modifications made in invisible sections of an org document, as
   ;; unintended changes can easily go unseen otherwise.
@@ -281,6 +284,10 @@
          :map org-mode-map
          ("C-s-q" . org-fill-paragraph)
          ("C-<tab>" . nil)))
+
+(use-package org-protocol
+  :ensure nil
+  :defer 2)
 
 (use-package org-agenda
   ;; :after org
@@ -452,6 +459,7 @@
 
 (use-package org-gcal
   :commands (org-gcal-sync org-gcal-post-at-point)
+  :after org-agenda
   :init
   (defvar org-gcal--running-timer nil)
   (unless (eq org-gcal--running-timer nil)
@@ -517,19 +525,33 @@
   (setq org-roam-db-location (concat CACHE-DIR "org-roam.db"))
   :bind (("C-c o n n" . org-roam-node-find)
          ("C-c o m" . org-roam-buffer-toggle)
-         (:map org-roam-mode-map
+         (:map org-mode-map
                ("C-c o n b" . org-roam-switch-to-buffer)
                ("C-c o n g" . org-roam-graph)
                ("C-c o n u" . org-roam-unlinked-references)
-               ("C-c o m"   . org-roam)
+               ("C-c o m"   . org-roam-buffer-toggle)
+               ("C-c o n a" . org-roam-alias-add)
+               ("C-c o n A" . org-roam-alias-remove)
+               ("C-c o n r" . org-roam-ref-add)
+               ("C-c o n R" . org-roam-ref-remove)
                ("C-c o r d" . org-roam-dailies-goto-date)
                ("C-c o r r" . org-roam-dailies-goto-today)
                ("C-c o r m" . org-roam-dailies-goto-tomorrow)
                ("C-c o r y" . org-roam-dailies-goto-yesterday)))
   :config
-  (org-roam-setup)
+  (org-roam-db-autosync-mode)
   (defvar org-roam-capture-immediate-template
     (append (car org-roam-capture-templates) '(:immediate-finish t)))
+
+  (defun org-roam-company-insert()
+    "Hacky way to quickly initiate a similar functionality to
+org-roam-insert-immediate, but using company."
+    (interactive)
+    (require 'company)
+    (insert "[[roam:")
+    (save-excursion (insert "]]"))
+    (call-interactively 'company-capf))
+
   (defun org-roam-insert-immediate (arg &rest args)
     (interactive "P")
     (let ((args (push arg args))
@@ -565,7 +587,6 @@
 
 (use-package org-roam-ui
   :after org-roam
-  :load-path "packages/org-roam-ui"
   :commands (org-roam-ui-mode)
   :config
   (setq org-roam-ui-sync-theme t
