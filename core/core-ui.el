@@ -396,13 +396,17 @@ least one of them."
   ;; (global-tree-sitter-mode)
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 
-(defun font-lock-comment-annotations ()
-  "Highlight a bunch of well known comment annotations.
-
-This functions should be added to the hooks of major modes for programming."
-  (font-lock-add-keywords
-   nil '(("\\<\\(FIX\\(ME\\)?\\|TODO\\|OPTIMIZE\\|HACK\\|REFACTOR\\):"
-          1 font-lock-warning-face t))))
+(use-package hl-todo
+  :hook ((prog-mode yaml-mode) . hl-todo-mode)
+  :config
+  (defun +hl-todo-regex()
+    (concat "\\(\\b" (mapconcat 'car hl-todo-keyword-faces "\\b\\|\\b") "\\b\\)"))
+  (defun +hl-todo-project()
+    (interactive)
+    (counsel-rg (+hl-todo-regex)))
+  (defun +hl-todo-swiper()
+    (interactive
+     (swiper (+hl-todo-regex)))))
 
 (defun toggle-cursor-type()
   (interactive)

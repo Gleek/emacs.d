@@ -64,8 +64,7 @@
 (global-unset-key (kbd "C-z"))
 
 (use-package "core-util" :ensure nil :demand t)
-(use-package "core-ui" :ensure nil :demand t
-  :hook (prog-mode . font-lock-comment-annotations))
+(use-package "core-ui" :ensure nil :demand t)
 (use-package "core-ux" :ensure nil :demand t
   :bind (([remap goto-line] . goto-line-with-feedback)
          ([remap keyboard-quit] . escape-quit)))
