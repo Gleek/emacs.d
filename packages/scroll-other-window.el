@@ -38,7 +38,7 @@
 
 (define-minor-mode sow-mode
   "FIXME: Not documented."
-  :group sow-mode
+  :group 'sow
   :global t)
 
 (defun sow-scroll-other-window (&optional arg)

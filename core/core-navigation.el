@@ -95,8 +95,9 @@
          point-stack-advised-functions))
   (point-stack-setup-advices))
 
-(use-package sow-mode
+(use-package scroll-other-window
   :ensure nil
+  :load-path "packages/scroll-other-window.el"
   :bind (("C-M-v" . sow-scroll-other-window)
          ("C-S-M-v". sow-scroll-other-window-down)))
 
