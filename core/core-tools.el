@@ -381,9 +381,16 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :config
   ;; Courtesy : marcowahl
   (defun +start-eww-for-url (plist)
-    "Raise Emacs and call eww with the url in PLIST."
+    "Raise Emacs and call eww with the url in PLIST.
+    Looks for eurl in the PLIST which is expected to be base64 encoded url, when url is not found."
     (raise-frame)
-    (eww (plist-get plist :url))
+    (let ((url (plist-get plist :url))
+          (eurl (plist-get plist :eurl)))
+     (unless url
+        (message "Decoding %s" eurl)
+        (setq url (base64-decode-string eurl)))
+      (message "Opening %s" url)
+      (eww url))
     nil))
 
 (use-package "web-search" :ensure nil
