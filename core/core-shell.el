@@ -213,6 +213,11 @@
     (let ((command (cdr (assoc-string (completing-read "Server" sshuttle-endpoints) sshuttle-endpoints))))
       (dtache-start-session (concat "sshuttle -l 0.0.0.0 -r " command) t))))
 
+(use-package dtache-eshell
+  :ensure nil
+  :after dtache
+  :hook (eshell-mode . dtache-eshell-mode))
+
 (use-package counsel-dtache
     :ensure nil
     :bind ("C-c x o" . counsel-dtache))
