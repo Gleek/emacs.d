@@ -23,6 +23,12 @@
   :bind (:map json-mode-map ("C-c C-s" . counsel-jq))
   :config
   (set-popup-rule! "^\\*jq-json*\\$" :size 0.35 :ttl 0 :quit nil))
+
+;; npm install -g quicktype
+(use-package quick-type
+  :commands quicktype
+  :ensure nil)
+
 (use-package less-css-mode)
 (use-package rainbow-mode :diminish "🌈")
 
