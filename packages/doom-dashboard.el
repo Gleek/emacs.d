@@ -51,6 +51,9 @@ Possible values:
                   (file-exists-p (desktop-full-file-name))))
      :face (:inherit (doom-dashboard-menu-title bold))
      :action restore-from-desktop)
+    ("Switch theme"
+     :icon (all-the-icons-octicon "light-bulb" :face 'doom-dashboard-menu-title)
+     :action +switch-theme-type)
     ("Open agenda"
      :icon (all-the-icons-octicon "calendar" :face 'doom-dashboard-menu-title)
      :action +switch-to-agenda)
