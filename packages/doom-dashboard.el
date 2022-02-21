@@ -57,9 +57,9 @@ Possible values:
     ("Open agenda"
      :icon (all-the-icons-octicon "calendar" :face 'doom-dashboard-menu-title)
      :action +switch-to-agenda)
-    ("Recent files"
-     :icon (all-the-icons-octicon "file-text" :face 'doom-dashboard-menu-title)
-     :action counsel-recentf)
+    ;; ("Recent files"
+    ;;  :icon (all-the-icons-octicon "file-text" :face 'doom-dashboard-menu-title)
+    ;;  :action counsel-recentf)
     ("Open project"
      :icon (all-the-icons-octicon "briefcase" :face 'doom-dashboard-menu-title)
      :action counsel-projectile-switch-project)
