@@ -193,6 +193,7 @@
   ;; For some reason the above glyph comes up as \327 in agenda
   ;; using a similar gliph
   (setq org-habit-today-glyph ?⨯) ; vector cross product sign
+  (setq org-habit-following-days 1)
 
   ;; Prevent modifications made in invisible sections of an org document, as
   ;; unintended changes can easily go unseen otherwise.
