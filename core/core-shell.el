@@ -216,7 +216,9 @@
 (use-package dtache-eshell
   :ensure nil
   :after dtache
-  :hook (eshell-mode . dtache-eshell-mode))
+  :hook (eshell-mode . dtache-eshell-mode)
+  :config
+  (dtache-eshell-setup))
 
 (use-package counsel-dtache
     :ensure nil
