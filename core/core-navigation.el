@@ -17,9 +17,9 @@
 (use-package isearch
   :ensure nil
   ;; :chords ("df" . isearch-forward)
-  :bind (("C-r"   . isearch-backward-regexp)
+  :bind (("C-r"   . isearch-backward)
          ("C-s" . isearch-forward)
-         ("C-M-r" . isearch-backward)
+         ("C-M-r" . isearch-backward-regexp)
          (:map isearch-mode-map
                ("C-M-s" . swiper-from-isearch)
                ("C-o" . swiper-from-isearch)))
