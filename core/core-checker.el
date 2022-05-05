@@ -40,15 +40,18 @@
           (lambda (miss _guess _word _start _end) (car miss))))
       (ispell-word)))
 
-  (defun +spell-fu-fix-last-error()
-    (interactive)
+  (defun +spell-fu-fix-last-error(options)
+    (interactive "P")
     (save-excursion
       (ispell-set-spellchecker-params)
       (ispell-accept-buffer-local-defs)
-      (if (ispell-correct-p)
-          (spell-fu-goto-previous-error))
-      ;; (+ispell-word-immediate)
-      (+spell/correct)))
+      (if (or (not (thing-at-point 'word))
+              (ispell-correct-p))
+          (spell-fu-goto-previous-error)
+        (backward-char))
+      (if options
+          (+spell/correct)
+        (+ispell-word-immediate))))
   ;; Courtesy: Doom
   (defun +spell-correct-fn (candidates word)
       (completing-read (format "Corrections for %S: " word) candidates))
