@@ -546,6 +546,13 @@ To actually enable this, evaluate `+bongo-remove-headers'."
 
 (use-package package-safe-delete)
 
+(use-package artist
+  :hook (artist-mode . reset-line-spacing)
+  :config
+  (defun reset-line-spacing()
+    (setq-local line-spacing 0.0)))
+(use-package ascii-art-to-unicode)
+
 (use-package epaint :ensure nil
   :load-path "packages/epaint/"
   :commands (epaint))
