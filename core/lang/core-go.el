@@ -1,12 +1,12 @@
-;;  go get -u golang.org/x/tools/gopls
-;;  go get -u github.com/fatih/gomodifytags
-;;  go get github.com/go-delve/delve/cmd/dlv
-;;  go get -v github.com/rogpeppe/godef
-;;  go get -u github.com/motemen/gore/cmd/gore
+;;  go install golang.org/x/tools/gopls@latest
+;;  go install github.com/fatih/gomodifytags@latest
+;;  go install github.com/go-delve/delve/cmd/dlv@latest
+;;  go install github.com/rogpeppe/godef@latest
+;;  go install github.com/motemen/gore/cmd/gore@latest
 ;;  DEPRECATED: go get -u github.com/stamblerre/gocode
-;;  go get -u golang.org/x/tools/cmd/godoc
-;;  go get -u golang.org/x/tools/cmd/goimports
-;;  go get -u golang.org/x/tools/cmd/gorename
+;;  go install golang.org/x/tools/cmd/godoc@latest
+;;  go install golang.org/x/tools/cmd/goimports@latest
+;;  go install golang.org/x/tools/cmd/gorename@latest
 ;;  DEPRECATED: go get -u golang.org/x/tools/cmd/guru
 ;;
 ;;
@@ -27,7 +27,7 @@
   :config
   (require 'dap-go)
   (dap-go-setup)
-  (setq flycheck-golangci-lint-enable-linters '("dupl" "gocritic" "gocognit" "gomnd" "maligned" "lll" "unparam"))
+  (setq flycheck-golangci-lint-enable-linters '("dupl" "gocritic" "gocognit" "gomnd" "maligned" "lll" "unparam" "errcheck"))
 
   (defun +go-tag-add(arg)
     (interactive "P")
