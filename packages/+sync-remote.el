@@ -10,8 +10,6 @@
 ;;
 
 ;;; Code:
-(require 'dtache)
-
 (defcustom +sync-local-path nil
   "Local path to consider for syncing."
   :safe #'stringp
@@ -32,6 +30,7 @@
 (defun +sync-remote-start()
   "Start the syncing process."
   (interactive)
+  (require 'dtache)
   (let* ((local-path (or +sync-local-path (read-string "Local Path: " default-directory)))
          (remote-path (or +sync-remote-path (read-string "Remote Path: ")))
          (sync-excludes (mapconcat (lambda(el) (concat "--exclude=" el))  +sync-transfer-excludes " "))
