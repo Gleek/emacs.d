@@ -92,6 +92,16 @@
   (setq dired-create-destination-dirs 'ask
         dired-vc-rename-file t))
 
+(use-package dired-hist
+  :load-path "packages/dired-hist.el"
+  :defer 5
+  :bind (:map dired-mode-map
+              ("l" . dired-hist-go-back)
+              ("f" . dired-hist-go-forward))
+  :config
+  (dired-hist-mode 1))
+
+
 (use-package dired-x
   :ensure nil
   :bind ("C-x C-j" . dired-jump)

@@ -44,6 +44,7 @@
         isearch-forward-regexp
         isearch-printing-char
         isearch-repeat-forward
+        ivy-backward-delete-char
         js2-line-break
         keyboard-quit
         kill-region
