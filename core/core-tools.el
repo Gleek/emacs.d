@@ -191,7 +191,7 @@
 (use-package alert
   :init
   (defvar alert-default-style)
-  (setq alert-default-style 'libnotify))
+  (setq alert-default-style (if IS-MAC 'notifier 'libnotify)))
 
 
 

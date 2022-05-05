@@ -485,7 +485,6 @@
 (use-package org-wild-notifier
   :defer 5
   :config
-  (setq alert-default-style (if IS-MAC 'notifier 'libnotify))
   (setq org-wild-notifier-alert-time '(5))
   (setq org-wild-notifier-keyword-whitelist nil)
   (org-wild-notifier-mode))
