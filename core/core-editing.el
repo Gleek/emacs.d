@@ -228,7 +228,7 @@ https://emacs.stackexchange.com/a/12124/2144"
               ("d" . downcase-region)
               ("u" . upcase-region)
               ("r" . reverse-region)
-              ("s" . sort-lines)
+              ;; ("s" . sort-lines)
               ("x" . eval-region))
   :config
   (selected-global-mode 1))
