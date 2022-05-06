@@ -4,7 +4,6 @@
   (setq counsel-rg-base-command "rg -S --no-heading --line-number -M 500 --color never %s .")
   :bind (("M-x"     . counsel-M-x)
          ("C-c s s" . counsel-rg)
-         ("C-x B"   . counsel-switch-buffer-other-window)
          ;; ("C-c C-SPC" . counsel-mark-ring)
          ("M-y"     . counsel-yank-pop)
          ("C-x c i" . counsel-imenu)
@@ -70,40 +69,6 @@
   (all-the-icons-ivy-setup))
 
 
-
-(use-package ivy-posframe
-  :diminish
-  :config
-  :disabled t
-  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
-  ;; (setq ivy-posframe-parameters '())
-  (add-to-list 'ivy-posframe-display-functions-alist '(swiper . ivy-display-function-fallback))
-
-  (setq ivy-posframe-parameters
-        '((left-fringe . 8)
-          (right-fringe . 8)
-          ;; (parent-frame nil) ;; For exwm
-          ))
-  (defun +ivy-posframe-get-size ()
-    "Set the ivy-posframe size according to the current frame."
-    (let ((height (or ivy-posframe-height (or ivy-height 10)))
-          (width (min (or ivy-posframe-width 200) (round (* .6 (frame-width))))))
-      (list :height height :width width :min-height height :min-width width)))
-
-  (defun +ivy-change-line-spacing(&rest _)
-    (if (not ivy-posframe-mode)
-        (setq-local line-spacing (default-value 'line-spacing))))
-
-  (advice-add 'ivy--minibuffer-setup :after #'+ivy-change-line-spacing)
-
-  (setq ivy-posframe-size-function '+ivy-posframe-get-size)
-  (setq ivy-posframe-font (concat default-font " 12"))
-  (ivy-posframe-mode 1))
 
 (use-package ivy-rich
   :defer 1

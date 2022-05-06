@@ -137,30 +137,6 @@
   ;;               ))
   )
 
-;; (use-package posframe
-;;   :defer 5
-;;   :config
-;;   ;; Switching buffers with keychords keeps the posframe open.
-;;   ;; Adding a custom hook and running this fixes this
-;;   (add-hook '+quick-switch-buffer-hook 'posframe-delete-all))
-
-(use-package all-the-icons
-  :defer 1)
-;; mode line settings
-;; (use-package spaceline-config
-;;   :defer 1
-;;   :init
-;;   (setq powerline-default-separator "utf-8")
-;;   (setq powerline-height 20)
-;;   (setq spaceline-minor-modes-separator " ")
-;;   (defadvice load-theme (after run-after-load-theme-hook activate)
-;;     "Run `powerline-reset'."
-;;     (powerline-reset))
-;;   :ensure spaceline
-;;   :config
-;;   (spaceline-spacemacs-theme))
-
-
 (use-package doom-modeline
   :demand
   :config
@@ -223,121 +199,12 @@
               ([tab]    .  #'forward-button)
               ([backtab].  #'backward-button)))
 
-(use-package dashboard
-  :disabled
-  :after all-the-icons
-  :demand
-  :bind (:map dashboard-mode-map
-              ("C-n" . widget-forward)
-              ("C-p" . widget-backward)
-              ("A"   . +switch-to-agenda)
-              ("S"   . +switch-to-scratch)
-              ("R"   . restore-from-desktop))
-  :init (setq dashboard-items '((recents  . 5)
-                                (projects . 10)
-                                ;; (bookmarks . 5)
-                                ;; (agenda . 5)
-                                ))
-  ;; (setq dashboard-items nil)
-
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-banner-logo-title nil)
-  (setq dashboard-startup-banner (expand-file-name "banner.png" user-emacs-directory))
-  (setq dashboard-center-content t)
-  (setq dashboard-set-navigator t)
-  (setq dashboard-set-footer nil)
-  (setq dashboard-navigator-buttons
-        `(
-          ((,(all-the-icons-octicon "sync" :height 1.1 :v-adjust 0.0)
-            "Restore (R)"
-            "Restore last session"
-            (lambda (&rest _) (restore-from-desktop)) nil "" "\t")
-
-           (,(all-the-icons-octicon "calendar" :height 1.1 :v-adjust 0.0)
-            "Agenda (A) "
-            "Open agenda"
-            (lambda (&rest _) (+switch-to-agenda)) nil "" "\t")
-
-           (,(all-the-icons-octicon "pencil" :height 1.1 :v-adjust 0.0)
-            "Scratch (S) "
-            "Open scratch"
-            (lambda (&rest _) (+switch-to-scratch)) nil "" ""))))
-  :config
-
-  (defun +recenter-large-banner(f &rest arg)
-    (face-spec-set
-     'dashboard-text-banner
-     '((t :inherit font-lock-keyword-face :font "Fira Mono 2"))
-     'face-defface-spec)
-    (let ((dashboard-banner-length (* 7 (window-width)))
-          (title dashboard-banner-logo-title))
-      (apply f arg)
-      (insert "\n\n")))
-  (advice-add 'dashboard-insert-ascii-banner-centered :around '+recenter-large-banner)
-
-  (defun +switch-to-scratch()
-    (interactive)
-    (switch-to-buffer "*scratch*"))
-
-   (dashboard-setup-startup-hook))
-
-;; (use-package minimap
-;;   :bind ("C-c t m" . minimap-mode)
-;;   :config
-;;   (add-hook 'minimap-sb-mode-hook (lambda()
-;;                                     (setq-local default-text-properties '(line-spacing 0.0 line-height 1.0))))
-;;   (setq minimap-window-location 'right
-;;         minimap-update-delay 0
-;;         minimap-width-fraction 0.09
-;;         minimap-minimum-width 15))
 
 (use-package olivetti
   :init
   (setq-default olivetti-body-width 130)
   :bind ("C-c t z" . +focus-mode)
   :config
-  ;; Global mode for olivetti
-  ;; Courtesy: KaratasFurkan https://github.com/rnkn/olivetti/pull/56/files#
-  (defvar olivetti-excluded-buffer-regexps '("\\` " "\\`\\*helm" "\\`\\*ivy" "\\`\\*dashboard\\*" "\\*Org Agenda\\*"))
-  (defvar olivetti-exclude-buffer-predicates '(olivetti-excluded-buffer-p olivetti-window-not-full-span-p))
-  (defvar olivetti--manually-enabled-buffers nil)
-  (defun olivetti-excluded-buffer-p ()
-    "Return t if current buffer-name matches at least one of
-`olivetti-excluded-buffer-regexps'"
-    (catch 'found
-      (dolist (regexp olivetti-excluded-buffer-regexps)
-        (when (string-match-p regexp (buffer-name))
-          (throw 'found t)))))
-
-  (defun olivetti-window-not-full-span-p ()
-    "Return t if current window spans full width of current frame."
-    (let ((margin-width (+ (or (car (window-margins)) 0)
-                           (or (cdr (window-margins)) 0))))
-      (not (= (+ (window-width) margin-width) (frame-width)))))
-  (defun olivetti-global-set-windows ()
-    "Enable `olivetti-mode' for windows that pass all
-`olivetti-exclude-buffer-predicates' or disable it if fail at
-least one of them."
-    (dolist (window (window-list nil 'no-minibuf))
-      (unless (member (window-buffer window) olivetti--manually-enabled-buffers)
-        (with-selected-window window
-          (if (run-hook-with-args-until-success 'olivetti-exclude-buffer-predicates)
-              (olivetti-mode -1)
-            (olivetti-mode 1))))))
-
-  (define-minor-mode global-olivetti-mode
-    "Enable `olivetti-mode' on windows that pass
-`olivetti-exclude-buffer-predicates' automatically."
-    :global t
-    (if global-olivetti-mode
-        (progn
-          (olivetti-global-set-windows)
-          (add-hook 'window-configuration-change-hook 'olivetti-global-set-windows))
-      (remove-hook 'window-configuration-change-hook 'olivetti-global-set-windows)
-      (olivetti-mode -1)
-      (olivetti-reset-all-windows)
-      (setq olivetti--manually-enabled-buffers nil)))
 
   (defun +focus-mode()
     (interactive)
