@@ -558,7 +558,8 @@ org-roam-insert-immediate, but using company."
           (org-roam-capture-templates (list org-roam-capture-immediate-template)))
       (apply #'org-roam-node-insert args)))
   (defun +do-org-roam-bindings()
-    (when (org-roam-file-p (buffer-file-name (buffer-base-buffer)))
+    (when (let ((file-name (buffer-file-name (buffer-base-buffer))))
+            (and file-name (org-roam-file-p file-name)))
       (local-set-key (kbd "<C-i>") 'org-roam-insert-immediate)))
 
   (defun +org-roam-open-with-buffer-maybe-h ()
