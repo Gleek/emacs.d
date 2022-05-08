@@ -62,31 +62,6 @@
       (if file-name (unless (file-remote-p file-name)
         (git-gutter-mode t)))))
 
-  ;; (defun vc-gutter-init-maybe ()
-  ;;   ;; "Enable `git-gutter-mode' in the current buffer.
-  ;;   ;; If the buffer doesn't represent an existing file, `git-gutter-mode's activation
-  ;;   ;; is deferr1 until the file is saved. Respects `git-gutter:disabled-modes'."
-  ;;     (let ((file-name (buffer-file-name (buffer-base-buffer))))
-  ;;       (when (or vc-gutter-in-remote-files
-  ;;                 (not (file-remote-p (or file-name default-directory))))
-  ;;         (if (null file-name)
-  ;;             (add-hook 'after-save-hook #'vc-gutter-init-maybe nil 'local)
-  ;;           (when (and (vc-backend file-name)
-  ;;                      (progn
-  ;;                        (require 'git-gutter)
-  ;;                        (not (memq major-mode git-gutter:disabled-modes))))
-  ;;             (if (and (display-graphic-p)
-  ;;                      (require 'git-gutter-fringe nil t))
-  ;;                 (setq-local git-gutter:init-function      #'git-gutter-fr:init
-  ;;                             git-gutter:view-diff-function #'git-gutter-fr:view-diff-infos
-  ;;                             git-gutter:clear-function     #'git-gutter-fr:clear
-  ;;                             git-gutter:window-width -1)
-  ;;               (setq-local git-gutter:init-function      'nil
-  ;;                           git-gutter:view-diff-function #'git-gutter:view-diff-infos
-  ;;                           git-gutter:clear-function     #'git-gutter:clear-diff-infos
-  ;;                           git-gutter:window-width 1))
-  ;;             (git-gutter-mode +1)
-  ;;             (remove-hook 'after-save-hook #'vc-gutter-init-maybe 'local))))))
   (add-hook 'find-file-hook 'vc-gutter-init-maybe)
   :config
   (set-popup-rule! "^\\*git-gutter" :select nil :size '+popup-shrink-to-fit)
