@@ -157,7 +157,7 @@
 (use-package hide-mode-line
   :bind ("C-c t M" . hide-mode-line-mode))
 
-(use-package simple
+(use-package emacs
   :ensure nil
   :config
   (size-indication-mode t)
@@ -170,8 +170,6 @@
   :bind ("C-c t l". display-line-numbers-mode)
   :config
   (setq-default display-line-numbers-widen t))
-
-
 
 (use-package hl-line
   :ensure nil
@@ -220,10 +218,7 @@
           ;; (display-line-numbers-mode +1)
           (olivetti-mode -1))
       ;; (display-line-numbers-mode -1)
-
-      (olivetti-mode +1))
-    (add-to-list 'olivetti--manually-enabled-buffers (current-buffer)))
-
+      (olivetti-mode +1)))
 
   (defun olivetti-custom-width()
     (interactive)
