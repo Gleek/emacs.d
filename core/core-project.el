@@ -43,12 +43,12 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-c p s" . projectile-save-project-buffers)))
 
 (use-package counsel-projectile
-  :defer 1
+  ;; :defer 1
   :bind (("C-c p f" . counsel-projectile-find-file)
          ("C-c p b" . counsel-projectile-switch-to-buffer)
          ("C-x B" . counsel-projectile-switch-to-buffer)
          ("C-c p p" . counsel-projectile-switch-project))
-  :config
+  :init
   (setq counsel-projectile-switch-project-action
         '(1
           ("o" counsel-projectile-switch-project-action "jump to a project buffer or file")
