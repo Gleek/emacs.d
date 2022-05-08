@@ -16,6 +16,10 @@
 (defconst IS-LINUX  (eq system-type 'gnu/linux))
 (defconst IS-TERM   (not (display-graphic-p)))
 
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(menu-bar-mode -1)
+
 (blink-cursor-mode -1)
 
 (electric-pair-mode t)
@@ -25,10 +29,16 @@
 
 (global-set-key (kbd "M-p") 'project-find-file)
 
+(global-set-key (kbd "M-/") 'hippie-expand)
+
+
 (when IS-MAC
   (setq mac-command-modifier 'meta
         ;;       mac-option-modifier 'control
         ns-option-modifier 'super))
+
+(fido-mode t)
+(fido-vertical-mode t)
 
 (load-theme 'modus-operandi t)
 (defalias 'yes-or-no-p 'y-or-n-p)
