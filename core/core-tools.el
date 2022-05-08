@@ -378,8 +378,17 @@ To actually enable this, evaluate `+bongo-remove-headers'."
                      '("eww"
                        :protocol "eww"
                        :function +start-eww-for-url)))
+  (setq shr-use-xwidgets-for-media t)
+  :bind
+  (:map eww-mode-map
+        ("%" . +eww-browse-with-xwidget))
   :config
-  ;; Courtesy : marcowahl
+  (defun +eww-browse-with-xwidget ()
+    "Browse the current URL with xwidget browse url."
+    (interactive)
+    (let ((browse-url-secondary-browser-function 'xwidget-webkit-browse-url))
+      (call-interactively 'eww-browse-with-external-browser)))
+
   (defun +start-eww-for-url (plist)
     "Raise Emacs and call eww with the url in PLIST.
     Looks for eurl in the PLIST which is expected to be base64 encoded url, when url is not found."
