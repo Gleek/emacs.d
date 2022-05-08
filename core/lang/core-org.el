@@ -565,6 +565,7 @@ org-roam-insert-immediate, but using company."
   (defun +org-roam-open-with-buffer-maybe-h ()
     (and (not org-roam-capture--node) ; don't proc for capture buffers
          (not (eq 'visible (org-roam-buffer--visibility)))
+         (one-window-p t nil)
          (org-roam-buffer-toggle)))
 
   (add-hook 'org-roam-find-file-hook  '+org-roam-open-with-buffer-maybe-h :append)
