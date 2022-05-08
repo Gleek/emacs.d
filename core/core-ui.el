@@ -57,7 +57,14 @@
     (set-char-table-range composition-function-table (car char-regexp)
                           `([,(cdr char-regexp) 0 font-shape-gstring]))))
 
-(setq-default frame-title-format '(buffer-file-name "%b - Emacs"))
+(setq-default frame-title-format
+      '(""
+        "%b"
+        (:eval
+         (let ((project-name (projectile-project-name)))
+           (unless (string= "-" project-name)
+             (format " [%s]" project-name))))
+        " - Emacs"))
 
 ;; Space out a little
 (setq-default line-spacing 0.2)

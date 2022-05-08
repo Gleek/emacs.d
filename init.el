@@ -99,6 +99,8 @@
 (use-package "core-navigation" :ensure nil :demand t
   :bind (("C-a" . beginning-of-line-or-indentation)))
 
+(use-package "core-metrics" :ensure nil :demand t)
+
 (use-package "core-project" :ensure nil :demand t
   ;; :chords ("nm" . switch-to-previous-buffer)
   :bind (("C-x k" . kill-current-buffer)
