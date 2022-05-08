@@ -211,13 +211,13 @@
     (interactive)
     (defvar sshuttle-endpoints) ;; present in core-secrets.el
     (let ((command (cdr (assoc-string (completing-read "Server" sshuttle-endpoints) sshuttle-endpoints))))
-      (dtache-start-session (concat "sshuttle -l 0.0.0.0 -r " command) t))))
+      (dtache-start-session (concat "sshuttle -l 0.0.0.0 -r " command) nil))))
 
 (use-package dtache-eshell
   :ensure nil
-  :after dtache
   :hook (eshell-mode . dtache-eshell-mode)
   :config
+  (require 'dtache)
   (dtache-eshell-setup))
 
 (use-package counsel-dtache
