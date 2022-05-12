@@ -567,6 +567,11 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :bind ("C-c x a z" . +sync-remote-start)
   :ensure nil)
 
+(use-package ivy-youtube
+  :config
+  (setq ivy-youtube-history-file (expand-file-name "ivy-youtube-history" CACHE-DIR))
+  (setq ivy-youtube-play-at "mpv"))
+
 
 (when IS-MAC
   (use-package spotlight
