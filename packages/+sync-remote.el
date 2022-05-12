@@ -33,12 +33,12 @@
   (require 'dtache)
   (let* ((local-path (or +sync-local-path (read-string "Local Path: " default-directory)))
          (remote-path (or +sync-remote-path (read-string "Remote Path: ")))
-         (sync-excludes (mapconcat (lambda(el) (concat "--exclude=" el))  +sync-transfer-excludes " "))
+         (sync-excludes (mapconcat (lambda(el) (concat "--exclude=" (shell-quote-argument el)))  +sync-transfer-excludes " "))
          (sync-command (mapconcat 'identity
                                   `(,+sync-rsync-exec "-zPa" ,sync-excludes "--delete" ,local-path ,remote-path)
                                   " "))
          (listen-excludes (mapconcat (lambda(el)
-                                       (concat "--exclude=" el " "))
+                                       (concat "--exclude=" (shell-quote-argument el) " "))
                                      +sync-listen-excludes))
          (listen-command (mapconcat 'identity
                                     `(,+sync-fswatch-exec ,listen-excludes ,local-path) " "))
