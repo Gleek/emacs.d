@@ -7,7 +7,7 @@
 ;; Author: Umar Ahmad
 ;;; Commentary:
 
-;; 
+;;
 
 ;;; Code:
 (defconst CACHE-DIR (expand-file-name "cache/" user-emacs-directory))
@@ -52,7 +52,6 @@
 (fido-vertical-mode t)
 
 
-
 (setq project-list-file (expand-file-name "projects" CACHE-DIR))
 
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -79,6 +78,17 @@
       indicate-empty-lines nil)
 (setq enable-recursive-minibuffers t)
 
+(setq hippie-expand-try-functions-list '(try-expand-dabbrev
+                                         try-expand-dabbrev-all-buffers
+                                         try-expand-dabbrev-from-kill
+                                         try-complete-file-name-partially
+                                         try-complete-file-name
+                                         try-expand-all-abbrevs
+                                         try-expand-line
+                                         try-expand-list
+                                         try-complete-lisp-symbol-partially
+                                         try-complete-lisp-symbol))
+
 (setq search-highlight t)
 (setq search-whitespace-regexp ".*?")
 (setq isearch-lax-whitespace t)
@@ -91,7 +101,23 @@
 (setq isearch-allow-scroll 'unlimited)
 
 
+
+
+
 ;; Utility functions
+(defadvice kill-ring-save (before slick-copy activate compile)
+  "When called interactively with no active region, copy a single line instead."
+  (interactive (if mark-active (list (region-beginning) (region-end))
+                 (message "Line copied") (list (line-beginning-position) (line-beginning-position 2)))))
+
+(defadvice kill-region (before slick-cut activate compile)
+  "When called interactively with no active region, kill a single line instead."
+  (interactive
+   (if mark-active (list (region-beginning) (region-end))
+     (list (line-beginning-position)
+           (line-beginning-position 2)))))
+
+
 (defun comment-or-uncomment-region-or-line ()
   "Comment a line or region."
   (interactive)
@@ -126,22 +152,24 @@
 (defun expand-sexp()
   (interactive)
   (catch 'ex (deactivate-mark)
-	 (let (beg start end inner )
-	   (setq beg (point))
-	   (setq inner t)
-	   (condition-case nil (backward-up-list 1 t nil)
-	     (error (progn
-		      (mark-whole-buffer)
-		      (throw 'ex 1))))
-	   (if (eq beg (1+ (point)))
-		 (setq inner nil))
-	   (setq start (if inner (1+ (point)) (point)))
-	   (forward-sexp)
-	   (setq end (if inner (1- (point)) (point)))
-	   (goto-char end)
-	   (push-mark)
-	   (goto-char start))
-	 (activate-mark)))
+         (let (beg start end inner )
+           (setq beg (point))
+           (setq inner t)
+           (condition-case nil (backward-up-list 1 t nil)
+             (error (progn
+                      (push-mark (point-min))
+                      (goto-char (point-max))
+                      (activate-mark)
+                      (throw 'ex 1))))
+           (if (eq beg (1+ (point)))
+               (setq inner nil))
+           (setq start (if inner (1+ (point)) (point)))
+           (forward-sexp)
+           (setq end (if inner (1- (point)) (point)))
+           (goto-char end)
+           (push-mark)
+           (goto-char start))
+         (activate-mark)))
 
 (defun mark-this-sexp()
   (interactive)
