@@ -548,11 +548,6 @@ To actually enable this, evaluate `+bongo-remove-headers'."
       (impostman-parse-file collection nil output-alist))))
 
 
-(use-package profiler
-  :bind (("<C-f12>" . profiler-start)
-         ("<C-S-f12>" . profiler-report)
-         ("<M-f12>" . profiler-stop)))
-
 (use-package package-safe-delete)
 
 (use-package artist
@@ -578,12 +573,6 @@ To actually enable this, evaluate `+bongo-remove-headers'."
     :bind ("C-c s S" . spotlight)))
 
 
-(use-package explain-pause-mode
-  :disabled t
-  :ensure nil
-  :bind ("<f12>" . explain-pause-top)
-  :config
-  (explain-pause-mode))
 
 (provide 'core-tools)
 ;;; core-tools.ends here

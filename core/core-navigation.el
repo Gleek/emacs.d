@@ -95,6 +95,13 @@
          point-stack-advised-functions))
   (point-stack-setup-advices))
 
+
+(use-package bookmark
+  :bind
+  ("C-x r b" . counsel-bookmark)
+  :config
+  (setq bookmark-file (concat CACHE-DIR "bookmarks")))
+
 (use-package scroll-other-window
   :ensure nil
   :load-path "packages/scroll-other-window.el"
