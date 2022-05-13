@@ -21,9 +21,11 @@
   (keyfreq-autosave-mode 1)
   (setq keyfreq-excluded-commands
         '(self-insert-command
+          org-self-insert-command
           next-line
           previous-line
-          mwheel-scroll)))
+          mwheel-scroll
+          lsp-ui-doc--handle-mouse-movement)))
 
 
 ;; Requires https://activitywatch.net/
@@ -53,6 +55,13 @@
          ("<C-S-f12>" . profiler-report)
          ("<M-f12>" . profiler-stop)))
 
+
+(use-package mx-metrics
+  :ensure nil
+  :defer 2
+  :config
+  (setq mx-metrics-file (expand-file-name "mx-metrics" CACHE-DIR))
+  (mx-metrics-mode t))
 
 (provide 'core-metrics)
 ;;; core-metrics.el ends here
