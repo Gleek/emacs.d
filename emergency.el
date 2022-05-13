@@ -16,6 +16,10 @@
 (defconst IS-LINUX  (eq system-type 'gnu/linux))
 (defconst IS-TERM   (not (display-graphic-p)))
 
+(unless IS-TERM
+  (define-key input-decode-map [?\C-m] [C-m])
+  (define-key input-decode-map [?\C-i] [C-i]))
+
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
@@ -42,10 +46,22 @@
 (global-set-key (kbd "C-c s s") 'project-find-regexp)
 (global-set-key (kbd "C-=") 'smart-mark-sexp)
 (global-set-key (kbd "C-+") 'mark-this-sexp)
+(global-set-key (kbd "C-:") 'other-window)
+(global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
+(global-set-key (kbd "M-[") 'unwrap-sexp)
+(global-set-key (kbd "M-<up>") 'move-line-up)
+(global-set-key (kbd "M-<down>") 'move-line-down)
+(global-set-key (kbd "C-^") 'top-join-line)
+(global-set-key (kbd "C-c d") 'duplicate-current-line-or-region)
+(global-set-key (kbd "C-`") 'pop-eshell)
+(global-set-key (kbd "<C-m> a") 'rename-all-occurences)
+
 (when IS-MAC
   (setq mac-command-modifier 'meta
         ;; mac-option-modifier 'control
         ns-option-modifier 'super))
+
+
 
 
 (fido-mode t)
@@ -128,19 +144,6 @@
     (comment-or-uncomment-region beg end)
     (forward-line)))
 
-(defun mark-inside-sexp ()
-  "Mark inside a sexp."
-  (interactive)
-  (let (beg end)
-    (backward-up-list 1 t nil)
-    (setq beg (1+ (point)))
-    (forward-sexp)
-    (setq end (1- (point)))
-    (goto-char beg)
-    (push-mark)
-    (goto-char end))
-  (activate-mark))
-
 
 (defun smart-mark-sexp()
   "Poor man's expand region"
@@ -176,6 +179,125 @@
   (ignore-errors (backward-sexp))
   (mark-sexp))
 
+(defun unwrap-sexp()
+  (interactive)
+  (save-excursion
+    (let (start end)
+      (catch 'ex
+        (condition-case nil (backward-up-list 1 t nil)
+          (error (throw 'ex 1)))
+        (setq start (point))
+        (forward-sexp)
+        (backward-delete-char 1)
+        (goto-char start)
+        (delete-char 1)))
+    (indent-sexp)))
 
+
+(defun beginning-of-line-or-indentation ()
+  "Move to beginning of line, or indentation."
+  (interactive)
+  (let ((pt (point)))
+    (beginning-of-line-text)
+    (when (eq pt (point))
+      (beginning-of-line))))
+
+(defun move-line(&optional dir)
+  (let (line-content)
+    (setq line-content (thing-at-point 'line t))
+    (delete-current-line)
+    (forward-line (if (eq dir 'up) -1 1))
+    (insert line-content)
+    (forward-line -1)
+    (indent-for-tab-command)))
+
+(defun move-line-up()
+  (interactive)
+  (move-line 'up))
+
+(defun move-line-down()
+  (interactive)
+  (move-line 'down))
+
+
+(defun top-join-line()
+  (interactive)
+  (delete-indentation -1))
+
+(defun delete-current-line ()
+  (save-excursion
+    (delete-region
+     (progn (forward-visible-line 0) (point))
+     (progn (forward-visible-line 1) (point)))))
+
+(defun get-positions-of-line-or-region ()
+  "Return positions (beg . end) of the current line or region."
+  (let (beg end)
+    (if (and mark-active (> (point) (mark)))
+        (exchange-point-and-mark))
+    (setq beg (line-beginning-position))
+    (if mark-active
+        (exchange-point-and-mark))
+    (setq end (line-end-position))
+    (cons beg end)))
+
+(defun duplicate-current-line-or-region ()
+  "Duplicates the current line or region.
+If there's no region, the current line will be duplicated.  However, if
+there's a region, all lines that region covers will be duplicated."
+  (interactive)
+  (pcase-let* ((origin (point))
+               (`(,beg . ,end) (get-positions-of-line-or-region))
+               (region (buffer-substring-no-properties beg end)))
+    (goto-char end)
+    (newline)
+    (insert region)
+    (setq end (point))))
+
+(defun pop-eshell()
+  (interactive)
+  (require 'eshell)
+  (if (eq major-mode 'eshell-mode)
+      (progn (bury-buffer)
+             (delete-window))
+    (let ((c-directory default-directory))
+      (split-window-below)
+      (other-window 1 nil)
+      (eshell)
+      (message "Switching to %s" c-directory)
+      (eshell/cd c-directory))))
+
+(defun rename-all-occurences()
+  (interactive)
+  (let ((word (thing-at-point 'symbol t))
+        (final ())
+        (case-fold-search nil))
+    (when word
+      (setq final (read-string (format "Replace %s with : " word)))
+      (query-replace word final t (point-min) (point-max)))))
+
+
+
+;; Only install very critical packages on need basis
+(setq file-packages
+      '(("php" . (php-mode))
+        ("go" . (go-mode))))
+
+(defun check-essential-packages()
+  (let (file-name extension ipackages)
+    (setq file-name (buffer-file-name (current-buffer)))
+    (when file-name
+      (setq extension (file-name-extension file-name))
+      (mapc (lambda(o)
+              (when (equal extension (car o))
+                (setq ipackages (cdr o))
+                (mapc (lambda(p)
+                        (if (not (package-installed-p p))
+                            (progn
+                              (message "Installing package %S" p)
+                              (package-install p))))
+                      ipackages)))
+            file-packages))))
+(add-hook 'find-file-hook 'check-essential-packages)
 
 ;;; init.el ends here
