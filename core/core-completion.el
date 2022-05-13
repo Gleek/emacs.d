@@ -7,6 +7,7 @@
          ;; ("C-c C-SPC" . counsel-mark-ring)
          ("M-y"     . counsel-yank-pop)
          ("C-x c i" . counsel-imenu)
+         ("M-i" . counsel-imenu)
          ("C-x r r" . counsel-recentf)
          ("C-x C-f" . counsel-find-file)
          ("C-h v" . counsel-describe-variable)))
