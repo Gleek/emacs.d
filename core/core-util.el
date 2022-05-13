@@ -64,5 +64,11 @@ Useful to override functions to become empty"
   (interactive "aFunction symbol: ")
   (advice-mapc (lambda (advice _props) (advice-remove sym advice)) sym))
 
+
+(defun ensure-dir(dir)
+  "Create directory if doesn't exist"
+  (unless (file-directory-p dir)
+    (make-directory dir t)))
+
 (provide 'core-util)
 ;;; core-util ends here

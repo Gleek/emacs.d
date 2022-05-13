@@ -260,8 +260,6 @@
   (setq speed-type-default-lang 'English)
   (setq speed-type-gb-dir (concat CACHE-DIR "speed-type/")))
 
-(use-package w3m
-  :init (setq w3m-search-default-engine "duckduckgo"))
 
 (when IS-MAC
   (use-package exec-path-from-shell
@@ -306,9 +304,9 @@ To reset the playlist is to undo the marks produced by non-nil
     "Toggle `bongo-random-playback-mode' in playlist buffers."
     (interactive)
     (with-bongo-playlist-buffer
-      (if (eq bongo-next-action 'bongo-play-random-or-stop)
-          (bongo-progressive-playback-mode)
-        (bongo-random-playback-mode))))
+     (if (eq bongo-next-action 'bongo-play-random-or-stop)
+         (bongo-progressive-playback-mode)
+       (bongo-random-playback-mode))))
   (defun +bongo-playlist-play-random()
     (interactive)
     (unless (bongo-playlist-buffer)
@@ -371,42 +369,9 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   (defun +jump-to-music()
     (interactive)
     (dired bongo-default-directory)
-    (bongo-dired-library-mode)))
+    (bongo-dired-library-mode)
+    (setq-local bongo-playlist-buffer bongo-default-playlist-buffer-name)))
 
-(use-package eww :ensure nil
-  :init (eval-after-load "org-protocol" `(add-to-list 'org-protocol-protocol-alist
-                     '("eww"
-                       :protocol "eww"
-                       :function +start-eww-for-url)))
-  (setq shr-use-xwidgets-for-media t)
-  :bind
-  (:map eww-mode-map
-        ("%" . +eww-browse-with-xwidget))
-  :config
-  (defun +eww-browse-with-xwidget ()
-    "Browse the current URL with xwidget browse url."
-    (interactive)
-    (let ((browse-url-secondary-browser-function 'xwidget-webkit-browse-url))
-      (call-interactively 'eww-browse-with-external-browser)))
-
-  (defun +start-eww-for-url (plist)
-    "Raise Emacs and call eww with the url in PLIST.
-    Looks for eurl in the PLIST which is expected to be base64 encoded url, when url is not found."
-    (raise-frame)
-    (let ((url (plist-get plist :url))
-          (eurl (plist-get plist :eurl)))
-     (unless url
-        (message "Decoding %s" eurl)
-        (setq url (base64-decode-string eurl)))
-      (message "Opening %s" url)
-      (eww url))
-    nil))
-
-(use-package "web-search" :ensure nil
-  :commands (+browse-url)
-  :bind (("C-c s w" . duck)
-         ("C-c s l" . lucky)
-         ("C-c s d" . devdocs)))
 
 (use-package keepass-mode
   :bind (("C-c s p" . +keepass-quick-switch)
@@ -489,11 +454,6 @@ To actually enable this, evaluate `+bongo-remove-headers'."
                   (error "Invalid password"))))))))
 
 
-(defalias 'xwwb 'xwidget-webkit-browse-url)
-(use-package xwwp-follow-link-ivy
-  :after xwidget
-  :bind (:map xwidget-webkit-mode-map ("F" . xwwp-follow-link)))
-
 (use-package proced
   :ensure nil
   :commands proced
@@ -566,12 +526,6 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   ;; Need to load early so that the custom variables can be marked safe to be used in .dir-locals.
   :bind ("C-c x a z" . +sync-remote-start)
   :ensure nil)
-
-(use-package ivy-youtube
-  :config
-  (setq ivy-youtube-history-file (expand-file-name "ivy-youtube-history" CACHE-DIR))
-  (setq ivy-youtube-play-at "mpv"))
-
 
 (when IS-MAC
   (use-package spotlight

@@ -7,6 +7,7 @@
 
 ;; (setq debug-on-error t)
 (defconst CACHE-DIR (expand-file-name "cache/" user-emacs-directory))
+(defconst PRIV-DIR (expand-file-name "private/" user-emacs-directory))
 (defconst RES-DIR   (expand-file-name "resources/" user-emacs-directory))
 (defconst IS-MAC    (eq system-type 'darwin))
 (defconst IS-LINUX  (eq system-type 'gnu/linux))
@@ -112,6 +113,7 @@
 (use-package "core-dired" :ensure nil :demand t)
 (use-package "core-tramp" :ensure nil :demand t)
 (use-package "core-vc" :ensure nil :demand t)
+(use-package "core-web" :ensure nil :demand t)
 (use-package "core-tools" :ensure nil :demand t
   :bind (("C-c r". rename-file-and-buffer)
          ([f5] . kmacro-edit-macro)))
