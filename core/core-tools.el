@@ -527,6 +527,14 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :bind ("C-c x a z" . +sync-remote-start)
   :ensure nil)
 
+(use-package salahtimes
+  :ensure nil
+  :bind ("C-c a s" . salah-times)
+  :commands (salah-times)
+  :config
+  (setq salah-next-days 2)
+  (set-popup-rule! "^\\*salah-times\\*" :select nil :size '+popup-shrink-to-fit))
+
 (when IS-MAC
   (use-package spotlight
     :bind ("C-c s S" . spotlight)))

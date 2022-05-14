@@ -55,6 +55,8 @@
         (make-vtable
          :columns '("Name" (:name "Frequency" :width 10))
          :objects (mxm--obj)
+         :keymap (define-keymap
+                   "q" #'kill-buffer-and-window)
          :getter (lambda (object column vtable)
                    (pcase (vtable-column vtable column)
                      ("Name" (car object))
