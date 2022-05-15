@@ -5,7 +5,7 @@
 ;; Modified: May 13, 2022
 ;; Version: 0.0.1
 ;; Author: Umar Ahmad
-;;; Commentary: Track the usages of commands run through M-x. Assumes counsel-M-x is used.
+;;; Commentary: Track the usages of commands run through M-x.
 
 ;; 
 
@@ -70,17 +70,22 @@
       (make-empty-file mx-metrics-file))
   (write-region (format "%S" mx-metrics-table) nil mx-metrics-file))
 
+(defun read-extended-command-a(f)
+  (let (out)
+    (setq out (funcall f))
+    (mxm--command-exec-rec (car extended-command-history))
+    out))
+
 (defun mxm--command-exec-rec(cmd)
   (let (count)
     (setq count (gethash cmd mx-metrics-table))
     (puthash cmd (1+ (if count count 0)) mx-metrics-table)))
 
-
 (defun mxm--advice-mx()
-  (advice-add 'counsel-M-x-action :before 'mxm--command-exec-rec))
+  (advice-add 'read-extended-command :around #'read-extended-command-a))
 
 (defun mxm--unadvice-mx()
-  (advice-remove 'counsel-M-x-action 'mxm--command-exec-rec))
+  (advice-remove 'read-extended-command 'read-extended-command-a))
 
 
 (defun mxm--sort-table()
