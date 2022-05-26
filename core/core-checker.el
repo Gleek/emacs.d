@@ -1,27 +1,3 @@
-(use-package flyspell-lazy
-  :after flyspell
-  :hook ((flyspell-mode . flyspell-lazy-mode)
-         (flyspell-prog-mode . flyspell-lazy-mode)))
-
-(use-package flyspell
-  ;; :defer 5
-  :disabled
-  :config
-  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-  (add-hook 'conf-mode-hook 'flyspell-prog-mode)
-  (add-hook 'text-mode-hook 'flyspell-mode)
-  (defvar ispell-program-name)
-  (defvar flyspell-issue-message-flag)
-  (setq ispell-program-name "/usr/local/bin/aspell")
-  (setq flyspell-issue-message-flag nil)
-  (set-face-attribute 'flyspell-incorrect nil :underline '(:color "#6666ff"))
-  (set-face-attribute 'flyspell-duplicate nil :underline '(:color "#6688ff"))
-  (eval-after-load "flyspell"
-    '(define-key flyspell-mode-map (kbd "C-.") nil))
-  (setq flyspell-prog-text-faces (delq 'font-lock-string-face flyspell-prog-text-faces))
-  :diminish flyspell-mode)
-
-
 (use-package spell-fu
   :hook (text-mode . spell-fu-mode)
   :init
@@ -55,7 +31,6 @@
   ;; Courtesy: Doom
   (defun +spell-correct-fn (candidates word)
       (completing-read (format "Corrections for %S: " word) candidates))
-    ;; (ivy-read (format "Corrections for %S: " word) candidates)
 
   (defun +spell/correct ()
     "Correct spelling of word at point."
@@ -178,7 +153,6 @@
   (add-hook '+theme-toggle-hook '+spell-fu-set-face))
 
 (use-package flycheck
-  :defer 2
   :hook (prog-mode . flycheck-mode)
   :config
   ;; (global-flycheck-mode -1)

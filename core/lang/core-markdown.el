@@ -1,8 +1,6 @@
 (use-package markdown-mode
   :mode ("/README\\(?:\\.md\\)?\\'" . gfm-mode)
   :ensure markdown-mode
-  :bind (:map markdown-mode-map
-              ("M-p" . nil))
   :ensure grip-mode
   :init
   (defvar markdown-command)

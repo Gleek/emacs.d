@@ -55,8 +55,6 @@
          (:map makefile-executor-mode-map
                ("C-c C-d" . nil))))
 
-(use-package make-mode
-  :bind (:map makefile-mode-map
-              ("M-p" . nil)))
+(use-package make-mode)
 
 (provide 'core-misc)

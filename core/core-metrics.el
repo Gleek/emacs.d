@@ -39,8 +39,9 @@
     (+browse-url "http://localhost:5600/#/timeline"))
 
   (defun active-watch--save-override()
-    (save-match-data
-      (activity-watch--call)))
+    (ignore-errors
+      (save-match-data
+        (activity-watch--call))))
   (advice-add 'activity-watch--save :override 'active-watch--save-override))
 
 (use-package explain-pause-mode
@@ -62,6 +63,8 @@
   :config
   (setq mx-metrics-file (expand-file-name "mx-metrics" CACHE-DIR))
   (mx-metrics-mode t))
+
+(use-package esup)
 
 (provide 'core-metrics)
 ;;; core-metrics.el ends here

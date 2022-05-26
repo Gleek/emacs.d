@@ -135,7 +135,13 @@
   (defalias 'eshell/v 'eshell-exec-visual))
 
 (use-package esh-help
-  :init (setup-esh-help-eldoc))
+  :hook (eshell-mode . +esh-load-helpdoc)
+  :config
+  (defvar +esh-help-loaded nil)
+  (defun +esh-load-helpdoc()
+    (if (not +esh-help-loaded)
+        (setup-esh-help-eldoc))
+    (setq +esh-help-loaded t)))
 
 (use-package eshell-syntax-highlighting
   :hook (eshell-mode . eshell-syntax-highlighting-mode))

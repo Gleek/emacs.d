@@ -1,10 +1,10 @@
 (use-package magit
+  :commands (magit-status magit-dispatch)
   :bind (("C-x m" . magit-status)
          ("C-c g b" . magit-blame-addition)
          ("C-c g l" . magit-log-buffer-file))
-  :custom
-  (magit-git-executable (executable-find "git"))
-  (magit-status-headers-hook '(magit-insert-head-branch-header))
+  :init
+  (setq magit-define-global-key-bindings nil)
   :config
   (defun magit-remove-git-lock-file ()
     "Remove git's index lock file, if it exists."
@@ -16,6 +16,8 @@
   (setq magit-auto-revert-mode nil)
   (setq magit-save-repository-buffers nil)
   (setq magit-diff-refine-hunk t)
+
+  (setq magit-status-headers-hook '(magit-insert-head-branch-header))
   ;; This gives some performance boost to magit
   (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
   ;; (remove-hook 'magit-status-sections-hook 'magit-insert-status-headers)
@@ -25,8 +27,8 @@
   (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent)
   (add-hook 'magit-popup-mode-hook #'hide-mode-line-mode))
 
-(use-package magit-delta
-  :hook (magit-mode . magit-delta-mode))
+;; (use-package magit-delta
+;;   :hook (magit-mode . magit-delta-mode))
 
 (use-package forge
   :after magit
@@ -43,12 +45,10 @@
 (use-package browse-at-remote
   :bind (("C-c g w" . browse-at-remote-kill)
          ("C-c g o" . browse-at-remote))
-  :init
+  :config
   (setq browse-at-remote-add-line-number-if-no-region-selected nil))
 
 (use-package git-gutter
-  ;; :disabled t
-  :defer 1
   :ensure git-gutter
   :ensure git-gutter-fringe
   :diminish git-gutter-mode
@@ -78,8 +78,11 @@
     nil nil 'bottom)
   ;; (global-git-gutter-mode t)
   (setq git-gutter:disabled-modes '(fundamental-mode image-mode pdf-view-mode))
-  (advice-add #'magit-stage-file   :after #'+vc-gutter-update-h)
-  (advice-add #'magit-unstage-file :after #'+vc-gutter-update-h)
+  (eval-after-load 'magit
+    '(progn
+       (advice-add #'magit-stage-file   :after #'+vc-gutter-update-h)
+       (advice-add #'magit-unstage-file :after #'+vc-gutter-update-h)))
+
 
   ;; Backup for git gutter without fringe. Tries to replicate the fringes
   (setq git-gutter:modified-sign " "

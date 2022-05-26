@@ -6,7 +6,14 @@
 ;; Version: 0.0.1
 ;; Author: Umar Ahmad
 ;;; Commentary:
-
+;; This file is never loaded in normal use and is meant to be used as a minimal init.el
+;; in another Emacs where I don't have the liberty to clone my full config.
+;; These are the principles for this file:
+;; - Single file: So it's easy to copy paste - email to someone
+;; - Only uses Emacs defaults - no fluff packages
+;; - Assumes the latest stable Emacs version
+;; - No dependency on extra packages unless absolutely necessary (for eg language major modes - but only when visiting those files)
+;; - Future: can include some helpful utilities like flmake chekers and dumb jump on request basis.
 ;;
 
 ;;; Code:
