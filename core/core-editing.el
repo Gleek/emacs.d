@@ -130,7 +130,7 @@ Will also prompt for a file to visit if current
 buffer is not visiting a file."
   (interactive "P")
   (if (or arg (not buffer-file-name))
-      (counsel-find-file "/sudo:root@localhost:")
+      (find-file "/sudo:root@localhost:")
     (let ((pos (point)))
       (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))
       (goto-char pos))))
@@ -234,7 +234,8 @@ https://emacs.stackexchange.com/a/12124/2144"
   (selected-global-mode 1))
 
 (use-package move-text
-  :defer 1
+  :bind (("M-<up>" . move-text-up)
+         ("M-<down>" . move-text-down))
   :config
   (defun indent-region-advice (&rest ignored)
     (let ((deactivate deactivate-mark))
@@ -244,8 +245,7 @@ https://emacs.stackexchange.com/a/12124/2144"
       (setq deactivate-mark deactivate)))
 
   (advice-add 'move-text-up :after 'indent-region-advice)
-  (advice-add 'move-text-down :after 'indent-region-advice)
-  (move-text-default-bindings))
+  (advice-add 'move-text-down :after 'indent-region-advice))
 
 
 (use-package auto-indent-mode

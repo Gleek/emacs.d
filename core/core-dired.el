@@ -177,10 +177,10 @@
 ;; (use-package dired-collapse
 ;;   :hook (dired-mode . dired-collapse-mode))
 
-(use-package counsel-fd
-  :bind (:map dired-mode-map
-              ("ff". counsel-fd-file-jump)
-              ("fd". counsel-fd-dired-jump)))
+;; (use-package counsel-fd
+;;   :bind (:map dired-mode-map
+;;               ("ff". counsel-fd-file-jump)
+;;               ("fd". counsel-fd-dired-jump)))
 
 (when IS-MAC
   (use-package osx-trash

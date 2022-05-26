@@ -42,51 +42,32 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-c p c" . projectile-compile-project)
          ("C-c p s" . projectile-save-project-buffers)))
 
-(use-package counsel-projectile
-  ;; :defer 1
-  :bind (("C-c p f" . counsel-projectile-find-file)
-         ("C-c p b" . counsel-projectile-switch-to-buffer)
-         ("C-x B" . counsel-projectile-switch-to-buffer)
-         ("C-c p p" . counsel-projectile-switch-project))
-  :init
-  (setq counsel-projectile-switch-project-action
-        '(1
-          ("o" counsel-projectile-switch-project-action "jump to a project buffer or file")
-          ("f" counsel-projectile-switch-project-action-find-file "jump to a project file")
-          ("d" counsel-projectile-switch-project-action-find-dir "jump to a project directory")
-          ("D" counsel-projectile-switch-project-action-dired "open project in dired")
-          ("b" counsel-projectile-switch-project-action-switch-to-buffer "jump to a project buffer")
-          ("m" counsel-projectile-switch-project-action-find-file-manually "find file manually from project root")
-          ("S" counsel-projectile-switch-project-action-save-all-buffers "save all project buffers")
-          ("k" counsel-projectile-switch-project-action-kill-buffers "kill all project buffers")
-          ("K" counsel-projectile-switch-project-action-remove-known-project "remove project from known projects")
-          ("c" counsel-projectile-switch-project-action-compile "run project compilation command")
-          ("C" counsel-projectile-switch-project-action-configure "run project configure command")
-          ("E" counsel-projectile-switch-project-action-edit-dir-locals "edit project dir-locals")
-          ("v" counsel-projectile-switch-project-action-vc "open project in vc-dir / magit / monky")
-          ("s" counsel-projectile-switch-project-action-rg "search project with rg")
-          ("x" counsel-projectile-switch-project-action-run-vterm "invoke vterm from project root")))
+;; (use-package "+projectile-find-file"
+;;   :ensure nil
+;;   :bind* (("s-o" . +projectile-find-file-dynamic)
+;;           ("s-p" . +projectile-find-file-dynamic))
+;;   :config
 
-  ;; Default counsel-projectile is very slow. Removing it's usage when switching project
-  (advice-add 'counsel-projectile-switch-project-action :override 'counsel-projectile-switch-project-action-find-file))
+;;   (eval-after-load "all-the-icons-ivy"
+;;     '(progn (let ((all-the-icons-ivy-file-commands
+;;                    '(counsel-projectile
+;;                      counsel-projectile-find-file
+;;                      +projectile-find-file-dynamic
+;;                      +projectile-find-file
+;;                      counsel-projectile-find-dir)))
+;;               (all-the-icons-ivy-setup))
+;;             ))
 
-(use-package "+projectile-find-file"
-  :ensure nil
-  :after counsel-projectile
-  :bind ("M-p" . +projectile-find-file-dynamic)
+;;   (advice-add 'counsel-projectile-find-file :override '+projectile-find-file-dynamic))
+
+(use-package consult-projectile
+  :bind*
+  (("C-c p p" . consult-projectile-switch-project)
+   ("C-c p f" . consult-projectile-find-file)
+   ("s-p" . consult-projectile))
   :config
-
-  (eval-after-load "all-the-icons-ivy"
-    '(progn (let ((all-the-icons-ivy-file-commands
-                   '(counsel-projectile
-                     counsel-projectile-find-file
-                     +projectile-find-file-dynamic
-                     +projectile-find-file
-                     counsel-projectile-find-dir)))
-              (all-the-icons-ivy-setup))
-            ))
-
-  (advice-add 'counsel-projectile-find-file :override '+projectile-find-file-dynamic))
+  (require 'consult-projectile-plus)
+  (consult-projectile-plus-init))
 
 (use-package project
   :ensure nil
@@ -132,17 +113,6 @@ Repeated invocations toggle between the two most recently open buffers."
            :header-mouse-map ibuffer-size-header-map)
     (file-size-human-readable (buffer-size))))
 
-;; (use-package ibuffer-projectile
-;;   :disabled t ;; Very slow https://github.com/purcell/ibuffer-projectile/issues/11
-;;   :hook (ibuffer . ibuffer-projectile-set-filter-groups)
-;;   :config
-
-;;   (setq ibuffer-projectile-prefix
-;;         (concat (all-the-icons-octicon
-;;                  "file-directory"
-;;                  :face ibuffer-filter-group-name-face
-;;                  :v-adjust -0.05) " ")))
-
 (use-package ibuffer-vc
   :hook (ibuffer . ibuffer-vc-set-filter-groups-by-vc-root))
 
@@ -158,13 +128,6 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package dumb-jump
   :ensure t
-  ;; :bind (("M-g o" . dumb-jump-go-other-window)
-  ;;        ("M-g j" . dumb-jump-go)
-  ;;        ("M-g i" . dumb-jump-go-prompt)
-  ;;        ("M-g h" . dumb-jump-back)
-  ;;        ("M-g q" . dumb-jump-quick-look)
-  ;;        ("M-g x" . dumb-jump-go-prefer-external)
-  ;;        ("M-g z" . dumb-jump-go-prefer-external-other-window))
   :commands (dumb-jump-xref-activate)
   :init
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
@@ -177,6 +140,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package rg)
 
 (use-package wgrep
+  :commands wgrep-change-to-wgrep-mode
   :config (setq wgrep-auto-save-buffer t))
 
 (use-package smart-jump
@@ -267,10 +231,7 @@ Use `treemacs' command for old functionality."
   :commands lsp
   :bind ((:map lsp-mode-map
                ("C-c p r" . lsp-rename)
-               ("M-p" . nil)
-               ("M-'" . lsp-goto-implementation))
-         (:map lsp-signature-mode-map
-               ("M-p" . nil)))
+               ("M-'" . lsp-goto-implementation)))
   :init
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
 
@@ -302,9 +263,12 @@ Use `treemacs' command for old functionality."
   (setq lsp-enable-indentation nil
         lsp-enable-on-type-formatting nil))
 
-(use-package lsp-ivy
-  :after lsp-mode
-  :bind (:map lsp-mode-map ("M-<return>" . lsp-ivy-workspace-symbol)))
+;; (use-package lsp-ivy
+;;   :after lsp-mode
+;;   :bind (:map lsp-mode-map ("M-<return>" . lsp-ivy-workspace-symbol)))
+(use-package consult-lsp
+    :after lsp-mode
+    :bind (:map lsp-mode-map ("M-<return>" . consult-lsp-symbols)))
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)

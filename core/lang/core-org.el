@@ -281,7 +281,7 @@
          ("C-c o c" . +capture-inbox)
          ("C-c o w" . copy-current-line-link-for-org)
          ("<f5>" . +capture-inbox)
-         ("C-c o g" . counsel-org-goto-all)
+         ("C-c o g" . consult-org-agenda)
          :map org-mode-map
          ("C-s-q" . org-fill-paragraph)
          ("C-<tab>" . nil)))

@@ -63,7 +63,7 @@
   :init
   (defvar eshell-hist-mode-map (make-sparse-keymap))
   :ensure nil
-  :bind ((:map eshell-hist-mode-map ("M-r" . +eshell/search-history))
+  :bind ((:map eshell-hist-mode-map ("M-r" . consult-history))
          (:map eshell-mode-map ("C-z p" . eshell/cdp)))
   :config
 

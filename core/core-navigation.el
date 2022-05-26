@@ -11,8 +11,9 @@
   :init
   (setq avy-background t)
   ;; :chords ("jk" . avy-goto-word-or-subword-1)
-  :bind (("C-\"". avy-goto-word-or-subword-1)
+  :bind* (("C-\"". avy-goto-word-or-subword-1)
          ("C-'" . avy-goto-char-timer)))
+
 
 (use-package isearch
   :ensure nil
@@ -21,8 +22,9 @@
          ("C-s" . isearch-forward)
          ("C-M-r" . isearch-backward-regexp)
          (:map isearch-mode-map
-               ("C-M-s" . swiper-from-isearch)
-               ("C-o" . swiper-from-isearch)))
+               ("M-e" . consult-isearch-history)
+               ("C-M-s" . consult-line)
+               ("C-o" . consult-line)))
   :config
   ;; Make it a bit more swiper like. Since I'm used to it now
   (setq search-highlight t)
@@ -38,11 +40,19 @@
 
 (use-package swiper
   :ensure t
-  :bind (("C-M-s" . swiper)
+  :bind (;; ("C-M-s" . swiper)
          :map swiper-map
          ("C-c m" . swiper-mc)))
 
 ;; (use-package ace-isearch)
+
+(use-package affe
+  :bind* ("s-o" . affe-find)
+  :config
+  (defun affe-find-no-ignore()
+    (interactive)
+    (let ((affe-find-command "rg --color=never --files --no-ignore-vcs"))
+      (affe-find))))
 
 (use-package phi-search :ensure t
   :init (setq phi-search-limit 10000))
@@ -97,8 +107,8 @@
 
 
 (use-package bookmark
-  :bind
-  ("C-x r b" . counsel-bookmark)
+  ;; :bind
+  ;; ("C-x r b" . counsel-bookmark)
   :config
   (setq bookmark-file (concat CACHE-DIR "bookmarks")))
 

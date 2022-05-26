@@ -107,7 +107,7 @@
 
 (use-package calibredb
   :commands (+calibredb-add)
-  :bind ("C-c B" . calibredb-find-counsel)
+  :bind ("C-c B" . calibredb-consult-read)
   :config
   (defun +calibredb-add()
     (interactive)

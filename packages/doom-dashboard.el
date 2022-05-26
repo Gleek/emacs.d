@@ -62,7 +62,7 @@ Possible values:
     ;;  :action counsel-recentf)
     ("Open project"
      :icon (all-the-icons-octicon "briefcase" :face 'doom-dashboard-menu-title)
-     :action counsel-projectile-switch-project)
+     :action consult-projectile-switch-project)
     )
   "An alist of menu buttons used by `doom-dashboard-widget-shortmenu'. Each
 element is a cons cell (LABEL . PLIST). LABEL is a string to display after the

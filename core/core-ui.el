@@ -145,14 +145,15 @@
   )
 
 (use-package doom-modeline
-  :demand
+  :hook (after-init . doom-modeline-mode)
   :config
   (setq doom-modeline-vcs-max-length 20)
   (setq doom-modeline-minor-modes nil)
   (setq doom-modeline-enable-word-count nil)
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
   (setq doom-modeline-checker-simple-format nil)
-  (doom-modeline-mode +1))
+  ;; (doom-modeline-mode +1)
+  )
 
 (use-package hide-mode-line
   :bind ("C-c t M" . hide-mode-line-mode))
@@ -202,7 +203,9 @@
               ([down]   .  #'forward-button)
               ([up]     .  #'backward-button)
               ([tab]    .  #'forward-button)
-              ([backtab].  #'backward-button)))
+              ([backtab].  #'backward-button))
+  :config
+  (setq +doom-dashboard-banner-dir RES-DIR))
 
 
 (use-package olivetti

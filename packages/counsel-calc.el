@@ -11,7 +11,9 @@
 
 ;;; Code:
 
+
 (defun counsel-calc--eval(str)
+  (require 'calc)
   (ignore-errors (if (> (length str) 0)
       (let* ((str (format "usimplify(%s)" str))
              (out (calc-eval str)))
@@ -26,8 +28,30 @@
   (calc-wrapper
    (calc-alg-entry str)))
 
+
+(defun completing-read-calc()
+  (interactive)
+  (kill-new
+   (completing-read
+    "Expression: "
+    (lambda(string predicate action)
+      (let (out)
+        (setq string (minibuffer-contents))
+        (setq out (if (> (length string) 0) (counsel-calc--eval string) '("")))
+        ;; FIXME: moving cursor on prompt removes.
+        (complete-with-action action out (car out) predicate))))))
+
+
+(defun vertico-calc()
+  (interactive)
+  (let ((vertico-count 1))
+    (completing-read-calc)))
+
+
 (defun counsel-calc()
   (interactive)
+  (if (not (package-installed-p 'ivy))
+      (user-error "Ivy not present"))
   (ivy-read "Expression: "
             #'counsel-calc--eval
             :action '(1

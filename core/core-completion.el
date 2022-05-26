@@ -1,19 +1,5 @@
-(use-package counsel
-  :ensure t
-  :init
-  (setq counsel-rg-base-command "rg -S --no-heading --line-number -M 500 --color never %s .")
-  :bind (("M-x"     . counsel-M-x)
-         ("C-c s s" . counsel-rg)
-         ;; ("C-c C-SPC" . counsel-mark-ring)
-         ("M-y"     . counsel-yank-pop)
-         ("C-x c i" . counsel-imenu)
-         ("M-i" . counsel-imenu)
-         ("C-x r r" . counsel-recentf)
-         ("C-x C-f" . counsel-find-file)
-         ("C-h v" . counsel-describe-variable)))
-
 (use-package ivy
-  :defer 1
+  ;; :defer 1
   :init
   (setq ivy-sort-max-size 7500
         ivy-height 17
@@ -25,7 +11,7 @@
         ivy-use-selectable-prompt t)
 
   :config
-  (ivy-mode t)
+  ;; (ivy-mode t)
   (eval-after-load '+popup
     '(set-popup-rule! "^\\*ivy-occur" :size 0.35 :ttl 0 :quit nil))
 
@@ -51,78 +37,115 @@
     (unless mini-frame-mode
       (apply f a)))
   (advice-add 'ivy-shrink-after-dispatching :around #'+ivy-shrink-after-dispatching-a)
-  :bind (("C-x b"   . ivy-switch-buffer)
-         ("C-c v" . ivy-resume))
   :diminish ivy-mode)
 
-(use-package ivy-hydra)
 
-;; Bugging out lsp-ivy
-;; (use-package all-the-icons-ivy-rich
-;;   :defer 1
-;;   :config
-;;   (all-the-icons-ivy-rich-mode 1))
+(use-package embark
+  :bind* (("M-o" . embark-act)
+          ("C-M-o" . embark-act-noquit)
+          ("C-;" . embark-dwim)
+          (:map minibuffer-local-map
+                ("C-," . embark-become))
+          (:map vertico-map
+                ("C-c C-c" . embark-act)
+                ("C-c C-o" . embark-export)))
+  :config
+  (setq embark-help-key "?")
+  ;; (defvar +embark-become-keymap (define-keymap))
+  (defun embark-act-noquit ()
+    "Run action but don't quit the minibuffer afterwards."
+    (interactive)
+    (let ((embark-quit-after-action nil))
+      (embark-act)))
 
-(use-package all-the-icons-ivy
+  (defvar +embark-buffer-keymap (define-keymap))
+  (define-key +embark-buffer-keymap "p" #'consult-projectile)
+  (define-key +embark-buffer-keymap "P" #'consult-projectile-switch-project)
+  (define-key +embark-buffer-keymap "a" #'affe-find)
+  (define-key +embark-buffer-keymap "A" #'affe-find-no-ignore)
+  (define-key +embark-buffer-keymap "b" #'consult-buffer)
+  (define-key +embark-buffer-keymap "B" #'consult-project-buffer)
+  (define-key +embark-buffer-keymap "f" #'find-file)
+
+  (add-to-list 'embark-become-keymaps '+embark-buffer-keymap))
+
+(use-package embark-consult
+  :defer 1
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+
+
+(use-package consult
+  :bind (("C-x b" . consult-buffer)
+         ("C-x B" . consult-project-buffer)
+         ("C-x r b" . consult-bookmark)
+         ("C-c s s" . consult-ripgrep)
+         ("M-g M-g" . consult-goto-line)
+         ("M-y" . consult-yank-replace)
+         ("C-x c i" . consult-imenu)
+         ("C-M-s" . consult-line)
+         (:map minibuffer-local-map
+               ("M-s" . consult-history)
+               ("M-r" . consult-history)))
+  :init
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+  (setq consult-narrow-key "<")
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format)
+  (advice-add #'register-preview :override #'consult-register-window)
+  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+  (advice-add #'multi-occur :override #'consult-multi-occur))
+
+(use-package vertico
+  :defer 1
+  :bind (("C-c v" . vertico-repeat)
+         (:map vertico-map
+               ("<return>" . vertico-directory-enter)
+               ("<backspace>" . vertico-directory-delete-char)
+               ("M-<backspace>" . vertico-directory-delete-word)))
+  :hook (minibuffer-setup . vertico-repeat-save)
+  :config
+  (vertico-mode t)
+  (setq vertico-resize nil
+        vertico-count 15)
+  (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy))
+
+(use-package marginalia
   :defer 1
   :config
-  (setq all-the-icons-ivy-buffer-commands nil)
-  (all-the-icons-ivy-setup))
+  (marginalia-mode))
 
-
-
-(use-package ivy-rich
-  :defer 1
-  :after ivy
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion))))
   :config
-  (setq ivy-rich-parse-remote-buffer nil)
-  ;; Courtesy: doom emacs
-  (defun +ivy-rich-describe-variable-transformer (cand)
-    "Previews the value of the variable in the minibuffer"
-    (let* ((sym (intern cand))
-           (val (and (boundp sym) (symbol-value sym)))
-           (print-level 3))
-      (replace-regexp-in-string
-       "[\n\t\^[\^M\^@\^G]" " "
-       (cond ((booleanp val)
-              (propertize (format "%s" val) 'face
-                          (if (null val)
-                              'font-lock-comment-face
-                            'success)))
-             ((symbolp val)
-              (propertize (format "'%s" val)
-                          'face 'highlight-quoted-symbol))
-             ((keymapp val)
-              (propertize "<keymap>" 'face 'font-lock-constant-face))
-             ((listp val)
-              (prin1-to-string val))
-             ((stringp val)
-              (propertize (format "%S" val) 'face 'font-lock-string-face))
-             ((numberp val)
-              (propertize (format "%s" val) 'face 'highlight-numbers-number))
-             ((format "%s" val)))
-       t)))
-  (plist-put
-   ivy-rich-display-transformers-list
-   'counsel-describe-variable
-   '(:columns
-     ((counsel-describe-variable-transformer (:width 40)) ; the original transformer
-      (+ivy-rich-describe-variable-transformer (:width 50)) ; display variable value
-      (ivy-rich-counsel-variable-docstring (:face font-lock-doc-face)))))
+  (setq orderless-component-separator 'orderless-escapable-split-on-space)
+  (defun orderless-flex-if-twiddle (pattern _index _total)
+    (when (string-suffix-p "~" pattern)
+      `(orderless-flex . ,(substring pattern 0 -1))))
 
-  (plist-put
-   ivy-rich-display-transformers-list
-   'counsel-projectile-switch-to-buffer
-   (plist-get ivy-rich-display-transformers-list 'ivy-switch-buffer))
-  (ivy-rich-mode t))
+  (defun orderless-first-initialism (pattern index _total)
+    (if (= index 0) 'orderless-initialism))
 
+  (defun orderless-without-if-bang (pattern _index _total)
+    (cond
+     ((equal "!" pattern)
+      '(orderless-literal . ""))
+     ((string-prefix-p "!" pattern)
+      `(orderless-without-literal . ,(substring pattern 1)))))
 
+  (setq orderless-style-dispatchers '(orderless-flex-if-twiddle
+                                      orderless-without-if-bang)))
 
-(use-package all-the-icons-ivy-rich
+(use-package all-the-icons-completion
   :defer 1
-  :config (all-the-icons-ivy-rich-mode t))
-
-
+  :config
+  (all-the-icons-completion-mode)
+  (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup))
 
 (use-package hippie-exp
   :ensure nil
@@ -141,10 +164,7 @@
 
 
 (use-package company
-  :defer 5
-  :ensure company-web
   :ensure company-quickhelp
-  ;; :disabled t
   :hook ((prog-mode . +enable-company)
          (text-mode . +enable-company)
          (conf-mode . +enable-company))
@@ -154,6 +174,8 @@
     `(add-hook ,hook (lambda()
                        (set (make-local-variable 'company-backends)
                             ,backends))))
+
+  :config
   (setq company-idle-delay 0.5
         company-minimum-prefix-length 2
         company-require-match 'never
@@ -169,7 +191,6 @@
         company-auto-commit-chars nil
         company-dabbrev-ignore-case nil
         company-dabbrev-downcase nil)
-  :config
   ;; (global-company-mode)
   (defun +enable-company()
     "Only enable company mode if the buffer is not huge"

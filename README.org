@@ -13,13 +13,15 @@ I used exwm on my linux machine but have recently moved to MacOS so the exwm com
 - ~packages~ has all custom packages written by me or copy pasted from somewhere
 - ~elpa~ has all the packages installed in emacs
 - ~snippets~ has all the yasnippet snippets
+- ~emergency.el~ is a minimal single file init.el config that is meant to be used in scenarios where I
+  lack the freedom to clone my entire config.
 
 The UI is heavily inspired by [[https://github.com/hlissner/doom-emacs][Doom Emacs]]
 
-[[file:screen.png]]
+[[file:resources/screen.png]]
 
 Light theme
 
-[[./screen-light.png]]
+[[./resources/screen-light.png]]
 ** Usage
 =git clone https://www.github.com/gleek/emacs.d ~/.config/emacs=
