@@ -232,7 +232,6 @@
 
 
 (use-package mini-frame
-  :defer 1
   :bind ("C-c t m" . +toggle-mini-frame)
   :config
   (defun +toggle-mini-frame()
