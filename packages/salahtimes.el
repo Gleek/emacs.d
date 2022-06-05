@@ -56,6 +56,8 @@
     :params `(("city" . ,salah-city)
               ("country" . ,salah-country)
               ("method" . "1")
+              ("month" . ,(format-time-string "%m"))
+              ("year" . ,(format-time-string "%Y"))
               ("school" . ,(if (equal salah-school "hanafi") "1" "0")))
     :parser 'json-read
     :success (cl-function (lambda (&key data &allow-other-keys)
@@ -127,6 +129,7 @@
 
 (defun salah-times--today()
   (string-to-number (format-time-string "%d")))
+
 
 (provide 'salahtimes)
 ;;; salahtimes.el ends here
