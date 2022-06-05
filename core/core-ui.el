@@ -61,7 +61,10 @@
       '(""
         "%b"
         (:eval
-         (let ((project-name (projectile-project-name)))
+         (let ((project-name
+                (if (fboundp 'projectile-project-name)
+                    (projectile-project-name)
+                  "-")))
            (unless (string= "-" project-name)
              (format " [%s]" project-name))))
         " - Emacs"))

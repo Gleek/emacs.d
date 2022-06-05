@@ -63,10 +63,8 @@
   :init
   (defvar eshell-hist-mode-map (make-sparse-keymap))
   :ensure nil
-  :bind ((:map eshell-hist-mode-map ("M-r" . consult-history))
-         (:map eshell-mode-map ("C-z p" . eshell/cdp)))
+  :bind ((:map eshell-hist-mode-map ("M-r" . consult-history)))
   :config
-
   (set-popup-rule! "^\\*eshell" :ignore t)
   (setq eshell-banner-message ""
         eshell-scroll-to-bottom-on-input 'all
@@ -178,57 +176,25 @@
             (lambda()
               (setq confirm-kill-processes nil))))
 
-
-(use-package dtache
-  :bind (("C-c x x" . dtache-shell-command)
-         ("C-c x t" . dtache-tail-session)
-         ("C-c x k" . +dtache-kill-and-delete-session)
-         ("C-c x K" . dtache-delete-sessions)
-         ("C-c x a s" . +quick-sshuttle))
+(use-package detached
+  :init
+  (detached-init)
+  :bind (("C-c x x" . detached-shell-command)
+         ("C-c x t" . detached-tail-session)
+         ("C-c x o" . detached-consult-session)
+         ;; ("C-c x k" . +detached-kill-and-delete-session)
+         ("C-c x K" . detached-delete-sessions))
   :config
-  (dtache-setup)
-  (setq dtache-db-directory CACHE-DIR)
-
-  (eval-after-load '+popup
-    '(set-popup-rule! "^\\*Dtache Shell Command*" :vslot 99 :size 0.4 :quit t))
-
-  (defun +dtache-kill-and-delete-session (session)
-    "Kill session with `dtache-kill-session' and delete the session."
-    (interactive
-     (list (dtache-completing-read (dtache-get-sessions))))
-    (dtache-kill-session session)
-    (dtache--db-remove-entry session))
-
-
-  (defun +dtache-state-transition-alert-notification (session)
-    "Send an `alert' notification when SESSION becomes inactive."
-    (let ((status (car (dtache--session-status session)))
-          (host (car (dtache--session-host session))))
-      (alert (dtache--session-command session)
-             :title (pcase status
-                      ('success (format "Dtache finished [%s]" host))
-                      ('failure (format "Dtache failed [%s]" host)))
-             :severity (pcase status
-                         ('success 'moderate)
-                         ('failure 'high)))))
-  (setq dtache-notification-function #'+dtache-state-transition-alert-notification)
+  (setq detached-db-directory CACHE-DIR)
+  (if IS-MAC
+      (setq detached-terminal-data-command "script -F -q /dev/null %s"))
+  (setq detached-notification-function 'detached-state-transitionion-echo-message)
 
   (defun +quick-sshuttle()
     (interactive)
     (defvar sshuttle-endpoints) ;; present in core-secrets.el
     (let ((command (cdr (assoc-string (completing-read "Server" sshuttle-endpoints) sshuttle-endpoints))))
       (dtache-start-session (concat "sshuttle -l 0.0.0.0 -r " command) nil))))
-
-(use-package dtache-eshell
-  :ensure nil
-  :hook (eshell-mode . dtache-eshell-mode)
-  :config
-  (require 'dtache)
-  (dtache-eshell-setup))
-
-(use-package counsel-dtache
-    :ensure nil
-    :bind ("C-c x o" . counsel-dtache))
 
 
 

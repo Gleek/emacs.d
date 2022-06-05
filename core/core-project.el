@@ -23,9 +23,6 @@ Repeated invocations toggle between the two most recently open buffers."
   :init
   (setq projectile-cache-file (concat CACHE-DIR "projectile.cache"))
   (setq projectile-known-projects-file (concat CACHE-DIR "projectile-bookmarks.eld"))
-  (defvar projectile-mode-line)
-  (setq projectile-completion-system 'ivy)
-  ;; (setq projectile-enable-caching t) ;; Projectile turbo!!
   :config
   (defun +copy-project-file-name()
     (interactive)
@@ -122,9 +119,8 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq xref-show-definitions-function #'ivy-xref-show-defs)
   (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
 
-(use-package ecb :disabled t )
-
 (use-package ag :ensure t )
+(use-package rg)
 
 (use-package dumb-jump
   :ensure t
@@ -137,7 +133,6 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq dumb-jump-force-searcher 'rg)
   (setq dumb-jump-selector 'ivy))
 
-(use-package rg)
 
 (use-package wgrep
   :commands wgrep-change-to-wgrep-mode
