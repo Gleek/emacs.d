@@ -470,15 +470,13 @@ To actually enable this, evaluate `+bongo-remove-headers'."
 
 (use-package calc
   :bind ("C-*" . calc)
-  :init
+  :config
   (defmath tzconv(dt tz &optional tz2)
     ;; if only tz is present assume that the dt is in local timezone and convert to tz
     ;; if both tz and tz2 are present assume dt is in tz timezone and convert to tz2
     (if tz2
         :"unixtime(unixtime(dt) + tzone(tz) - tzone(tz2))"
         :"unixtime(unixtime(dt)+tzone()-tzone(tz))"))
-  :config
-
   (setq math-additional-units
         '(
           (GiB "1024 * MiB" "Giga Byte")
@@ -492,7 +490,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
         math-units-table nil))
 
 (use-package counsel-calc :ensure nil
-  :bind ("M-*" . counsel-calc))
+  :bind ("M-*" . completing-read-calc))
 
 (use-package shortdoc :ensure nil
   :bind ("C-h s" . shortdoc-display-group))
@@ -538,7 +536,6 @@ To actually enable this, evaluate `+bongo-remove-headers'."
 (when IS-MAC
   (use-package spotlight
     :bind ("C-c s S" . spotlight)))
-
 
 
 (provide 'core-tools)
