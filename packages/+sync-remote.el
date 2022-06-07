@@ -30,7 +30,7 @@
 (defun +sync-remote-start()
   "Start the syncing process."
   (interactive)
-  (require 'dtache)
+  (require 'detached)
   (let* ((local-path (or +sync-local-path (read-string "Local Path: " default-directory)))
          (remote-path (or +sync-remote-path (read-string "Remote Path: ")))
          (sync-excludes (mapconcat (lambda(el) (concat "--exclude=" (shell-quote-argument el)))  +sync-transfer-excludes " "))
@@ -43,7 +43,7 @@
          (listen-command (mapconcat 'identity
                                     `(,+sync-fswatch-exec ,listen-excludes ,local-path) " "))
          (final-command (format "%s; %s | while read f; do %s;done" sync-command listen-command sync-command)))
-    (dtache-start-session final-command t)))
+    (detached-start-session final-command t)))
 
 
 (provide '+sync-remote)
