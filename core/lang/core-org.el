@@ -539,6 +539,7 @@
                ("C-c o r m" . org-roam-dailies-goto-tomorrow)
                ("C-c o r y" . org-roam-dailies-goto-yesterday)))
   :config
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
   (defvar org-roam-capture-immediate-template
     (append (car org-roam-capture-templates) '(:immediate-finish t)))
@@ -568,6 +569,16 @@ org-roam-insert-immediate, but using company."
          (one-window-p t nil)
          (org-roam-buffer-toggle)))
 
+  (defun +roam-preview-fetcher ()
+    "Org roam preview to preview only the paragraph containing the link.
+    Instead of the text till next heading or full file."
+    (let* ((elem (org-element-context))
+           (parent (org-element-property :parent elem)))
+      ;; TODO: alt handling for non-paragraph elements
+      (string-trim-right (buffer-substring-no-properties
+                          (org-element-property :begin parent)
+                          (org-element-property :end parent)))))
+
   (add-hook 'org-roam-find-file-hook  '+org-roam-open-with-buffer-maybe-h :append)
   (add-hook 'org-roam-mode-hook #'turn-on-visual-line-mode)
   (require 'org-roam-protocol)
@@ -579,6 +590,8 @@ org-roam-insert-immediate, but using company."
       ("^\\*org-roam: " ; node dedicated org-roam buffer
        :side right :width .33 :height .5 :ttl nil :modeline nil :quit nil :slot 2)))
 
+
+  (setq org-roam-preview-function #'+roam-preview-fetcher)
 
   (setq org-roam-completion-everywhere t)
   (setq org-roam-verbose nil)
