@@ -33,6 +33,7 @@
     ("b" "buffer" "jump to a project buffer" 'consult-projectile-switch-to-buffer)
     ("m" "manual-find-file" "find file manually from project root" 'consult-projectile-find-file-manually)
     ("a" "affe" "find file with affe" 'affe-find)
+    ("z" "affe-no-ignore" "find file with affe" 'affe-find-no-ignore)
     ("s" "rg" "search project with rg" 'consult-ripgrep)
     ("k" "kill" "kill all project buffers" 'projectile-kill-buffers)
     ("K" "remove" "remove project from known projects" 'consult-projectile-remove-this-project)))
