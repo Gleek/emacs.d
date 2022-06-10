@@ -33,15 +33,18 @@
 (use-package activity-watch-mode
   :defer 2
   :config
+  (setq activity-watch-project-name-resolvers '(projectile))
   (global-activity-watch-mode t)
   (defun +activity-watch-show()
     (interactive)
     (+browse-url "http://localhost:5600/#/timeline"))
 
+  
   (defun active-watch--save-override()
-    (ignore-errors
-      (save-match-data
-        (activity-watch--call))))
+    (cl-letf (((symbol-function #'magit-get-current-branch) #'ignore))
+      (ignore-errors
+        (save-match-data
+          (activity-watch--call)))))
   (advice-add 'activity-watch--save :override 'active-watch--save-override))
 
 (use-package explain-pause-mode
