@@ -11,6 +11,7 @@
 
 ;;; Code:
 
+(require 'keepass-mode)
 
 (defvar +keepass-password-expiry (* 10 60)
   "Expire keepass password after seconds")
@@ -18,6 +19,9 @@
 (defvar +keepass-completion 'consult
   "Completion framework to use for completion.
 'consult and 'ivy are available values.")
+
+(defvar keepass-password-file (expand-file-name "keepass.kbdx" "~")
+  "Location of the password file to quickly jump on it")
 
 (defun keepass-quick-switch()
   (interactive)
@@ -37,6 +41,8 @@
 
 (defun counsel-keepass()
   (interactive)
+  (if (not (package-installed-p 'ivy))
+      (error "Ivy not installed"))
   (ivy-read "Search entry: "
             (+keepass-list-all)
             :require-match t
@@ -48,13 +54,14 @@
 
 (defun consult-keepass()
   (interactive)
+  (if (not (package-installed-p 'consult))
+      (error "Consult not installed"))
   (consult-keepass-embark)
   (+keepass-copy-password
    (consult--read (+keepass-list-all)
                   :prompt "Search entry: "
                   :category 'keepass-entry
-                  :require-match t))
-  (message "%s" (car (+keepass-list-all))))
+                  :require-match t)))
 
 
 (defun +keepass-open-entry(entry)
