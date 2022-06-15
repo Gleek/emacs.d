@@ -43,6 +43,7 @@
   (interactive)
   (if (not (package-installed-p 'ivy))
       (error "Ivy not installed"))
+  (require 'ivy)
   (ivy-read "Search entry: "
             (+keepass-list-all)
             :require-match t
@@ -56,6 +57,7 @@
   (interactive)
   (if (not (package-installed-p 'consult))
       (error "Consult not installed"))
+  (require 'consult)
   (consult-keepass-embark)
   (+keepass-copy-password
    (consult--read (+keepass-list-all)
@@ -66,23 +68,27 @@
 
 (defun +keepass-open-entry(entry)
   "Open entry in keepass buffer."
-  (let ((keepass-mode-group-path ""))
-    (keepass-mode-show entry)))
+  (let ((buff (get-file-buffer keepass-password-file)))
+    (if buff
+        (with-current-buffer buff
+          (let ((keepass-mode-group-path ""))
+            (keepass-mode-show entry))))))
 
 (defun +keepass-copy-password(entry)
   "Copy password for the entry"
-  (kill-new (keepass-mode-get "Password" entry))
-  (message "Password for '%s' copied to kill-ring" entry))
+  (let ((buff (get-file-buffer keepass-password-file)))
+    (if buff
+        (with-current-buffer buff
+          (kill-new (keepass-mode-get "Password" entry))
+          (message "Password for '%s' copied to kill-ring" entry)))))
 
 (defun +keepass-copy-username(entry)
   "Copy username for the entry"
-  (kill-new (+keepass-mode-get-username entry))
-  (message "Username for '%s' copied to kill-ring" entry))
-
-
-(defun +keepass-mode-get-username (entry)
-  "Retrieve username for ENTRY."
-  (keepass-mode-get-field "UserName" (shell-command-to-string (keepass-mode-command (keepass-mode-quote-unless-empty entry) "show -s"))))
+  (let ((buff (get-file-buffer keepass-password-file)))
+    (if buff
+        (with-current-buffer buff
+          (kill-new (keepass-mode-get "UserName" entry))
+          (message "Username for '%s' copied to kill-ring" entry)))))
 
 (defun +keepass-list-all()
   (seq-filter
@@ -128,8 +134,6 @@
               (progn
                 (setq-local keepass-mode-password "")
                 (error "Invalid password")))))))
-
-
 
 ;;;###autoload
 (defun consult-keepass-embark()
