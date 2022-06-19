@@ -150,16 +150,20 @@
         (run-hooks 'nov-progress-hook)
         (setq-local nov--last-percentage-complete percentage-finished))))
 
-  (defun init-nov-completion-hook()
+  (defun init-nov-progress-hook()
     (add-hook 'post-command-hook 'nov-percentage-show-on-change nil t))
 
   (defun nov-setup-doom-modeline()
     (doom-modeline-def-segment nov-progress
       "Display progress in EPUB documents."
-      (propertize (format " T%0.0f%%%% " nov--last-percentage-complete)
+      (propertize (concat
+                   (format " %0.0f%%%% " nov--last-percentage-complete)
+                   (if doom-modeline-percent-position
+                       (format "(%s ) " (format-mode-line '(" " doom-modeline-percent-position "%%")))
+                     " "))
                   'face (doom-modeline-face 'doom-modeline)))
     (doom-modeline-def-modeline 'nov
-      '(bar window-number matches buffer-info buffer-position nov-progress)
+      '(bar window-number matches buffer-info nov-progress)
       '(misc-info major-mode process vcs))
 
     (add-hook 'nov-mode-hook
@@ -170,7 +174,7 @@
 
   (add-hook 'nov-mode-hook 'reading-mode)
   (add-hook 'nov-mode-hook 'nov-load-doc-sizes)
-  (add-hook 'nov-mode-hook 'init-nov-completion-hook))
+  (add-hook 'nov-mode-hook 'init-nov-progress-hook))
 
 
 
