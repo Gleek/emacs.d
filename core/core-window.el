@@ -86,10 +86,34 @@ configurations."
 (use-package zoom
   ;; :defer 1
   :diminish
-  :bind ("C-c w z" . zoom)
+  :bind (("C-c w z" . zoom)
+         ("C-c w Z" . zoom-out))
   :init
   (setq zoom-ignored-buffer-name-regexps '("^\*ansi-term.*"))
    ;; slightly bigger than what golden ration gives me.
-  (setq zoom-size '(0.7 . 0.7)))
+  (setq zoom-size '(0.7 . 0.7))
+  :config
+  (defun zoom-out()
+    (interactive)
+    (cl-letf (((symbol-function 'zoom--resize-one-dimension) #'zoom--resize-shrink-dimension))
+      (let ((zoom-size '(0.3 . 0.3)))
+        (zoom))))
+  (defun zoom--resize-shrink-dimension (size-hint-cons horizontal)
+    "Function return as a replacement for `zoom--resize-one-dimension'
+    The difference being that it can shrink the window as well.
+    Useful when other windows need to be enlarged."
+    (let* ((size-hint
+            (if horizontal (car size-hint-cons) (cdr size-hint-cons)))
+           (frame-size
+            (if horizontal (frame-width) (frame-height)))
+           (window-size
+            (if (floatp size-hint)
+                (if horizontal (window-total-width) (window-total-height))
+              (if horizontal (window-body-width) (window-body-height))))
+           (min-window-size
+            (if (floatp size-hint) (round (* size-hint frame-size)) size-hint))
+           (desired-delta (- min-window-size window-size))
+           (delta (window-resizable nil desired-delta horizontal)))
+      (window-resize nil delta horizontal))))
 
 (provide 'core-window)
