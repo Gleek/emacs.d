@@ -92,16 +92,87 @@
   :ensure dash
   :bind (:map nov-mode-map
               ("R" . speak-region-buf)
-              ("s-u" . reload-nov))
+              ("s-u" . reload-nov)
+              ("D" . osx-dictionary-search-input)
+              ([remap nov-history-back] . nov-history-back-pres-pos))
   :mode ("\\.epub\\'" . nov-mode)
   :config
+  (setq nov-save-place-file (concat CACHE-DIR "nov-places"))
+
   (defun reload-nov()
     "Revert buffer to work with epub files. "
     (interactive)
-    (find-alternate-file nov-file-name)
-    )
+    (find-alternate-file nov-file-name))
+
+  (defun nov-history-back-pres-pos()
+    "Differs from the normal nov-history-back by not recentering the
+     position when we go back thereby not disorienting the
+     previous view.  This preserves the visual cue when jumping
+     to references and quickly jumping back."
+    (interactive)
+    (or nov-history
+        (user-error "This is the first document you looked at"))
+    (let ((history-forward (cons (list nov-documents-index (point))
+                                 nov-history-forward)))
+      (seq-let (index opoint) (car nov-history)
+        (setq nov-history (cdr nov-history))
+        (nov-goto-document index)
+        (setq nov-history (cdr nov-history))
+        (setq nov-history-forward history-forward)
+        (goto-char opoint))))
+
+    (defvar nov-progress-hook nil)
+  (defvar-local nov-current-doc-sizes '()
+    "Maintains the output of `nov-doc-sizes'. To be refreshed on file load")
+
+  (defun nov-load-doc-sizes()
+    (setq-local nov-current-doc-sizes (nov-doc-sizes)))
+  (defun nov-doc-sizes()
+    "Return an alist of size in bytes for all the nov-documents in same order."
+    (mapcar (lambda (f)
+              (file-attribute-size (file-attributes (cdr f))))
+            nov-documents))
+  (defun nov-calculate-percentage-finished()
+    "Estimate the current percentage of finished book on the basis of
+     html source file and current cursor position."
+    (let (current-buffer-pos current-doc-size prev-doc-sizes all-sizes total-docs-size)
+      (setq current-buffer-pos (/ (float (line-number-at-pos)) (line-number-at-pos (point-max))))
+      (setq all-sizes nov-current-doc-sizes)
+      (setq current-doc-size (nth nov-documents-index all-sizes))
+      (setq prev-doc-sizes (apply '+ (butlast all-sizes (- (length all-sizes) nov-documents-index))))
+      (setq total-docs-size (apply '+ all-sizes))
+      (fround (* 100 (/ (+ (* current-buffer-pos current-doc-size) prev-doc-sizes) (float total-docs-size))))))
+
+  (setq-default nov--last-percentage-complete 0)
+  (defun nov-percentage-show-on-change()
+    (let ((percentage-finished (nov-calculate-percentage-finished)))
+      (when (not (equal nov--last-percentage-complete percentage-finished))
+        (run-hooks 'nov-progress-hook)
+        (setq-local nov--last-percentage-complete percentage-finished))))
+
+  (defun init-nov-completion-hook()
+    (add-hook 'post-command-hook 'nov-percentage-show-on-change nil t))
+
+  (defun nov-setup-doom-modeline()
+    (doom-modeline-def-segment nov-progress
+      "Display progress in EPUB documents."
+      (propertize (format " T%0.0f%%%% " nov--last-percentage-complete)
+                  'face (doom-modeline-face 'doom-modeline)))
+    (doom-modeline-def-modeline 'nov
+      '(bar window-number matches buffer-info buffer-position nov-progress)
+      '(misc-info major-mode process vcs))
+
+    (add-hook 'nov-mode-hook
+              (lambda() (doom-modeline-set-modeline 'nov))))
+
+  (eval-after-load 'doom-modeline
+    '(nov-setup-doom-modeline))
+
   (add-hook 'nov-mode-hook 'reading-mode)
-  (setq nov-save-place-file (concat CACHE-DIR "nov-places")))
+  (add-hook 'nov-mode-hook 'nov-load-doc-sizes)
+  (add-hook 'nov-mode-hook 'init-nov-completion-hook))
+
+
 
 (use-package djvu)
 
