@@ -55,11 +55,10 @@
 
 ;; (use-package use-package-ensure-system-package)
 (use-package benchmark-init
-  ;; :disabled
+  :disabled
   ;; :demand
   :hook (after-init . benchmark-init/activate)
   :config
-
   ;; To disable collection of benchmark data after init is done.
   ;; (add-hook 'after-init-hook 'benchmark-init/deactivate)
   )
@@ -68,6 +67,12 @@
 ;; (load custom-file)
 (add-to-list 'load-path (expand-file-name "packages/" user-emacs-directory))
 (add-to-list 'load-path (expand-file-name "core/" user-emacs-directory))
+
+(use-package gcmh
+  ;; We need to init this post startup as we already set the GC to infinity in early-init.
+  :hook (emacs-startup . gcmh-mode)
+  :config
+  (gcmh-mode t))
 
 ;; Reserve C-z as a prefix for mode level keymaps
 (global-unset-key (kbd "C-z"))
