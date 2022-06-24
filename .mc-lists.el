@@ -3,6 +3,7 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        +org-yank
         LaTeX-babel-insert-hyphen
         backward-up-list
         beginning-of-buffer
