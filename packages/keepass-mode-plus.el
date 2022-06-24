@@ -45,7 +45,7 @@
       (error "Ivy not installed"))
   (require 'ivy)
   (ivy-read "Search entry: "
-            (+keepass-list-all)
+            (keepass-plus-list)
             :require-match t
             :action '(1
                       ("p" +keepass-copy-password "Copy password")
@@ -60,7 +60,7 @@
   (require 'consult)
   (consult-keepass-embark)
   (+keepass-copy-password
-   (consult--read (+keepass-list-all)
+   (consult--read (keepass-plus-list)
                   :prompt "Search entry: "
                   :category 'keepass-entry
                   :require-match t)))
@@ -90,18 +90,13 @@
           (kill-new (keepass-mode-get "UserName" entry))
           (message "Username for '%s' copied to kill-ring" entry)))))
 
-(defun +keepass-list-all()
-  (seq-filter
-   (lambda (el)
-     (not (equal "" el)))
-   (+keepass-locate "/")))
-
-(defun +keepass-locate(term)
-  "Search using keepass"
+(defun keepass-plus-list()
+  "List all members using keepass"
   (cl-delete-if
-   (lambda (k) (string-match-p "^[^/]" k))
+   (lambda (k) (or (string-match-p "^[^/]" k) (equal "" k)))
    (split-string
-    (shell-command-to-string (keepass-mode-command term "locate"))
+    (shell-command-to-string
+     (keepass-mode-command "\"*\"" "search"))
     "\n")))
 
 (defvar +keepass--expiry-timer nil)
