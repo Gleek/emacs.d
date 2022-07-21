@@ -93,6 +93,41 @@ To be used by `eww-after-render-hook'."
               ("o" . ace-link-eww)))
 
 
+(use-package elfeed
+  :bind (("C-c a e" . elfeed)
+         (:map elfeed-search-mode-map
+               ("e" . elfeed-search-browse-url-eww))
+         (:map elfeed-show-mode-map
+               ("c" . elfeed-org-capture)
+               ("e" . elfeed-show-visit-eww)
+               ("C-<return>" . shr-browse-url-eww)))
+  :config
+  (setq elfeed-db-directory (expand-file-name "elfeed" CACHE-DIR))
+  (setq elfeed-search-filter "@6-months-ago +unread -politics -news")
+  (defun shr-browse-url-eww()
+    (interactive)
+    (let ((browse-url-browser-function 'eww-browse-url))
+      (call-interactively 'shr-browse-url)))
+  (defun elfeed-show-visit-eww()
+    (interactive)
+    (let ((browse-url-browser-function 'eww-browse-url))
+      (call-interactively 'elfeed-show-visit)))
+  (defun elfeed-search-browse-url-eww()
+    (interactive)
+    (let ((browse-url-browser-function 'eww-browse-url))
+      (call-interactively 'elfeed-search-browse-url)))
+
+  (add-to-list 'org-capture-templates
+               `("e" "elfeed entry"
+                 entry
+                 (file ,(concat +org-directory "inbox.org"))
+                 "* TODO %a"
+                 :immediate-finish t))
+  (defun elfeed-org-capture()
+    (interactive)
+    (org-capture nil "e"))
+
+  )
 
 
 (provide 'core-web)
