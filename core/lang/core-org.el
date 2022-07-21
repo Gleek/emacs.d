@@ -502,6 +502,7 @@
          ("C-c o d d" . org-download-image)
          ("C-c o d x" . org-download-delete)
          ("C-c o d s" . org-download-screenshot)
+         ("C-c o d y" . org-download-yank)
          :map org-mode-map
          ("C-y" . +org-yank))
 
@@ -525,6 +526,10 @@
   (setq org-roam-db-location (concat CACHE-DIR "org-roam.db"))
   :bind (("C-c o n n" . org-roam-node-find)
          ("C-c o m" . org-roam-buffer-toggle)
+         ("C-c o r d" . org-roam-dailies-goto-date)
+         ("C-c o r r" . org-roam-dailies-goto-today)
+         ("C-c o r m" . org-roam-dailies-goto-tomorrow)
+         ("C-c o r y" . org-roam-dailies-goto-yesterday)
          (:map org-mode-map
                ("C-c o n b" . org-roam-switch-to-buffer)
                ("C-c o n g" . org-roam-graph)
@@ -533,11 +538,7 @@
                ("C-c o n a" . org-roam-alias-add)
                ("C-c o n A" . org-roam-alias-remove)
                ("C-c o n r" . org-roam-ref-add)
-               ("C-c o n R" . org-roam-ref-remove)
-               ("C-c o r d" . org-roam-dailies-goto-date)
-               ("C-c o r r" . org-roam-dailies-goto-today)
-               ("C-c o r m" . org-roam-dailies-goto-tomorrow)
-               ("C-c o r y" . org-roam-dailies-goto-yesterday)))
+               ("C-c o n R" . org-roam-ref-remove)))
   :config
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
