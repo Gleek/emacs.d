@@ -67,25 +67,6 @@
   :bind (("M-z" . zop-to-char)
          ("M-Z" . zop-up-to-char)))
 
-(use-package gumshoe
-  ;; Gumshoe dumping a big stack in the Messages buffer and effectively making Emacs unresponsive
-  :disabled
-  :defer 2
-  :bind (("s-[" . gumshoe-backtrack-back)
-         ("s-]" . gumshoe-backtrack-forward)
-         ("C-c C-SPC". gumshoe-peruse-globally))
-  :config
-  ;; Switch to buffer instead of popping when jumping
-  (defun +gumshoe-jump-a(fn &rest args)
-    (cl-letf (((symbol-function 'pop-to-buffer) #'switch-to-buffer))
-      (apply fn args)))
-  (advice-add #'gumshoe--jump :around #'+gumshoe-jump-a)
-  (setq gumshoe-show-footprints-p nil)
-  (global-gumshoe-mode t)
-  ;; (require 'counsel-gumshoe)
-  ;; (advice-add #'gumshoe--peruse :override #'counsel-gumshoe-peruse)
-  )
-
 (use-package point-stack
   :ensure nil
   :defer 2

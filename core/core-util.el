@@ -1,3 +1,5 @@
+;;; core-util.el ---                                  -*- lexical-binding: t; -*-
+
 (defmacro keep-region (command)
   "Wrap command in code that saves and restores the region"
   (letrec ((command-name (symbol-name command))
