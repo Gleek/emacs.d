@@ -52,6 +52,15 @@
       (org-refile arg nil (list headline file nil pos)))
     (switch-to-buffer (current-buffer)))
 
+
+  (defun anonymous-pomodoro(&optional arg)
+    "Start a 25 minute work or 5 min rest timer based on the prefix arg.
+    Helpful in quickly starting a pomodoro for work and rest"
+    (interactive "P")
+    (if (and (boundp 'org-timer-countdown-timer) org-timer-countdown-timer)
+        (org-timer-stop)
+      (org-timer-set-timer (if arg "5" "25"))))
+
   (defun variable-pitch-for-notes ()
     (interactive)
     (when (string-match "\\(.*Notes.org\\|roam.*org\\)" (format "%s" buffer-file-name))
@@ -119,6 +128,7 @@
           (?B . warning)
           (?C . success))
         org-startup-indented t
+        org-clock-sound (concat RES-DIR "bell.wav")
         org-id-link-to-org-use-id 'create-if-interactive
         org-todo-keywords '((sequence "TODO(t)" "DOING(o)"  "|" "DONE(d)")
                             (sequence "BLOCKED(b@/!)" "DELEGATED(e@/!)" "WAITING(w@/!)" "|" "CANCELLED(c@/!)"))
@@ -280,6 +290,7 @@
   :bind (("C-c o e" . org-export-dispatch)
          ("C-c o c" . +capture-inbox)
          ("C-c o w" . copy-current-line-link-for-org)
+         ("C-c o T" . anonymous-pomodoro)
          ("<f5>" . +capture-inbox)
          ("C-c o g" . consult-org-agenda)
          :map org-mode-map
@@ -296,6 +307,7 @@
   :init
   (defun +switch-to-agenda()
     (interactive)
+    (setq org-agenda-tag-filter-preset '("-zomato"))
     (org-agenda nil " "))
   :bind (("C-c o A" . org-agenda)
          ("C-c o a" . +switch-to-agenda)
