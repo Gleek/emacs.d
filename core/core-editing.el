@@ -396,19 +396,6 @@ https://emacs.stackexchange.com/a/12124/2144"
          ("M-]" . sp-unwrap-sexp))
   :diminish smartparens-mode)
 
-
-;; (use-package evil
-;;   :ensure t
-;;   :disabled t
-;;   :config (evil-mode 1))
-
-(use-package vimrc-mode)
-
-;; (use-package god-mode
-;;   :ensure t
-;;   ;; :bind ([escape] . god-local-mode)
-;;   :config (define-key god-local-mode-map (kbd ".") 'repeat))
-
 (use-package undo-tree
   :defer 1
   :ensure t
@@ -480,8 +467,6 @@ https://emacs.stackexchange.com/a/12124/2144"
       (whitespace-mode +1)))
   (setq whitespace-style '(face empty space-after-tab space-before-tab))
   :diminish whitespace-mode)
-
-(use-package reformatter :disabled)
 
 (use-package format-all
   :bind (("C-c f" . +format)

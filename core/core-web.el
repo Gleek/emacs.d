@@ -12,8 +12,8 @@
 ;;; Code:
 
 
-(use-package w3m
-  :init (setq w3m-search-default-engine "duckduckgo"))
+;; (use-package w3m
+;;   :init (setq w3m-search-default-engine "duckduckgo"))
 
 (use-package eww :ensure nil
   :init (eval-after-load "org-protocol" `(add-to-list 'org-protocol-protocol-alist
@@ -68,25 +68,25 @@ To be used by `eww-after-render-hook'."
 
 
 (defalias 'xwwb 'xwidget-webkit-browse-url)
-(use-package xwwp-follow-link-ivy
-  :after xwidget
-  :bind (:map xwidget-webkit-mode-map ("F" . xwwp-follow-link)))
+;; (use-package xwwp-follow-link-ivy
+;;   :after xwidget
+;;   :bind (:map xwidget-webkit-mode-map ("F" . xwwp-follow-link)))
 
-(use-package ivy-youtube
-  :bind
-  ("C-c s y" . ivy-youtube)
-  :config
-  (setq ivy-youtube-history-file (expand-file-name "ivy-youtube-history" CACHE-DIR))
-  (setq ivy-youtube-play-at "mpv")
+;; (use-package ivy-youtube
+;;   :bind
+;;   ("C-c s y" . ivy-youtube)
+;;   :config
+;;   (setq ivy-youtube-history-file (expand-file-name "ivy-youtube-history" CACHE-DIR))
+;;   (setq ivy-youtube-play-at "mpv")
 
-  ;; Overriding the play function so that
-  (defun ivy-youtube-play-on-process-a(video-url)
-    (require 'dtache)
-    (dtache-start-session (concat ivy-youtube-play-at " " (shell-quote-argument video-url)) t)
-    ;; (make-process :name "Ivy Youtube"
-    ;;               :command `(,ivy-youtube-play-at ,video-url))
-    )
-  (advice-add 'ivy-youtube-play-on-process :override 'ivy-youtube-play-on-process-a))
+;;   ;; Overriding the play function so that
+;;   (defun ivy-youtube-play-on-process-a(video-url)
+;;     (require 'dtache)
+;;     (dtache-start-session (concat ivy-youtube-play-at " " (shell-quote-argument video-url)) t)
+;;     ;; (make-process :name "Ivy Youtube"
+;;     ;;               :command `(,ivy-youtube-play-at ,video-url))
+;;     )
+;;   (advice-add 'ivy-youtube-play-on-process :override 'ivy-youtube-play-on-process-a))
 
 (use-package ace-link
   :bind (:map eww-mode-map
@@ -116,7 +116,7 @@ To be used by `eww-after-render-hook'."
     (interactive)
     (let ((browse-url-browser-function 'eww-browse-url))
       (call-interactively 'elfeed-search-browse-url)))
-
+  ;; TODO: Have to call (elfeed-db-load) manually to fix the index file
   (add-to-list 'org-capture-templates
                `("e" "elfeed entry"
                  entry
@@ -125,9 +125,21 @@ To be used by `eww-after-render-hook'."
                  :immediate-finish t))
   (defun elfeed-org-capture()
     (interactive)
-    (org-capture nil "e"))
+    (org-capture nil "e")))
 
-  )
+(use-package elfeed-tube
+  :after elfeed
+  :bind (:map elfeed-show-mode-map
+              ("F" . elfeed-tube-fetch)
+              ([remap save-buffer] . elfeed-tube-save)
+              :map elfeed-search-mode-map
+              ("F" . elfeed-tube-fetch)
+              ([remap save-buffer] . elfeed-tube-save))
+  :commands (elfeed-tube-setup)
+  :config
+  (elfeed-tube-setup)
+  (setq elfeed-tube-captions-languages '("en-gb" "en" "english" "english (auto generated)")))
+
 
 
 (provide 'core-web)

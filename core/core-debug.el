@@ -10,10 +10,12 @@
   (setq dap-breakpoints-file (concat CACHE-DIR "dap-breakpoints")
         dap-utils-extension-path (concat CACHE-DIR "dap-extension"))
   :config
-  (dap-mode 1)
   (add-hook 'dap-stopped-hook
             (lambda (arg) (call-interactively #'dap-hydra))))
 
+
+(use-package emacs
+  :bind ("C-c t D" . toggle-debug-on-error))
 
 
 (provide 'core-debug)

@@ -31,7 +31,7 @@
 
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
-;; (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))
+
 (setq package-native-compile t)
 (setq native-comp-async-report-warnings-errors 'silent)
 

@@ -623,6 +623,8 @@ org-roam-insert-immediate, but using company."
         org-roam-ui-open-on-start t))
 
 (use-package calfw-org
+  :ensure calfw
+  :ensure calfw-org
   :commands (+open-calendar)
   :bind (:map org-agenda-mode-map ("C" . +open-calendar)
               :map cfw:calendar-mode-map ("?" . +calendar/show-keys))
@@ -916,8 +918,8 @@ Without arguments, return non-nil if entry is captured."
              (set-window-fringes nil 0 0)
              (when (bound-and-true-p flyspell-mode)
                (flyspell-mode -1))
-             (add-hook 'kill-buffer-hook #'+org-present--cleanup-org-tree-slides-mode
-                       nil 'local)
+             ;; (add-hook 'kill-buffer-hook #'+org-present--cleanup-org-tree-slides-mode
+             ;;           nil 'local)
              (text-scale-set +org-present-text-scale)
              (ignore-errors (org-latex-preview '(4))))
             (t

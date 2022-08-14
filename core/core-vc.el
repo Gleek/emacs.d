@@ -15,6 +15,7 @@
   (setq magit-refresh-status-buffer nil)
   (setq magit-auto-revert-mode nil)
   (setq magit-save-repository-buffers nil)
+
   (setq magit-diff-refine-hunk t)
 
   (setq magit-status-headers-hook '(magit-insert-head-branch-header))

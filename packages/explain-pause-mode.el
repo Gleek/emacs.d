@@ -131,7 +131,6 @@ this will not clear statistics from individual `explain-top-mode' buffers."
 (defvar explain-pause-measured-command-hook nil
   "Functions(s) to call after a command has been measured. The functions are
 called with an explain-pause-command-record argument.
-
 These commands must be fast, because this hook is executed on every command,
 not just slow commands. You cannot give up execution in these commands in
 any way, e.g. do not call any family of functions that `sit-for', `read-key',
@@ -207,7 +206,6 @@ wish."
 
 (defun explain-pause--command-as-string (cmd)
   "Generate a human readable string for a command CMD.
-
 Normally this is a symbol, when we are in a command loop, but in timers, process
 filters, etc. this might be a lambda or a bytecompiled lambda. In those cases,
 also handle if the forms are wrapped by closure. For bytecompiled code, use the
@@ -243,7 +241,6 @@ may generate strings with format specifiers in them."
 ;; TODO not used right now...
 (defun explain-pause--command-set-as-string (command-set)
   "Format a COMMAND-SET as a human readable string.
-
 A command set is a list of commands that represent the context that lead to the
 blocking execution (or we think so, anyway)."
   (mapconcat
@@ -296,7 +293,6 @@ command entry, which represents the top level command loop that begins in
 ;; TODO :equal list command
 (defvar explain-pause-profile--profile-statistics (make-hash-table)
   "A hash map of the slow commands and their statistics.
-
 This data is always gathered and stored when `explain-pause-mode' is
 active. When `explain-pause-profile-enabled' is true, profiling logs are also
 stored. Each entry is a VECTOR of values. In an effort to optimize memory
@@ -398,7 +394,6 @@ in any `explain-pause-top' buffers."
         (slow-index nil))
     (defun explain-pause-profile--profile-measured-command (record)
       "Record the statistics for this command.
-
 Always store the slowness. If profiling is on, store the profiling counts.
 Store the profile if it was profiled."
       (unless (explain-pause-command-record-native record)
@@ -535,7 +530,6 @@ Store the profile if it was profiled."
 
 (defun explain-pause-top--table-set-sorter (table new-sort &optional fast-flip)
   "Change the sort function. Does not re-render.
-
 If fast-flip is set, simply reverse the entries. The new sort function
 must actually implement the reversed order, it (and sort) are just not
 called."
@@ -1429,14 +1423,11 @@ to watch for resizes.")
     (state-to-fill new-item prev-item prev-drawn-item field-diffs cases)
   "Generate a list of statements one for each field (car) of CASES, skipping
 over nil cases, which compares the PREV and CURRENT values of that field.
-
 There are two kinds of CASES.
-
 When (car) is a symbol, eq is used to check prev-val and current-val, including
 checking dirtiness equalness. If they are not equal, then if dirtiness equals,
 the prev-string is used. Otherwise, the (cdr) is called to generate the new
 string.
-
 When (car) is a list, then (cdr) of that list is used as the body, with no tests.
 The body must return the value of the field-diff itself."
   `(let* ((dirty (explain-pause-top--command-entry-dirty ,new-item))
@@ -1550,12 +1541,10 @@ BODY"
   "Update FIELD-DIFFS, a vector, with the new strings or where to copy if
 nothing changed. Update STATE-TO-FILL, or create it if nil, with the new values
 from NEW-ITEM.
-
 For every column, check to see if the value in PREV-ITEM matches NEW-ITEM. If it
 is, set `prev-item'. If it is not, check to see if the value in
 `prev-drawn-item' matches. If so, set `prev-drawn'. If not, finally generate a
 new string.
-
 Values are considered the same only if their owning object dirtiness is also the
 same."
   (unless state-to-fill
@@ -1712,7 +1701,6 @@ same."
 (defun explain-pause-mode-change-alert-style (new-style)
   "Change the alerting style to NEW-STYLE. Note that this does not change the
 customizable variable `explain-pause-alert-style'.
-
 NEW-STYLE can be:
 'developer, where all alerts are shown;
 'normal, when alerts are shown when more then 5 have occurred, and not
@@ -1807,7 +1795,6 @@ not active."
 ;; isn't defined yet...
 (defcustom explain-pause-alert-style 'normal
   "How often should explain-pause alert you about slow pauses in the mini-buffer?
-
 Changing this value immediately adjusts the behavior. You can do this manually by
 calling `explain-pause-mode-change-alert-style' directly if you wish. Note that
 calling that function does not change this value."
@@ -2856,7 +2843,6 @@ callback with a new command record whose parent is PARENT-COMMAND-RECORD."
 (defun explain-pause--generate-wrapper (parent-command-record original-callback)
   "Generate a lambda wrapper for use when we cannot pass additional parameters
 ala `run-with-timer', e.g. in `make-process' and co.
-
 PARENT-COMMAND-RECORD should describe the execution context when this wrapper
 was generated. ORIGINAL-CALLBACK is the function to be wrapped."
   (lambda (&rest callback-args)
@@ -3036,7 +3022,6 @@ comparisions still work."
 
 (defun explain-pause--wrap-set-process-plist (args)
   "Advise set-process-plist so that command-frame information is preserved.
-
 Explain-pause-mode sets several values in the plist, which must be preserved if
 the plist is reset by user code."
   (when (car args)
@@ -3060,12 +3045,10 @@ the plist is reset by user code."
 (defsubst explain-pause--generate-timer-parent (cb record kind)
   "Generate either a new frame for this timer callback or reuse the parent frame
 if the call is recursively to ourselves.
-
 The parent frame is only reused if it is a native frame of the right kind. In
 `explain-pause--wrap-callback, the new frames uses the *current* frame at the
 time of callback to decide whether profiling is on or not, so the state of
 profiiling of the reused frame doesn't matter.
-
 If the depth is too high (larger then `explain-pause--timer-frame-max-depth'
 rewind the stack to the first timer of the same kind and start from there
 again. This works for timers because we never unwind the parent stack in wrapper
@@ -3619,20 +3602,16 @@ github.com/lastquestion/explain-pause-mode")
 ;;;###autoload
 (define-minor-mode explain-pause-mode
   "Toggle whether to attempt to discover and explain pauses in emacs.
-
 When enabled, explain-pause will attempt to time how long blocking activity
 takes. If it measures blocking work that takes longer then a configurable
 amount of time, explain-pause logs contextual information that can be used
 to help diagnose and propose areas of elisp that might affect emacs
 interactivity.
-
 When blocking work takes too long many times, explain-mode profiles the
 blocking work using the builtin Emacs profiler (`profiler' package). A fixed
 number of these are saved.
-
 This mode hooks `call-interactively', both idle and regular timers, and process
 filters and sentinels.
-
 When running interactively, e.g. run from `M-x' or similar, `explain-pause-mode'
 must install itself after some time while Emacs is not doing anything."
   :global t
@@ -3666,10 +3645,8 @@ Emacs process, in which case `explain-mode-top-from-socket' will receive and
 present that data. Or you can simply receive the data in any other process that
 can create UNIX sockets, for example `netcat'.To turn off logging, run
 `explain-pause-log-off'.
-
 The stream is written as newline delimited elisp readable lines. See
 `explain-pause-log--send-*' family of commands for the format of those objects.
-
 Returns the process that is connected to the socket."
   (interactive)
   (unless file-socket
