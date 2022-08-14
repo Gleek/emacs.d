@@ -48,6 +48,7 @@
 
 (use-package affe
   :bind* ("s-o" . affe-find)
+  :commands (affe-find affe-find-no-ignore)
   :config
   (defun affe-find-no-ignore()
     (interactive)

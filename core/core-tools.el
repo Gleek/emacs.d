@@ -464,6 +464,12 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   (use-package spotlight
     :bind ("C-c s S" . spotlight)))
 
+(when IS-MAC
+  (defun play-sound-mac(sound)
+    (start-process "org-clock-play-notification" nil
+                   "afplay" (plist-get (cdr sound) :file)))
+  (advice-add 'play-sound :override 'play-sound-mac))
+
 
 (provide 'core-tools)
 ;;; core-tools.ends here
