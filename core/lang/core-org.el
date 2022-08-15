@@ -543,6 +543,8 @@
          ("C-c o r m" . org-roam-dailies-goto-tomorrow)
          ("C-c o r y" . org-roam-dailies-goto-yesterday)
          (:map org-mode-map
+               ("C-z r t" . org-roam-tag-add)
+               ("C-z r T" . org-roam-tag-remove)
                ("C-c o n b" . org-roam-switch-to-buffer)
                ("C-c o n g" . org-roam-graph)
                ("C-c o n u" . org-roam-unlinked-references)
