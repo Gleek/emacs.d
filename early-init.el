@@ -1,7 +1,3 @@
-(setenv
- "LIBRARY_PATH"
- "/usr/local/opt/gcc/lib/gcc/11:/usr/local/opt/libgccjit/lib/gcc/11:/usr/local/opt/gcc/lib/gcc/11/gcc/x86_64-apple-darwin19/11.1.0/")
-
 (setq package-enable-at-startup nil
       package-quickstart nil
       load-prefer-newer t)
