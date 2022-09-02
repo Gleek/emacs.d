@@ -1,4 +1,4 @@
-;; incremental-reading.el --- SuperMemo inspired incremental reading for org-mode and Anki -*- lexical-binding: t -*-
+;;; incremental-reading.el --- SuperMemo inspired incremental reading for org-mode and Anki -*- lexical-binding: t -*-
 
 ;; Author: Vasco Ferreira <vasco_mmf@hotmail.com>
 ;; Maintainer: Vasco Ferreira <vasco_mmf@hotmail.com>
@@ -6,7 +6,7 @@
 ;; Version: 0.3
 ;; Keywords: anki anki-editor incremental-reading supermemo
 ;; Homepage: https://github.com/vascoferreira25/incremental-reading
-;; Package-Requires: ((org) (ox-html) (anki-editor) (request))
+;; Package-Requires: ((org) (anki-editor "0.3.3") (request "0.3.0") (emacs "26.6"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -21,6 +21,7 @@
 ;;; Dependencies:
 (require 'org)
 (require 'ox-html)
+(require 'org-protocol)
 (require 'anki-editor)
 (require 'request)
 
@@ -45,6 +46,10 @@
 `incremental-reading-extract-cloze' functions."
   :type '(string))
 
+(defcustom incremental-reading-hide-default-display
+  ">>>>>>\n"
+  "The default string displayed when properties are hidden."
+  :type '(string))
 
 (defcustom incremental-reading--basic-template
   ":ANKI-CARD:
@@ -168,8 +173,9 @@ and return a list with the field-name and the parsed-contents."
 
 (defun incremental-reading/add-note-id (anki-block id)
   "Add the card ID to the ANKI-BLOCK."
-  (goto-char (org-element-property :begin anki-block))
-  (insert (format "#+ATTR_ID: %s\n" id)))
+  (save-excursion
+    (goto-char (org-element-property :begin anki-block))
+    (insert (format "#+ATTR_ID: %s\n" id))))
 
 
 (defun incremental-reading--request-add-card (deck card-type fields tags anki-block)
@@ -181,7 +187,7 @@ is successful, update the ANKI-BLOCK id."
     :type "POST"
     :sync t
     :data (json-encode `(("action" . "addNote")
-                         ("version" . "6")
+                         ("version" . 6)
                          ("params" . (("note" . (("deckName" . ,deck)
                                                  ("modelName" . ,card-type)
                                                  ("fields" . ,fields)
@@ -204,7 +210,7 @@ FIELDS and TAGS of the card."
     :type "POST"
     :sync t
     :data (json-encode `(("action" . "updateNoteFields")
-                         ("version" . "6")
+                         ("version" . 6)
                          ("params" . (("note" . (("id" . ,(string-to-number id))
                                                  ("fields" . ,fields)
                                                  ("tags" . (,tags))))))))
@@ -237,20 +243,42 @@ send them to Anki through http to the anki-connect addon."
                                    (b-begin (org-element-property :begin b)))
                               (> a-begin b-begin)))))
   ;; Process each anki-block
-  (mapcar (lambda (anki-block)
-            (let* ((anki-card-fields (incremental-reading--get-fields anki-block))
-                   (id (car (org-element-property :attr_id anki-block)))
-                   (deck (car (org-element-property :attr_deck anki-block)))
-                   (card-type (car (org-element-property :attr_type anki-block)))
-                   (tags (car (org-element-property :attr_tags anki-block))))
-              (if id
-                  (incremental-reading--request-update-card id anki-card-fields tags)
-                (incremental-reading--request-add-card deck
-                                                       card-type
-                                                       anki-card-fields
-                                                       tags
-                                                       anki-block))))
+  (mapcar #'incremental-reading-parse-card
           anki-blocks))
+
+(defun incremental-reading-parse-card (anki-block)
+  "Parse one card"
+  (let* ((anki-card-fields (incremental-reading--get-fields anki-block))
+         (id (car (org-element-property :attr_id anki-block)))
+         (deck (car (org-element-property :attr_deck anki-block)))
+         (card-type (car (org-element-property :attr_type anki-block)))
+         (tags (car (org-element-property :attr_tags anki-block))))
+    (if-let*
+        ((current-file
+          (when-let ((f (buffer-file-name)))
+            (abbreviate-file-name f)))
+         (field-name
+          (cond
+           ((string= card-type "Basic") "Back")
+           ((string= card-type "Basic (and reversed card)") "Note")
+           ((string= card-type "Cloze") "Back Extra")
+           ((string= card-type "Cloze with typed text") "Back Extra")
+           (t nil)))
+         (source-string
+          (format "<div><br><p><a href=\"org-protocol://open-file?file=%s\">Source</p></div>"
+                  (url-hexify-string current-file)
+                  (org-html-encode-plain-text current-file)))
+         (field (assoc field-name anki-card-fields)))
+        (setf (alist-get field-name anki-card-fields nil nil #'equal)
+              (concat (cdr field) source-string))
+      (nconc anki-card-fields `((,field-name . ,source-string))))
+    (if id
+        (incremental-reading--request-update-card id anki-card-fields tags)
+      (incremental-reading--request-add-card deck
+                                             card-type
+                                             anki-card-fields
+                                             tags
+                                             anki-block))))
 
 
 (defun incremental-reading--extract-text (selection-start selection-end)
@@ -260,17 +288,30 @@ send them to Anki through http to the anki-connect addon."
                                   selection-end))
 
 
+(defun incremental-reading-get-tags ()
+  "Get the tags of the current heading."
+  (message "%S" (org-roam-node-tags (org-roam-node-at-point)))
+  (concat incremental-reading-default-tags
+          " "
+          (if (org-roam-node-at-point)
+              (mapconcat 'identity
+                         (org-roam-node-tags (org-roam-node-at-point)) " ")
+            (mapconcat 'identity (split-string (org-get-tags-string) ":" t) " ")
+            )))
+
+
 ;;;###autoload
 (defun incremental-reading-extract-basic ()
   "Extract current region into a basic anki card."
   (interactive)
   (let* ((element (org-element-at-point))
          (selection-start (region-beginning))
-         (selection-end (region-end)))
+         (selection-end (region-end))
+         (tags (incremental-reading-get-tags)))
     (goto-char (org-element-property :end element))
     (insert (format incremental-reading--basic-template
                     incremental-reading-default-deck
-                    incremental-reading-default-tags
+                    tags
                     (incremental-reading--extract-text selection-start
                                                        selection-end)))))
 
@@ -282,44 +323,99 @@ field."
   (interactive)
   (let* ((element (org-element-at-point))
          (selection-start (region-beginning))
-         (selection-end (region-end)))
+         (selection-end (region-end))
+         (tags (incremental-reading-get-tags)))
     (goto-char (org-element-property :end element))
     (insert (format incremental-reading--basic-template-no-back
                     incremental-reading-default-deck
-                    incremental-reading-default-tags
+                    tags
                     (incremental-reading--extract-text selection-start
                                                        selection-end)))))
 
 
 ;;;###autoload
 (defun incremental-reading-extract-cloze ()
-  "Extract current region into a cloze anki card."
-  (interactive)
-  (let* ((element (org-element-at-point))
-         (selection-start (region-beginning))
-         (selection-end (region-end)))
-    (goto-char (org-element-property :end element))
-    (insert (format incremental-reading--cloze-template
-                    incremental-reading-default-deck
-                    incremental-reading-default-tags
-                    (incremental-reading--extract-text selection-start
-                                                       selection-end)))))
+"Extract current region into a cloze anki card."
+(interactive)
+(let* ((element (org-element-at-point))
+       (selection-start (region-beginning))
+       (selection-end (region-end))
+       (tags (incremental-reading-get-tags)))
+  (goto-char (org-element-property :end element))
+  (insert (format incremental-reading--cloze-template
+                  incremental-reading-default-deck
+                  tags
+                  (incremental-reading--extract-text selection-start
+                                                     selection-end)))))
 
 
 ;;;###autoload
 (defun incremental-reading-extract-cloze-no-back ()
-  "Extract current region into a cloze anki card without the back
+"Extract current region into a cloze anki card without the back
 field."
-  (interactive)
-  (let* ((element (org-element-at-point))
-         (selection-start (region-beginning))
-         (selection-end (region-end)))
-    (goto-char (org-element-property :end element))
-    (insert (format incremental-reading--cloze-template-no-back
-                    incremental-reading-default-deck
-                    incremental-reading-default-tags
-                    (incremental-reading--extract-text selection-start
-                                                       selection-end)))))
+(interactive)
+(let* ((element (org-element-at-point))
+       (selection-start (region-beginning))
+       (selection-end (region-end))
+       (tags (incremental-reading-get-tags)))
+  (goto-char (org-element-property :end element))
+  (insert (format incremental-reading--cloze-template-no-back
+                  incremental-reading-default-deck
+                  tags
+                  (incremental-reading--extract-text selection-start
+                                                     selection-end)))))
 
+;;;###autoload
+(defun incremental-reading-hide-properties ()
+  "Hide all mess properties."
+  (interactive)
+  (org-element-map (org-element-parse-buffer) 'special-block
+    (lambda (special-block)
+      (when (string= "ANKI" (s-upcase (org-element-property :type special-block)))
+        (let ((drawer-begin (org-element-property :begin special-block))
+              (drawer-end (org-element-property :end special-block))
+              (context-bg-eds (list))
+              (produce-list (list)))
+          (org-element-map special-block 'special-block
+            (lambda (field)
+              (when (string= "FIELD" (s-upcase (org-element-property :type field)))
+                ;; Get the each field's context begin and end position list.
+                ;; Should looks like: '(1 3 8 19), 1 3 is the first field's begin-end, and etc.
+                (push (org-element-property :contents-begin field) context-bg-eds)
+                (push (org-element-property :contents-end field) context-bg-eds))))
+          (push drawer-end produce-list)
+          (while context-bg-eds
+            (push (pop context-bg-eds) produce-list))
+          (push drawer-begin produce-list)
+          (while produce-list
+            (let ((ol (make-overlay (pop produce-list) (pop produce-list))))
+              (overlay-put ol 'display incremental-reading-hide-default-display)
+              (overlay-put ol 'hidden-anki-prop t)))
+          (put 'incremental-reading-properties-hide-state 'state 'hidden))))))
+
+;;;###autoload
+(defun incremental-reading-show-properties ()
+  "Show all properties."
+  (interactive)
+  (remove-overlays
+   (point-min) (point-max) 'hidden-anki-prop t)
+  (put 'incremental-reading-properties-hide-state 'state 'shown))
+
+;;;###autoload
+(defun incremental-reading-toggle-properties-display ()
+  "Toggle properties hidden/shown state."
+  (interactive)
+  (if (eq (get 'incremental-reading-properties-hide-state 'state) 'hidden)
+      (incremental-reading-show-properties)
+    (incremental-reading-hide-properties)))
+
+;; Create a minor mode to make it easier to load incremental-reading through
+;; hooks. This was sugested by `czqhurricnae'.
+;;;###autoload
+(define-minor-mode incremental-reading-mode
+  "incremental-reading-mode"
+  :lighter " incremental-reading")
 
 (provide 'incremental-reading)
+
+;;; incremental-reading.el ends here
