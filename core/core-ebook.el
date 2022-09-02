@@ -118,7 +118,7 @@
           '(search-backward
             nov-previous-document
             end-of-buffer)))
-    (lexical-let* ((original-index nov-documents-index)
+    (let* ((original-index nov-documents-index)
                    (original-point (point))
                    (found (funcall search-fn query nil t)))
       (while (and (not found)
