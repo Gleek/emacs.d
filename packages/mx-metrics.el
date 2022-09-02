@@ -70,9 +70,9 @@
       (make-empty-file mx-metrics-file))
   (write-region (format "%S" mx-metrics-table) nil mx-metrics-file))
 
-(defun read-extended-command-a(f)
+(defun read-extended-command-a(f &rest args)
   (let (out)
-    (setq out (funcall f))
+    (setq out (apply f args))
     (mxm--command-exec-rec (car extended-command-history))
     out))
 
