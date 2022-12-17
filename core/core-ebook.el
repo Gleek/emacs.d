@@ -128,7 +128,7 @@
       (unless found
         (setf nov-documents-index original-index)
         (nov-render-document)
-        (setf (point) original-point)
+        (goto-char original-point)
         (message "No match found for %s." query))))
 
   (defun nov-search-backward (query)

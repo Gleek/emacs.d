@@ -51,20 +51,12 @@ Useful to override functions to become empty"
     (let ((text (delete-and-extract-region start end)))
       (insert (funcall func text)))))
 
-(defun hex-region (start end)
-  "urlencode the region between START and END in current buffer."
-  (interactive "r")
-  (func-region start end #'url-hexify-string))
-
-(defun unhex-region (start end)
-  "de-urlencode the region between START and END in current buffer."
-  (interactive "r")
-  (func-region start end #'url-unhex-string))
 
 (defun advice-unadvice (sym)
   "Remove all advices from symbol SYM."
   (interactive "aFunction symbol: ")
   (advice-mapc (lambda (advice _props) (advice-remove sym advice)) sym))
+
 
 
 (defun ensure-dir(dir)

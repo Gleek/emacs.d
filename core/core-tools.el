@@ -398,12 +398,13 @@ To actually enable this, evaluate `+bongo-remove-headers'."
 (use-package calc
   :bind ("C-*" . calc)
   :config
-  (defmath tzconv(dt tz &optional tz2)
-    ;; if only tz is present assume that the dt is in local timezone and convert to tz
-    ;; if both tz and tz2 are present assume dt is in tz timezone and convert to tz2
-    (if tz2
-        :"unixtime(unixtime(dt) + tzone(tz) - tzone(tz2))"
-        :"unixtime(unixtime(dt)+tzone()-tzone(tz))"))
+  ;; TODO: fixme error("Eager macro-expansion failure: %S" (void-variable ))
+  ;; (defmath tzconv(dt tz &optional tz2)
+  ;;   ;; if only tz is present assume that the dt is in local timezone and convert to tz
+  ;;   ;; if both tz and tz2 are present assume dt is in tz timezone and convert to tz2
+  ;;   (if tz2
+  ;;       :"unixtime(unixtime(dt) + tzone(tz) - tzone(tz2))"
+  ;;       :"unixtime(unixtime(dt)+tzone()-tzone(tz))"))
   (setq math-additional-units
         '(
           (GiB "1024 * MiB" "Giga Byte")

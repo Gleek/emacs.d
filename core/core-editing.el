@@ -121,6 +121,27 @@ Including indent-buffer, which should not be called automatically on save."
   (cleanup-buffer-safe)
   (indent-buffer))
 
+(defun hex-region (start end)
+  "urlencode the region between START and END in current buffer."
+  (interactive "r")
+  (func-region start end #'url-hexify-string))
+
+(defun unhex-region (start end)
+  "de-urlencode the region between START and END in current buffer."
+  (interactive "r")
+  (func-region start end #'url-unhex-string))
+
+
+(defun unescape-region (start end)
+  "Unescape special characters in the region between START and END."
+  (interactive "r")
+  (let ((text (buffer-substring start end)))
+    (delete-region start end)
+    (insert (format "(insert \"%s\")" text))
+    (save-excursion (eval-last-sexp nil))
+    (backward-kill-sexp)))
+
+
 
 (defun sudo-edit (&optional arg)
   "Edit currently visited file as root.

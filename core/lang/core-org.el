@@ -307,7 +307,6 @@
   :init
   (defun +switch-to-agenda()
     (interactive)
-    (setq org-agenda-tag-filter-preset '("-zomato"))
     (org-agenda nil " "))
   :bind (("C-c o A" . org-agenda)
          ("C-c o a" . +switch-to-agenda)
@@ -938,6 +937,12 @@ Without arguments, return non-nil if entry is captured."
       (org-tree-slide-mode -1)
       (remove-hook 'kill-buffer-hook #'+org-present--cleanup-org-tree-slides-mode
                    'local))))
+
+(use-package org-excalidraw
+  :ensure nil
+  :commands (org-excalidraw-create-drawing)
+  :config
+  (setq org-excalidraw-directory (concat +org-directory "resource/excalidraw")))
 
 (provide 'core-org)
 ;;; core-org.el ends here
