@@ -19,5 +19,5 @@
   (add-to-list 'tramp-default-proxies-alist
                '("aa102" nil "/ssh:entry:")))
 
-(use-package docker-tramp)
+;; (use-package tramp-container)
 (provide 'core-tramp)
