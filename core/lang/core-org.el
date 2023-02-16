@@ -440,7 +440,8 @@
                      (org-deadline-warning-days 365)))
             (todo "TODO"
                   ((org-agenda-overriding-header "To Refile")
-                   (org-agenda-files '(,(concat +org-directory "inbox.org")))))
+                   (org-agenda-files '(,(concat +org-directory "inbox.org")
+                                       ,(concat +org-directory "inbox_phone.org")))))
             (todo "DOING"
                   ((org-agenda-overriding-header "In Progress")
                    (org-agenda-files '(,(concat +org-directory "someday.org")
@@ -474,7 +475,7 @@
             ;;        (org-agenda-files '(,(concat +org-directory "someday.org")))))
             nil))))
 
-  (setq org-agenda-files (mapcar (lambda(file) (concat +org-directory file)) '("inbox.org" "next.org" "projects.org" "someday.org" "schedule.org" "repeaters.org"))
+  (setq org-agenda-files (mapcar (lambda(file) (concat +org-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "projects.org" "someday.org" "schedule.org" "repeaters.org"))
         org-agenda-window-setup 'current-window
         org-agenda-skip-unavailable-files t
         org-agenda-span 10
