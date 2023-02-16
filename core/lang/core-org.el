@@ -532,10 +532,9 @@
   :ensure org-roam
   ;; :ensure company-org-roam
   :init
-  (setq org-roam-v2-ack t)
   (setq org-roam-directory (concat +org-directory "org-roam/"))
   (setq org-roam-db-location (concat CACHE-DIR "org-roam.db"))
-  :bind (("C-c o n n" . org-roam-node-find)
+  :bind (("C-c o n n" . +org-roam-node-find)
          ("C-c o m" . org-roam-buffer-toggle)
          ("C-c o r d" . org-roam-dailies-goto-date)
          ("C-c o r r" . org-roam-dailies-goto-today)
@@ -555,17 +554,36 @@
   :config
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
+  (add-to-list 'org-roam-file-exclude-regexp "logseq/")
   (defvar org-roam-capture-immediate-template
     (append (car org-roam-capture-templates) '(:immediate-finish t)))
 
   (defun org-roam-company-insert()
     "Hacky way to quickly initiate a similar functionality to
-org-roam-insert-immediate, but using company."
+org-roam-insert-immediate, but using company.
+
+Unused as of now as it does not create new nodes if existing ones are not found."
     (interactive)
     (require 'company)
     (insert "[[roam:")
     (save-excursion (insert "]]"))
     (call-interactively 'company-capf))
+
+  (cl-defun +org-roam-node-find (&optional other-window initial-input filter-fn pred &key templates)
+    "Copy of org-roam-node-find with the only change being the goto in
+the capture call.
+
+This causes the buffer to be ready and open
+the capture popup."
+    (interactive current-prefix-arg)
+    (let ((node (org-roam-node-read initial-input filter-fn pred)))
+      (if (org-roam-node-file node)
+          (org-roam-node-visit node other-window)
+        (org-roam-capture-
+         :goto '(4)
+         :node node
+         :templates templates
+         :props '(:finalize find-file)))))
 
   (defun org-roam-insert-immediate (arg &rest args)
     (interactive "P")
