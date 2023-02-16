@@ -139,7 +139,7 @@
         org-startup-folded t
         org-imenu-depth 8
         org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a."))
-        org-export-with-sub-superscripts "{}"
+        org-export-with-sub-superscripts nil ;; "{}"
         org-html-checkbox-type 'html
         org-priority-faces
         '((?A . error)
@@ -317,7 +317,27 @@
 
 (use-package org-protocol
   :ensure nil
-  :defer 2)
+  :defer 2
+  :config
+  (add-to-list 'org-protocol-protocol-alist
+               '("org-id" :protocol "org-id"
+                 :function org-id-protocol-goto-org-id))
+
+  (defun org-id-protocol-goto-org-id (info)
+    "This handler simply goes to the org heading with given id using emacsclient.
+
+    INFO is an alist containing additional information passed by the protocol URL.
+    It should contain the id key, pointing to the path of the org id.
+
+      Example protocol string:
+      org-protocol://org-id?id=abcd"
+    (when-let ((id (plist-get info :id)))
+      (org-id-goto id))
+    nil)
+  (defun org-id-protocol-link-copy ()
+    (interactive)
+    (org-kill-new (concat "org-protocol://org-id?id="
+                          (org-id-get nil 'create)))))
 
 (use-package org-agenda
   ;; :after org
