@@ -178,14 +178,16 @@
 
 (use-package detached
   :init
-  (detached-init)
+  (setq detached-db-directory CACHE-DIR
+        detached-session-directory (concat CACHE-DIR "sessions"))
+  ;; (detached-init)
   :bind (("C-c x x" . detached-shell-command)
          ("C-c x t" . detached-tail-session)
          ("C-c x o" . detached-consult-session)
          ;; ("C-c x k" . +detached-kill-and-delete-session)
          ("C-c x K" . detached-delete-sessions))
   :config
-  (setq detached-db-directory CACHE-DIR)
+
   (if IS-MAC
       (setq detached-terminal-data-command "script -F -q /dev/null %s"))
   (setq detached-notification-function 'detached-state-transitionion-echo-message)
