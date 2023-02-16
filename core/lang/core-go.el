@@ -22,11 +22,9 @@
   :ensure go-gen-test
   :ensure flycheck-golangci-lint
   :bind (:map go-mode-map
-              ("C-c a" . +go-tag-add)
+              ("C-z a" . +go-tag-add)
               ("C-c C-d" . nil))
   :config
-  (require 'dap-go)
-  (dap-go-setup)
   (setq flycheck-golangci-lint-enable-linters '("dupl" "gocritic" "gocognit" "gomnd" "maligned" "lll" "unparam" "errcheck"))
 
   (defun +go-tag-add(arg)
