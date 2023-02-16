@@ -136,11 +136,12 @@
   (if (package-installed-p 'embark)
       (eval-after-load 'embark
         '(progn
-           (embark-define-keymap embark-keepass-actions
-             "Keymap for actions for keepass entry"
-             ("p" +keepass-copy-password)
-             ("u" +keepass-copy-username)
-             ("o" +keepass-open-entry))
+           (defvar-keymap embark-keepass-actions
+             :doc "Keymap for actions for keepass entry"
+             :parent embark-general-map
+             "p" #'+keepass-copy-password
+             "u" #'+keepass-copy-username
+             "o" #'+keepass-open-entry)
            (add-to-list 'embark-keymap-alist '(keepass-entry . embark-keepass-actions))))))
 
 (provide 'keepass-mode-plus)
