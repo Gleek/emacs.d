@@ -52,6 +52,24 @@
       (org-refile arg nil (list headline file nil pos)))
     (switch-to-buffer (current-buffer)))
 
+  ;; Courtesy: johnkitchin
+  ;; TODO: Can't paste no macos. Have to use copyq
+  ;; Alternative is to directly use pandoc on org text
+  ;; pandoc -f org -t rtf -s -
+  (defun org-formatted-copy ()
+    "Export region to HTML, and copy it to the clipboard."
+    (interactive)
+    (save-window-excursion
+      (let* ((org-export-with-toc nil)
+             (org-export-with-sub-superscripts nil)
+             (buf (org-export-to-buffer 'html "*Formatted Copy*" nil nil t t))
+             (html (with-current-buffer buf (buffer-string))))
+        (with-current-buffer buf
+          (shell-command-on-region
+           (point-min)
+           (point-max)
+           "textutil -stdin -format html -convert rtf -stdout | pbcopy"))
+        (kill-buffer buf))))
 
   (defun anonymous-pomodoro(&optional arg)
     "Start a 25 minute work or 5 min rest timer based on the prefix arg.
@@ -696,10 +714,15 @@ the capture popup."
 
 
 ;; (use-package org-noter)
-(use-package ox-clip
-  :bind ("s-w". ox-clip-formatted-copy))
+;; (use-package ox-clip
+;;   :bind ("s-w". ox-clip-formatted-copy))
 ;; (use-package org-cliplink
 ;;   :bind ("C-c o y" . org-cliplink))
+
+(use-package ox-pandoc
+  :after ox)
+
+
 (use-package org-web-tools)
 
 
