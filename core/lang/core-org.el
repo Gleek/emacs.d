@@ -465,12 +465,7 @@
             (todo "DOING"
                   ((org-agenda-overriding-header "In Progress")
                    (org-agenda-files '(,(concat +org-directory "someday.org")
-                                       ,(concat +org-directory "projects.org")
                                        ,(concat +org-directory "next.org")))))
-            (todo "TODO"
-                  ((org-agenda-overriding-header "Projects")
-                   (org-agenda-files '(,(concat +org-directory "projects.org")))
-                   ))
             (todo "TODO"
                   ((org-agenda-overriding-header "One-off Tasks")
                    (org-agenda-files '(,(concat +org-directory "next.org")))
@@ -478,22 +473,31 @@
             (todo "BLOCKED"
                   ((org-agenda-overriding-header "Blocked Tasks")
                    (org-agenda-files '(,(concat +org-directory "someday.org")
-                                       ,(concat +org-directory "projects.org")
                                        ,(concat +org-directory "next.org")))))
             (todo "WAITING"
                   ((org-agenda-overriding-header "Waiting on")
                    (org-agenda-files '(,(concat +org-directory "someday.org")
-                                       ,(concat +org-directory "projects.org")
                                        ,(concat +org-directory "next.org")))))
             (todo "DELEGATED"
                   ((org-agenda-overriding-header "Delegated Tasks")
                    (org-agenda-files '(,(concat +org-directory "someday.org")
-                                       ,(concat +org-directory "projects.org")
                                        ,(concat +org-directory "next.org")))))
             ;; (todo "TODO"
+            ;; ;; Idea is to sort randomly and pick up top 10 results from the someday list. Doesn't work right now.
             ;;       ((org-agenda-overriding-header "Someday")
-            ;;        (org-agenda-files '(,(concat +org-directory "someday.org")))))
+            ;;        (org-agenda-cmp-user-defined #'org-random-cmp)
+            ;;        (org-agenda-files '(,(concat +org-directory "someday.org")))
+            ;;        (org-agenda-sorting-strategy '(user-defined-up))
+            ;;        (org-agenda-som-count 0)
+            ;;        ;; (org-agenda-skip-function
+            ;;        ;;  (org-agenda-skip-entry-if
+            ;;        ;;   (> (setq org-agenda-som-count (1+ org-agenda-som-count)) 10)))
+            ;;        ))
             nil))))
+
+
+
+
 
   (setq org-agenda-files (mapcar (lambda(file) (concat +org-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "projects.org" "someday.org" "schedule.org" "repeaters.org"))
         org-agenda-window-setup 'current-window
