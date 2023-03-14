@@ -334,10 +334,7 @@
     (when-let ((id (plist-get info :id)))
       (org-id-goto id))
     nil)
-  (defun org-id-protocol-link-copy ()
-    (interactive)
-    (org-kill-new (concat "org-protocol://org-id?id="
-                          (org-id-get nil 'create)))))
+  )
 
 (use-package org-agenda
   ;; :after org
@@ -353,6 +350,7 @@
                ("i" . org-agenda-clock-in)
                ("c" . +capture-inbox)
                ("M-*" . nil)
+               ("W" . org-id-protocol-link-copy)
                ("r" . +org-agenda-process-inbox-item)
                ("R" . org-agenda-refile)))
   :config
@@ -453,6 +451,20 @@
      (org-agenda-refile nil nil t)))
 
 
+  (defun org-id-protocol-link-copy ()
+    (interactive)
+    (save-window-excursion
+      (org-agenda-switch-to)
+      (org-kill-new (concat "org-protocol://org-id?id="
+                            (org-id-get nil 'create)))
+      (message "Link copied to clipboard")))
+
+  ;; Courtesy: https://stackoverflow.com/a/36830367
+  ;; (defun org-random-cmp (a b)
+  ;;   "Return -1,0 or 1 randomly"
+  ;;   (- (mod (random) 3) 1))
+
+  ;; (setq org-agenda-som-count 0)
   (setq org-agenda-custom-commands
         `((" " "Agenda"
            ((agenda ""
