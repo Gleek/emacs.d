@@ -666,7 +666,7 @@ the capture popup."
                           (org-element-property :begin parent)
                           (org-element-property :end parent)))))
 
-  (add-hook 'org-roam-find-file-hook  '+org-roam-open-with-buffer-maybe-h :append)
+  ;; (add-hook 'org-roam-find-file-hook  '+org-roam-open-with-buffer-maybe-h :append)
   (add-hook 'org-roam-mode-hook #'turn-on-visual-line-mode)
   (require 'org-roam-protocol)
   ;; (add-hook 'find-file-hook 'open-org-roam)
