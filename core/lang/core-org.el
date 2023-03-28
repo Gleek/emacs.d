@@ -930,7 +930,8 @@ Without arguments, return non-nil if entry is captured."
     (let ((days (if arg arg 30)))
       (org-ql-search
         org-agenda-files
-        `(and (todo "TODO" "DELEGATED" "BLOCKED" "WAITING" "DOING") (captured :to ,(ts-format (ts-adjust 'day (* -1 days) (ts-now))))))))
+        `(and (todo "TODO" "DELEGATED" "BLOCKED" "WAITING" "DOING") (captured :to ,(ts-format (ts-adjust 'day (* -1 days) (ts-now)))))
+        :sort '(reverse))))
 
   (defun +org-show-archivable()
     (interactive)
