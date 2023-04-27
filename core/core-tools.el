@@ -461,9 +461,12 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   (setq salah-next-days 2)
   (set-popup-rule! "^\\*salah-times\\*" :select nil :size '+popup-shrink-to-fit))
 
-(when IS-MAC
-  (use-package spotlight
-    :bind ("C-c s S" . spotlight)))
+
+(use-package gptel
+  :commands (gptel gptel-send)
+  :config
+  (setq gptel-api-key openai-key))
+
 
 (when IS-MAC
   (defun play-sound-mac(sound)

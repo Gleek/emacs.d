@@ -55,6 +55,10 @@
     (let ((affe-find-command "rg --color=never --files --no-ignore-vcs"))
       (affe-find))))
 
+(when IS-MAC
+  (use-package spotlight
+    :bind ("C-c s S" . spotlight)))
+
 (use-package phi-search :ensure t
   :init (setq phi-search-limit 10000))
 
