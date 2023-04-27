@@ -264,6 +264,11 @@
   (mini-frame-mode 1))
 
 
+(use-package treesit
+  :ensure nil
+  :init
+  (setq treesit-extra-load-path (list (concat RES-DIR "treesit/"))))
+
 (use-package tree-sitter
   :ensure tree-sitter
   :ensure tree-sitter-langs
