@@ -22,6 +22,7 @@
         camel-to-snake
         change-number-at-point
         comment-or-uncomment-region-or-line
+        copilot-accept-completion
         counsel-yank-pop
         default-indent-new-line
         delete-horizontal-space

@@ -140,6 +140,7 @@
   (setq orderless-style-dispatchers '(orderless-flex-if-twiddle
                                       orderless-without-if-bang)))
 
+
 (use-package all-the-icons-completion
   :defer 1
   :config
@@ -282,6 +283,26 @@
   (add-to-list 'auto-insert-alist '(("blog-src/.*\\.org" . "Hugo blog") . ["hugo-org.template" +autoinsert-yas-expand]))
 
   (setq auto-insert-query nil))
+
+
+(use-package copilot
+  :load-path "packages/copilot/"
+  :ensure s
+  :ensure dash
+  :ensure editorconfig
+  :commands (copilot-login copilot-diagnose)
+  :bind (("C-c M-f" . copilot-complete)
+         :map copilot-completion-map
+         ("C-g" . 'copilot-clear-overlay)
+         ("M-p" . 'copilot-previous-completion)
+         ("M-n" . 'copilot-next-completion)
+         ("<tab>" . 'copilot-accept-completion)
+         ("M-f" . 'copilot-accept-completion-by-word)
+         ("M-<return>" . 'copilot-accept-completion-by-line))
+  :hook ((prog-mode . copilot-mode)
+         (text-mode . copilot-mode)
+         (conf-mode . copilot-mode)))
+
 
 
 (provide 'core-completion)

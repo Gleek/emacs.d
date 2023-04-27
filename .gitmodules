@@ -1,3 +1,6 @@
 [submodule "org-roam-ui"]
 	path = packages/org-roam-ui
 	url = git@github.com:org-roam/org-roam-ui.git
+[submodule "packages/copilot"]
+	path = packages/copilot
+	url = https://github.com/zerolfx/copilot.el
