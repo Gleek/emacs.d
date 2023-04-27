@@ -477,11 +477,10 @@
       (message "Link copied to clipboard")))
 
   ;; Courtesy: https://stackoverflow.com/a/36830367
-  ;; (defun org-random-cmp (a b)
-  ;;   "Return -1,0 or 1 randomly"
-  ;;   (- (mod (random) 3) 1))
+  (defun org-random-cmp (a b)
+    "Return -1,0 or 1 randomly"
+    (- (mod (random) 3) 1))
 
-  ;; (setq org-agenda-som-count 0)
   (setq org-agenda-custom-commands
         `((" " "Agenda"
            ((agenda ""
@@ -511,24 +510,20 @@
                   ((org-agenda-overriding-header "Delegated Tasks")
                    (org-agenda-files '(,(concat +org-directory "someday.org")
                                        ,(concat +org-directory "next.org")))))
-            ;; (todo "TODO"
-            ;; ;; Idea is to sort randomly and pick up top 10 results from the someday list. Doesn't work right now.
-            ;;       ((org-agenda-overriding-header "Someday")
-            ;;        (org-agenda-cmp-user-defined #'org-random-cmp)
-            ;;        (org-agenda-files '(,(concat +org-directory "someday.org")))
-            ;;        (org-agenda-sorting-strategy '(user-defined-up))
-            ;;        (org-agenda-som-count 0)
-            ;;        ;; (org-agenda-skip-function
-            ;;        ;;  (org-agenda-skip-entry-if
-            ;;        ;;   (> (setq org-agenda-som-count (1+ org-agenda-som-count)) 10)))
-            ;;        ))
+
+            (todo "TODO"
+                  ((org-agenda-overriding-header "Someday")
+                   (org-agenda-cmp-user-defined #'org-random-cmp)
+                   (org-agenda-files '(,(concat +org-directory "someday.org")))
+                   (org-agenda-sorting-strategy '(user-defined-up))
+                   (org-agenda-max-entries 10)))
             nil))))
 
 
 
 
 
-  (setq org-agenda-files (mapcar (lambda(file) (concat +org-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "projects.org" "someday.org" "schedule.org" "repeaters.org"))
+  (setq org-agenda-files (mapcar (lambda(file) (concat +org-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "projects.org" "someday.org" "repeaters.org"))
         org-agenda-window-setup 'current-window
         org-agenda-skip-unavailable-files t
         org-agenda-span 10
