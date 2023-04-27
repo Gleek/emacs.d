@@ -93,8 +93,11 @@
    t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)
   (add-to-list
    'default-frame-alist'(ns-transparent-titlebar . t))
-  (add-to-list
-   'default-frame-alist'(ns-appearance . light)))
+  (use-package ns-auto-titlebar
+    :ensure t
+    :config
+    (ns-auto-titlebar-mode)))
+
 
 
 (use-package doom-themes
