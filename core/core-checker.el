@@ -198,6 +198,12 @@
     :modes (text-mode markdown-mode gfm-mode org-mode))
   (add-to-list 'flycheck-checkers 'proselint))
 
+(use-package consult-flycheck
+  :after (flycheck consult)
+  :bind (:map flycheck-mode-map
+              ("C-c ! l" . consult-flycheck)))
+
+
 
 
 ;; (flycheck-add-next-checker 'lsp '(warning . php-phpmd))
