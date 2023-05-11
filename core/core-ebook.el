@@ -79,7 +79,7 @@
     '(("^\\*Outline*" :side right :size 40 :select nil)
       ("\\(?:^\\*Contents\\|'s annots\\*$\\)" :ignore t)))
   (add-hook 'pdf-annot-list-mode-hook #'hide-mode-line-mode)
-  (pdf-tools-install))
+  (pdf-tools-install :no-query))
 
 (use-package saveplace-pdf-view
   :hook (pdf-view-mode . (lambda ()

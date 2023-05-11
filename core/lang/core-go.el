@@ -21,6 +21,9 @@
   :ensure go-tag
   :ensure go-gen-test
   :ensure flycheck-golangci-lint
+  :init
+  ;; Disabling go-ts-mode because of inferior highlighting. To revisit again later.
+  (delete '("\\.go\\'" . go-ts-mode) auto-mode-alist)
   :bind (:map go-mode-map
               ("C-z a" . +go-tag-add)
               ("C-c C-d" . nil))
