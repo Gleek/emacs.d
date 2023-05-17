@@ -291,7 +291,7 @@
   :ensure dash
   :ensure editorconfig
   :commands (copilot-login copilot-diagnose)
-  :bind (("C-c M-f" . copilot-complete)
+  :bind (;; ("C-c M-f" . copilot-complete)
          :map copilot-completion-map
          ("C-g" . 'copilot-clear-overlay)
          ("M-p" . 'copilot-previous-completion)
@@ -299,9 +299,10 @@
          ("<tab>" . 'copilot-accept-completion)
          ("M-f" . 'copilot-accept-completion-by-word)
          ("M-<return>" . 'copilot-accept-completion-by-line))
-  :hook ((prog-mode . copilot-mode)
-         (text-mode . copilot-mode)
-         (conf-mode . copilot-mode)))
+  ;; :hook ((prog-mode . copilot-mode)
+  ;;        (text-mode . copilot-mode)
+  ;;        (conf-mode . copilot-mode))
+  )
 
 
 
