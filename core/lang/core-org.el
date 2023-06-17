@@ -71,6 +71,12 @@
            "textutil -stdin -format html -convert rtf -stdout | pbcopy"))
         (kill-buffer buf))))
 
+  (defun org-formatted-paste()
+    "Clipboard content in html is converted to org using pandoc and inserted to the buffer."
+    (interactive)
+    ;; pbpaste-html is generated using the trick at https://stackoverflow.com/a/36109230
+    (shell-command "pbpaste-html | pandoc -f html -t org" (current-buffer)))
+
   (defun anonymous-pomodoro(&optional arg)
     "Start a 25 minute work or 5 min rest timer based on the prefix arg.
     Helpful in quickly starting a pomodoro for work and rest"
