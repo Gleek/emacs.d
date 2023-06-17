@@ -956,7 +956,36 @@ Without arguments, return non-nil if entry is captured."
     (org-ql-select
       org-agenda-files
       `(closed :to ,(ts-format (ts-adjust 'day -60 (ts-now))))
-      :action 'org-archive-subtree-default)))
+      :action 'org-archive-subtree-default))
+  (cl-defun org-dblock-write:org-ql-list (params)
+    "Modified version of org-ql dblock to show all headings in a list form.
+TODO: Add checkbox based on todo state. If in todo show [ ] if done show [X] in none then only the heading"
+    (-let* (((&plist :query) params)
+            (query (cl-etypecase query
+                     (string (org-ql--query-string-to-sexp query))
+                     (list  ;; SAFETY: Query is in sexp form: ask for confirmation, because it could contain arbitrary code.
+                      (org-ql--ask-unsafe-query query)
+                      query)))
+            (formatter-fn (lambda (element)
+                                    (cond
+                                     ((and org-id-link-to-org-use-id
+                                           (org-element-property :ID element))
+                                      (org-make-link-string (format "id:%s" (org-element-property :ID element))
+                                                            (org-element-property :raw-value element)))
+                                     ((org-element-property :file element)
+                                      (org-make-link-string (format "file:%s::*%s"
+                                                                    (org-element-property :file element)
+                                                                    (org-element-property :raw-value element))
+                                                            (org-element-property :raw-value element)))
+                                     (t (org-make-link-string (org-element-property :raw-value element)
+                                                              (org-link-display-format
+                                                               (org-element-property :raw-value element)))))))
+            (elements (org-ql-query :from (org-agenda-files)
+                                    :where query
+                                    :select '(org-element-put-property (org-element-headline-parser (line-end-position)) :file (buffer-file-name)))))
+      (dolist (element elements)
+        (insert "- " (funcall formatter-fn element) "\n"))
+      (delete-char -1))))
 
 (use-package org-tree-slide
   :after org
