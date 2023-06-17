@@ -1,6 +1,6 @@
 ;; Org mode settings
 (defvar +org-directory "~/Dropbox/org-files/")
-
+(defvar +roam-directory (concat +org-directory "org-roam/"))
 
 (use-package org-crypt
   :ensure nil
@@ -122,11 +122,11 @@
   ;; trust certain code as being safe
 
   (setq org-capture-templates
-        `(("i" "inbox" entry (file ,(concat +org-directory "inbox.org"))
+        `(("i" "inbox" entry (file ,(concat +roam-directory "inbox.org"))
            "* TODO %?")
-          ("l" "link" entry (file ,(concat +org-directory "inbox.org"))
+          ("l" "link" entry (file ,(concat +roam-directory "inbox.org"))
            "* TODO %(org-cliplink-capture)" :immediate-finish t)
-          ("c" "org-protocol-capture" entry (file ,(concat +org-directory "inbox.org"))
+          ("c" "org-protocol-capture" entry (file ,(concat +roam-directory "inbox.org"))
            "* TODO [[%:link][%:description]]\n\n %i" :immediate-finish t)))
 
 
@@ -140,7 +140,7 @@
   (setq org-capture-bookmark nil)
 
   (setq org-ellipsis "⤶"
-        ;; org-agenda-files `(,+org-directory)
+        ;; org-agenda-files `(,+roam-directory)
 
         org-archive-location (concat +org-directory "archive.org::* From %s")
         org-startup-align-all-table t
@@ -488,33 +488,33 @@
                      (org-deadline-warning-days 365)))
             (todo "TODO"
                   ((org-agenda-overriding-header "To Refile")
-                   (org-agenda-files '(,(concat +org-directory "inbox.org")
-                                       ,(concat +org-directory "inbox_phone.org")))))
+                   (org-agenda-files '(,(concat +roam-directory "inbox.org")
+                                       ,(concat +roam-directory "inbox_phone.org")))))
             (todo "DOING"
                   ((org-agenda-overriding-header "In Progress")
-                   (org-agenda-files '(,(concat +org-directory "someday.org")
-                                       ,(concat +org-directory "next.org")))))
+                   (org-agenda-files '(,(concat +roam-directory "someday.org")
+                                       ,(concat +roam-directory "next.org")))))
             (todo "TODO"
                   ((org-agenda-overriding-header "One-off Tasks")
-                   (org-agenda-files '(,(concat +org-directory "next.org")))
+                   (org-agenda-files '(,(concat +roam-directory "next.org")))
                    (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
             (todo "BLOCKED"
                   ((org-agenda-overriding-header "Blocked Tasks")
-                   (org-agenda-files '(,(concat +org-directory "someday.org")
-                                       ,(concat +org-directory "next.org")))))
+                   (org-agenda-files '(,(concat +roam-directory "someday.org")
+                                       ,(concat +roam-directory "next.org")))))
             (todo "WAITING"
                   ((org-agenda-overriding-header "Waiting on")
-                   (org-agenda-files '(,(concat +org-directory "someday.org")
-                                       ,(concat +org-directory "next.org")))))
+                   (org-agenda-files '(,(concat +roam-directory "someday.org")
+                                       ,(concat +roam-directory "next.org")))))
             (todo "DELEGATED"
                   ((org-agenda-overriding-header "Delegated Tasks")
-                   (org-agenda-files '(,(concat +org-directory "someday.org")
-                                       ,(concat +org-directory "next.org")))))
+                   (org-agenda-files '(,(concat +roam-directory "someday.org")
+                                       ,(concat +roam-directory "next.org")))))
 
             (todo "TODO"
                   ((org-agenda-overriding-header "Someday")
                    (org-agenda-cmp-user-defined #'org-random-cmp)
-                   (org-agenda-files '(,(concat +org-directory "someday.org")))
+                   (org-agenda-files '(,(concat +roam-directory "someday.org")))
                    (org-agenda-sorting-strategy '(user-defined-up))
                    (org-agenda-max-entries 10)))
             nil))))
@@ -523,7 +523,7 @@
 
 
 
-  (setq org-agenda-files (mapcar (lambda(file) (concat +org-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "projects.org" "someday.org" "repeaters.org"))
+  (setq org-agenda-files (mapcar (lambda(file) (concat +roam-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "someday.org" "repeaters.org"))
         org-agenda-window-setup 'current-window
         org-agenda-skip-unavailable-files t
         org-agenda-span 10
@@ -548,7 +548,7 @@
               ("P" . org-gcal-post-at-point))
   :config
   (defvar org-gcal-file)
-  (setq org-gcal-file (concat +org-directory "schedule.org")
+  (setq org-gcal-file (concat +roam-directory "schedule.org")
         org-gcal-dir (concat CACHE-DIR "org-gcal/")
         persist--directory-location (concat CACHE-DIR "persist")
         org-gcal-token-file (expand-file-name ".org-gcal-token" org-gcal-dir)
@@ -599,10 +599,11 @@
   :ensure org-roam
   ;; :ensure company-org-roam
   :init
-  (setq org-roam-directory (concat +org-directory "org-roam/"))
+  (setq org-roam-directory +roam-directory)
   (setq org-roam-db-location (concat CACHE-DIR "org-roam.db"))
   :bind (("C-c o n n" . +org-roam-node-find)
          ("C-c o m" . org-roam-buffer-toggle)
+         ("C-c o s" . consult-org-roam-search)
          ("C-c o r d" . org-roam-dailies-goto-date)
          ("C-c o r r" . org-roam-dailies-goto-today)
          ("C-c o r m" . org-roam-dailies-goto-tomorrow)
@@ -624,6 +625,12 @@
   (add-to-list 'org-roam-file-exclude-regexp "logseq/")
   (defvar org-roam-capture-immediate-template
     (append (car org-roam-capture-templates) '(:immediate-finish t)))
+
+
+  (defun org-roam-node-graph()
+    "Open the org-roam graph"
+    (interactive)
+    (org-roam-graph 1 (org-roam-node-at-point 'assert)))
 
   (defun org-roam-company-insert()
     "Hacky way to quickly initiate a similar functionality to
