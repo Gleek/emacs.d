@@ -632,6 +632,27 @@
   (defvar org-roam-capture-immediate-template
     (append (car org-roam-capture-templates) '(:immediate-finish t)))
 
+  (defun org-dblock-write:org-roam-backlink-list (params)
+    (let* ((id (plist-get params :id))
+           (id (if id id (org-roam-node-id (org-roam-node-at-point))))
+           (backlinks (org-roam-db-query
+                       [:select [nodes:title nodes:id]
+                                :from links
+                                :inner :join nodes
+                                :on (= nodes:id links:source)
+                                :where (= dest $s1)
+                                :and (= type "id")]
+                       id))
+           (fmt-fn (lambda (backlink)
+                     (let ((link (car (cdr backlink)))
+                           (name (car backlink)))
+                       (org-make-link-string (format "id:%s" link)
+                                             name)))))
+      (dolist (backlink backlinks)
+        (insert "- " (funcall fmt-fn backlink) "\n"))
+      (delete-char -1)))
+
+
 
   (defun org-roam-node-graph()
     "Open the org-roam graph"
