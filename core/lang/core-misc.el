@@ -48,6 +48,8 @@
   (eval-after-load 'company
     '(push 'company-robe company-backends)))
 
+(use-package swift-mode)
+
 
 (use-package makefile-executor
   :hook (makefile-mode . makefile-executor-mode)
