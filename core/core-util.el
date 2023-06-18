@@ -57,7 +57,10 @@ Useful to override functions to become empty"
   (interactive "aFunction symbol: ")
   (advice-mapc (lambda (advice _props) (advice-remove sym advice)) sym))
 
-
+(defun string-multi-replace(replacers string)
+  (dolist (combination replacers)
+    (setq string (string-replace (car combination) (car (cdr combination)) string)))
+  string)
 
 (defun ensure-dir(dir)
   "Create directory if doesn't exist"

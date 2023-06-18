@@ -70,7 +70,7 @@
              (buf (org-export-to-buffer 'html "*Formatted Copy*" nil nil t t))
              (html (with-current-buffer buf (buffer-string)))
              ;; Remove electric quotes as they get messed up in some applications
-             (html (string-replace "”" "\"" (string-replace "“" "\"" (string-replace "’" "'" html)))))
+             (html (string-multi-replace '(("”" "\"") ("“" "\"") ("’" "'")) html)))
         (shell-command (format "pbcopy-html --type=attributed %s" (shell-quote-argument html)))
         (kill-buffer buf))))
 
