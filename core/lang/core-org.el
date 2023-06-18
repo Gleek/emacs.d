@@ -52,23 +52,26 @@
       (org-refile arg nil (list headline file nil pos)))
     (switch-to-buffer (current-buffer)))
 
-  ;; Courtesy: johnkitchin
-  ;; TODO: Can't paste no macos. Have to use copyq
-  ;; Alternative is to directly use pandoc on org text
-  ;; pandoc -f org -t rtf -s -
   (defun org-formatted-copy ()
-    "Export region to HTML, and copy it to the clipboard."
+    "Export region to HTML, and copy it to the clipboard.
+    Earlier used a textutil implementation to convert html to rtf
+    and also a version which used pandoc to convert from org to
+    rtf directly.  But rtf text is not easily supported
+    everywhere.  This updated version uses a custom swift
+    script (pbcopy-html) which transforms html to
+    NSAttributedString. This seems like, can be pasted
+    everywhere that supports some decent formatting."
     (interactive)
     (save-window-excursion
       (let* ((org-export-with-toc nil)
              (org-export-with-sub-superscripts nil)
+             ;; (org-export-smart-quotes-alist nil)
+             (org-export-with-smart-quotes t)
              (buf (org-export-to-buffer 'html "*Formatted Copy*" nil nil t t))
-             (html (with-current-buffer buf (buffer-string))))
-        (with-current-buffer buf
-          (shell-command-on-region
-           (point-min)
-           (point-max)
-           "textutil -stdin -format html -convert rtf -stdout | pbcopy"))
+             (html (with-current-buffer buf (buffer-string)))
+             ;; Remove electric quotes as they get messed up in some applications
+             (html (string-replace "”" "\"" (string-replace "“" "\"" (string-replace "’" "'" html)))))
+        (shell-command (format "pbcopy-html --type=attributed %s" (shell-quote-argument html)))
         (kill-buffer buf))))
 
   (defun org-formatted-paste()
