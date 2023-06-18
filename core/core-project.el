@@ -24,9 +24,12 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq projectile-cache-file (concat CACHE-DIR "projectile.cache"))
   (setq projectile-known-projects-file (concat CACHE-DIR "projectile-bookmarks.eld"))
   :config
-  (defun +copy-project-file-name()
-    (interactive)
-    (let ((filename (file-relative-name buffer-file-name (projectile-project-root))))
+  (defun +copy-project-file-name(arg)
+    ;; Copy file name relative to the project. But expanded if arg is passed.
+    (interactive "P")
+    (let ((filename (if arg
+                        buffer-file-name
+                      (file-relative-name buffer-file-name (projectile-project-root)))))
       (when filename
         (kill-new filename)
         (message "Copied project file name '%s' to the clipboard." filename))))
