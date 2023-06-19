@@ -339,6 +339,7 @@
          ("C-c o g" . consult-org-agenda)
          :map org-mode-map
          ("C-s-q" . org-fill-paragraph)
+         ("s-w" . org-formatted-copy)
          ("C-<tab>" . nil)))
 
 (use-package org-protocol
@@ -589,9 +590,9 @@
          ("C-c o d d" . org-download-image)
          ("C-c o d x" . org-download-delete)
          ("C-c o d s" . org-download-screenshot)
-         ("C-c o d y" . org-download-yank)
-         :map org-mode-map
-         ("C-y" . +org-yank))
+         ("C-c o d y" . org-download-yank))
+  :bind* (:map org-mode-map
+               ("C-y" . +org-yank))
 
   :init
   (setq-default org-download-image-dir (concat +org-directory "resource/downloads"))
@@ -600,9 +601,18 @@
   (defun +org-yank()
     "Yanks image or text in the buffer"
     (interactive)
-    (if (or (not IS-MAC) (> (length (shell-command-to-string "pngpaste -b | cut -b 1")) 2))
-        (org-yank nil)
-      (org-download-clipboard nil))))
+    (let* ((is-image (and IS-MAC
+                          (eq (call-process "pngpaste" nil nil nil "-b") 0)))
+           (is-html (and IS-MAC
+                         (not is-image)
+                         (eq (call-process "pbpaste-html") 0))))
+
+      (if is-image
+          (org-download-clipboard nil)
+        (if is-html
+            (org-formatted-paste)
+        (org-yank nil))))))
+
 
 (use-package org-roam
   :ensure org-roam
