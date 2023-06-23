@@ -40,15 +40,28 @@
   :diminish ivy-mode)
 
 
+(use-package vertico
+  :defer 1
+  :bind (("C-c v" . vertico-repeat)
+         (:map vertico-map
+               ("<return>" . vertico-directory-enter)
+               ("<backspace>" . vertico-directory-delete-char)
+               ("M-<backspace>" . vertico-directory-delete-word)
+               ("C-c C-c" . embark-act)
+               ("C-c C-o" . embark-export)))
+  :hook (minibuffer-setup . vertico-repeat-save)
+  :config
+  (vertico-mode t)
+  (setq vertico-resize nil
+        vertico-count 15)
+  (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy))
+
 (use-package embark
   :bind* (("M-o" . embark-act)
           ("C-M-o" . embark-act-noquit)
           ("C-;" . embark-dwim)
           (:map minibuffer-local-map
-                ("C-," . embark-become))
-          (:map vertico-map
-                ("C-c C-c" . embark-act)
-                ("C-c C-o" . embark-export)))
+                ("C-," . embark-become)))
   :config
   (setq embark-help-key "?")
   ;; (defvar +embark-become-keymap (define-keymap))
@@ -67,6 +80,7 @@
   (define-key +embark-buffer-keymap "B" #'consult-project-buffer)
   (define-key +embark-buffer-keymap "f" #'find-file)
 
+  (define-key embark-file-map "R" #'open-with-dragger)
   (add-to-list 'embark-become-keymaps '+embark-buffer-keymap))
 
 (use-package embark-consult
@@ -97,19 +111,6 @@
   (advice-add #'register-preview :override #'consult-register-window)
   (advice-add #'multi-occur :override #'consult-multi-occur))
 
-(use-package vertico
-  :defer 1
-  :bind (("C-c v" . vertico-repeat)
-         (:map vertico-map
-               ("<return>" . vertico-directory-enter)
-               ("<backspace>" . vertico-directory-delete-char)
-               ("M-<backspace>" . vertico-directory-delete-word)))
-  :hook (minibuffer-setup . vertico-repeat-save)
-  :config
-  (vertico-mode t)
-  (setq vertico-resize nil
-        vertico-count 15)
-  (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy))
 
 (use-package marginalia
   :defer 1

@@ -105,7 +105,7 @@
          ("C-S-M-v". sow-scroll-other-window-down)))
 
 (use-package hideshow
-  :ensure nil
+  :ensure hydra
   :hook (prog-mode . hs-minor-mode)
   :bind (:map hs-minor-mode-map
               ("C-{" . hydra-hs-folding/body)
