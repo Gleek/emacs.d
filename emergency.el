@@ -37,9 +37,13 @@
 (size-indication-mode t)
 (line-number-mode t)
 (column-number-mode t)
+(display-line-numbers-mode t)
 
 ;; (setq modus-themes-subtle-line-numbers nil)
 (setq modus-themes-mode-line '((padding . 4)))
+(setq inhibit-startup-screen t
+      initial-scratch-message "")
+
 (load-theme 'modus-operandi t)
 
 (set-face-attribute 'default nil :height 130)
