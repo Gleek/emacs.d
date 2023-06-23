@@ -22,7 +22,7 @@
   (setq flycheck-phpmd-rulesets '("cleancode" "codesize" "controversial" "design" "naming"))
   ;; (require 'dap-php)
   ;; (dap-php-setup)
-  (setq php-template-compatibility nil)
+  (setq php-mode-template-compatibility nil)
   (setq c-auto-align-backslashes nil)
   (setq flycheck-phpcs-standard "~/.config/phpcs/phpcs.xml")
   (add-hook 'php-mode-hook (lambda() (setq sp-max-pair-length 5)))
@@ -76,7 +76,9 @@
   (setq-default phpstan-level 8)
   (setq-default phpstan-memory-limit "4G")
   ;; Demote phpstan errors to warnings. Errors should be sytanctical errors only.
-  (setcdr (rassoc 'error (flycheck-checker-get 'phpstan 'error-patterns)) 'warning))
+  (require 'flycheck)
+  (let ((checker (rassoc 'error (flycheck-checker-get 'phpstan 'error-patterns))))
+    (if checker (setcdr checker 'warning))))
 
 (use-package geben
   :init
