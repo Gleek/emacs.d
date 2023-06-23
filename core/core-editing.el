@@ -208,8 +208,6 @@ https://emacs.stackexchange.com/a/12124/2144"
   (kill-new (shell-command-to-string "osascript -e 'the clipboard as \"HTML\"' | perl -ne 'print chr foreach unpack(\"C*\",pack(\"H*\",substr($_,11,-3)))' | pandoc -f html -t json | pandoc -f json -t org | sed 's/ / /g'"))
   (yank))
 
-(require 'dash)
-
 (defvar yank-indent-modes '(prog-mode
                             sgml-mode
                             js2-mode)
@@ -223,12 +221,12 @@ https://emacs.stackexchange.com/a/12124/2144"
   (if (<= (- end beg) yank-advised-indent-threshold)
       (indent-region beg end nil)))
 
-(defadvice yank (after yank-indent activate)
-  "If current mode is one of 'yank-indent-modes, indent yanked text (with prefix arg don't indent)."
-  (if (and (not (ad-get-arg 0))
-           (--any? (derived-mode-p it) yank-indent-modes))
-      (let ((transient-mark-mode nil))
-        (yank-advised-indent-function (region-beginning) (region-end)))))
+;; (defadvice yank (after yank-indent activate)
+;;   "If current mode is one of 'yank-indent-modes, indent yanked text (with prefix arg don't indent)."
+;;   (if (and (not (ad-get-arg 0))
+;;            (--any? (derived-mode-p it) yank-indent-modes))
+;;       (let ((transient-mark-mode nil))
+;;         (yank-advised-indent-function (region-beginning) (region-end)))))
 
 (defadvice yank-pop (after yank-pop-indent activate)
   "If current mode is one of 'yank-indent-modes, indent yanked text (with prefix arg don't indent)."

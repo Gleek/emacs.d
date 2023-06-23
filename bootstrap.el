@@ -7,7 +7,7 @@
 ;; Author: Umar Ahmad
 ;;; Commentary:
 
-;; 
+;;
 
 ;;; Code:
 
@@ -19,18 +19,18 @@
 (defconst IS-LINUX  (eq system-type 'gnu/linux))
 (defconst IS-TERM   (not (display-graphic-p)))
 
-(package-initialize)
-
 (setq gc-cons-threshold 8000000) ;; collect garbage after about 100 MB
 ;; (run-with-idle-timer 2 t (lambda () (garbage-collect)))
 (setq message-log-max 10000) ;; Debugging
-;; (package-quickstart-refresh)
-;; (if (file-exists-p "package-quickstart.el")
-;;     (load (expand-file-name "package-quickstart.el" user-emacs-directory))
-;;   (package-quickstart-refresh))
+(let ((package-file (expand-file-name "package-quickstart.el" user-emacs-directory)))
+  (if (file-exists-p package-file)
+      (load package-file)
+    (package-quickstart-refresh)))
 
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
+(eval-after-load 'package
+  '(add-to-list 'package-archives
+                '("melpa" . "https://melpa.org/packages/") t))
+
 
 (setq package-native-compile t)
 (setq native-comp-async-report-warnings-errors 'silent)
@@ -43,9 +43,11 @@
 
 
 ;; Bootstrap `use-package'
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+(if (version< emacs-version "30.0")
+    (unless (package-installed-p 'use-package)
+      (package-refresh-contents)
+      (package-install 'use-package)))
+
 (eval-when-compile
   (require 'use-package))
 (require 'bind-key)

@@ -1,6 +1,7 @@
 ;;; ui/doom-dashboard/config.el -*- lexical-binding: t; -*-
 
 ;; Courtesy: doom
+(require 'all-the-icons)
 
 (defvar +doom-dashboard-name "*doom*"
   "The name to use for the dashboard buffer.")

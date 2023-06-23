@@ -1,6 +1,6 @@
-;; (setq package-enable-at-startup nil
-;;       package-quickstart nil
-;;       load-prefer-newer t)
+(setq package-enable-at-startup nil
+      package-quickstart t
+      load-prefer-newer t)
 ;; Prevent the glimpse of un-styled Emacs by disabling these UI elements early.
 (push '(menu-bar-lines . 0) default-frame-alist)
 (push '(tool-bar-lines . 0) default-frame-alist)

@@ -3,7 +3,6 @@
 ;; This file stiches all the configuration at one single place.
 
 ;;; Code:
-
 (load (expand-file-name "bootstrap.el" user-emacs-directory))
 (use-package "core-util" :ensure nil :demand t)
 (use-package "core-ui" :ensure nil :demand t)
@@ -64,7 +63,7 @@
   (add-to-list 'command-switch-alist
                (cons "--exwm"
                      (lambda ()
-                       (use-package "core-exwm" :ensure nil :demand t)))))
+                       (use-package "core-exwm" :if IS-LINUX :ensure nil :demand t)))))
 
 (use-package "core-shell" :ensure nil :demand t)
 (use-package "core-ebook" :ensure nil :demand t)
