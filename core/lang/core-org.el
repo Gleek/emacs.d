@@ -65,6 +65,7 @@
     (save-window-excursion
       (let* ((org-export-with-toc nil)
              (org-export-with-sub-superscripts nil)
+             (org-html-checkbox-type 'unicode)
              ;; (org-export-smart-quotes-alist nil)
              (org-export-with-smart-quotes t)
              (buf (org-export-to-buffer 'html "*Formatted Copy*" nil nil t t))
@@ -139,6 +140,24 @@
            "* TODO [[%:link][%:description]]\n\n %i" :immediate-finish t)))
 
 
+  (defun +org-yank()
+    "Yanks image or text in the buffer"
+    (interactive)
+    (let* ((is-image (and IS-MAC
+                          (eq (call-process "pngpaste" nil nil nil "-b") 0)))
+           (is-html (and IS-MAC
+                         (not is-image)
+                         (eq (call-process "pbpaste-html") 0))))
+
+      (if is-image
+          (progn
+            (require 'org-download)
+            (org-download-clipboard nil))
+        (if is-html
+            (org-formatted-paste)
+          (org-yank nil)))))
+
+
   (defun add-property-with-date-captured ()
     "Add CAPTURED property to the current item."
     (interactive)
@@ -152,7 +171,7 @@
         ;; org-agenda-files `(,+roam-directory)
 
         org-archive-location (concat +org-directory "archive.org::* From %s")
-        org-startup-align-all-table t
+        org-startup-align-all-tables t
         org-log-done 'time
         org-return-follows-link t
         org-startup-with-inline-images t
@@ -340,7 +359,9 @@
          :map org-mode-map
          ("C-s-q" . org-fill-paragraph)
          ("s-w" . org-formatted-copy)
-         ("C-<tab>" . nil)))
+         ("C-<tab>" . nil))
+  :bind* (:map org-mode-map
+               ("C-y" . +org-yank)))
 
 (use-package org-protocol
   :ensure nil
@@ -379,7 +400,8 @@
                ("M-*" . nil)
                ("W" . org-id-protocol-link-copy)
                ("r" . +org-agenda-process-inbox-item)
-               ("R" . org-agenda-refile)))
+               ("R" . org-agenda-refile)
+               ("C-z C-w" . org-agenda-roam-refile)))
   :config
   ;; Courtesy Jethro Kuan.
   ;; https://blog.jethro.dev/posts/org_mode_workflow_preview/
@@ -486,6 +508,14 @@
                             (org-id-get nil 'create)))
       (message "Link copied to clipboard")))
 
+  (defun org-agenda-roam-refile()
+    (interactive)
+    (save-window-excursion
+      (org-agenda-switch-to)
+      (org-roam-refile)))
+
+
+
   ;; Courtesy: https://stackoverflow.com/a/36830367
   (defun org-random-cmp (a b)
     "Return -1,0 or 1 randomly"
@@ -533,7 +563,7 @@
 
 
 
-  (setq org-agenda-files (mapcar (lambda(file) (concat +roam-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "someday.org" "repeaters.org"))
+  (setq org-agenda-files (mapcar (lambda(file) (concat +roam-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "someday.org"))
         org-agenda-window-setup 'current-window
         org-agenda-skip-unavailable-files t
         org-agenda-span 10
@@ -591,27 +621,9 @@
          ("C-c o d x" . org-download-delete)
          ("C-c o d s" . org-download-screenshot)
          ("C-c o d y" . org-download-yank))
-  :bind* (:map org-mode-map
-               ("C-y" . +org-yank))
-
   :init
-  (setq-default org-download-image-dir (concat +org-directory "resource/downloads"))
-  (when IS-MAC (setq org-download-screenshot-method "screencapture -i %s"))
-  :config
-  (defun +org-yank()
-    "Yanks image or text in the buffer"
-    (interactive)
-    (let* ((is-image (and IS-MAC
-                          (eq (call-process "pngpaste" nil nil nil "-b") 0)))
-           (is-html (and IS-MAC
-                         (not is-image)
-                         (eq (call-process "pbpaste-html") 0))))
-
-      (if is-image
-          (org-download-clipboard nil)
-        (if is-html
-            (org-formatted-paste)
-        (org-yank nil))))))
+  (setq-default org-download-image-dir (concat +roam-directory "resource/downloads"))
+  (when IS-MAC (setq org-download-screenshot-method "screencapture -i %s")))
 
 
 (use-package org-roam
@@ -619,6 +631,7 @@
   ;; :ensure company-org-roam
   :init
   (setq org-roam-directory +roam-directory)
+  (setq org-roam-dailies-directory +roam-directory)
   (setq org-roam-db-location (concat CACHE-DIR "org-roam.db"))
   :bind (("C-c o n n" . +org-roam-node-find)
          ("C-c o m" . org-roam-buffer-toggle)
@@ -629,6 +642,7 @@
          ("C-c o r y" . org-roam-dailies-goto-yesterday)
          (:map org-mode-map
                ("C-z r t" . org-roam-tag-add)
+               ("C-z C-w" . org-roam-refile)
                ("C-z r T" . org-roam-tag-remove)
                ("C-c o n b" . org-roam-switch-to-buffer)
                ("C-c o n g" . org-roam-graph)
@@ -639,11 +653,17 @@
                ("C-c o n r" . org-roam-ref-add)
                ("C-c o n R" . org-roam-ref-remove)))
   :config
+  (add-to-list 'org-roam-file-exclude-regexp "logseq/")
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
-  (add-to-list 'org-roam-file-exclude-regexp "logseq/")
   (defvar org-roam-capture-immediate-template
     (append (car org-roam-capture-templates) '(:immediate-finish t)))
+
+  (setq org-roam-dailies-capture-templates
+        '(("d" "default" entry
+           "* %?"
+           :target (file+datetree "journal.org" week))))
+
 
   (defun org-dblock-write:org-roam-backlink-list (params)
     (let* ((id (plist-get params :id))
@@ -757,8 +777,11 @@ the capture popup."
 
 (use-package org-transclusion)
 
+
+
+
 (use-package calfw-org
-  :ensure calfw
+  ;; :ensure calfw
   :ensure calfw-org
   :commands (+open-calendar)
   :bind (:map org-agenda-mode-map ("C" . +open-calendar)
@@ -788,6 +811,18 @@ the capture popup."
         cfw:fchar-top-left-corner ?┏
         cfw:fchar-top-right-corner ?┓)
   (setq cfw:display-calendar-holidays nil))
+
+(when IS-MAC
+  (use-package maccalfw
+    :load-path "packages/maccalfw/"
+    :commands (maccalfw-open)
+    :config
+    (use-package calfw
+      :demand t
+      :load-path "packages/emacs-calfw/")
+    (use-package calfw-blocks
+      :demand t
+      :load-path "packages/calfw-blocks/")))
 
 
 (use-package org-timeline
