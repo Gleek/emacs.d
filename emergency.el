@@ -13,7 +13,7 @@
 ;; - Only uses Emacs defaults - no fluff packages
 ;; - Assumes the latest stable Emacs version
 ;; - No dependency on extra packages unless absolutely necessary (for eg language major modes - but only when visiting those files)
-;; - Future: can include some helpful utilities like flmake chekers and dumb jump on request basis.
+;; - Future: can include some helpful utilities like flymake checkers and dumb jump on request basis.
 ;;
 
 ;;; Code:
@@ -126,7 +126,9 @@
 (setq lazy-count-suffix-format " (%s/%s)")
 (setq isearch-yank-on-move 'shift)
 (setq isearch-allow-scroll 'unlimited)
-
+(setq auto-save-list-file-prefix (concat CACHE-DIR "auto-save-list/.saves-")
+      auto-save-file-name-transforms `((".*" ,auto-save-list-file-prefix t))
+      backup-directory-alist `(("" . ,(concat CACHE-DIR "backups/per-save"))))
 
 
 
