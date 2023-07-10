@@ -665,7 +665,7 @@
            :target (file+datetree "journal.org" week))))
 
 
-  (defun org-dblock-write:org-roam-backlink-list (params)
+  (defun org-dblock-write:org-roam-backlinks-list (params)
     (let* ((id (plist-get params :id))
            (id (if id id (org-roam-node-id (org-roam-node-at-point))))
            (backlinks (org-roam-db-query

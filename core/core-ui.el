@@ -94,6 +94,7 @@
   (add-to-list
    'default-frame-alist'(ns-transparent-titlebar . t))
   (use-package ns-auto-titlebar
+    :defer 5
     :ensure t
     :config
     (ns-auto-titlebar-mode)))
