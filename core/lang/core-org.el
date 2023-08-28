@@ -899,7 +899,7 @@ the capture popup."
 (use-package org-timeline
   :ensure nil
   :commands (org-timeline-insert-timeline)
-  :hook (org-agenda-finalize . +org-insert-timeline)
+  ;; :hook (org-agenda-finalize . +org-insert-timeline)
   :config
   (defun +org-insert-timeline()
     (if (or (not (boundp 'org-ql-view-buffers-files))
@@ -911,6 +911,7 @@ the capture popup."
   (set-face-attribute 'org-timeline-block nil :inherit 'highlight :background nil))
 
 (use-package org-appear
+  ;; (setq org-hide-emphasis-markers t)
   :hook (org-mode . org-appear-mode))
 
 (use-package org-pretty-table :ensure nil
