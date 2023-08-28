@@ -1073,25 +1073,25 @@ the capture popup."
   :hook (org-mode . org-pdftools-setup-link))
 
 (use-package org-ql
-  :commands (+org-archive-archivable +org-show-archivable +org-show-pending)
+  :commands (+org-archive-archivable +org-show-archivable +org-show-pending org-dblock-write:org-ql-list)
   :config
 
   (org-ql-defpred captured (&key from to _on)
-                  "Return non-nil if current entry was captured in given period.
+    "Return non-nil if current entry was captured in given period.
 Without arguments, return non-nil if entry is captured."
-                  :normalizers ((`(,predicate-names ,(and num-days (pred numberp)))
-                                 (let* ((from-day (* -1 num-days))
-                                        (rest (list :from from-day)))
-                                   (org-ql--normalize-from-to-on
-                                    `(captured :from ,from))))
-                                (`(,predicate-names . ,rest)
-                                 (org-ql--normalize-from-to-on
-                                  `(captured :from ,from :to ,to))))
-                  :body
-                  (let ((org-captured-time (org-entry-get (point) "captured")))
-                    (when org-captured-time
-                      (and (if from (ts> (ts-parse org-captured-time) from) t)
-                           (if to (ts< (ts-parse org-captured-time) to) t)))))
+    :normalizers ((`(,predicate-names ,(and num-days (pred numberp)))
+                   (let* ((from-day (* -1 num-days))
+                          (rest (list :from from-day)))
+                     (org-ql--normalize-from-to-on
+                       `(captured :from ,from))))
+                  (`(,predicate-names . ,rest)
+                   (org-ql--normalize-from-to-on
+                     `(captured :from ,from :to ,to))))
+    :body
+    (let ((org-captured-time (org-entry-get (point) "captured")))
+      (when org-captured-time
+        (and (if from (ts> (ts-parse org-captured-time) from) t)
+             (if to (ts< (ts-parse org-captured-time) to) t)))))
 
   (defun +org-show-pending(&optional arg)
     (interactive "P")
@@ -1123,19 +1123,19 @@ TODO: Add checkbox based on todo state. If in todo show [ ] if done show [X] in 
                       (org-ql--ask-unsafe-query query)
                       query)))
             (formatter-fn (lambda (element)
-                                    (cond
-                                     ((and org-id-link-to-org-use-id
-                                           (org-element-property :ID element))
-                                      (org-make-link-string (format "id:%s" (org-element-property :ID element))
-                                                            (org-element-property :raw-value element)))
-                                     ((org-element-property :file element)
-                                      (org-make-link-string (format "file:%s::*%s"
-                                                                    (org-element-property :file element)
-                                                                    (org-element-property :raw-value element))
-                                                            (org-element-property :raw-value element)))
-                                     (t (org-make-link-string (org-element-property :raw-value element)
-                                                              (org-link-display-format
-                                                               (org-element-property :raw-value element)))))))
+                            (cond
+                             ((and org-id-link-to-org-use-id
+                                   (org-element-property :ID element))
+                              (org-make-link-string (format "id:%s" (org-element-property :ID element))
+                                                    (org-element-property :raw-value element)))
+                             ((org-element-property :file element)
+                              (org-make-link-string (format "file:%s::*%s"
+                                                            (org-element-property :file element)
+                                                            (org-element-property :raw-value element))
+                                                    (org-element-property :raw-value element)))
+                             (t (org-make-link-string (org-element-property :raw-value element)
+                                                      (org-link-display-format
+                                                       (org-element-property :raw-value element)))))))
             (elements (org-ql-query :from (org-agenda-files)
                                     :where query
                                     :select '(org-element-put-property (org-element-headline-parser (line-end-position)) :file (buffer-file-name)))))
