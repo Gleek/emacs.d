@@ -79,13 +79,23 @@
               ("M-b" . image-backward-hscroll-large)
               ("C-n" . image-forward-vscroll-small)
               ("C-p" . image-backward-vscroll-small)
-              ("T" . image-get-ocr-text))
+              ("t" . image-get-ocr-text)
+              ("T" . image-get-ocr-pdf))
   :config
   (defun image-get-ocr-text()
     (interactive)
     (async-shell-command (format "tesseract %s -" (buffer-file-name))
                          (format "*tesseract-ocr-%s*"
                                  (file-name-nondirectory (buffer-file-name)))))
+
+  (defun image-get-ocr-pdf()
+    (interactive)
+    (let ((file (make-temp-file "ocr-")))
+      (message "pdf file %s" file)
+      (shell-command (format "tesseract %s %s pdf" (buffer-file-name) file)
+                     nil nil)
+      (display-buffer (find-file-noselect (format "%s.pdf" file)))))
+
   (defun image-forward-hscroll-small()
     (interactive)
     (image-forward-hscroll 5))
