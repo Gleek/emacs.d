@@ -1,6 +1,7 @@
 ;; Org mode settings
 (defvar +org-directory "~/Dropbox/org-files/")
 (defvar +roam-directory (concat +org-directory "org-roam/"))
+(defvar +ekg-directory (concat +org-directory "ekg/"))
 
 (use-package org-crypt
   :ensure nil
@@ -664,6 +665,37 @@
   (setq-default org-download-image-dir (concat +roam-directory "resource/downloads"))
   (when IS-MAC (setq org-download-screenshot-method "screencapture -i %s")))
 
+;; Trying out ekg
+(use-package ekg
+  :init
+  (setq ekg-db-file (concat +ekg-directory "ekg.db"))
+  :bind (("C-c o u" . ekg-show-notes-with-all-tags)
+         ("C-c o U" . ekg-capture)
+         (:map ekg-capture-mode-map
+               (("C-c C-c" . org-ctrl-c-ctrl-c)
+                ("C-x C-s" . ekg-capture-finalize)))
+         (:map ekg-edit-mode-map
+               (("C-c C-c" . org-ctrl-c-ctrl-c)
+                ("C-x C-s" . ekg-edit-finalize)))
+         (:map ekg-notes-mode-map
+               (("<return>" . ekg-notes-open))))
+  :commands (ekg-capture ekg-capture-url ekg-show-notes-with-all-tags)
+  :config
+  (defun +ekg-logseq-sync(&rest args)
+    (ekg-logseq-sync))
+  (defun ekg-variable-pitch()
+    (solaire-mode -1)
+    (reading-mode))
+  (add-hook 'ekg-notes-mode-hook 'ekg-variable-pitch)
+  (add-hook 'ekg-capture-mode-hook 'ekg-variable-pitch)
+  (add-hook 'ekg-edit-mode-hook 'ekg-variable-pitch)
+  (add-hook 'ekg-note-save-hook '+ekg-logseq-sync)
+  ;; Force fixed-pitch for tags
+  (set-face-attribute 'ekg-tag nil :inherit 'fixed-pitch)
+  (set-face-attribute 'ekg-notes-mode-title nil :inherit 'fixed-pitch)
+  (set-face-attribute 'ekg-metadata nil :inherit 'fixed-pitch)
+  (require 'ekg-logseq)
+  (setq ekg-logseq-dir (concat +ekg-directory "logseq/")))
 
 (use-package org-roam
   :ensure org-roam
