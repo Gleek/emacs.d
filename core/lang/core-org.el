@@ -153,22 +153,24 @@
            "* TODO [[%:link][%:description]]\n\n %i" :immediate-finish t)))
 
 
-  (defun +org-yank()
+  (defun +org-yank(arg)
     "Yanks image or text in the buffer"
-    (interactive)
-    (let* ((is-image (and IS-MAC
-                          (eq (call-process "pngpaste" nil nil nil "-b") 0)))
-           (is-html (and IS-MAC
-                         (not is-image)
-                         (eq (call-process "pbpaste-html") 0))))
+    (interactive "P")
+    (unless arg
+      (let* ((is-image (and IS-MAC
+                            (eq (call-process "pngpaste" nil nil nil "-b") 0)))
+             (is-html (and IS-MAC
+                           (not is-image)
+                           (eq (call-process "pbpaste-html") 0))))
 
-      (if is-image
-          (progn
-            (require 'org-download)
-            (org-download-clipboard nil))
-        (if is-html
-            (org-formatted-paste)
-          (org-yank nil)))))
+        (if is-image
+            (progn
+              (require 'org-download)
+              (org-download-clipboard nil))
+          (if is-html
+              (org-formatted-paste)
+            (org-yank nil)))))
+    (if arg (org-yank nil)))
 
 
   (defun add-property-with-date-captured ()
