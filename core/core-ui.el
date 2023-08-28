@@ -155,6 +155,7 @@
   :hook (after-init . doom-modeline-mode)
   :config
   (setq doom-modeline-vcs-max-length 20)
+  (setq doom-modeline-height 25)
   (setq doom-modeline-minor-modes nil)
   (setq doom-modeline-enable-word-count nil)
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
