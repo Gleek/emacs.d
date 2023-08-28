@@ -94,6 +94,17 @@
     (when (string-match "\\(.*Notes.org\\|roam.*org\\)" (format "%s" buffer-file-name))
       (reading-mode)))
 
+  (defun copy-file-link-for-org (file)
+    "Copy current line in file to clipboard as an org file link"
+    (interactive "f")
+    (let ((org-link
+           (format "[[file:%s][%s]]"
+                   file
+                   (file-name-nondirectory file))))
+      (kill-new org-link)
+      (message (format "%s file copied to clipboard"
+                       (file-name-nondirectory file)))))
+
   (defun copy-current-line-link-for-org ()
     "Copy current line in file to clipboard as an org file link"
     (interactive)

@@ -81,6 +81,7 @@
   (define-key +embark-buffer-keymap "f" #'find-file)
 
   (define-key embark-file-map "R" #'open-with-dragger)
+  (define-key embark-file-map "L" #'copy-file-link-for-org)
   (add-to-list 'embark-become-keymaps '+embark-buffer-keymap))
 
 (use-package embark-consult
