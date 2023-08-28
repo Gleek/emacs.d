@@ -78,9 +78,14 @@
               ("M-f" . image-forward-hscroll-large)
               ("M-b" . image-backward-hscroll-large)
               ("C-n" . image-forward-vscroll-small)
-              ("C-p" . image-backward-vscroll-small))
+              ("C-p" . image-backward-vscroll-small)
+              ("T" . image-get-ocr-text))
   :config
-
+  (defun image-get-ocr-text()
+    (interactive)
+    (async-shell-command (format "tesseract %s -" (buffer-file-name))
+                         (format "*tesseract-ocr-%s*"
+                                 (file-name-nondirectory (buffer-file-name)))))
   (defun image-forward-hscroll-small()
     (interactive)
     (image-forward-hscroll 5))
