@@ -119,11 +119,13 @@
                        (file-name-nondirectory (buffer-file-name))
                        (line-number-at-pos)))))
 
-  (defun org-beautify-checkbox ()
+  (defun org-beautify-chars ()
     "Beautify Org Checkbox Symbol"
     (push '("[ ]" .  "☐") prettify-symbols-alist)
     (push '("[X]" . "☒" ) prettify-symbols-alist)
     (push '("[-]" . "❍" ) prettify-symbols-alist)
+    (push '("->" . "⟶" ) prettify-symbols-alist)
+    (push '("=>" . "⟹") prettify-symbols-alist)
     (prettify-symbols-mode))
   (defface org-checkbox-done-text
     '((t (:foreground "#71696A" :strike-through t)))
@@ -134,7 +136,7 @@
    `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
       1 'org-checkbox-done-text prepend))
    'append)
-  (add-hook 'org-mode-hook 'org-beautify-checkbox)
+  (add-hook 'org-mode-hook 'org-beautify-chars)
 
 
   (defun +capture-inbox()
