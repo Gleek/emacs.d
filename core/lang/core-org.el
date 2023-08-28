@@ -415,18 +415,35 @@
                ("M-*" . nil)
                ("W" . org-id-protocol-link-copy)
                ("r" . +org-agenda-process-inbox-item)
+               ("P" . +org-process-inbox)
                ("R" . org-agenda-refile)
                ("C-z C-w" . org-agenda-roam-refile)))
   :config
+  ;; Courtesy: https://emacs.stackexchange.com/a/59883
+  (defun org-agenda-bulk-mark-regexp-category (regexp)
+    "Mark entries whose category matches REGEXP for future agenda bulk action."
+    (interactive "sMark entries with category matching regexp: ")
+    (let ((entries-marked 0) txt-at-point)
+      (save-excursion
+        (goto-char (point-min))
+        (goto-char (next-single-property-change (point) 'org-hd-marker))
+        (while (and (re-search-forward regexp nil t)
+                    (setq category-at-point
+                          (get-text-property (match-beginning 0) 'org-category)))
+          (if (get-char-property (point) 'invisible)
+              (beginning-of-line 2)
+            (when (string-match-p regexp category-at-point)
+              (setq entries-marked (1+ entries-marked))
+              (call-interactively 'org-agenda-bulk-mark)))))
+      (unless entries-marked
+        (message "No entry matching this regexp."))))
+
   ;; Courtesy Jethro Kuan.
   ;; https://blog.jethro.dev/posts/org_mode_workflow_preview/
-  (defvar +org-agenda-bulk-process-key ?f
-    "Default key for bulk processing inbox items.")
-
   (defun +org-process-inbox ()
     "Called in org-agenda-mode, processes all inbox items."
     (interactive)
-    (org-agenda-bulk-mark-regexp "inbox:")
+    (org-agenda-bulk-mark-regexp-category "inbox")
     (+bulk-process-entries))
 
 
@@ -511,7 +528,7 @@
     (org-with-wide-buffer
      (org-agenda-set-tags)
      (org-agenda-priority)
-     (call-interactively '+org-agenda-set-effort)
+     ;; (call-interactively '+org-agenda-set-effort)
      (org-agenda-refile nil nil t)))
 
 
@@ -536,12 +553,18 @@
     "Return -1,0 or 1 randomly"
     (- (mod (random) 3) 1))
 
+  ;; automatically save all org mode
+  (add-hook 'org-agenda-mode-hook
+            (lambda ()
+              (add-hook 'auto-save-hook 'org-save-all-org-buffers nil t)
+              (auto-save-mode)))
+
   (setq org-agenda-custom-commands
         `((" " "Agenda"
            ((agenda ""
                     ((org-agenda-span 'day)
                      (org-deadline-warning-days 365)))
-            (todo "TODO"
+            (alltodo ""
                   ((org-agenda-overriding-header "To Refile")
                    (org-agenda-files '(,(concat +roam-directory "inbox.org")
                                        ,(concat +roam-directory "inbox_phone.org")))))
@@ -564,7 +587,8 @@
             (todo "DELEGATED"
                   ((org-agenda-overriding-header "Delegated Tasks")
                    (org-agenda-files '(,(concat +roam-directory "someday.org")
-                                       ,(concat +roam-directory "next.org")))))
+                                       ,(concat +roam-directory "next.org")))
+                   (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
 
             (todo "TODO"
                   ((org-agenda-overriding-header "Someday")
@@ -591,29 +615,29 @@
                                "----------------")
         org-agenda-inhibit-startup t))
 
-(use-package org-gcal
-  :commands (org-gcal-sync org-gcal-post-at-point)
-  :after org-agenda
-  :init
-  (defvar org-gcal--running-timer nil)
-  (unless (eq org-gcal--running-timer nil)
-    (setq org-gcal--running-timer (run-with-timer 300 300 (lambda () (org-gcal-sync t t)))))
-  :bind (:map org-agenda-mode-map
-              ("S" . org-gcal-sync)
-              ("P" . org-gcal-post-at-point))
-  :config
-  (defvar org-gcal-file)
-  (setq org-gcal-file (concat +roam-directory "schedule.org")
-        org-gcal-dir (concat CACHE-DIR "org-gcal/")
-        persist--directory-location (concat CACHE-DIR "persist")
-        org-gcal-token-file (expand-file-name ".org-gcal-token" org-gcal-dir)
-        org-gcal-notify-p nil)
-  ;; Depends on core-secrets entry
-  ;; (setq org-gcal-client-id "my-app.apps.googleusercontent.com"
-  ;;       org-gcal-client-secret "secret"
-  ;;       org-gcal-calendars '("calendar1" "calendar2" "calendar3"))
+;; (use-package org-gcal
+;;   :commands (org-gcal-sync org-gcal-post-at-point)
+;;   :after org-agenda
+;;   :init
+;;   (defvar org-gcal--running-timer nil)
+;;   (unless (eq org-gcal--running-timer nil)
+;;     (setq org-gcal--running-timer (run-with-timer 300 300 (lambda () (org-gcal-sync t t)))))
+;;   :bind (:map org-agenda-mode-map
+;;               ("S" . org-gcal-sync)
+;;               ("P" . org-gcal-post-at-point))
+;;   :config
+;;   (defvar org-gcal-file)
+;;   (setq org-gcal-file (concat +roam-directory "schedule.org")
+;;         org-gcal-dir (concat CACHE-DIR "org-gcal/")
+;;         persist--directory-location (concat CACHE-DIR "persist")
+;;         org-gcal-token-file (expand-file-name ".org-gcal-token" org-gcal-dir)
+;;         org-gcal-notify-p nil)
+;;   ;; Depends on core-secrets entry
+;;   ;; (setq org-gcal-client-id "my-app.apps.googleusercontent.com"
+;;   ;;       org-gcal-client-secret "secret"
+;;   ;;       org-gcal-calendars '("calendar1" "calendar2" "calendar3"))
 
-  (setq org-gcal-fetch-file-alist (mapcar (lambda(x) `(,x . ,org-gcal-file)) org-gcal-calendars)))
+;;   (setq org-gcal-fetch-file-alist (mapcar (lambda(x) `(,x . ,org-gcal-file)) org-gcal-calendars)))
 
 
 (use-package org-wild-notifier
