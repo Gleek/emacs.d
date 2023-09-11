@@ -555,10 +555,12 @@
     (- (mod (random) 3) 1))
 
   ;; automatically save all org mode
-  (add-hook 'org-agenda-mode-hook
-            (lambda ()
-              (add-hook 'auto-save-hook 'org-save-all-org-buffers nil t)
-              (auto-save-mode)))
+  ;; Disabling because it creates a lot of orphaned auto save files.
+  ;; (add-hook 'org-agenda-mode-hook
+  ;;           (lambda ()
+  ;;             (add-hook 'auto-save-hook 'org-save-all-org-buffers nil t)
+  ;;             (auto-save-mode)))
+
 
   (setq org-agenda-custom-commands
         `((" " "Agenda"
