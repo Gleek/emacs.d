@@ -222,9 +222,16 @@
 
 (use-package calibredb
   :commands (+calibredb-add)
-  :bind ("C-c B" . calibredb-consult-read)
+  :bind ("C-c B" . +calibredb-consult)
   :config
+  (defun +calibredb-consult()
+    (interactive)
+    ;; Calibredb consult doesn't automatically create a connection if one doesn't exist
+    (unless calibredb-db-connection
+      (calibredb-db-connection))
+    (call-interactively 'calibredb-consult-read))
   (defun +calibredb-add()
+    ;; Like calibredb-add but also refreshes the entries
     (interactive)
     (calibredb-add nil)
     (setq calibredb-search-entries (calibredb-candidates))
