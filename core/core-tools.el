@@ -84,7 +84,7 @@
   :config
   (defun image-get-ocr-text()
     (interactive)
-    (async-shell-command (format "tesseract %s -" (buffer-file-name))
+    (async-shell-command (format "tesseract %s -" (shell-quote-argument (buffer-file-name)))
                          (format "*tesseract-ocr-%s*"
                                  (file-name-nondirectory (buffer-file-name)))))
 
@@ -92,7 +92,7 @@
     (interactive)
     (let ((file (make-temp-file "ocr-")))
       (message "pdf file %s" file)
-      (shell-command (format "tesseract %s %s pdf" (buffer-file-name) file)
+      (shell-command (format "tesseract %s %s pdf" (shell-quote-argument (buffer-file-name)) file)
                      nil nil)
       (display-buffer (find-file-noselect (format "%s.pdf" file)))))
 
