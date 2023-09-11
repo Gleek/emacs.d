@@ -664,6 +664,8 @@
          ("C-c o d s" . org-download-screenshot)
          ("C-c o d y" . org-download-yank))
   :init
+  (setq org-download-abbreviate-filename-function (lambda (str) str))
+
   (setq-default org-download-image-dir (concat +roam-directory "resource/downloads"))
   (when IS-MAC (setq org-download-screenshot-method "screencapture -i %s")))
 
