@@ -682,24 +682,43 @@
                (("C-c C-c" . org-ctrl-c-ctrl-c)
                 ("C-x C-s" . ekg-edit-finalize)))
          (:map ekg-notes-mode-map
-               (("<return>" . ekg-notes-open))))
+               (("<return>" . ekg-notes-open)
+                ("C-c C-o" . org-open-at-point))))
   :commands (ekg-capture ekg-capture-url ekg-show-notes-with-all-tags)
   :config
+  (require 'org)
   (defun +ekg-logseq-sync(&rest args)
+    (require 'ekg-logseq)
+    (setq ekg-logseq-dir (concat +ekg-directory "logseq/"))
     (ekg-logseq-sync))
   (defun ekg-variable-pitch()
     (solaire-mode -1)
     (reading-mode))
+  (defun +ekg-format-notes()
+    (let ((inhibit-read-only t))
+      (save-excursion
+        (goto-char (point-min))
+        (while (org-activate-links (point-max))
+          (goto-char (match-end 0)))
+        ;; Go back and activate the first link again as it gets missed in the iteration
+        (goto-char (point-min))
+        (org-activate-links (point-max))))
+    (+ekg-format-note))
+  (defun +ekg-format-note ()
+    (org-redisplay-inline-images))
   (add-hook 'ekg-notes-mode-hook 'ekg-variable-pitch)
   (add-hook 'ekg-capture-mode-hook 'ekg-variable-pitch)
   (add-hook 'ekg-edit-mode-hook 'ekg-variable-pitch)
+  ;; Formatting the org buffer with some missing formats
+  (add-hook 'ekg-notes-mode-hook '+ekg-format-notes)
+  (add-hook 'ekg-capture-mode-hook '+ekg-format-note)
+  (add-hook 'ekg-edit-mode-hook '+ekg-format-note)
   (add-hook 'ekg-note-save-hook '+ekg-logseq-sync)
+
   ;; Force fixed-pitch for tags
   (set-face-attribute 'ekg-tag nil :inherit 'fixed-pitch)
   (set-face-attribute 'ekg-notes-mode-title nil :inherit 'fixed-pitch)
-  (set-face-attribute 'ekg-metadata nil :inherit 'fixed-pitch)
-  (require 'ekg-logseq)
-  (setq ekg-logseq-dir (concat +ekg-directory "logseq/")))
+  (set-face-attribute 'ekg-metadata nil :inherit 'fixed-pitch))
 
 (use-package org-roam
   :ensure org-roam
