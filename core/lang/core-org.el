@@ -528,6 +528,18 @@
     (interactive)
     (org-with-wide-buffer
      (org-agenda-set-tags)
+
+     ;; Prompt for project category codes if it's tagged as a project
+     ;; This is so that the subtasks have categories that show some context about the project
+     ;; Better way to solve this is to show the project name somehow along with the tasks
+     (let (tags category marker)
+       (setq marker (org-get-at-bol 'org-marker))
+       (setq tags (org-with-point-at marker (org-get-tags)))
+       (if (member "project" tags)
+           (progn
+             (setq category (read-string "Project code: "))
+             (org-with-point-at marker
+               (org-set-property "CATEGORY" category)))))
      (org-agenda-priority)
      ;; (call-interactively '+org-agenda-set-effort)
      (org-agenda-refile nil nil t)))
@@ -561,6 +573,29 @@
   ;;             (add-hook 'auto-save-hook 'org-save-all-org-buffers nil t)
   ;;             (auto-save-mode)))
 
+  (defun +agenda-skip-projects()
+    "Every entry that has a sub TODO item is a project."
+    (let ((has-subtasks nil))
+      (org-narrow-to-subtree)
+      (save-excursion
+        (org-back-to-heading t)
+        (when (org-goto-first-child)
+          (setq has-subtasks
+                (or (member (org-get-todo-state) org-not-done-keywords)
+                    (org-goto-sibling)))
+          (while (and (not has-subtasks) (org-goto-sibling))
+            (when (member (org-get-todo-state) org-not-done-keywords)
+              (setq has-subtasks t)))))
+      (widen)
+      (if has-subtasks
+          (or (outline-next-heading) (point-max))
+        nil)))
+
+  (defun +agenda-skip()
+    (or (+agenda-skip-projects)
+        (org-agenda-skip-entry-if 'deadline 'scheduled)))
+
+
 
   (setq org-agenda-custom-commands
         `((" " "Agenda"
@@ -568,9 +603,9 @@
                     ((org-agenda-span 'day)
                      (org-deadline-warning-days 365)))
             (alltodo ""
-                  ((org-agenda-overriding-header "To Refile")
-                   (org-agenda-files '(,(concat +roam-directory "inbox.org")
-                                       ,(concat +roam-directory "inbox_phone.org")))))
+                     ((org-agenda-overriding-header "To Refile")
+                      (org-agenda-files '(,(concat +roam-directory "inbox.org")
+                                          ,(concat +roam-directory "inbox_phone.org")))))
             (todo "DOING"
                   ((org-agenda-overriding-header "In Progress")
                    (org-agenda-files '(,(concat +roam-directory "someday.org")
@@ -578,7 +613,7 @@
             (todo "TODO"
                   ((org-agenda-overriding-header "One-off Tasks")
                    (org-agenda-files '(,(concat +roam-directory "next.org")))
-                   (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
+                   (org-agenda-skip-function '(+agenda-skip))))
             (todo "BLOCKED"
                   ((org-agenda-overriding-header "Blocked Tasks")
                    (org-agenda-files '(,(concat +roam-directory "someday.org")
@@ -1100,21 +1135,21 @@ the capture popup."
   :config
 
   (org-ql-defpred captured (&key from to _on)
-    "Return non-nil if current entry was captured in given period.
+                  "Return non-nil if current entry was captured in given period.
 Without arguments, return non-nil if entry is captured."
-    :normalizers ((`(,predicate-names ,(and num-days (pred numberp)))
-                   (let* ((from-day (* -1 num-days))
-                          (rest (list :from from-day)))
-                     (org-ql--normalize-from-to-on
-                       `(captured :from ,from))))
-                  (`(,predicate-names . ,rest)
-                   (org-ql--normalize-from-to-on
-                     `(captured :from ,from :to ,to))))
-    :body
-    (let ((org-captured-time (org-entry-get (point) "captured")))
-      (when org-captured-time
-        (and (if from (ts> (ts-parse org-captured-time) from) t)
-             (if to (ts< (ts-parse org-captured-time) to) t)))))
+                  :normalizers ((`(,predicate-names ,(and num-days (pred numberp)))
+                                 (let* ((from-day (* -1 num-days))
+                                        (rest (list :from from-day)))
+                                   (org-ql--normalize-from-to-on
+                                    `(captured :from ,from))))
+                                (`(,predicate-names . ,rest)
+                                 (org-ql--normalize-from-to-on
+                                  `(captured :from ,from :to ,to))))
+                  :body
+                  (let ((org-captured-time (org-entry-get (point) "captured")))
+                    (when org-captured-time
+                      (and (if from (ts> (ts-parse org-captured-time) from) t)
+                           (if to (ts< (ts-parse org-captured-time) to) t)))))
 
   (defun +org-show-pending(&optional arg)
     (interactive "P")
