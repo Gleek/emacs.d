@@ -106,6 +106,10 @@
   :config
   (savehist-mode 1))
 
+(use-package multisession
+  :init
+  (setq multisession-directory (concat CACHE-DIR "multisession/")))
+
 (use-package desktop
   :ensure nil
   :init

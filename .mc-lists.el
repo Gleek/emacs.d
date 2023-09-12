@@ -100,6 +100,7 @@
         wdired--self-insert
         wdired-capitalize-word
         wdired-finish-edit
+        wdired-next-line
         web-mode-navigate
         wgrep-change-to-wgrep-mode
         wgrep-finish-edit

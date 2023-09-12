@@ -28,7 +28,11 @@
               ("C-z a" . +go-tag-add)
               ("C-c C-d" . nil))
   :config
-  (setq flycheck-golangci-lint-enable-linters '("dupl" "gocritic" "gocognit" "gomnd" "maligned" "lll" "unparam" "errcheck"))
+  (setq flycheck-golangci-lint-enable-linters
+        '("bodyclose" "depguard" "dupl" "errcheck" "exhaustive" "funlen" "gochecknoinits" "goconst"
+          "gocritic" "gocognit" "gofmt" "goimports" "revive" "gosec" "gosimple" "govet" "ineffassign" "lll"
+          "misspell" "noctx" "rowserrcheck" "staticcheck" "typecheck" "unparam" "unused"
+          "whitespace" "gomodguard" "sqlclosecheck" "errcheck"))
 
   (defun +go-tag-add(arg)
     (interactive "P")
