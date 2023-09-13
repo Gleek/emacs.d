@@ -559,19 +559,25 @@
       (org-agenda-switch-to)
       (org-roam-refile)))
 
+  ;; Automatically save all org agenda buffers at regular intervals. Earlier I achieved this with
+  ;; autosave, which created a lot of orphan files everywhere.
+  (defun +org-save-all-agenda-files ()
+    "Save all Org agenda files that haven't been saved in the last 10 seconds."
+    (interactive)
+    (dolist (buffer (org-agenda-files))
+      (with-current-buffer (find-buffer-visiting buffer)
+        (when (and buffer-file-name (buffer-modified-p))
+          (save-buffer)))))
+
+  (setq +org-agenda-save-timer
+        (run-with-idle-timer 5 t '+org-save-all-agenda-files))
+  ;; To stop: (cancel-timer +org-agenda-save-timer)
 
 
   ;; Courtesy: https://stackoverflow.com/a/36830367
   (defun org-random-cmp (a b)
     "Return -1,0 or 1 randomly"
     (- (mod (random) 3) 1))
-
-  ;; automatically save all org mode
-  ;; Disabling because it creates a lot of orphaned auto save files.
-  ;; (add-hook 'org-agenda-mode-hook
-  ;;           (lambda ()
-  ;;             (add-hook 'auto-save-hook 'org-save-all-org-buffers nil t)
-  ;;             (auto-save-mode)))
 
   (defun +agenda-skip-projects()
     "Every entry that has a sub TODO item is a project."
