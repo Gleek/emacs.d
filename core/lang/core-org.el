@@ -746,10 +746,10 @@
          ("C-c o U" . ekg-capture)
          (:map ekg-capture-mode-map
                (("C-c C-c" . org-ctrl-c-ctrl-c)
-                ("C-x C-s" . ekg-capture-finalize)))
+                ("C-x C-s" . +ekg-capture-save)))
          (:map ekg-edit-mode-map
                (("C-c C-c" . org-ctrl-c-ctrl-c)
-                ("C-x C-s" . ekg-edit-finalize)))
+                ("C-x C-s" . +ekg-edit-save)))
          (:map ekg-notes-mode-map
                (("<return>" . ekg-notes-open)
                 ("C-c C-o" . org-open-at-point))))
@@ -763,6 +763,14 @@
   (defun ekg-variable-pitch()
     (solaire-mode -1)
     (reading-mode))
+  (defun +ekg-edit-save()
+    (interactive)
+    (cl-letf (((symbol-function #'kill-buffer) #'ignore))
+      (call-interactively 'ekg-edit-finalize)))
+  (defun +ekg-capture-save()
+    (interactive)
+    (cl-letf (((symbol-function #'kill-buffer) #'ignore))
+      (call-interactively 'ekg-capture-finalize)))
   (defun +ekg-format-notes()
     (let ((inhibit-read-only t))
       (save-excursion
@@ -784,6 +792,8 @@
   (add-hook 'ekg-edit-mode-hook '+ekg-format-note)
   (add-hook 'ekg-note-save-hook '+ekg-logseq-sync)
 
+
+  (setq ekg-metadata-separator-text "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
   ;; Force fixed-pitch for tags
   (set-face-attribute 'ekg-tag nil :inherit 'fixed-pitch)
   (set-face-attribute 'ekg-notes-mode-title nil :inherit 'fixed-pitch)
@@ -939,9 +949,6 @@ the capture popup."
         org-roam-ui-open-on-start t))
 
 (use-package org-transclusion)
-
-
-
 
 (use-package calfw-org
   ;; :ensure calfw
