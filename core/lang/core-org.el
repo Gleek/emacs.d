@@ -179,8 +179,33 @@
     (interactive)
     (org-set-property "CAPTURED" (format-time-string "[%F %a %R]")))
 
-  (add-hook 'org-capture-before-finalize-hook 'add-property-with-date-captured)
+  (defun org-entry-waiting-hook ()
+    "Custom function to handle WAITING state transitions."
+    (require 'org-edna)
+    (when (string= org-state "WAITING")
+      (let ((entry-id (org-id-get-create)))
+        (save-window-excursion
+          (let* ((consult-after-jump-hook nil)
+                (target (consult-org-agenda)))
+            (when target
+              (org-set-property
+               "TRIGGER"
+               (format "ids(%s) todo!(TODO)" entry-id))))))))
 
+  (defun org-entry-delegated-hook()
+    "Custom function to handle DELEGATED state transitions."
+    (when (string= org-state "DELEGATED")
+      (let ((existing-tags (org-get-tags nil t))
+            (delegated-to (completing-read "Delegate to: " org-last-tags-completion-table nil nil "@"))
+            (tracking-link (read-string "Tracking link: ")))
+        (setq existing-tags (cons delegated-to existing-tags))
+        (org-set-tags existing-tags)
+        (if (> (length tracking-link) 0)
+            (org-entry-put nil "DELEGATED_TRACKING_LINK" tracking-link)))))
+
+  (add-hook 'org-capture-before-finalize-hook 'add-property-with-date-captured)
+  (add-hook 'org-after-todo-state-change-hook 'org-entry-waiting-hook)
+  (add-hook 'org-after-todo-state-change-hook 'org-entry-delegated-hook)
   (setq org-capture-bookmark nil)
 
   (setq org-ellipsis "⤶"
@@ -210,7 +235,7 @@
         org-clock-sound (concat RES-DIR "bell.wav")
         org-id-link-to-org-use-id 'create-if-interactive
         org-todo-keywords '((sequence "TODO(t)" "DOING(o)"  "|" "DONE(d)")
-                            (sequence "BLOCKED(b@/!)" "DELEGATED(e@/!)" "WAITING(w@/!)" "|" "CANCELLED(c@/!)"))
+                            (sequence "BLOCKED(b@/!)" "DELEGATED(e!)" "WAITING(w!)" "|" "CANCELLED(c@/!)"))
         org-treat-S-cursor-todo-selection-as-state-change nil
         org-fontify-whole-heading-line t
         org-fontify-done-headline t
@@ -397,8 +422,7 @@
       org-protocol://org-id?id=abcd"
     (when-let ((id (plist-get info :id)))
       (org-id-goto id))
-    nil)
-  )
+    nil))
 
 (use-package org-agenda
   ;; :after org
@@ -564,11 +588,12 @@
   (defun +org-save-all-agenda-files ()
     "Save all Org agenda files that haven't been saved in the last 10 seconds."
     (interactive)
-    (dolist (buffer (org-agenda-files))
-      (with-current-buffer (find-buffer-visiting buffer)
-        (when (and buffer-file-name (buffer-modified-p))
-          (save-buffer)))))
-
+    (dolist (file (org-agenda-files))
+      (let ((buffer (find-buffer-visiting file)))
+        (if buffer
+            (with-current-buffer buffer
+              (when (and buffer-file-name (buffer-modified-p))
+                (save-buffer)))))))
   (setq +org-agenda-save-timer
         (run-with-idle-timer 5 t '+org-save-all-agenda-files))
   ;; To stop: (cancel-timer +org-agenda-save-timer)
@@ -586,9 +611,7 @@
       (save-excursion
         (org-back-to-heading t)
         (when (org-goto-first-child)
-          (setq has-subtasks
-                (or (member (org-get-todo-state) org-not-done-keywords)
-                    (org-goto-sibling)))
+          (setq has-subtasks (member (org-get-todo-state) org-not-done-keywords))
           (while (and (not has-subtasks) (org-goto-sibling))
             (when (member (org-get-todo-state) org-not-done-keywords)
               (setq has-subtasks t)))))
@@ -624,15 +647,15 @@
                   ((org-agenda-overriding-header "Blocked Tasks")
                    (org-agenda-files '(,(concat +roam-directory "someday.org")
                                        ,(concat +roam-directory "next.org")))))
-            (todo "WAITING"
-                  ((org-agenda-overriding-header "Waiting on")
-                   (org-agenda-files '(,(concat +roam-directory "someday.org")
-                                       ,(concat +roam-directory "next.org")))))
             (todo "DELEGATED"
                   ((org-agenda-overriding-header "Delegated Tasks")
                    (org-agenda-files '(,(concat +roam-directory "someday.org")
                                        ,(concat +roam-directory "next.org")))
                    (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
+            (todo "WAITING"
+                  ((org-agenda-overriding-header "Waiting on")
+                   (org-agenda-files '(,(concat +roam-directory "someday.org")
+                                       ,(concat +roam-directory "next.org")))))
 
             (todo "TODO"
                   ((org-agenda-overriding-header "Someday")
@@ -658,6 +681,11 @@
                                "......"
                                "----------------")
         org-agenda-inhibit-startup t))
+
+(use-package org-edna
+  :hook org-mode
+  :config
+  (org-edna-load))
 
 ;; (use-package org-gcal
 ;;   :commands (org-gcal-sync org-gcal-post-at-point)

@@ -19,6 +19,7 @@
         delete-by-moving-to-trash t
         dired-dwim-target t
         dired-auto-revert-buffer t
+        dired-mouse-drag-files t
         dired-hide-details-hide-symlink-targets nil)
 
   (when IS-MAC
