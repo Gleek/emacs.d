@@ -137,30 +137,30 @@
 (use-package eimp
   :hook (image-mode . eimp-mode)
   :config
-  (defun +eimp-remove-background(arg)
+  (defun +eimp-remove-background (arg)
     (interactive "P")
-    (let ((color (+choose-color "Background color: "))
-          (fuzz (if arg (format "%d%%" arg) "15%")))
-      (eimp-mogrify-image (list "-fuzz" fuzz "-transparent" color))))
-
-  (defun +choose-color(prompt)
-    (let* ((colors
-            (delete nil
-                    (mapcar (lambda (cell)
-                              (let* ((name (car cell))
-                                     (dups (cdr cell))
-                                     (hex (counsel-colors--name-to-hex name)))
-                                (when hex
-                                  (propertize name 'hex hex 'dups dups))))
-                            (list-colors-duplicates))))
-           (counsel--colors-format
-            (format "%%-%ds %%s %%s%%s"
-                    (apply #'max 0 (mapcar #'string-width colors))))
-           (chosen-color (ivy-read prompt colors
-                                   :require-match t
-                                   :history 'counsel-colors-emacs-history
-                                   :caller 'counsel-colors-emacs)))
-      (get-text-property 0 'hex chosen-color))))
+    (require 'eimp)
+    (let* ((file-name (buffer-file-name))
+           (is-jpg (and file-name (string= (file-name-extension file-name) "jpg")))
+           (convert-to-png (and is-jpg (y-or-n-p "Convert JPG to PNG before background removal?")))
+           (png-file (when convert-to-png (concat (file-name-sans-extension file-name) ".png")))
+           (color-list-command (format "convert %s -format '%%c' -colors 5 histogram:info:- | sort -r | grep -o '#[0-9A-Fa-f]\\{6\\}' | sed 's/(standard input)://'"
+                                        (shell-quote-argument file-name)))
+           (color-list (split-string (shell-command-to-string color-list-command) "\n" t))
+           (chosen-color (if arg
+                             (completing-read "Choose a color: " color-list)
+                           (car color-list))) ; Use completing-read if arg is provided, otherwise choose the top candidate
+           (fuzz-input (if arg
+                           (read-string "Enter fuzz percentage: " "20")
+                         "20"))
+           (fuzz (format "%s%%" fuzz-input))
+           (mogrify-args (list "-fuzz" fuzz "-transparent" chosen-color)))
+      (if (and is-jpg (not convert-to-png))
+          (error "Cannot make JPG images transparent without converting to PNG"))
+      (when convert-to-png
+        (shell-command (format "convert %s %s" (shell-quote-argument file-name) (shell-quote-argument png-file)))
+        (find-file png-file))
+      (eimp-mogrify-image mogrify-args))))
 
 
 (use-package paradox
