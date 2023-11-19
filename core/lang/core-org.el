@@ -186,7 +186,7 @@
       (let ((entry-id (org-id-get-create)))
         (save-window-excursion
           (let* ((consult-after-jump-hook nil)
-                (target (consult-org-agenda)))
+                 (target (consult-org-agenda)))
             (when target
               (org-set-property
                "TRIGGER"
@@ -195,10 +195,18 @@
   (defun org-entry-delegated-hook()
     "Custom function to handle DELEGATED state transitions."
     (when (string= org-state "DELEGATED")
-      (let ((existing-tags (org-get-tags nil t))
-            (delegated-to (completing-read "Delegate to: " org-last-tags-completion-table nil nil "@"))
-            (tracking-link (read-string "Tracking link: ")))
-        (setq existing-tags (cons delegated-to existing-tags))
+      (let* ((existing-tags (org-get-tags nil t))
+            (crm-separator "[ \t]*:[ \t]*")
+            (delegated-to
+             (mapconcat #'identity
+                        (completing-read-multiple
+                         "Delegate to: "
+                         (org-global-tags-completion-table
+                          (org-agenda-files))
+                         nil nil "@" 'org-delegated-history)
+                        ":"))
+             (tracking-link (read-string "Tracking link: ")))
+        (setq existing-tags (delete-dups (cons delegated-to existing-tags)))
         (org-set-tags existing-tags)
         (if (> (length tracking-link) 0)
             (org-entry-put nil "DELEGATED_TRACKING_LINK" tracking-link)))))
@@ -332,7 +340,10 @@
 
 
   ;; Support for plantuml
-  (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '((plantuml . t)
+                                 (emacs-lisp . t)
+                                 (shell . t)))
   (add-to-list
    'org-src-lang-modes '("plantuml" . plantuml))
 
@@ -646,7 +657,8 @@
             (todo "BLOCKED"
                   ((org-agenda-overriding-header "Blocked Tasks")
                    (org-agenda-files '(,(concat +roam-directory "someday.org")
-                                       ,(concat +roam-directory "next.org")))))
+                                       ,(concat +roam-directory "next.org")))
+                   (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
             (todo "DELEGATED"
                   ((org-agenda-overriding-header "Delegated Tasks")
                    (org-agenda-files '(,(concat +roam-directory "someday.org")
