@@ -7,8 +7,8 @@
 (use-package "core-util" :ensure nil :demand t)
 (use-package "core-ui" :ensure nil :demand t)
 (use-package "core-ux" :ensure nil :demand t
-  :bind (([remap goto-line] . goto-line-with-feedback)
-         ([remap keyboard-quit] . escape-quit)))
+   :bind (([remap goto-line] . goto-line-with-feedback)
+          ([remap keyboard-quit] . escape-quit)))
 
 (use-package "core-window" :ensure nil :demand t
   :bind (("C-x <right>" . windmove-right)
