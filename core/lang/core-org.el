@@ -825,23 +825,12 @@
       (call-interactively 'ekg-capture-finalize)))
   (defun +ekg-format-notes()
     (let ((inhibit-read-only t))
-      (save-excursion
-        (goto-char (point-min))
-        (while (org-activate-links (point-max))
-          (goto-char (match-end 0)))
-        ;; Go back and activate the first link again as it gets missed in the iteration
-        (goto-char (point-min))
-        (org-activate-links (point-max))))
-    (+ekg-format-note))
-  (defun +ekg-format-note ()
-    (org-redisplay-inline-images))
+      (org-pretty-table-mode t)))
   (add-hook 'ekg-notes-mode-hook 'ekg-variable-pitch)
   (add-hook 'ekg-capture-mode-hook 'ekg-variable-pitch)
   (add-hook 'ekg-edit-mode-hook 'ekg-variable-pitch)
   ;; Formatting the org buffer with some missing formats
   (add-hook 'ekg-notes-mode-hook '+ekg-format-notes)
-  (add-hook 'ekg-capture-mode-hook '+ekg-format-note)
-  (add-hook 'ekg-edit-mode-hook '+ekg-format-note)
   (add-hook 'ekg-note-save-hook '+ekg-logseq-sync)
 
 
