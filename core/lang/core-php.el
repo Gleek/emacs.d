@@ -76,6 +76,8 @@
   (setq-default phpstan-level 8)
   (setq-default phpstan-memory-limit "4G")
   ;; Demote phpstan errors to warnings. Errors should be sytanctical errors only.
+  ;; This doesn't work currently, since there's a custom parser. changed the output of the `flycheck-phpstan-parse-json' from error to warning works.
+  ;; TODO: Do this from outside the package.
   (require 'flycheck)
   (let ((checker (rassoc 'error (flycheck-checker-get 'phpstan 'error-patterns))))
     (if checker (setcdr checker 'warning))))

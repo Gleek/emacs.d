@@ -462,6 +462,39 @@
                ("R" . org-agenda-refile)
                ("C-z C-w" . org-agenda-roam-refile)))
   :config
+  ;; Courtesy: https://stackoverflow.com/a/41273964
+  (defun org-agenda-bulk-copy-subtree ()
+    "Copy marked entries on agenda"
+    (interactive)
+    (or (eq major-mode 'org-agenda-mode) (error "Not in agenda"))
+    (let* ((marker (or (org-get-at-bol 'org-marker) (org-agenda-error)))
+           (buffer (marker-buffer marker))
+           (pos (marker-position marker))
+           (output-buf (get-buffer-create "*RESULTS*")))
+      (with-current-buffer buffer
+        (goto-char pos)
+        (org-back-to-heading t)
+        (org-copy-subtree))
+      (with-current-buffer output-buf
+        (insert org-subtree-clip "\n"))
+      (unless (get-buffer-window output-buf)
+        (display-buffer output-buf t))))
+
+  (defun org-copy-marked-entries ()
+    "Copy marked entries in the Org agenda."
+    (interactive)
+    (let ((entries ""))
+      (dolist (entry (reverse org-agenda-bulk-marked-entries))
+        (with-current-buffer (marker-buffer entry)
+          (save-excursion
+            (goto-char entry)
+            (setq entries (concat entries (buffer-substring-no-properties (point-at-bol) (point-at-eol)) "\n")))))
+      (kill-new entries)
+      (message "Marked entries copied to kill ring.")))
+
+
+
+
   ;; Courtesy: https://emacs.stackexchange.com/a/59883
   (defun org-agenda-bulk-mark-regexp-category (regexp)
     "Mark entries whose category matches REGEXP for future agenda bulk action."
@@ -640,7 +673,7 @@
 
   (defun +agenda-skip()
     (or (+agenda-skip-projects)
-        (org-agenda-skip-entry-if 'deadline 'scheduled)))
+        (org-agenda-skip-entry-if 'scheduled)))
 
 
 
@@ -648,7 +681,7 @@
         `((" " "Agenda"
            ((agenda ""
                     ((org-agenda-span 'day)
-                     (org-deadline-warning-days 365)))
+                     (org-deadline-warning-days 30)))
             (alltodo ""
                      ((org-agenda-overriding-header "To Refile")
                       (org-agenda-files '(,(concat +roam-directory "inbox.org")
@@ -670,7 +703,7 @@
                   ((org-agenda-overriding-header "Delegated Tasks")
                    (org-agenda-files '(,(concat +roam-directory "someday.org")
                                        ,(concat +roam-directory "next.org")))
-                   (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
+                   (org-agenda-skip-function '(+agenda-skip))))
             (todo "WAITING"
                   ((org-agenda-overriding-header "Waiting on")
                    (org-agenda-files '(,(concat +roam-directory "someday.org")
