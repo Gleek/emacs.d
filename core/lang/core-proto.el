@@ -8,7 +8,7 @@
                                   (run-hooks 'prog-mode-hook)))
   (company-backend-for-hook 'protobuf-mode-hook '((company-capf company-yasnippet)))
   (setq flycheck-protoc-import-path
-        `(,(concat "/Users/umar/Development/" (rot13 "mbzngb/mbzngb-rirag-ertvfgel/"))))
+        `(,(concat (expand-file-name "~/Development/") (rot13 "mbzngb/mbzngb-rirag-ertvfgel/"))))
   (defconst my-protobuf-style
     '((c-basic-offset . 2)
       (indent-tabs-mode . nil)))
@@ -18,7 +18,7 @@
   (add-hook 'protobuf-mode-hook
             (function (lambda ()
                         (setq tab-width 2))))
-  (eval-after-load "flycheck"
+  (eval-after-load 'flycheck
     '(flycheck-add-next-checker 'protobuf-protoc '(warning . protobuf-prototool)))
   (defvar prototool-command)
   (setq prototool-command "/usr/local/bin/prototool")
