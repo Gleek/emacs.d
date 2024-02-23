@@ -64,6 +64,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :bind*
   (("C-c p p" . consult-projectile-switch-project)
    ("C-c p f" . consult-projectile-find-file)
+   ("C-c p D" . consult-projectile-find-dir)
    ("s-p" . consult-projectile))
   :config
   (require 'consult-projectile-plus)
@@ -254,6 +255,7 @@ Use `treemacs' command for old functionality."
         lsp-log-io nil
         lsp-enable-on-type-formatting nil
         lsp-enable-symbol-highlighting nil
+        lsp-keep-workspace-alive nil
         ;; lsp-enable-on-type-formatting nil
         lsp-ui-doc-enable nil
         ;; lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols)
