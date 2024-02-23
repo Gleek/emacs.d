@@ -522,6 +522,10 @@ To actually enable this, evaluate `+bongo-remove-headers'."
                    "afplay" (plist-get (cdr sound) :file)))
   (advice-add 'play-sound :override 'play-sound-mac))
 
+(use-package emacs
+  :init
+  (setq nsm-settings-file (concat CACHE-DIR "network-security.data")))
+
 
 (provide 'core-tools)
 ;;; core-tools.ends here
