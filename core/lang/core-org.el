@@ -188,11 +188,16 @@
       (let ((entry-id (org-id-get-create)))
         (save-window-excursion
           (let* ((consult-after-jump-hook nil)
-                 (target (consult-org-agenda)))
+                 (target (consult-org-agenda))
+                 (current-trigger (org-entry-get nil "TRIGGER"))
+                 (current-trigger-ids ""))
             (when target
+              (setq current-trigger-ids
+                    (when (and current-trigger (string-match "ids(\\(.*?\\))" current-trigger))
+                      (concat (match-string 1 current-trigger) " ")))
               (org-set-property
                "TRIGGER"
-               (format "ids(%s) todo!(TODO)" entry-id))))))))
+               (format "ids(%s) todo!(TODO)" (concat current-trigger-ids entry-id)))))))))
 
   (defun org-entry-delegated-hook()
     "Custom function to handle DELEGATED state transitions."
