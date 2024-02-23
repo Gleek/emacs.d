@@ -24,7 +24,7 @@
 
   (when IS-MAC
     ;; brew install coreutils
-    (setq insert-directory-program "/usr/local/bin/gls"))
+    (setq insert-directory-program "/opt/homebrew/bin/gls"))
 
   (setq dired-listing-switches
         "-AGFhlv --group-directories-first --time-style=long-iso")
@@ -127,6 +127,7 @@
             ("\\.\\(?:jpe?g\\|png\\|gif\\|xpm\\)\\'" ,cmd)
             ("\\.\\(?:xcf\\)\\'" ,cmd)
             ("\\.csv\\'" ,cmd)
+            ("\\.xlsx\\'" ,cmd)
             ("\\.tex\\'" ,cmd)
             ("\\.wav\\'" ,(if IS-MAC "afplay" "aplay"))
             ("\\.\\(?:mp4\\|mkv\\|avi\\|flv\\|rm\\|rmvb\\|ogv\\)\\(?:\\.part\\)?\\'" ,cmd)
