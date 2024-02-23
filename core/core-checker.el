@@ -2,6 +2,7 @@
   :hook (text-mode . spell-fu-mode)
   :init
   (setq spell-fu-directory (concat CACHE-DIR "spell-fu"))
+  (setq-default ispell-dictionary "british")
   :bind (("C-M-i" . +spell-fu-fix-last-error)
          (:map text-mode-map
                ("C-M-i" . +spell-fu-fix-last-error)))
