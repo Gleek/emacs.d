@@ -22,10 +22,10 @@
 (setq gc-cons-threshold 8000000) ;; collect garbage after about 100 MB
 ;; (run-with-idle-timer 2 t (lambda () (garbage-collect)))
 (setq message-log-max 10000) ;; Debugging
-(let ((package-file (expand-file-name "package-quickstart.el" user-emacs-directory)))
-  (if (file-exists-p package-file)
-      (load package-file)
-    (package-quickstart-refresh)))
+;; (let ((package-file (expand-file-name "package-quickstart.el" user-emacs-directory)))
+;;   (if (file-exists-p package-file)
+;;       (load package-file)
+;;     (package-quickstart-refresh)))
 
 (eval-after-load 'package
   '(add-to-list 'package-archives

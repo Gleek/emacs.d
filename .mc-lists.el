@@ -56,10 +56,14 @@
         markdown-electric-backquote
         markdown-exdent-or-delete
         markdown-outdent-or-delete
+        mc--insert-number-and-increase
         mc/vertical-align
         mc/vertical-align-with-space
         move-text-up
         nxml-electric-slash
+        org-agenda-end-of-line
+        org-agenda-next-line
+        org-agenda-previous-line
         org-archive-subtree-default
         org-beginning-of-line
         org-cycle

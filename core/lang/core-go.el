@@ -16,14 +16,14 @@
 
 ;;; Code:
 
+;; Disabling go-ts-mode because of inferior highlighting and indentation. To revisit again later.
+(delete '("\\.go\\'" . go-ts-mode) auto-mode-alist)
+
 (use-package go-mode
   :ensure go-mode
   :ensure go-tag
   :ensure go-gen-test
   :ensure flycheck-golangci-lint
-  :init
-  ;; Disabling go-ts-mode because of inferior highlighting. To revisit again later.
-  (delete '("\\.go\\'" . go-ts-mode) auto-mode-alist)
   :bind (:map go-mode-map
               ("C-z a" . +go-tag-add)
               ("C-c C-d" . nil))
@@ -42,13 +42,31 @@
       (let ((go-tag-args nil))
         (call-interactively 'go-tag-add))))
 
+  (defun +flycheck-parse-checkstyle-warnings-only (output checker buffer)
+    "Parse Checkstyle errors from OUTPUT and return only warnings.
+
+This function converts all errors to warnings for the specified CHECKER (golangci-lint).
+See `flycheck-parse-checkstyle' for more details on the parameters"
+    (let ((original-errors (flycheck-parse-checkstyle output checker buffer)))
+    (mapcar (lambda (error)
+              (when (eq (flycheck-error-level error) 'error)
+                (setf (flycheck-error-level error) 'warning))
+              error)
+            original-errors)))
+
+
+
   (defun +go-setup-checkers()
     (flycheck-golangci-lint-setup)
 
     ;; Demote golangci errors to info
     (dolist (patt (get 'golangci-lint 'flycheck-error-patterns))
       (setcdr patt 'warning))
-    (setq flycheck-local-checkers '((lsp . ((next-checkers . ((warning . golangci-lint))))))))
+
+    (setf (flycheck-checker-get 'golangci-lint 'error-parser)
+          #'+flycheck-parse-checkstyle-warnings-only)
+
+    (setq flycheck-local-checkers '((lsp . ((next-checkers . (golangci-lint)))))))
 
   ;; (setq dap-go-debug-program `("node" ,(concat dap-go-debug-path "/extension/dist/debugAdapter.js")))
   (setq gofmt-command "goimports")
@@ -56,8 +74,9 @@
   (add-hook 'before-save-hook 'gofmt-before-save)
 
   (add-hook 'go-mode-hook #'+go-setup-checkers)
-  
+
   (set-popup-rule! "^\\*go-guru-output\\*" :size 0.4 :quit t))
+
 
 (use-package gorepl-mode
   :bind (:map gorepl-mode-map
