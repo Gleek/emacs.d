@@ -94,7 +94,7 @@
 
   (defun variable-pitch-for-notes ()
     (interactive)
-    (when (string-match "\\(.*Notes.org\\|roam.*org\\)" (format "%s" buffer-file-name))
+    (when (string-match "\\(.*Notes.org\\|roam.*org\\|denote.*org\\)" (format "%s" buffer-file-name))
       (reading-mode)))
 
   (defun copy-file-link-for-org (file)
@@ -817,6 +817,27 @@
   (set-face-attribute 'ekg-tag nil :inherit 'fixed-pitch)
   (set-face-attribute 'ekg-notes-mode-title nil :inherit 'fixed-pitch)
   (set-face-attribute 'ekg-metadata nil :inherit 'fixed-pitch))
+
+;; Trying denote
+(use-package denote
+  :bind ("C-c n n" . denote-open-or-create)
+  :init
+  (setq xref-search-program 'ripgrep)
+  (setq denote-directory (concat +org-directory "denote/"))
+  :config
+  (setq denote-known-keywords nil)
+  (add-hook 'org-mode-hook '+denote-binding)
+  (defun +denote-binding()
+    (when (denote-file-is-note-p (buffer-file-name))
+      (local-set-key (kbd "<C-i>") 'denote-link-or-create)
+      (local-set-key (kbd "C-c r") 'denote-rename-file))))
+
+;; (use-package consult-notes
+;;   :bind ("C-c n n" . consult-notes)
+;;   :config
+;;   (require 'denote)
+;;   (consult-notes-denote-mode))
+
 
 (use-package org-roam
   :ensure org-roam
