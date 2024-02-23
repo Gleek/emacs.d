@@ -144,8 +144,9 @@
            (is-jpg (and file-name (string= (file-name-extension file-name) "jpg")))
            (convert-to-png (and is-jpg (y-or-n-p "Convert JPG to PNG before background removal?")))
            (png-file (when convert-to-png (concat (file-name-sans-extension file-name) ".png")))
+           ;; Get top 5 colors
            (color-list-command (format "convert %s -format '%%c' -colors 5 histogram:info:- | sort -r | grep -o '#[0-9A-Fa-f]\\{6\\}' | sed 's/(standard input)://'"
-                                        (shell-quote-argument file-name)))
+                                       (shell-quote-argument file-name)))
            (color-list (split-string (shell-command-to-string color-list-command) "\n" t))
            (chosen-color (if arg
                              (completing-read "Choose a color: " color-list)
@@ -395,6 +396,38 @@ To actually enable this, evaluate `+bongo-remove-headers'."
          (:map keepass-mode-map
                ("s" . +keepass-search))))
 
+(use-package totp
+  :commands (totp-copy-pin-as-kill totp-display)
+  :bind ("C-c s P" . totp-display)
+  :config
+  ;; epg version >= 2.4.1 doesn't work with emacs without it
+  ;; (fset 'epg-wait-for-status 'ignore)
+  ;; This shouldn't be done as it might corrupt files
+  (defvar auth-source-timer nil)
+  ;; Courtesy : Mickey Peterson
+  (defun totp-display (auth)
+    "Select a TOTP AUTH from `auth-sources' and display its TOTP."
+    (interactive
+     (list
+      (let ((candidates (mapcar
+                         (lambda (auth)
+                           (cons (format "User '%s' on %s"
+                                         (propertize (plist-get auth :user) 'face 'font-lock-keyword-face)
+                                         ;; removes "TOTP:" prefix from the host name
+                                         (propertize (substring (plist-get auth :host) 5) 'face 'font-lock-string-face))
+                                 auth))
+                         (seq-filter (lambda (auth) (string-prefix-p "TOTP:" (plist-get auth :host)))
+                                     (auth-source-search :max 10000)))))
+        (if auth-source-timer
+            (cancel-timer auth-source-timer))
+        (setq auth-source-timer (run-with-timer 100 nil (lambda () (auth-source-forget-all-cached))))
+        (cdr (assoc (completing-read "Pick a TOTP> " candidates) candidates)))))
+    (let ((code (totp (funcall (plist-get auth :secret)))))
+      (message "Your TOTP for '%s' is: %s (sent to kill ring)"
+               (propertize (plist-get auth :host) 'face font-lock-keyword-face)
+               (propertize code 'face 'font-lock-string-face))
+      (kill-new code)
+      code)))
 
 (use-package proced
   :ensure nil
