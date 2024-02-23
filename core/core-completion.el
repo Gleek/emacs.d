@@ -271,7 +271,8 @@
   :config
   (defun +autoinsert-yas-expand()
     "Replace text in yasnippet template."
-    (yas-expand-snippet (buffer-string) (point-min) (point-max)))
+    (let ((yas-indent-line nil))
+      (yas-expand-snippet (buffer-string) (point-min) (point-max))))
 
   (auto-insert-mode t)
   (setq auto-insert-directory (expand-file-name "auto-insert" user-emacs-directory))
