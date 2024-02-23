@@ -1235,7 +1235,12 @@ the capture popup."
 
 (use-package org-ql
   :commands (+org-archive-archivable +org-show-archivable +org-show-pending org-dblock-write:org-ql-list)
+  :bind ("C-c o G" . org-ql-find-agenda)
   :config
+
+  (defun org-ql-find-agenda()
+    (interactive)
+    (inhibit-message-a 'org-ql-find org-agenda-files))
 
   (org-ql-defpred captured (&key from to _on)
                   "Return non-nil if current entry was captured in given period.
