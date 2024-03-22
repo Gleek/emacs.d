@@ -100,11 +100,11 @@ Repeated invocations toggle between the two most recently open buffers."
   ;; Display buffer icons on GUI
   (define-ibuffer-column icon (:name "  ")
     (let ((icon (if (and (buffer-file-name)
-                         (all-the-icons-auto-mode-match?))
-                    (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
-                  (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
+                         (nerd-icons-auto-mode-match?))
+                    (nerd-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
+                  (nerd-icons-icon-for-mode major-mode :v-adjust -0.05))))
       (if (symbolp icon)
-          (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
+          (setq icon (nerd-icons-faicon "nf-fa-file_o" :face 'nerd-icons-dsilver :height 0.8 :v-adjust 0.0))
         icon)))
 
   ;; Redefine size column to display human readable size

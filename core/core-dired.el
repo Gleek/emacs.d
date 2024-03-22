@@ -135,15 +135,8 @@
             ("\\.html?\\'" ,cmd)
             ("\\.md\\'" ,cmd)))))
 
-(use-package all-the-icons-dired
-  ;; messes up subtree
-  ;; :disabled t
-  :hook (dired-mode . all-the-icons-dired-mode)
-  :config
-  (defadvice dired-subtree-toggle (after dired-icons-refreash ())
-    "Insert an empty line when moving up from the top line."
-    (revert-buffer))
-  (ad-activate 'dired-subtree-toggle))
+(use-package nerd-icons-dired
+  :hook (dired-mode . nerd-icons-dired-mode))
 
 (use-package fd-dired
   ;; :bind (:map dired-mode-map
