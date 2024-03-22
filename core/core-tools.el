@@ -234,7 +234,8 @@
   :hook (restclient-mode . display-line-numbers-mode)
   :mode ("\\.rest\\'" . restclient-mode)
   :bind (:map restclient-mode-map (("C-c C-c" . restclient-http-send-current-stay-in-window)
-                                   ("C-c C-v" . restclient-http-send-current)))
+                                   ("C-c C-v" . restclient-http-send-current)
+                                   ("C-c n n" . nil)))
   :config
   (set-popup-rule! "^\\*HTTP Response" :size 0.4 :quit 'other)
   (set-popup-rule! "^\\*Restclient Info" :size 0.4 :quit 'other)
@@ -245,15 +246,35 @@
 
   (defvar +restclient-debug nil)
   (setq +restclient-debug t)
+  (setq restclient-inhibit-cookies t)
 
-  (defun +rest-client-http-call (orig-fn &rest args)
-    "Make a few modifications before making the call"
-    (let ((gnutls-verify-error t)
-          ;; TODO fix
-          (url-debug +restclient-debug))
-      (message "URL debug => %s" url-debug)
-      (apply orig-fn args)))
-  (advice-add '+rest-client-http-call :around #'restclient-http-do))
+  (defun +restclient-copy-curl-command ()
+    "Formats the request as a curl command and copies the command to the clipboard."
+    (interactive)
+    (restclient-http-parse-current-and-do
+     '(lambda (method url headers entity)
+        (let* ((header-args
+                (apply 'append
+                       (mapcar (lambda (header)
+                                 (list "-H" (format "\"%s: %s\"" (car header) (cdr header))))
+                               headers)))
+               (header-parsed (mapconcat 'identity header-args " "))
+               (method-arg (concat "-X" " " method))
+               (entity-arg (if (> 0 (string-width entity)) ""
+                             (format "-d \x27%s\x27" entity)))
+               (curl-command (format "curl %s %s %s %s" header-parsed method-arg url entity-arg)))
+          (kill-new curl-command)
+          (message "curl command copied to clipboard.")))))
+
+  ;; (defun +rest-client-http-call (orig-fn &rest args)
+  ;;   "Make a few modifications before making the call"
+  ;;   (let ((gnutls-verify-error t)
+  ;;         ;; TODO fix
+  ;;         (url-debug +restclient-debug))
+  ;;     (message "URL debug => %s" url-debug)
+  ;;     (apply orig-fn args)))
+  ;; (advice-add '+rest-client-http-call :around #'restclient-http-do)
+  )
 
 
 (use-package speed-type
