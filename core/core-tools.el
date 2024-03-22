@@ -465,8 +465,9 @@ To actually enable this, evaluate `+bongo-remove-headers'."
           (b "B / 8" "Bit"))
         math-units-table nil))
 
-(use-package counsel-calc :ensure nil
-  :bind ("M-*" . completing-read-calc))
+(use-package vertico-calc :ensure nil
+  :after vertico
+  :bind ("M-*" . vertico-calc))
 
 (use-package shortdoc :ensure nil
   :bind ("C-h s" . shortdoc-display-group))
