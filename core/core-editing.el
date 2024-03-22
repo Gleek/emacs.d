@@ -208,38 +208,6 @@ https://emacs.stackexchange.com/a/12124/2144"
   (kill-new (shell-command-to-string "osascript -e 'the clipboard as \"HTML\"' | perl -ne 'print chr foreach unpack(\"C*\",pack(\"H*\",substr($_,11,-3)))' | pandoc -f html -t json | pandoc -f json -t org | sed 's/ / /g'"))
   (yank))
 
-(defvar yank-indent-modes '(prog-mode
-                            sgml-mode
-                            js2-mode)
-  "Modes in which to indent regions that are yanked (or yank-popped)")
-
-(defvar yank-advised-indent-threshold 1000
-  "Threshold (# chars) over which indentation does not automatically occur.")
-
-(defun yank-advised-indent-function (beg end)
-  "Do indentation, as long as the region isn't too large."
-  (if (<= (- end beg) yank-advised-indent-threshold)
-      (indent-region beg end nil)))
-
-(defadvice yank (after yank-indent activate)
-  "If current mode is one of 'yank-indent-modes, indent yanked text (with prefix arg don't indent)."
-  (if (and (not (ad-get-arg 0))
-           (--any? (derived-mode-p it) yank-indent-modes))
-      (let ((transient-mark-mode nil))
-        (yank-advised-indent-function (region-beginning) (region-end)))))
-
-(defadvice yank-pop (after yank-pop-indent activate)
-  "If current mode is one of 'yank-indent-modes, indent yanked text (with prefix arg don't indent)."
-  (if (and (not (ad-get-arg 0))
-           (member major-mode yank-indent-modes))
-      (let ((transient-mark-mode nil))
-        (yank-advised-indent-function (region-beginning) (region-end)))))
-
-(defun yank-unindented ()
-  (interactive)
-  (yank 1))
-
-
 (use-package selected
   :defer 1
   :diminish selected-minor-mode
