@@ -290,16 +290,18 @@
 (use-package treesit
   :ensure nil
   :init
-  (setq treesit-extra-load-path (list (concat RES-DIR "treesit/"))))
+  (setq treesit-extra-load-path (list (concat RES-DIR "treesit/")))
+  ;; signifies the level to render treesit-font-lock-feature-list.
+  (setq treesit-font-lock-level 4))
 
-(use-package tree-sitter
-  :ensure tree-sitter
-  :ensure tree-sitter-langs
-  :defer 2
-  :config
-  ;; (require 'tree-sitter-langs)
-  ;; (global-tree-sitter-mode)
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+;; (use-package tree-sitter
+;;   :ensure tree-sitter
+;;   :ensure tree-sitter-langs
+;;   :defer 2
+;;   :config
+;;   ;; (require 'tree-sitter-langs)
+;;   ;; (global-tree-sitter-mode)
+;;   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 
 (use-package hl-todo
   :hook ((prog-mode yaml-mode) . hl-todo-mode)
