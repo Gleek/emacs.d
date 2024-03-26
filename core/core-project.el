@@ -163,50 +163,24 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package treemacs
   :bind (("C-c t t" . +treemacs-toggle)
-         ("C-c p t" . +show-treemacs))
+         ("C-c p t" . treemacs-add-and-display-current-project))
   :init
   (setq treemacs-follow-after-init t
+        treemacs-project-follow-mode t
         treemacs-is-never-other-window t
         treemacs-space-between-root-nodes nil
         treemacs-sorting 'alphabetic-case-insensitive-asc
         treemacs-persist-file (concat CACHE-DIR "treemacs-persist")
         treemacs-last-error-persist-file (concat CACHE-DIR "treemacs-last-error-persist"))
   :config
-  (defun +show-treemacs()
-    (interactive)
-    (if (and (projectile-project-root)
-             t)
-        ;; Modified treemacs-add-and-display-current-project to focus on
-        ;; the current file instead of project root
-        (treemacs-block
-         (treemacs-unless-let (root (treemacs--find-current-user-project))
-             (treemacs-error-return-if (null root)
-               "Not in a project.")
-           (let* ((path (treemacs--canonical-path root))
-                  (name (treemacs--filename path)))
-             (unless (treemacs-current-workspace)
-               (treemacs--find-workspace))
-             (if (treemacs-workspace->is-empty?)
-                 (progn
-                   (treemacs-do-add-project-to-workspace path name)
-                   (treemacs-select-window)
-                   (treemacs-pulse-on-success))
-               (treemacs-select-window)
-               (if (treemacs-is-path path :in-workspace)
-                   (treemacs-select-window)
-                 (treemacs-add-project-to-workspace path name))))))
-      (treemacs)))
+  (treemacs-follow-mode t)
   (defun +treemacs-toggle ()
-    "Initialize or toggle treemacs.
-Ensures that only the current project is present and all other projects have
-been removed.
-Use `treemacs' command for old functionality."
+    "Initialize or toggle treemacs."
     (interactive)
+    (require 'treemacs)
     (pcase (treemacs-current-visibility)
       (`visible (delete-window (treemacs-get-local-window)))
-      (_ (+show-treemacs))))
-  (treemacs-follow-mode t)
-  (setq treemacs-width 30))
+      (_ (treemacs-add-and-display-current-project)))))
 
 (use-package treemacs-projectile
   :ensure t)
@@ -214,6 +188,12 @@ Use `treemacs' command for old functionality."
 (use-package lsp-treemacs
   :hook (treemacs-select-hook . lsp-treemacs-sync-mode)
   :bind (:map lsp-mode-map ("C-c p e" . lsp-treemacs-errors-list)))
+
+(use-package treemacs-nerd-icons
+  :init (with-eval-after-load  'lsp-treemacs)
+  (require 'treemacs-nerd-icons)
+  :config
+  (treemacs-load-theme "nerd-icons"))
 
 (use-package lsp-mode
   :hook ((js-mode js2-mode js3-mode rjsx-mode go-mode rust-mode php-mode go-ts-mode) . lsp-deferred)

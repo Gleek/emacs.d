@@ -14,6 +14,11 @@
             (lambda (arg) (call-interactively #'dap-hydra))))
 
 
+(use-package dape
+  :config
+  (setq dape-cwd-fn 'projectile-project-root))
+
+
 (use-package emacs
   :bind ("C-c t D" . toggle-debug-on-error))
 
