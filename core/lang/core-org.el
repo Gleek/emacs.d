@@ -1238,30 +1238,46 @@ the capture popup."
   :hook (org-mode . org-pdftools-setup-link))
 
 (use-package org-ql
+  :after org
   :commands (+org-archive-archivable +org-show-archivable +org-show-pending org-dblock-write:org-ql-list)
-  :bind ("C-c o G" . org-ql-find-agenda)
+  :bind (("C-c o G" . org-ql-find-agenda)
+         (:map org-agenda-mode-map
+               (("Vp" . +org-show-project-overview)
+                ("VP" . +org-show-pending)
+                ("VA" . +org-show-archivable)
+                ("VV" . org-ql-view))))
   :config
-
+  (set-popup-rule! "^\\*Org QL View:"  :slot -1 :vslot -1 :size 0.5 :ttl 0)
+  ;; (add-to-list 'org-ql-views
+  ;;              (list "Projects overview"
+  ;;                    :buffer-files #'org-agenda-files
+  ;;                    :query '(and (todo) (category) (tags "project")
+  ;;                                 (ancestors
+  ;;                                  (and (todo)
+  ;;                                       (not (parent)))))
+  ;;                    :sort '(todo date priority)
+  ;;                    :super-groups '((:auto-parent t))
+  ;;                    :title "Projects overview"))
   (defun org-ql-find-agenda()
     (interactive)
     (inhibit-message-a 'org-ql-find org-agenda-files))
 
   (org-ql-defpred captured (&key from to _on)
-                  "Return non-nil if current entry was captured in given period.
+    "Return non-nil if current entry was captured in given period.
 Without arguments, return non-nil if entry is captured."
-                  :normalizers ((`(,predicate-names ,(and num-days (pred numberp)))
-                                 (let* ((from-day (* -1 num-days))
-                                        (rest (list :from from-day)))
-                                   (org-ql--normalize-from-to-on
-                                    `(captured :from ,from))))
-                                (`(,predicate-names . ,rest)
-                                 (org-ql--normalize-from-to-on
-                                  `(captured :from ,from :to ,to))))
-                  :body
-                  (let ((org-captured-time (org-entry-get (point) "captured")))
-                    (when org-captured-time
-                      (and (if from (ts> (ts-parse org-captured-time) from) t)
-                           (if to (ts< (ts-parse org-captured-time) to) t)))))
+    :normalizers ((`(,predicate-names ,(and num-days (pred numberp)))
+                   (let* ((from-day (* -1 num-days))
+                          (rest (list :from from-day)))
+                     (org-ql--normalize-from-to-on
+                       `(captured :from ,from))))
+                  (`(,predicate-names . ,rest)
+                   (org-ql--normalize-from-to-on
+                     `(captured :from ,from :to ,to))))
+    :body
+    (let ((org-captured-time (org-entry-get (point) "captured")))
+      (when org-captured-time
+        (and (if from (ts> (ts-parse org-captured-time) from) t)
+             (if to (ts< (ts-parse org-captured-time) to) t)))))
 
   (defun +org-show-pending(&optional arg)
     (interactive "P")
@@ -1270,6 +1286,18 @@ Without arguments, return non-nil if entry is captured."
         org-agenda-files
         `(and (todo "TODO" "DELEGATED" "BLOCKED" "WAITING" "DOING") (captured :to ,(ts-format (ts-adjust 'day (* -1 days) (ts-now)))))
         :sort '(reverse))))
+
+  (defun +org-show-project-overview()
+    (interactive)
+    (org-ql-search
+      org-agenda-files
+      '(and (todo) (category) (tags "project")
+            (ancestors
+             (and (todo)
+                  (not (parent)))))
+      :sort '(reverse todo date priority)
+      :super-groups '((:auto-parent t))
+      :title "Projects overviews"))
 
   (defun +org-show-archivable()
     (interactive)
