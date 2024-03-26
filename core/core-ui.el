@@ -310,10 +310,7 @@
     (concat "\\(\\b" (mapconcat 'car hl-todo-keyword-faces "\\b\\|\\b") "\\b\\)"))
   (defun +hl-todo-project()
     (interactive)
-    (counsel-rg (+hl-todo-regex)))
-  (defun +hl-todo-swiper()
-    (interactive
-     (swiper (+hl-todo-regex)))))
+    (consult-ripgrep nil (+hl-todo-regex))))
 
 (defun toggle-cursor-type()
   (interactive)
