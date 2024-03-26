@@ -1,6 +1,30 @@
-(setq lsp-intelephense-files-max-size 2000000)
+(setq lsp-intelephense-files-max-size 2500000)
 (setq lsp-intelephense-licence-key intelephense-key)
 (setq lsp-intelephense-storage-path (concat CACHE-DIR "lsp-intelephense/"))
+
+
+(defun +flycheck-phpmd-parse(f &rest args)
+  (let ((out (apply f args)))
+    (mapcar
+     (lambda(el)
+       (setf (flycheck-error-level el) 'info)
+       el)
+     out)))
+
+(defun phpmd-ignore-errors()
+  ;; Fix phpmd to not return error code on invalid syntax
+  (let* ((phpmd-checker (flycheck-checker-get 'php-phpmd 'command))
+         (ex (car phpmd-checker))
+         (rest (cdr phpmd-checker)))
+    (push "--ignore-errors-on-exit" rest)
+    (setf (flycheck-checker-get 'php-phpmd 'command) (cons ex rest)))
+  (advice-add 'flycheck-parse-phpmd :around #'+flycheck-phpmd-parse))
+
+(defun php-local-checkers()
+  (setq flycheck-local-checkers '((lsp . ((next-checkers . ((warning . phpstan)))))
+                                  (phpstan . ((next-checkers . ((warning . php-phpmd))))))))
+
+
 (use-package php-mode
   :init
   :ensure php-mode
@@ -12,8 +36,8 @@
               ("C-c C-d" . nil)
               ("C-." . nil))
   :config
-   ;; Makes typing smooth with very little affect on syntax
-   ;; highlighting. We're using tree-sitter anyway.
+  ;; Makes typing smooth with very little affect on syntax
+  ;; highlighting. We're using tree-sitter anyway.
   (advice-add 'php-syntax-propertize-function :override #'return-false)
   ;; Applying syntax propertize on extended region is slow. Disable
   ;; that and instead depend on tree-sitter to do the highlighting.
@@ -27,31 +51,18 @@
   (setq flycheck-phpcs-standard "~/.config/phpcs/phpcs.xml")
   (add-hook 'php-mode-hook (lambda() (setq sp-max-pair-length 5)))
   (add-hook 'php-mode-hook 'php-enable-symfony2-coding-style)
-
-  ;; Fix phpmd to not return error code on invalid syntax
-  (let* ((phpmd-checker (flycheck-checker-get 'php-phpmd 'command))
-         (ex (car phpmd-checker))
-         (rest (cdr phpmd-checker)))
-    (push "--ignore-errors-on-exit" rest)
-    (setf (flycheck-checker-get 'php-phpmd 'command) (cons ex rest)))
-
-  ;; Demote phpmd errors to info
-  (defun +flycheck-phpmd-parse(f &rest args)
-    (let ((out (apply f args)))
-      (mapcar
-       (lambda(el)
-         (setf (flycheck-error-level el) 'info)
-         el)
-       out)))
-  (advice-add 'flycheck-parse-phpmd :around #'+flycheck-phpmd-parse)
-
-
-  (defun php-local-checkers()
-    (setq flycheck-local-checkers '((lsp . ((next-checkers . ((warning . phpstan)))))
-      (phpstan . ((next-checkers . ((warning . php-phpmd))))))))
-
+  (phpmd-ignore-errors)
   (add-hook 'php-mode-hook 'php-local-checkers)
   (setq c-basic-offset 4))
+
+(use-package php-ts-mode
+  :mode "\\.php\\'"
+  :vc (:fetcher github :repo emacs-php/php-ts-mode)
+  :config
+  (set-face-attribute 'php-function-call nil :inherit 'font-lock-function-call-face)
+  (phpmd-ignore-errors)
+  (add-hook 'php-ts-mode-hook 'php-local-checkers))
+
 
 (use-package web-mode
   :init
@@ -72,6 +83,7 @@
 (use-package flycheck-phpstan
   :init
   (add-hook 'php-mode-hook (lambda()(require 'flycheck-phpstan)))
+  (add-hook 'php-ts-mode-hook (lambda()(require 'flycheck-phpstan)))
   :config
   (setq-default phpstan-level 8)
   (setq-default phpstan-memory-limit "4G")
@@ -79,6 +91,7 @@
   ;; This doesn't work currently, since there's a custom parser. changed the output of the `flycheck-phpstan-parse-json' from error to warning works.
   ;; TODO: Do this from outside the package.
   (require 'flycheck)
+  (setf (flycheck-checker-get 'phpstan 'modes) '(php-mode php-ts-mode))
   (let ((checker (rassoc 'error (flycheck-checker-get 'phpstan 'error-patterns))))
     (if checker (setcdr checker 'warning))))
 

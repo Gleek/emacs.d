@@ -17,16 +17,30 @@
 ;;; Code:
 
 ;; Disabling go-ts-mode because of inferior highlighting and indentation. To revisit again later.
-(delete '("\\.go\\'" . go-ts-mode) auto-mode-alist)
+;; (setq auto-mode-alist (delete '("\\.go\\'" . go-ts-mode) auto-mode-alist))
 
-(use-package go-mode
-  :ensure go-mode
-  :ensure go-tag
-  :ensure go-gen-test
-  :ensure flycheck-golangci-lint
-  :bind (:map go-mode-map
-              ("C-z a" . +go-tag-add)
-              ("C-c C-d" . nil))
+(push '(go-dot-mod-mode . go-mod-ts-mode) major-mode-remap-alist)
+;; (push '(go-mode . go-ts-mode) major-mode-remap-alist)
+
+(use-package go-tag
+  :commands (+go-tag-add)
+  :config
+  (defun +go-tag-add(arg)
+    (interactive "P")
+    (if (eq arg nil)
+        (let ((go-tag-args '("-transform" "camelcase")))
+          (call-interactively 'go-tag-add))
+      (let ((go-tag-args nil))
+        (call-interactively 'go-tag-add)))))
+
+(use-package go-ts-mode
+  :mode "\\.go\\'"
+  :bind (:map go-ts-mode-map
+              ("C-z a" . +go-tag-add)))
+
+
+(use-package flycheck-golangci-lint
+  :hook ((go-mode go-ts-mode) . +go-setup-checkers)
   :config
   (setq flycheck-golangci-lint-enable-linters
         '("bodyclose" "depguard" "dupl" "errcheck" "exhaustive" "funlen" "gochecknoinits" "goconst"
@@ -34,27 +48,17 @@
           "misspell" "noctx" "rowserrcheck" "staticcheck" "typecheck" "unparam" "unused"
           "whitespace" "gomodguard" "sqlclosecheck" "errcheck"))
 
-  (defun +go-tag-add(arg)
-    (interactive "P")
-    (if (eq arg nil)
-        (let ((go-tag-args '("-transform" "camelcase")))
-          (call-interactively 'go-tag-add))
-      (let ((go-tag-args nil))
-        (call-interactively 'go-tag-add))))
-
   (defun +flycheck-parse-checkstyle-warnings-only (output checker buffer)
     "Parse Checkstyle errors from OUTPUT and return only warnings.
 
-This function converts all errors to warnings for the specified CHECKER (golangci-lint).
-See `flycheck-parse-checkstyle' for more details on the parameters"
+    This function converts all errors to warnings for the specified CHECKER (golangci-lint).
+    See `flycheck-parse-checkstyle' for more details on the parameters"
     (let ((original-errors (flycheck-parse-checkstyle output checker buffer)))
-    (mapcar (lambda (error)
-              (when (eq (flycheck-error-level error) 'error)
-                (setf (flycheck-error-level error) 'warning))
-              error)
-            original-errors)))
-
-
+      (mapcar (lambda (error)
+                (when (eq (flycheck-error-level error) 'error)
+                  (setf (flycheck-error-level error) 'warning))
+                error)
+              original-errors)))
 
   (defun +go-setup-checkers()
     (flycheck-golangci-lint-setup)
@@ -66,23 +70,25 @@ See `flycheck-parse-checkstyle' for more details on the parameters"
     (setf (flycheck-checker-get 'golangci-lint 'error-parser)
           #'+flycheck-parse-checkstyle-warnings-only)
 
-    (setq flycheck-local-checkers '((lsp . ((next-checkers . (golangci-lint)))))))
+    (setq flycheck-local-checkers '((lsp . ((next-checkers . (golangci-lint))))))))
 
+(use-package go-mode
+  :ensure go-gen-test
+  :ensure flycheck-golangci-lint
+  :bind (:map go-mode-map
+              ("C-z a" . +go-tag-add)
+              ("C-c C-d" . nil))
+  :config
   ;; (setq dap-go-debug-program `("node" ,(concat dap-go-debug-path "/extension/dist/debugAdapter.js")))
   (setq gofmt-command "goimports")
-  ;; (add-hook 'go-mode-hook #'go-eldoc-setup)
   (add-hook 'before-save-hook 'gofmt-before-save)
-
-  (add-hook 'go-mode-hook #'+go-setup-checkers)
-
   (set-popup-rule! "^\\*go-guru-output\\*" :size 0.4 :quit t))
 
 
 (use-package gorepl-mode
+  :hook ((go-mode go-ts-mode) . gorepl-mode)
   :bind (:map gorepl-mode-map
-              ("C-c C-g" . nil))
-  :config
-  (add-hook 'go-mode-hook #'gorepl-mode))
+              ("C-c C-g" . nil)))
 
 (use-package go-playground
   :init
