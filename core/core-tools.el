@@ -92,7 +92,7 @@
     (interactive)
     (let ((file (make-temp-file "ocr-")))
       (message "pdf file %s" file)
-      (shell-command (format "tesseract %s %s pdf" (shell-quote-argument (buffer-file-name)) file)
+      (shell-command (format "tesseract %s %s --psm 12 pdf" (shell-quote-argument (buffer-file-name)) file)
                      nil nil)
       (display-buffer (find-file-noselect (format "%s.pdf" file)))))
 
@@ -136,6 +136,8 @@
 
 (use-package eimp
   :hook (image-mode . eimp-mode)
+  :bind (:map eimp-minor-mode-map
+              (("<S-down-mouse-1>" . eimp-crop-mouse)))
   :config
   (defun +eimp-remove-background (arg)
     (interactive "P")
@@ -161,7 +163,55 @@
       (when convert-to-png
         (shell-command (format "convert %s %s" (shell-quote-argument file-name) (shell-quote-argument png-file)))
         (find-file png-file))
-      (eimp-mogrify-image mogrify-args))))
+      (eimp-mogrify-image mogrify-args)))
+
+  (defun eimp-crop-mouse(event)
+    ;; FIXME: co-ordinates and mouse position don't match
+    (interactive "e")
+    (let* ((window (posn-window (event-start event)))
+           (event-start (event-start event))
+           end
+           message-log-max
+           image-size image-width image-height
+           width-ratio height-ratio ratio
+           dx dy dx-dy x-y start-x-y)
+      (mouse-set-point event)
+      ;; Image at or just before point
+      (unless (eimp-get-display-property)
+        (backward-char))
+      (cond
+       ((not (posn-image event-start))
+        (message "No image at mouse"))
+       (t
+        (setq image-size (image-size (eimp-get-image) t)
+              image-width (car image-size)
+              image-height (cdr image-size))
+        (setq start-x-y (eimp-frame-relative-coordinates event-start)
+              dx-dy (posn-object-x-y event-start))
+        (setq start-x-y (cons (- (car start-x-y) (car dx-dy))
+                              (- (cdr start-x-y) (cdr dx-dy))))
+        (track-mouse
+          (while (progn
+                   (setq event (read-event))
+                   (or (mouse-movement-p event)
+                       (memq (car-safe event) '(switch-frame select-window))))
+
+            (if (memq (car-safe event) '(switch-frame select-window))
+                nil
+              (setq end (event-end event))
+              (if (numberp (posn-point end))
+                  (progn
+                    (setq x-y (eimp-frame-relative-coordinates end)
+                          dx (- (car x-y) (car start-x-y))
+                          dy (- (cdr x-y) (cdr start-x-y))))
+                (setq dx -1 dy -1))
+              (if (or (< dx 0) (< dy 0))
+                  (message "Not cropping image")
+                (message "Cropping image from %dx%d to %dx%d"
+                         image-width image-height dx dy)))))
+        (when (and (> dx 0) (> dy 0))
+          (eimp-mogrify-image
+           `("-crop" ,(concat (format "%dx%d+%d+%d" image-width image-height dx dy))))))))))
 
 
 (use-package paradox
