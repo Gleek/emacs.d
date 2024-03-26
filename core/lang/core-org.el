@@ -1,6 +1,7 @@
 ;; Org mode settings
 (defvar +org-directory "~/Dropbox/org-files/")
 (defvar +roam-directory (concat +org-directory "org-roam/"))
+(defvar +agenda-directory (concat +org-directory "gtd/"))
 (defvar +ekg-directory (concat +org-directory "ekg/"))
 
 (use-package org-crypt
@@ -148,11 +149,11 @@
   ;; trust certain code as being safe
 
   (setq org-capture-templates
-        `(("i" "inbox" entry (file ,(concat +roam-directory "inbox.org"))
+        `(("i" "inbox" entry (file ,(concat +agenda-directory "inbox.org"))
            "* TODO %?")
-          ("l" "link" entry (file ,(concat +roam-directory "inbox.org"))
+          ("l" "link" entry (file ,(concat +agenda-directory "inbox.org"))
            "* TODO %(org-cliplink-capture)" :immediate-finish t)
-          ("c" "org-protocol-capture" entry (file ,(concat +roam-directory "inbox.org"))
+          ("c" "org-protocol-capture" entry (file ,(concat +agenda-directory "inbox.org"))
            "* TODO [[%:link][%:description]]\n\n %i" :immediate-finish t)))
 
 
@@ -203,15 +204,15 @@
     "Custom function to handle DELEGATED state transitions."
     (when (string= org-state "DELEGATED")
       (let* ((existing-tags (org-get-tags nil t))
-            (crm-separator "[ \t]*:[ \t]*")
-            (delegated-to
-             (mapconcat #'identity
-                        (completing-read-multiple
-                         "Delegate to: "
-                         (org-global-tags-completion-table
-                          (org-agenda-files))
-                         nil nil "@" 'org-delegated-history)
-                        ":"))
+             (crm-separator "[ \t]*:[ \t]*")
+             (delegated-to
+              (mapconcat #'identity
+                         (completing-read-multiple
+                          "Delegate to: "
+                          (org-global-tags-completion-table
+                           (org-agenda-files))
+                          nil nil "@" 'org-delegated-history)
+                         ":"))
              (tracking-link (read-string "Tracking link: ")))
         (setq existing-tags (delete-dups (cons delegated-to existing-tags)))
         (org-set-tags existing-tags)
@@ -224,7 +225,7 @@
   (setq org-capture-bookmark nil)
 
   (setq org-ellipsis "⤶"
-        ;; org-agenda-files `(,+roam-directory)
+        ;; org-agenda-files `(,+agenda-directory)
 
         org-archive-location (concat +org-directory "archive.org::* From %s")
         org-startup-align-all-tables t
@@ -684,35 +685,35 @@
                      (org-deadline-warning-days 30)))
             (alltodo ""
                      ((org-agenda-overriding-header "To Refile")
-                      (org-agenda-files '(,(concat +roam-directory "inbox.org")
-                                          ,(concat +roam-directory "inbox_phone.org")))))
+                      (org-agenda-files '(,(concat +agenda-directory "inbox.org")
+                                          ,(concat +agenda-directory "inbox_phone.org")))))
             (todo "DOING"
                   ((org-agenda-overriding-header "In Progress")
-                   (org-agenda-files '(,(concat +roam-directory "someday.org")
-                                       ,(concat +roam-directory "next.org")))))
+                   (org-agenda-files '(,(concat +agenda-directory "someday.org")
+                                       ,(concat +agenda-directory "next.org")))))
             (todo "TODO"
                   ((org-agenda-overriding-header "One-off Tasks")
-                   (org-agenda-files '(,(concat +roam-directory "next.org")))
+                   (org-agenda-files '(,(concat +agenda-directory "next.org")))
                    (org-agenda-skip-function '(+agenda-skip))))
             (todo "BLOCKED"
                   ((org-agenda-overriding-header "Blocked Tasks")
-                   (org-agenda-files '(,(concat +roam-directory "someday.org")
-                                       ,(concat +roam-directory "next.org")))
+                   (org-agenda-files '(,(concat +agenda-directory "someday.org")
+                                       ,(concat +agenda-directory "next.org")))
                    (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
             (todo "DELEGATED"
                   ((org-agenda-overriding-header "Delegated Tasks")
-                   (org-agenda-files '(,(concat +roam-directory "someday.org")
-                                       ,(concat +roam-directory "next.org")))
+                   (org-agenda-files '(,(concat +agenda-directory "someday.org")
+                                       ,(concat +agenda-directory "next.org")))
                    (org-agenda-skip-function '(+agenda-skip))))
             (todo "WAITING"
                   ((org-agenda-overriding-header "Waiting on")
-                   (org-agenda-files '(,(concat +roam-directory "someday.org")
-                                       ,(concat +roam-directory "next.org")))))
+                   (org-agenda-files '(,(concat +agenda-directory "someday.org")
+                                       ,(concat +agenda-directory "next.org")))))
 
             (todo "TODO"
                   ((org-agenda-overriding-header "Someday")
                    (org-agenda-cmp-user-defined #'org-random-cmp)
-                   (org-agenda-files '(,(concat +roam-directory "someday.org")))
+                   (org-agenda-files '(,(concat +agenda-directory "someday.org")))
                    (org-agenda-sorting-strategy '(user-defined-up))
                    (org-agenda-max-entries 10)))
             nil))))
@@ -721,7 +722,7 @@
 
 
 
-  (setq org-agenda-files (mapcar (lambda(file) (concat +roam-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "someday.org"))
+  (setq org-agenda-files (mapcar (lambda(file) (concat +agenda-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "someday.org"))
         org-agenda-window-setup 'current-window
         org-agenda-skip-unavailable-files t
         org-agenda-span 10
@@ -751,7 +752,7 @@
 ;;               ("P" . org-gcal-post-at-point))
 ;;   :config
 ;;   (defvar org-gcal-file)
-;;   (setq org-gcal-file (concat +roam-directory "schedule.org")
+;;   (setq org-gcal-file (concat +agenda-directory "schedule.org")
 ;;         org-gcal-dir (concat CACHE-DIR "org-gcal/")
 ;;         persist--directory-location (concat CACHE-DIR "persist")
 ;;         org-gcal-token-file (expand-file-name ".org-gcal-token" org-gcal-dir)
@@ -841,18 +842,18 @@
   (set-face-attribute 'ekg-metadata nil :inherit 'fixed-pitch))
 
 ;; Trying denote
-(use-package denote
-  :bind ("C-c n n" . denote-open-or-create)
-  :init
-  (setq xref-search-program 'ripgrep)
-  (setq denote-directory (concat +org-directory "denote/"))
-  :config
-  (setq denote-known-keywords nil)
-  (add-hook 'org-mode-hook '+denote-binding)
-  (defun +denote-binding()
-    (when (denote-file-is-note-p (buffer-file-name))
-      (local-set-key (kbd "<C-i>") 'denote-link-or-create)
-      (local-set-key (kbd "C-c r") 'denote-rename-file))))
+;; (use-package denote
+;;   :bind ("C-c n n" . denote-open-or-create)
+;;   :init
+;;   (setq xref-search-program 'ripgrep)
+;;   (setq denote-directory (concat +org-directory "denote/"))
+;;   :config
+;;   (setq denote-known-keywords nil)
+;;   (add-hook 'org-mode-hook '+denote-binding)
+;;   (defun +denote-binding()
+;;     (when (denote-file-is-note-p (buffer-file-name))
+;;       (local-set-key (kbd "<C-i>") 'denote-link-or-create)
+;;       (local-set-key (kbd "C-c r") 'denote-rename-file))))
 
 ;; (use-package consult-notes
 ;;   :bind ("C-c n n" . consult-notes)
@@ -868,8 +869,8 @@
   (setq org-roam-directory +roam-directory)
   (setq org-roam-dailies-directory +roam-directory)
   (setq org-roam-db-location (concat CACHE-DIR "org-roam.db"))
-  :bind (("C-c o n n" . +org-roam-node-find)
-         ("C-c o m" . org-roam-buffer-toggle)
+  :bind* (("C-c n n" . +org-roam-node-find))
+  :bind (("C-c o m" . org-roam-buffer-toggle)
          ("C-c o s" . consult-org-roam-search)
          ("C-c o r d" . org-roam-dailies-goto-date)
          ("C-c o r r" . org-roam-dailies-goto-today)
@@ -878,6 +879,7 @@
          (:map org-mode-map
                ("C-z r t" . org-roam-tag-add)
                ("C-z C-w" . org-roam-refile)
+               ("C-z C-W" . org-roam-extract-subtree)
                ("C-z r T" . org-roam-tag-remove)
                ("C-c o n b" . org-roam-switch-to-buffer)
                ("C-c o n g" . org-roam-graph)
@@ -889,7 +891,7 @@
                ("C-c o n R" . org-roam-ref-remove)))
   :config
   (add-to-list 'org-roam-file-exclude-regexp "logseq/")
-  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:50}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
   (defvar org-roam-capture-immediate-template
     (append (car org-roam-capture-templates) '(:immediate-finish t)))
@@ -938,20 +940,19 @@ Unused as of now as it does not create new nodes if existing ones are not found.
     (save-excursion (insert "]]"))
     (call-interactively 'company-capf))
 
-  (cl-defun +org-roam-node-find (&optional other-window initial-input filter-fn pred &key templates)
+  (defun +org-roam-node-find ()
     "Copy of org-roam-node-find with the only change being the goto in
-the capture call.
+the capture call and use mtime to sort
 
 This causes the buffer to be ready and open
 the capture popup."
     (interactive current-prefix-arg)
-    (let ((node (org-roam-node-read initial-input filter-fn pred)))
+    (let ((node (org-roam-node-read nil nil 'org-roam-node-read-sort-by-file-mtime)))
       (if (org-roam-node-file node)
-          (org-roam-node-visit node other-window)
+          (org-roam-node-visit node)
         (org-roam-capture-
          :goto '(4)
          :node node
-         :templates templates
          :props '(:finalize find-file)))))
 
   (defun org-roam-insert-immediate (arg &rest args)
@@ -962,7 +963,8 @@ the capture popup."
   (defun +do-org-roam-bindings()
     (when (let ((file-name (buffer-file-name (buffer-base-buffer))))
             (and file-name (org-roam-file-p file-name)))
-      (local-set-key (kbd "<C-i>") 'org-roam-insert-immediate)))
+      (local-set-key (kbd "<C-i>") 'org-roam-insert-immediate)
+      (local-set-key (kbd "C-z t") 'org-roam-tag-add)))
 
   (defun +org-roam-open-with-buffer-maybe-h ()
     (and (not org-roam-capture--node) ; don't proc for capture buffers
@@ -999,7 +1001,9 @@ the capture popup."
   (setq org-roam-mode-section-functions '(org-roam-backlinks-section
                                           org-roam-reflinks-section
                                           org-roam-unlinked-references-section))
-  (setq org-roam-graph-viewer (lambda(url) (+browse-url url))))
+  ;; (setq org-roam-graph-viewer (lambda(url) (+browse-url url)))
+  (setq org-roam-graph-viewer (lambda(file) (display-buffer (find-file-noselect file))))
+  (setq org-roam-graph-extra-config '(("rankdir" . "LR"))))
 
 (use-package org-roam-ui
   :after org-roam

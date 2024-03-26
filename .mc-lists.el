@@ -25,8 +25,10 @@
         copilot-accept-completion
         counsel-yank-pop
         default-indent-new-line
+        delete-char
         delete-horizontal-space
         delete-indentation
+        describe-key-briefly
         dired-unmark-backward
         duplicate-current-line-or-region
         electric-newline-and-maybe-indent
