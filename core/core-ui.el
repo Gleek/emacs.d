@@ -25,7 +25,14 @@
 
 (defun +italic-comments()
   (set-face-attribute 'font-lock-comment-face nil :inherit 'italic))
+(defun +bold-function-def()
+  (set-face-attribute 'font-lock-function-name-face nil :weight 'bold)
+  ;; resetting the weight of faces that inherit it directly.
+  (set-face-attribute 'consult-file nil :weight 'normal)
+  (set-face-attribute 'font-lock-function-call-face nil :weight 'normal))
+
 (add-hook '+theme-toggle-hook '+italic-comments)
+(add-hook '+theme-toggle-hook '+bold-function-def)
 
 ;; ligatures
 (let ((alist
@@ -138,6 +145,7 @@
   (solaire-global-mode +1)
   (load-theme (if (eq +theme-type 'dark) +dark-theme +light-theme) t)
   (+italic-comments)
+  (+bold-function-def)
   (setq doom-themes-treemacs-theme "doom-atom")
   (doom-themes-treemacs-config)
   (doom-themes-org-config)
