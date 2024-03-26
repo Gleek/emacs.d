@@ -58,6 +58,11 @@
 ;;   :demand
 ;;   :config (key-chord-mode 1))
 
+;; TODO: remove once upgrade to Emacs 30 happens
+(unless (package-installed-p 'vc-use-package)
+  (package-vc-install "https://github.com/slotThe/vc-use-package"))
+(require 'vc-use-package)
+
 ;; (use-package use-package-ensure-system-package)
 (use-package benchmark-init
   :disabled
