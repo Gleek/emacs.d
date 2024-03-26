@@ -196,7 +196,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (treemacs-load-theme "nerd-icons"))
 
 (use-package lsp-mode
-  :hook ((js-mode js2-mode js3-mode rjsx-mode go-mode rust-mode php-mode go-ts-mode) . lsp-deferred)
+  :hook ((js-mode js2-mode js3-mode rjsx-mode go-mode rust-mode php-mode go-ts-mode php-ts-mode) . lsp-deferred)
   :commands lsp
   :bind ((:map lsp-mode-map
                ("C-c p r" . lsp-rename)
@@ -220,6 +220,7 @@ Repeated invocations toggle between the two most recently open buffers."
     '(set-popup-rule! "^\\*lsp-help" :size 0.35 :ttl 0 :quit t))
   (setq lsp-enable-file-watchers nil
         lsp-enable-folding nil
+        lsp-headerline-breadcrumb-icons-enable nil
         lsp-headerline-breadcrumb-enable nil
         lsp-enable-text-document-color nil
         lsp-log-io nil
@@ -237,18 +238,20 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;   :after lsp-mode
 ;;   :bind (:map lsp-mode-map ("M-<return>" . lsp-ivy-workspace-symbol)))
 (use-package consult-lsp
-    :after lsp-mode
-    :bind (:map lsp-mode-map ("M-<return>" . consult-lsp-symbols)))
+  :after lsp-mode
+  :bind (:map lsp-mode-map ("M-<return>" . consult-lsp-symbols)))
 
 (use-package lsp-ui
+  :init
+  (setq lsp-keymap-prefix "C-c l")
   :hook (lsp-mode . lsp-ui-mode)
   :bind (:map lsp-mode-map
               ("C-c t u" . lsp-ui-mode))
   :ensure t
   :config
 
-  (setq lsp-ui-doc-max-height 13
-        lsp-ui-doc-max-width 50
+  (setq lsp-ui-doc-max-height 8
+        lsp-ui-doc-max-width 72
         lsp-ui-sideline-ignore-duplicate t
         lsp-ui-doc-enable t
         ;; Don't show symbol definitions in the sideline. They are pretty noisy,
