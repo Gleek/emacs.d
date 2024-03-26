@@ -203,6 +203,23 @@
   :config
   (setq highlight-indent-guides-method 'character))
 
+(use-package indent-bars
+  :bind ("C-c t h" . indent-bars-mode)
+  :ensure nil
+  :config
+   (setq
+    indent-bars-color '(highlight :face-bg t :blend 0.2)
+    ;; ideally should be nil but the blend doesn't work on my emacs.
+    ;; Though stipple lines are visually better but dark black lines are too distracting.
+    indent-bars-prefer-character t
+    indent-bars-pattern "."
+    indent-bars-width-frac 0.1
+    indent-bars-pad-frac 0.1
+    indent-bars-zigzag nil
+    indent-bars-color-by-depth nil
+    indent-bars-highlight-current-depth nil
+    indent-bars-display-on-blank-lines nil))
+
 (use-package doom-dashboard :ensure nil :demand t
   :bind (:map +doom-dashboard-mode-map
               ([left-margin mouse-1]  .  #'ignore)
