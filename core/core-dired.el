@@ -177,11 +177,5 @@
 ;;               ("ff". counsel-fd-file-jump)
 ;;               ("fd". counsel-fd-dired-jump)))
 
-(when IS-MAC
-  (use-package osx-trash
-    ;; brew install trash
-    :defer 1
-    :config
-    (osx-trash-setup)))
 
 (provide 'core-dired)

@@ -48,16 +48,6 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;           ("s-p" . +projectile-find-file-dynamic))
 ;;   :config
 
-;;   (eval-after-load "all-the-icons-ivy"
-;;     '(progn (let ((all-the-icons-ivy-file-commands
-;;                    '(counsel-projectile
-;;                      counsel-projectile-find-file
-;;                      +projectile-find-file-dynamic
-;;                      +projectile-find-file
-;;                      counsel-projectile-find-dir)))
-;;               (all-the-icons-ivy-setup))
-;;             ))
-
 ;;   (advice-add 'counsel-projectile-find-file :override '+projectile-find-file-dynamic))
 
 (use-package consult-projectile

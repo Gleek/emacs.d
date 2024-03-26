@@ -53,7 +53,7 @@ Possible values:
      :face (:inherit (doom-dashboard-menu-title bold))
      :action restore-from-desktop)
     ("Switch theme"
-     :icon (nerd-icons-octicon "nf-oct-light-bulb" :face 'doom-dashboard-menu-title)
+     :icon (nerd-icons-octicon "nf-oct-light_bulb" :face 'doom-dashboard-menu-title)
      :action +switch-theme-type)
     ("Open agenda"
      :icon (nerd-icons-octicon "nf-oct-calendar" :face 'doom-dashboard-menu-title)

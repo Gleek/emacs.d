@@ -209,8 +209,8 @@
     (add-hook 'nov-mode-hook
               (lambda() (doom-modeline-set-modeline 'nov))))
 
-  (eval-after-load 'doom-modeline
-    '(nov-setup-doom-modeline))
+  ;; (eval-after-load 'doom-modeline
+  ;;   '(nov-setup-doom-modeline))
 
   (add-hook 'nov-mode-hook 'reading-mode)
   (add-hook 'nov-mode-hook 'nov-load-doc-sizes)
