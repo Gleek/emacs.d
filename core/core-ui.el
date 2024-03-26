@@ -192,12 +192,7 @@
 (use-package hl-line
   :ensure nil
   ;; Highlights the current line
-  :hook ((prog-mode text-mode conf-mode special-mode) . hl-line-mode)
-  :config
-  ;; Not having to render the hl-line overlay in multiple buffers offers a tiny
-  ;; performance boost. I also don't need to see it in other buffers.
-  (setq hl-line-sticky-flag nil
-        global-hl-line-sticky-flag nil))
+  :hook ((prog-mode text-mode conf-mode special-mode) . hl-line-mode))
 
 (use-package highlight-numbers
   :hook ((prog-mode conf-mode) . highlight-numbers-mode)
