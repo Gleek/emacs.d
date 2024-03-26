@@ -28,7 +28,8 @@
 (defun +bold-function-def()
   (set-face-attribute 'font-lock-function-name-face nil :weight 'bold)
   ;; resetting the weight of faces that inherit it directly.
-  (set-face-attribute 'consult-file nil :weight 'normal)
+  (eval-after-load "consult"
+    '(set-face-attribute 'consult-file nil :weight 'normal))
   (set-face-attribute 'font-lock-function-call-face nil :weight 'normal))
 
 (add-hook '+theme-toggle-hook '+italic-comments)
@@ -204,6 +205,7 @@
   (setq highlight-indent-guides-method 'character))
 
 (use-package indent-bars
+  :vc (:fetcher github :repo jdtsmith/indent-bars)
   :bind ("C-c t h" . indent-bars-mode)
   :ensure nil
   :config
