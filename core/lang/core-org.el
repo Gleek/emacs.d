@@ -1238,7 +1238,8 @@ the capture popup."
   :hook (org-mode . org-pdftools-setup-link))
 
 (use-package org-ql
-  :after org
+  :after (org org-agenda)
+  :demand t
   :commands (+org-archive-archivable +org-show-archivable +org-show-pending org-dblock-write:org-ql-list)
   :bind (("C-c o G" . org-ql-find-agenda)
          (:map org-agenda-mode-map
