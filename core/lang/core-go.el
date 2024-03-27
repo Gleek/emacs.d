@@ -22,6 +22,14 @@
 (push '(go-dot-mod-mode . go-mod-ts-mode) major-mode-remap-alist)
 ;; (push '(go-mode . go-ts-mode) major-mode-remap-alist)
 
+(defun +gofmt-before-save()
+  (interactive)
+  (require 'go-mode)
+  (when (or (eq major-mode 'go-mode)
+            (eq major-mode 'go-ts-mode))
+    (gofmt)))
+
+
 (use-package go-tag
   :commands (+go-tag-add)
   :config
@@ -33,10 +41,7 @@
       (let ((go-tag-args nil))
         (call-interactively 'go-tag-add)))))
 
-(use-package go-ts-mode
-  :mode "\\.go\\'"
-  :bind (:map go-ts-mode-map
-              ("C-z a" . +go-tag-add)))
+
 
 
 (use-package flycheck-golangci-lint
@@ -72,6 +77,13 @@
 
     (setq flycheck-local-checkers '((lsp . ((next-checkers . (golangci-lint))))))))
 
+(use-package go-ts-mode
+  :mode "\\.go\\'"
+  :bind (:map go-ts-mode-map
+              ("C-z a" . +go-tag-add))
+  :config
+  (setq-default go-ts-mode-indent-offset tab-width))
+
 (use-package go-mode
   :ensure go-gen-test
   :ensure flycheck-golangci-lint
@@ -81,7 +93,7 @@
   :config
   ;; (setq dap-go-debug-program `("node" ,(concat dap-go-debug-path "/extension/dist/debugAdapter.js")))
   (setq gofmt-command "goimports")
-  (add-hook 'before-save-hook 'gofmt-before-save)
+  (add-hook 'before-save-hook '+gofmt-before-save)
   (set-popup-rule! "^\\*go-guru-output\\*" :size 0.4 :quit t))
 
 
