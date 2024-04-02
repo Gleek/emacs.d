@@ -23,18 +23,22 @@
 (set-face-attribute 'fixed-pitch nil :family default-font :height 1.0)
 (set-fontset-font t 'arabic "KFGQPC Uthmanic Script Hafs 25")
 
-(defun +italic-comments()
+(defun +italic-comments(&rest _)
   (set-face-attribute 'font-lock-comment-face nil :inherit 'italic))
-(defun +bold-function-def()
+
+(defun +bold-function-def(&rest _)
+  "Increase of function definitions to make it pop out."
   (set-face-attribute 'font-lock-function-name-face nil :weight 'bold)
   ;; resetting the weight of faces that inherit it directly.
-  (eval-after-load "consult"
+  (eval-after-load 'consult
     '(set-face-attribute 'consult-file nil :weight 'normal))
   (set-face-attribute 'font-lock-function-call-face nil :weight 'normal))
 
-(add-hook '+theme-toggle-hook '+italic-comments)
-(add-hook '+theme-toggle-hook '+bold-function-def)
+(add-hook 'enable-theme-functions #'+italic-comments)
+(add-hook 'enable-theme-functions #'+bold-function-def)
 
+
+(defvar +checker-line-style 'wave)
 ;; ligatures
 (let ((alist
        '(
@@ -67,16 +71,16 @@
                           `([,(cdr char-regexp) 0 font-shape-gstring]))))
 
 (setq-default frame-title-format
-      '(""
-        "%b"
-        (:eval
-         (let ((project-name
-                (if (fboundp 'projectile-project-name)
-                    (projectile-project-name)
-                  "-")))
-           (unless (string= "-" project-name)
-             (format " [%s]" project-name))))
-        " - Emacs"))
+              '(""
+                "%b"
+                (:eval
+                 (let ((project-name
+                        (if (fboundp 'projectile-project-name)
+                            (projectile-project-name)
+                          "-")))
+                   (unless (string= "-" project-name)
+                     (format " [%s]" project-name))))
+                " - Emacs"))
 
 ;; Space out a little
 (setq-default line-spacing 0.2)
@@ -119,8 +123,6 @@
   :bind ("C-c t T" . +switch-theme-type)
   :demand
   :config
-  (defvar +theme-toggle-hook nil)
-
   (defvar +theme-type 'light)
   (when IS-MAC
     (setq +theme-type ns-system-appearance))
@@ -140,9 +142,7 @@
       (disable-theme +dark-theme)
       (load-theme +light-theme t)
       (setq +theme-type 'light))
-    (set-frame-parameter nil 'background-mode +theme-type)
-    (run-hooks '+theme-toggle-hook))
-
+    (set-frame-parameter nil 'background-mode +theme-type))
   (solaire-global-mode +1)
   (load-theme (if (eq +theme-type 'dark) +dark-theme +light-theme) t)
   (+italic-comments)
@@ -150,7 +150,6 @@
   (setq doom-themes-treemacs-theme "doom-atom")
   (doom-themes-treemacs-config)
   (doom-themes-org-config)
-  ;; (add-hook '+theme-toggle-hook '+italic-comments)
   ;; (add-hook 'ns-system-appearance-change-functions
   ;;           #'(lambda (appearance)
   ;;               (+switch-theme-type appearance)
@@ -200,27 +199,41 @@
   :config (setq highlight-numbers-generic-regexp "\\_<[[:digit:]]+\\(?:\\.[0-9]*\\)?\\_>"))
 
 (use-package highlight-indent-guides
-  :bind ("C-c t h" . highlight-indent-guides-mode)
+  :disabled
+  ;; :bind ("C-c t h" . highlight-indent-guides-mode)
   :config
   (setq highlight-indent-guides-method 'character))
 
 (use-package indent-bars
   :vc (:fetcher github :repo jdtsmith/indent-bars)
-  :bind ("C-c t h" . indent-bars-mode)
+  :bind ("C-c t h" . +toggle-indent-bars)
   :ensure nil
   :config
-   (setq
-    indent-bars-color '(highlight :face-bg t :blend 0.2)
-    ;; ideally should be nil but the blend doesn't work on my emacs.
-    ;; Though stipple lines are visually better but dark black lines are too distracting.
-    indent-bars-prefer-character t
-    indent-bars-pattern "."
-    indent-bars-width-frac 0.1
-    indent-bars-pad-frac 0.1
-    indent-bars-zigzag nil
-    indent-bars-color-by-depth nil
-    indent-bars-highlight-current-depth nil
-    indent-bars-display-on-blank-lines nil))
+  ;; Workaround until https://github.com/jdtsmith/indent-bars/issues/31#issuecomment-2031605144 is fixed
+  (remove-hook 'enable-theme-functions #'indent-bars-reset)
+  (defun +toggle-indent-bars()
+    (interactive)
+    (if indent-bars-mode
+        (progn
+          (indent-bars-mode -1)
+          (remove-hook 'enable-theme-functions #'indent-bars-reset))
+      (indent-bars-mode t)
+      (add-hook 'enable-theme-functions #'indent-bars-reset)))
+
+  (setq
+   indent-bars-color '(highlight :face-bg t :blend 0.2)
+   ;; ideally should be nil but the blend doesn't work on my emacs.
+   ;; Though stipple lines are visually better but dark black lines are too distracting.
+   indent-bars-prefer-character t
+   indent-bars-pattern "."
+   indent-bars-width-frac 0.1
+   indent-bars-pad-frac 0.1
+   indent-bars-zigzag nil
+   indent-bars-color-by-depth nil
+   indent-bars-highlight-current-depth nil
+   indent-bars-display-on-blank-lines nil))
+
+
 
 (use-package doom-dashboard :ensure nil :demand t
   :bind (:map +doom-dashboard-mode-map
@@ -257,8 +270,8 @@
   (defun olivetti-custom-width()
     (interactive)
     (setq-default olivetti-body-width
-          (string-to-number
-           (completing-read "Width" '("200" "160" "150" "100" "70") nil t)))
+                  (string-to-number
+                   (completing-read "Width" '("200" "160" "150" "100" "70") nil t)))
     (olivetti-reset-all-windows)))
 
 

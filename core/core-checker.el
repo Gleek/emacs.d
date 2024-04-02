@@ -148,10 +148,10 @@
                 font-lock-keyword-face
                 font-lock-variable-name-face))
 
-  (defun +spell-fu-set-face()
-    (set-face-attribute 'spell-fu-incorrect-face nil :underline '(:style wave :color "#6666ff")))
+  (defun +spell-fu-set-face(&rest _)
+    (set-face-attribute 'spell-fu-incorrect-face nil :underline `(:style ,+checker-line-style :color "#6666ff")))
   (+spell-fu-set-face)
-  (add-hook '+theme-toggle-hook '+spell-fu-set-face))
+  (add-hook 'enable-theme-functions '+spell-fu-set-face))
 
 (use-package flycheck
   :hook (prog-mode . flycheck-mode)
@@ -173,12 +173,12 @@
   (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
     [16 48 112 240 112 48 16] nil nil 'center)
 
-  (defun +flycheck-set-face()
-    (set-face-attribute 'flycheck-error nil :underline '(:style wave :color "#a52a2a"))
-    (set-face-attribute 'flycheck-warning nil :underline '(:style wave :color "#ca9532"))
-    (set-face-attribute 'flycheck-info nil :underline '(:style wave :color "#98be65")))
+  (defun +flycheck-set-face(&rest _)
+    (set-face-attribute 'flycheck-error nil :underline `(:style ,+checker-line-style :color "#a52a2a"))
+    (set-face-attribute 'flycheck-warning nil :underline `(:style ,+checker-line-style :color "#ca9532"))
+    (set-face-attribute 'flycheck-info nil :underline `(:style ,+checker-line-style :color "#98be65")))
   (+flycheck-set-face)
-  (add-hook '+theme-toggle-hook '+flycheck-set-face)
+  (add-hook 'enable-theme-functions '+flycheck-set-face)
 
 
   ;; Using mode level flycheck checkers instead of chaining them.
