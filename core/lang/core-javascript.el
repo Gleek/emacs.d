@@ -28,8 +28,11 @@
 (use-package js
   :mode ("\\.jsx?\\'" . js-ts-mode)
   :config
+  (add-hook 'js-ts-mode-hook (lambda() (setq format-all-formatters '(("Javascript" prettier)))))
+
   ;; Update js--treesit-font-lock-settings to remove invalid queries
   ;; queries starting with (function... are invalid
+  ;; This is fixed in emacs 29.3 and will be removed once I move to that
   (setq js--treesit-font-lock-settings
         (treesit-font-lock-rules
 

@@ -18,6 +18,12 @@
   :bind (:map json-mode-map
               (("C-c C-f" . json-pretty-print)
                ("C-c C-d" . nil))))
+(use-package json-ts-mode
+  :bind (:map json-ts-mode-map
+              ("C-z p" . json-mode-kill-path))
+  :config
+  (add-hook 'json-ts-mode-hook (lambda() (setq format-all-formatters '(("JSON" prettier))))))
+
 (use-package counsel-jq
   :after json-mode
   :bind (:map json-mode-map ("C-c C-s" . counsel-jq))
