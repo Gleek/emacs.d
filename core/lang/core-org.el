@@ -148,13 +148,27 @@
     (org-capture nil "i"))
   ;; trust certain code as being safe
 
+  (defun +org-capture-template-from-file ()
+    "Return the capture template read from a file."
+    (with-temp-buffer
+      (insert-file-contents (concat +agenda-directory "project_t.org"))
+      (buffer-string)))
+
+  (setq org-capture-templates
+        '(("t" "Todo with project and category" entry
+           (file+headline "~/path/to/inbox.org" "TODO")
+           (function my/org-capture-template-from-file))))
+
   (setq org-capture-templates
         `(("i" "inbox" entry (file ,(concat +agenda-directory "inbox.org"))
            "* TODO %?")
           ("l" "link" entry (file ,(concat +agenda-directory "inbox.org"))
            "* TODO %(org-cliplink-capture)" :immediate-finish t)
           ("c" "org-protocol-capture" entry (file ,(concat +agenda-directory "inbox.org"))
-           "* TODO [[%:link][%:description]]\n\n %i" :immediate-finish t)))
+           "* TODO [[%:link][%:description]]\n\n %i" :immediate-finish t)
+          ("p" "project" entry (file ,(concat +agenda-directory "inbox.org"))
+           (function +org-capture-template-from-file))))
+
 
 
   (defun +org-yank(arg)
@@ -412,6 +426,7 @@
 
   :bind (("C-c o e" . org-export-dispatch)
          ("C-c o c" . +capture-inbox)
+         ("C-c o C" . org-capture)
          ("C-c o w" . copy-current-line-link-for-org)
          ("C-c o T" . anonymous-pomodoro)
          ("<f5>" . +capture-inbox)
