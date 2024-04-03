@@ -38,7 +38,7 @@
 (add-hook 'enable-theme-functions #'+bold-function-def)
 
 
-(defvar +checker-line-style 'wave)
+(defvar +checker-line-style 'wave) ;; line / wave
 ;; ligatures
 (let ((alist
        '(
@@ -168,9 +168,7 @@
   (setq doom-modeline-minor-modes nil)
   (setq doom-modeline-enable-word-count nil)
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
-  (setq doom-modeline-checker-simple-format nil)
-  ;; (doom-modeline-mode +1)
-  )
+  (setq doom-modeline-checker-simple-format nil))
 
 (use-package hide-mode-line
   :bind ("C-c t M" . hide-mode-line-mode))
