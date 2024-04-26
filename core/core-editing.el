@@ -469,6 +469,7 @@ https://emacs.stackexchange.com/a/12124/2144"
       (cleanup-buffer))))
 
 (use-package cc-mode
+  :ensure nil
   ;; Use hungry delete everywhere
   :bind ("C-<backspace>" . c-hungry-delete-backwards))
 

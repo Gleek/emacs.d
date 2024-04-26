@@ -88,8 +88,6 @@
 
 
 (use-package nov
-  :ensure nov
-  :ensure dash
   :bind (:map nov-mode-map
               ("R" . speak-region-buf)
               ("s-u" . reload-nov)

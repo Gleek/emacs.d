@@ -93,6 +93,7 @@
 
 
 (use-package bookmark
+  :ensure nil
   ;; :bind
   ;; ("C-x r b" . counsel-bookmark)
   :config
@@ -103,6 +104,10 @@
   :load-path "packages/scroll-other-window.el"
   :bind (("C-M-v" . sow-scroll-other-window)
          ("C-S-M-v". sow-scroll-other-window-down)))
+
+
+(use-package combobulate
+  :ensure (:fetcher github :repo "mickeynp/combobulate"))
 
 (use-package hideshow
   :ensure hydra

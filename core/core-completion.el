@@ -286,6 +286,7 @@
 
 
 (use-package copilot
+  :disabled t
   :load-path "packages/copilot/"
   :ensure s
   :ensure dash

@@ -78,15 +78,16 @@
     (setq flycheck-local-checkers '((lsp . ((next-checkers . (golangci-lint))))))))
 
 (use-package go-ts-mode
+  :ensure nil
   :mode "\\.go\\'"
   :bind (:map go-ts-mode-map
               ("C-z a" . +go-tag-add))
   :config
   (setq-default go-ts-mode-indent-offset tab-width))
 
+(use-package go-gen-test)
+
 (use-package go-mode
-  :ensure go-gen-test
-  :ensure flycheck-golangci-lint
   :bind (:map go-mode-map
               ("C-z a" . +go-tag-add)
               ("C-c C-d" . nil))

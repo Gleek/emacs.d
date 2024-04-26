@@ -20,6 +20,7 @@
 
 
 (use-package emacs
+  :ensure nil
   :bind ("C-c t D" . toggle-debug-on-error))
 
 

@@ -1,7 +1,5 @@
 (use-package markdown-mode
   :mode ("/README\\(?:\\.md\\)?\\'" . gfm-mode)
-  :ensure markdown-mode
-  :ensure grip-mode
   :init
   (defvar markdown-command)
   (setq markdown-enable-math t ; syntax highlighting for latex fragments
@@ -44,5 +42,7 @@ Returns its exit code."
   ;; (sp-local-pair '(markdown-mode gfm-mode) "`" "`"
   ;;                :unless '(:add sp-point-before-word-p sp-point-before-same-p))
   )
+
+(use-package grip-mode)
 
 (provide 'core-markdown)

@@ -1,4 +1,4 @@
-;; (setq package-enable-at-startup nil
+(setq package-enable-at-startup nil)
 ;;       package-quickstart t
 ;;       load-prefer-newer t)
 ;; Prevent the glimpse of un-styled Emacs by disabling these UI elements early.

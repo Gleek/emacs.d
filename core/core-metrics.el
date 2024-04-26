@@ -55,6 +55,7 @@
   (explain-pause-mode))
 
 (use-package profiler
+  :ensure nil
   :bind (("<C-f12>" . profiler-start)
          ("<C-S-f12>" . profiler-report)
          ("<M-f12>" . profiler-stop)))

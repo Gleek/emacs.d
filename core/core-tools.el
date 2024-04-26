@@ -288,8 +288,6 @@
 ;; (use-package scratch)
 
 (use-package restclient
-  :ensure restclient
-  :ensure company-restclient
   :hook (restclient-mode . display-line-numbers-mode)
   :mode ("\\.rest\\'" . restclient-mode)
   :bind (:map restclient-mode-map (("C-c C-c" . restclient-http-send-current-stay-in-window)
@@ -524,6 +522,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
               ("/" . proced-narrow)))
 
 (use-package calc
+  :ensure nil
   :bind ("C-*" . calc)
   :config
   ;; TODO: fixme error("Eager macro-expansion failure: %S" (void-variable ))
@@ -563,9 +562,10 @@ To actually enable this, evaluate `+bongo-remove-headers'."
       (impostman-parse-file collection nil output-alist))))
 
 
-(use-package package-safe-delete)
+;; (use-package package-safe-delete)
 
 (use-package artist
+  :ensure nil
   :hook (artist-mode . reset-line-spacing)
   :config
   (defun reset-line-spacing()
@@ -604,6 +604,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   (advice-add 'play-sound :override 'play-sound-mac))
 
 (use-package emacs
+  :ensure nil
   :init
   (setq nsm-settings-file (concat CACHE-DIR "network-security.data")))
 

@@ -26,6 +26,7 @@
 ;; (use-package rjsx-mode :mode ("\\.jsx\\'" . rjsx-mode) )
 
 (use-package js
+  :ensure nil
   :mode ("\\.jsx?\\'" . js-ts-mode)
   :config
   (add-hook 'js-ts-mode-hook (lambda() (setq format-all-formatters '(("Javascript" prettier)))))

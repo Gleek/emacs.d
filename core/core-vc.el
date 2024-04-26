@@ -51,9 +51,8 @@
   :config
   (setq browse-at-remote-add-line-number-if-no-region-selected nil))
 
+(use-package git-gutter-fringe)
 (use-package git-gutter
-  :ensure git-gutter
-  :ensure git-gutter-fringe
   :diminish git-gutter-mode
   :bind (("C-c g d" . git-gutter:popup-hunk)
          ("C-c g r" . git-gutter:revert-hunk))

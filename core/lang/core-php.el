@@ -26,9 +26,6 @@
 
 
 (use-package php-mode
-  :init
-  :ensure php-mode
-  :ensure php-boris
   ;; :ensure phpactor
   ;; :ensure php-refactor-mode
   :bind (:map php-mode-map
@@ -57,7 +54,7 @@
 
 (use-package php-ts-mode
   :mode "\\.php\\'"
-  :vc (:fetcher github :repo emacs-php/php-ts-mode)
+  :ensure (:fetcher github :repo "emacs-php/php-ts-mode")
   :config
   (set-face-attribute 'php-function-call nil :inherit 'font-lock-function-call-face)
   (phpmd-ignore-errors)

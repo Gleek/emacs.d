@@ -1,6 +1,7 @@
 *~
 .DS_Store
 elpa/
+elpaca/
 core/core-secrets.el
 cache/
 .yas-compiled-snippets.el

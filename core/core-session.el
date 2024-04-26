@@ -107,6 +107,7 @@
   (savehist-mode 1))
 
 (use-package multisession
+  :ensure nil
   :init
   (setq multisession-directory (concat CACHE-DIR "multisession/")))
 

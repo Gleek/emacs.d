@@ -113,15 +113,18 @@
     (ns-auto-titlebar-mode)))
 
 
+(use-package solaire-mode
+  :ensure t)
+
+(use-package nerd-icons :ensure (:wait t))
 
 (use-package doom-themes
-  :ensure doom-themes
-  :ensure solaire-mode
+  ;; :ensure solaire-mode
   :init
   (defvar doom-themes-treemacs-enable-variable-pitch)
   (setq doom-themes-treemacs-enable-variable-pitch nil)
   :bind ("C-c t T" . +switch-theme-type)
-  :demand
+  :demand t
   :config
   (defvar +theme-type 'light)
   (when IS-MAC
@@ -147,8 +150,6 @@
   (load-theme (if (eq +theme-type 'dark) +dark-theme +light-theme) t)
   (+italic-comments)
   (+bold-function-def)
-  (setq doom-themes-treemacs-theme "doom-atom")
-  (doom-themes-treemacs-config)
   (doom-themes-org-config)
   ;; (add-hook 'ns-system-appearance-change-functions
   ;;           #'(lambda (appearance)
@@ -161,7 +162,9 @@
   )
 
 (use-package doom-modeline
-  :hook (after-init . doom-modeline-mode)
+  ;; :hook (after-init . doom-modeline-mode)
+  :init
+  (doom-modeline-mode t)
   :config
   (setq doom-modeline-vcs-max-length 20)
   (setq doom-modeline-height 25)
@@ -203,7 +206,7 @@
   (setq highlight-indent-guides-method 'character))
 
 (use-package indent-bars
-  :vc (:fetcher github :repo jdtsmith/indent-bars)
+  :ensure (:fetcher github :repo "jdtsmith/indent-bars")
   :bind ("C-c t h" . +toggle-indent-bars)
   :ensure nil
   :config

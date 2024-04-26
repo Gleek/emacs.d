@@ -10,15 +10,14 @@
 (use-package lua-mode)
 (use-package dockerfile-mode)
 (use-package docker-compose-mode)
-(use-package terraform-mode
-  :ensure terraform-mode
-  :ensure company-terraform)
+(use-package terraform-mode)
 
 (use-package json-mode
   :bind (:map json-mode-map
               (("C-c C-f" . json-pretty-print)
                ("C-c C-d" . nil))))
 (use-package json-ts-mode
+  :ensure nil
   :bind (:map json-ts-mode-map
               ("C-z p" . json-mode-kill-path))
   :config
@@ -63,6 +62,6 @@
          (:map makefile-executor-mode-map
                ("C-c C-d" . nil))))
 
-(use-package make-mode)
+(use-package make-mode :ensure nil)
 
 (provide 'core-misc)
