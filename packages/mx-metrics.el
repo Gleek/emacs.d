@@ -97,9 +97,10 @@
     keys))
 
 (defun mxm--load()
-  (with-temp-buffer
-    (insert-file-contents mx-metrics-file)
-    (setq mx-metrics-table (read (current-buffer)))))
+  (if (file-exists-p mx-metrics-file)
+      (with-temp-buffer
+        (insert-file-contents mx-metrics-file)
+        (setq mx-metrics-table (read (current-buffer))))))
 
 
 (defvar mxm--timer)

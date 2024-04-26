@@ -1,5 +1,7 @@
 (setq lsp-intelephense-files-max-size 2500000)
-(setq lsp-intelephense-licence-key intelephense-key)
+(setq lsp-intelephense-licence-key "")
+(if (boundp 'intelephense-key)
+    (setq lsp-intelephense-licence-key intelephense-key))
 (setq lsp-intelephense-storage-path (concat CACHE-DIR "lsp-intelephense/"))
 
 

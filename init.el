@@ -67,7 +67,9 @@
 
 (use-package "core-shell" :ensure nil :demand t)
 (use-package "core-ebook" :ensure nil :demand t)
-(use-package "core-secrets" :ensure nil :demand t)
+
+(if (file-exists-p (expand-file-name "core/core-secrets.el" user-emacs-directory))
+    (use-package "core-secrets" :ensure nil :demand t))
 
 (use-package "lang/core-go" :ensure nil :demand t)
 (use-package "lang/core-javascript" :ensure nil :demand t)
