@@ -76,8 +76,7 @@
              ;; Remove electric quotes as they get messed up in some applications
              (html (string-multi-replace '(("”" "\"") ("“" "\"") ("’" "'")) html)))
         (shell-command (format "pbcopy-html --type=%s %s" export-type (shell-quote-argument html)))
-        ;; (kill-buffer buf)
-        )))
+        (kill-buffer buf))))
 
   (defun org-formatted-paste()
     "Clipboard content in html is converted to org using pandoc and inserted to the buffer."

@@ -16,11 +16,10 @@
 
 ;;; Code:
 
-;; Disabling go-ts-mode because of inferior highlighting and indentation. To revisit again later.
 ;; (setq auto-mode-alist (delete '("\\.go\\'" . go-ts-mode) auto-mode-alist))
 
 (push '(go-dot-mod-mode . go-mod-ts-mode) major-mode-remap-alist)
-;; (push '(go-mode . go-ts-mode) major-mode-remap-alist)
+(push '(go-mode . go-ts-mode) major-mode-remap-alist)
 
 (defun +gofmt-before-save()
   (interactive)

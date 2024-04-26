@@ -81,6 +81,9 @@
         org-shiftcontrolup
         org-transpose-words
         org-yank
+        orgtbl-hijacker-command-102
+        orgtbl-hijacker-command-109
+        orgtbl-self-insert-command
         reactivate-mark
         rectangle-backward-char
         rectangle-previous-line

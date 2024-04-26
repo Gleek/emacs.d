@@ -265,11 +265,6 @@ Repeated invocations toggle between the two most recently open buffers."
                (lambda (frame _w)
                  (set-face-attribute 'default frame :font default-font :height 100))))
 
-(use-package lsp-imenu
-  :ensure lsp-mode
-  :config
-  (add-hook 'lsp-after-open-hook 'lsp-enable-imenu))
-
 
 (use-package uniquify
   :ensure nil

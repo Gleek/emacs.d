@@ -234,8 +234,6 @@
    indent-bars-highlight-current-depth nil
    indent-bars-display-on-blank-lines nil))
 
-
-
 (use-package doom-dashboard :ensure nil :demand t
   :bind (:map +doom-dashboard-mode-map
               ([left-margin mouse-1]  .  #'ignore)
