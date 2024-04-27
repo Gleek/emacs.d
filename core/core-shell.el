@@ -194,7 +194,7 @@
 
   (defun +quick-sshuttle()
     (interactive)
-    (defvar sshuttle-endpoints) ;; present in core-secrets.el
+    (setq sshuttle-endpoints (secret-get sshuttle-endpoints))
     (let ((command (cdr (assoc-string (completing-read "Server" sshuttle-endpoints) sshuttle-endpoints))))
       (dtache-start-session (concat "sshuttle -l 0.0.0.0 -r " command) nil))))
 

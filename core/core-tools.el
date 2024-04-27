@@ -62,6 +62,10 @@
   (interactive)
   (open-with-dragger (buffer-file-name)))
 
+(use-package emacs :ensure nil
+  :config
+  (add-to-list 'auth-sources (secret-get auth-source-file)))
+
 (use-package image-mode :ensure nil
   :init
   (defun +scale-image()
@@ -222,6 +226,7 @@
   (setq paradox-automatically-star nil)
   (setq paradox-execute-asynchronously t)
   :config
+  (setq paradox-github-token (secret-get github-token))
   (defconst paradox--package-count
     '(("total" . 0) ("built-in" . 0)
       ("obsolete" . 0) ("deleted" . 0)
@@ -472,7 +477,9 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :ensure nil
   :bind (("C-c s p" . keepass-quick-switch)
          (:map keepass-mode-map
-               ("s" . +keepass-search))))
+               ("s" . +keepass-search)))
+  :config
+  (setq keepass-password-file (secret-get keepass-password-file)))
 
 (use-package totp
   :commands (totp-copy-pin-as-kill totp-display)
@@ -587,6 +594,9 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :bind ("C-c a s" . salah-times)
   :commands (salah-times)
   :config
+  (setq salah-city (secret-get city))
+  (setq salah-country (secret-get country))
+  (setq salah-school (secret-get salah-school))
   (setq salah-next-days 2)
   (set-popup-rule! "^\\*salah-times\\*" :select nil :size '+popup-shrink-to-fit))
 
@@ -594,7 +604,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
 (use-package gptel
   :commands (gptel gptel-send)
   :config
-  (setq gptel-api-key openai-key))
+  (setq gptel-api-key (secret-get openai-key)))
 
 
 (when IS-MAC

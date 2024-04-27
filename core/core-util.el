@@ -67,5 +67,20 @@ Useful to override functions to become empty"
   (unless (file-directory-p dir)
     (make-directory dir t)))
 
+(defmacro secret-get (key)
+  "Utility to get secret value from secret vars.
+
+This checks if the variable is set."
+  `(let ((var (intern ,(concat "secret/" (symbol-name key)))))
+     (if (boundp var)
+         (symbol-value var)
+       'nil)))
+
+(defmacro secret-set (&rest key-value-pairs)
+  `(progn
+     ,@(cl-loop for (key value) on key-value-pairs by #'cddr
+                collect `(set (intern (concat "secret/" ,(symbol-name key))) ,value))))
+
+
 (provide 'core-util)
 ;;; core-util ends here

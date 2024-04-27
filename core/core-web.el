@@ -104,6 +104,7 @@ To be used by `eww-after-render-hook'."
   :config
   (setq elfeed-db-directory (expand-file-name "elfeed" CACHE-DIR))
   (setq elfeed-search-filter "@6-months-ago +unread -politics -news")
+  (setq elfeed-feeds (secret-get elfeed-feeds))
   (defun shr-browse-url-eww()
     (interactive)
     (let ((browse-url-browser-function 'eww-browse-url))

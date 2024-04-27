@@ -174,7 +174,8 @@
   (setq doom-modeline-checker-simple-format nil))
 
 (use-package hide-mode-line
-  :bind ("C-c t M" . hide-mode-line-mode))
+  :bind ("C-c t M" . hide-mode-line-mode)
+  :ensure (:wait t))
 
 (use-package emacs
   :ensure nil
