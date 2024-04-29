@@ -190,6 +190,17 @@
     (if arg (org-yank nil)))
 
 
+  (defun insert-org-link-to-lorien-file ()
+    "Choose a file in resource/lorien interactively and insert its org file link in the current buffer."
+    (interactive)
+    (let ((file-path (read-file-name "Choose a file in resource/lorien: " "resource/lorien/")))
+      (if (file-exists-p file-path)
+          (let ((file-name (file-name-nondirectory file-path)))
+            (insert (format "[[file:%s][%s]]" file-path file-name)))
+        (message "File does not exist"))))
+
+
+
   (defun add-property-with-date-captured ()
     "Add CAPTURED property to the current item."
     (interactive)
