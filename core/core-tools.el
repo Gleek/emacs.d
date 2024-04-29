@@ -63,6 +63,8 @@
   (open-with-dragger (buffer-file-name)))
 
 (use-package emacs :ensure nil
+  :bind (("C-c r". rename-file-and-buffer)
+         ([f5] . kmacro-edit-macro))
   :config
   (add-to-list 'auth-sources (secret-get auth-source-file)))
 

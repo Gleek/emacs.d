@@ -33,6 +33,18 @@
             (set-window-buffer-start-and-point w1 b2 s2 p2)
             (set-window-buffer-start-and-point w2 b1 s1 p1)))))))
 
+(use-package emacs :ensure nil
+  :bind (("C-x 2"       . vsplit-last-buffer)
+         ("C-x 3"       . hsplit-last-buffer)
+         ("C-c w r"     . rotate-windows)
+         ("C-x 4 f"     . find-file-other-window)))
+
+(use-package windmove :ensure nil
+  :bind (("C-x <right>" . windmove-right)
+         ("C-x <left>"  . windmove-left)
+         ("C-x <up>"    . windmove-up)
+         ("C-x <down>"  . windmove-down)))
+
 ;; Courtesy: Doom emacs
 (use-package +popup :ensure nil :demand
   :bind ("C-c w p" . +popup/buffer)

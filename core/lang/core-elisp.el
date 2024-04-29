@@ -28,6 +28,13 @@
 (eval-after-load 'company
   '(company-backend-for-hook 'emacs-lisp-mode-hook '((company-capf :with company-yasnippet))))
 
+
+(use-package emacs :ensure nil
+  :bind (("C-c C-e" . eval-and-replace)
+         ("C-c e" . eval-and-replace))
+  :config
+  (add-hook 'emacs-lisp-mode-hook 'remove-elc-on-save))
+
 (use-package eros
   :hook (emacs-lisp-mode . eros-mode))
 

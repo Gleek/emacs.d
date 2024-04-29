@@ -252,6 +252,10 @@
   (setq +doom-dashboard-banner-dir RES-DIR))
 
 
+;; (use-package doom-dashboard
+;;   :ensure (:fetcher github :repo "gleek/doom-dashboard"))
+
+
 (use-package olivetti
   :init
   (setq-default olivetti-body-width 130)

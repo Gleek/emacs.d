@@ -18,6 +18,10 @@ Repeated invocations toggle between the two most recently open buffers."
           (message "Deleted file %s" filename)
           (kill-buffer))))))
 
+(use-package emacs :ensure nil
+  :bind (("C-x k" . kill-current-buffer)
+         ("C-x K" . kill-buffer-and-window)))
+
 (use-package projectile
   :ensure projectile
   :init

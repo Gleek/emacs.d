@@ -208,6 +208,20 @@ https://emacs.stackexchange.com/a/12124/2144"
   (kill-new (shell-command-to-string "osascript -e 'the clipboard as \"HTML\"' | perl -ne 'print chr foreach unpack(\"C*\",pack(\"H*\",substr($_,11,-3)))' | pandoc -f html -t json | pandoc -f json -t org | sed 's/ / /g'"))
   (yank))
 
+
+(use-package emacs :ensure nil
+  :bind (("M-;" . comment-or-uncomment-region-or-line)
+         ("C-c C-d" . duplicate-current-line-or-region)
+         ("C-c d" . duplicate-current-line-or-region)
+         ("C-c C-;" . duplicate-and-comment-current-line-or-region)
+         ("C-^" . top-join-line)
+         ("C-@" . mark-inside-sexp)
+         ;; ("C-M-@" . mark-non-whitespace)
+         ([remap kill-whole-line] . smart-kill-whole-line)
+         ([(shift return)] . smart-open-line)
+         ("C-S-<return>" . open-line-above)
+         ("C-x C-r" . sudo-edit)))
+
 (use-package selected
   :defer 1
   :diminish selected-minor-mode

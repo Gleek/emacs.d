@@ -30,6 +30,11 @@
         ;;       mac-option-modifier 'control
         ns-option-modifier 'super))
 
+(use-package emacs
+  :ensure nil
+  :bind (([remap goto-line] . goto-line-with-feedback)
+          ([remap keyboard-quit] . escape-quit)))
+
 ;; Find my cursor
 (use-package beacon
   :disabled

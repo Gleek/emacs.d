@@ -6,6 +6,10 @@
     (when (eq pt (point))
       (beginning-of-line))))
 
+
+(use-package emacs :ensure nil
+  :bind (("C-a" . beginning-of-line-or-indentation)))
+
 (use-package avy
   :ensure t
   :init

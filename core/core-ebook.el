@@ -73,8 +73,7 @@
         pdf-view-use-imagemagick nil)
   (add-hook 'pdf-view-mode-hook
             (lambda ()
-              (pdf-annot-update-highilight-color "#face50")
-              ))
+              (pdf-annot-update-highilight-color "#face50")))
   (set-popup-rules!
     '(("^\\*Outline*" :side right :size 40 :select nil)
       ("\\(?:^\\*Contents\\|'s annots\\*$\\)" :ignore t)))
