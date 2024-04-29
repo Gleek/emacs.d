@@ -620,6 +620,19 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :init
   (setq nsm-settings-file (concat CACHE-DIR "network-security.data")))
 
+(use-package keycast
+  :bind ("C-c t k" . +toggle-keycast)
+  :config
+ (defun +toggle-keycast()
+    (interactive)
+    (if (member '("" mode-line-keycast " ") global-mode-string)
+        (progn (setq global-mode-string (delete '("" mode-line-keycast " ") global-mode-string))
+               (remove-hook 'pre-command-hook 'keycast--update)
+               (message "Keycast disabled"))
+      (add-to-list 'global-mode-string '("" mode-line-keycast " "))
+      (add-hook 'pre-command-hook 'keycast--update t)
+      (message "Keycast enabled"))))
+
 
 (provide 'core-tools)
 ;;; core-tools.ends here

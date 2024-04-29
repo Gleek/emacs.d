@@ -116,6 +116,10 @@
 (use-package solaire-mode
   :ensure t)
 
+(use-package hide-mode-line
+  :bind ("C-c t M" . hide-mode-line-mode)
+  :ensure (:wait t))
+
 (use-package nerd-icons :ensure (:wait t))
 
 (use-package doom-themes
@@ -161,6 +165,8 @@
   ;;               ))
   )
 
+
+
 (use-package doom-modeline
   ;; :hook (after-init . doom-modeline-mode)
   :init
@@ -173,9 +179,6 @@
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
   (setq doom-modeline-checker-simple-format nil))
 
-(use-package hide-mode-line
-  :bind ("C-c t M" . hide-mode-line-mode)
-  :ensure (:wait t))
 
 (use-package emacs
   :ensure nil
