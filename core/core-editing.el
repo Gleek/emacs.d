@@ -443,7 +443,7 @@ https://emacs.stackexchange.com/a/12124/2144"
   :defer 1
   :config
   (setq so-long-threshold 1000)
-                                        ; Add some font locking
+  ;; Add some font locking
   (setq so-long-minor-modes (delq 'font-lock-mode so-long-minor-modes))
   (add-to-list 'so-long-minor-modes 'lsp-mode)
   (add-to-list 'so-long-variable-overrides '(font-lock-maximum-decoration . 1))

@@ -3,29 +3,6 @@
 (setq lsp-intelephense-licence-key (secret-get intelephense-key))
 (setq lsp-intelephense-storage-path (concat CACHE-DIR "lsp-intelephense/"))
 
-
-(defun +flycheck-phpmd-parse(f &rest args)
-  (let ((out (apply f args)))
-    (mapcar
-     (lambda(el)
-       (setf (flycheck-error-level el) 'info)
-       el)
-     out)))
-
-(defun phpmd-ignore-errors()
-  ;; Fix phpmd to not return error code on invalid syntax
-  (let* ((phpmd-checker (flycheck-checker-get 'php-phpmd 'command))
-         (ex (car phpmd-checker))
-         (rest (cdr phpmd-checker)))
-    (push "--ignore-errors-on-exit" rest)
-    (setf (flycheck-checker-get 'php-phpmd 'command) (cons ex rest)))
-  (advice-add 'flycheck-parse-phpmd :around #'+flycheck-phpmd-parse))
-
-(defun php-local-checkers()
-  (setq flycheck-local-checkers '((lsp . ((next-checkers . ((warning . phpstan)))))
-                                  (phpstan . ((next-checkers . ((warning . php-phpmd))))))))
-
-
 (use-package php-mode
   ;; :ensure phpactor
   ;; :ensure php-refactor-mode
@@ -49,16 +26,18 @@
   (setq flycheck-phpcs-standard "~/.config/phpcs/phpcs.xml")
   (add-hook 'php-mode-hook (lambda() (setq sp-max-pair-length 5)))
   (add-hook 'php-mode-hook 'php-enable-symfony2-coding-style)
-  (phpmd-ignore-errors)
-  (add-hook 'php-mode-hook 'php-local-checkers)
+  ;; (phpmd-ignore-error)
   (setq c-basic-offset 4))
 
 (use-package php-ts-mode
   :mode "\\.php\\'"
   :ensure (:fetcher github :repo "emacs-php/php-ts-mode")
   :config
+  (defun php-local-checkers()
+    (setq flycheck-local-checkers '((lsp . ((next-checkers . ((warning . phpstan)))))
+                                    (phpstan . ((next-checkers . ((warning . php-phpmd))))))))
   (set-face-attribute 'php-function-call nil :inherit 'font-lock-function-call-face)
-  (phpmd-ignore-errors)
+
   (add-hook 'php-ts-mode-hook 'php-local-checkers))
 
 
@@ -79,16 +58,34 @@
 
 
 (use-package flycheck-phpstan
-  :init
-  (add-hook 'php-mode-hook (lambda()(require 'flycheck-phpstan)))
-  (add-hook 'php-ts-mode-hook (lambda()(require 'flycheck-phpstan)))
+  :after (php-ts-mode flycheck)
+  :demand t
   :config
+  (defun +flycheck-phpmd-parse(f &rest args)
+    (let ((out (apply f args)))
+      (mapcar
+       (lambda(el)
+         (setf (flycheck-error-level el) 'info)
+         el)
+       out)))
+  (defun phpmd-ignore-error()
+    ;; Fix phpmd to not return error code on invalid syntax
+    (let* ((phpmd-checker (flycheck-checker-get 'php-phpmd 'command))
+           (ex (car phpmd-checker))
+           (rest (cdr phpmd-checker))
+           cmd)
+      (push "--ignore-errors-on-exit" rest)
+      (message "hello")
+      (setq cmd (cons ex rest))
+      (setf (flycheck-checker-get 'php-phpmd 'command) cmd))
+    (advice-add 'flycheck-parse-phpmd :around #'+flycheck-phpmd-parse))
+
+  (phpmd-ignore-error)
   (setq-default phpstan-level 8)
   (setq-default phpstan-memory-limit "4G")
   ;; Demote phpstan errors to warnings. Errors should be sytanctical errors only.
   ;; This doesn't work currently, since there's a custom parser. changed the output of the `flycheck-phpstan-parse-json' from error to warning works.
   ;; TODO: Do this from outside the package.
-  (require 'flycheck)
   (setf (flycheck-checker-get 'phpstan 'modes) '(php-mode php-ts-mode))
   (let ((checker (rassoc 'error (flycheck-checker-get 'phpstan 'error-patterns))))
     (if checker (setcdr checker 'warning))))
