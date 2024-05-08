@@ -43,7 +43,6 @@
   (setq isearch-allow-scroll 'unlimited))
 
 (use-package swiper
-  :ensure t
   :bind (;; ("C-M-s" . swiper)
          :map swiper-map
          ("C-c m" . swiper-mc)))
@@ -51,7 +50,7 @@
 ;; (use-package ace-isearch)
 
 (use-package affe
-  :bind* ("s-o" . affe-find)
+  :bind* ("s-o" . affe-find-no-ignore)
   :commands (affe-find affe-find-no-ignore)
   :config
   (defun affe-find-no-ignore()
