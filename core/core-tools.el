@@ -64,9 +64,7 @@
 
 (use-package emacs :ensure nil
   :bind (("C-c r". rename-file-and-buffer)
-         ([f5] . kmacro-edit-macro))
-  :config
-  (add-to-list 'auth-sources (secret-get auth-source-file)))
+         ([f5] . kmacro-edit-macro)))
 
 (use-package image-mode :ensure nil
   :init
@@ -405,9 +403,9 @@ To reset the playlist is to undo the marks produced by non-nil
     "Toggle `bongo-random-playback-mode' in playlist buffers."
     (interactive)
     (with-bongo-playlist-buffer
-     (if (eq bongo-next-action 'bongo-play-random-or-stop)
-         (bongo-progressive-playback-mode)
-       (bongo-random-playback-mode))))
+      (if (eq bongo-next-action 'bongo-play-random-or-stop)
+          (bongo-progressive-playback-mode)
+        (bongo-random-playback-mode))))
   (defun +bongo-playlist-play-random()
     (interactive)
     (unless (bongo-playlist-buffer)
@@ -487,6 +485,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :commands (totp-copy-pin-as-kill totp-display)
   :bind ("C-c s P" . totp-display)
   :config
+  (add-to-list 'auth-sources (secret-get auth-source-file))
   ;; epg version >= 2.4.1 doesn't work with emacs without it
   ;; (fset 'epg-wait-for-status 'ignore)
   ;; This shouldn't be done as it might corrupt files
