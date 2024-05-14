@@ -103,6 +103,7 @@
   (setq bookmark-file (concat CACHE-DIR "bookmarks")))
 
 (use-package scroll-other-window
+  :disabled t
   :ensure nil
   :load-path "packages/scroll-other-window.el"
   :bind (("C-M-v" . sow-scroll-other-window)

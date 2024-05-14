@@ -12,6 +12,8 @@
   :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
   :magic ("%PDF" . pdf-view-mode)
   :bind (:map pdf-view-mode-map
+              ([remap scroll-up-command] . pdf-view-scroll-up-or-next-page)
+              ([remap scroll-down-command] . pdf-view-scroll-down-or-previous-page)
               ("C-s" . isearch-forward)
               ("h" . pdf-annot-add-highlight-markup-annotation)
               ("C-c C-a H" . pdf-annot-choose-highlight-color)

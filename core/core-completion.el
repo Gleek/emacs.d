@@ -58,7 +58,6 @@
 (use-package embark
   :bind* (("M-o" . embark-act)
           ("C-M-o" . embark-act-noquit)
-          ("C-;" . embark-dwim)
           (:map minibuffer-local-map
                 ("C-," . embark-become)))
   :config
