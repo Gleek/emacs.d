@@ -122,14 +122,14 @@
                        (file-name-nondirectory (buffer-file-name))
                        (line-number-at-pos)))))
 
-  (defun org-beautify-chars ()
-    "Beautify Org Checkbox Symbol"
-    (push '("[ ]" .  "☐") prettify-symbols-alist)
-    (push '("[X]" . "☒" ) prettify-symbols-alist)
-    (push '("[-]" . "❍" ) prettify-symbols-alist)
-    (push '("->" . "⟶" ) prettify-symbols-alist)
-    (push '("=>" . "⟹") prettify-symbols-alist)
-    (prettify-symbols-mode))
+  ;; (defun org-beautify-chars ()
+  ;;   "Beautify Org Checkbox Symbol"
+  ;;   (push '("[ ]" .  "☐") prettify-symbols-alist)
+  ;;   (push '("[X]" . "☒" ) prettify-symbols-alist)
+  ;;   (push '("[-]" . "❍" ) prettify-symbols-alist)
+  ;;   (push '("->" . "⟶" ) prettify-symbols-alist)
+  ;;   (push '("=>" . "⟹") prettify-symbols-alist)
+  ;;   (prettify-symbols-mode))
   (defface org-checkbox-done-text
     '((t (:foreground "#71696A" :strike-through t)))
     "Face for the text part of a checked org-mode checkbox.")
@@ -139,7 +139,7 @@
    `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
       1 'org-checkbox-done-text prepend))
    'append)
-  (add-hook 'org-mode-hook 'org-beautify-chars)
+  ;; (add-hook 'org-mode-hook 'org-beautify-chars)
 
 
   (defun +capture-inbox()
@@ -263,6 +263,8 @@
         org-generic-id-locations-file (concat CACHE-DIR ".org-generic-id-locations-file")
         org-image-actual-width 500
         org-startup-folded t
+        org-auto-align-tags nil
+        org-tags-column 0
         org-imenu-depth 8
         org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a."))
         org-export-with-sub-superscripts nil ;; "{}"
@@ -281,6 +283,7 @@
         org-fontify-done-headline t
         org-fontify-quote-and-verse-blocks t
         org-confirm-babel-evaluate nil
+        org-pretty-entities t
         org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
 
   (setq org-format-latex-options
@@ -353,22 +356,22 @@
   ;; unintended changes can easily go unseen otherwise.
   (setq org-catch-invisible-edits 'smart)
 
-  (custom-set-faces
-   '(org-block ((t (:inherit fixed-pitch))))
-   '(org-code ((t (:inherit (shadow fixed-pitch)))))
-   '(org-document-info ((t (:foreground "dark orange"))))
-   '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
-   '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
-   '(org-link ((t (:foreground "royal blue" :underline t))))
-   '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-   '(org-property-value ((t (:inherit fixed-pitch))) t)
-   '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-   '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
-   '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
-   '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
-  (set-face-attribute 'org-ellipsis nil
-                      :inherit '(font-lock-comment-face default)
-                      :weight 'normal)
+  ;; (custom-set-faces
+  ;;  '(org-block ((t (:inherit fixed-pitch))))
+  ;;  '(org-code ((t (:inherit (shadow fixed-pitch)))))
+  ;;  '(org-document-info ((t (:foreground "dark orange"))))
+  ;;  '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+  ;;  '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+  ;;  '(org-link ((t (:foreground "royal blue" :underline t))))
+  ;;  '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+  ;;  '(org-property-value ((t (:inherit fixed-pitch))) t)
+  ;;  '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+  ;;  '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+  ;;  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+  ;;  '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
+  ;; (set-face-attribute 'org-ellipsis nil
+  ;;                     :inherit '(font-lock-comment-face default)
+  ;;                     :weight 'normal)
 
 
   ;; Support for plantuml
@@ -794,12 +797,18 @@
   (setq org-wild-notifier-keyword-whitelist nil)
   (org-wild-notifier-mode))
 
-(use-package org-superstar
-  :hook (org-mode . org-superstar-mode))
-(use-package org-fancy-priorities
-  :hook (org-mode . org-fancy-priorities-mode)
+(use-package org-modern
+  :hook ((org-mode . org-modern-mode)
+         (org-agenda-finalize . org-modern-agenda))
   :config
-  (setq org-fancy-priorities-list '("⚑" "⇧" "⇩" "☕")))
+  (set-face-attribute 'org-modern-symbol nil :family "Iosevka"))
+
+;; (use-package org-superstar
+;;   :hook (org-mode . org-superstar-mode))
+;; (use-package org-fancy-priorities
+;;   :hook (org-mode . org-fancy-priorities-mode)
+;;   :config
+;;   (setq org-fancy-priorities-list '("⚑" "⇧" "⇩" "☕")))
 
 (use-package org-download
   :bind (("C-c o d c" . org-download-clipboard)
@@ -1102,7 +1111,7 @@ the capture popup."
   :hook (org-mode . org-appear-mode))
 
 (use-package org-pretty-table :ensure nil
-  :hook ((org-mode orgtbl-mode) . org-pretty-table-mode))
+  :hook (orgtbl-mode . org-pretty-table-mode))
 
 
 ;; (use-package org-noter)
