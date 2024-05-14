@@ -1,8 +1,7 @@
 (use-package shell-pop
   :ensure t
-  :bind (
-         ;; ("C-`" . +shellpop-eshell)
-         ("C-~" . +shellpop-vterm)
+  :bind (("C-`" . +shellpop-eshell)
+         ;; ("C-~" . +shellpop-vterm)
          ("C-c t v" . +shellpop-vterm))
   :config
   (defun shell-pop--cd-to-cwd-vterm(cwd)
@@ -73,9 +72,12 @@
 
 
 (use-package eat
-  :bind (("C-`" . eat-project-or-default)
+  :after (eshell)
+  :demand t
+  :bind (("C-~" . eat-project-or-default)
          (:map eat-mode-map
-               ("C-`" . bury-buffer)))
+               (("C-`" . bury-buffer)
+                ("C-~" . bury-buffer))))
   :config
   (defun eat-project-or-default()
     (interactive)
@@ -83,6 +85,10 @@
         (eat-project)
       (eat)))
   (setq eat-kill-buffer-on-exit t)
+  ;; For `eat-eshell-mode'.
+  (add-hook 'eshell-load-hook #'eat-eshell-mode)
+  ;; For `eat-eshell-visual-command-mode'.
+  (add-hook 'eshell-load-hook #'eat-eshell-visual-command-mode)
   (set-popup-rule! "^\\*.*eat\\*" :size 0.4 :quit nil :select t))
 
 (use-package eshell
@@ -106,6 +112,7 @@
         ;; em-glob
         eshell-glob-case-insensitive t
         eshell-error-if-no-glob t)
+
 
   (defface +eshell-prompt-pwd '((t (:inherit font-lock-constant-face)))
     "TODO"
@@ -153,6 +160,7 @@
   :commands eshell-up eshell-up-peek)
 
 (use-package eshell-vterm
+  :disabled t
   :after eshell
   :hook (eshell-mode . eshell-vterm-mode)
   :config
