@@ -74,7 +74,7 @@
 ;;   :hook (dired-mode . dired-rainbow-mode))
 
 (use-package dired-subtree
-  :ensure
+  :ensure t
   :after dired
   :config
   (setq dired-subtree-use-backgrounds nil)
