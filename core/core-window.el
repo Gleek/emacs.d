@@ -34,16 +34,17 @@
             (set-window-buffer-start-and-point w2 b1 s1 p1)))))))
 
 (use-package emacs :ensure nil
-  :bind (("C-x 2"       . vsplit-last-buffer)
-         ("C-x 3"       . hsplit-last-buffer)
-         ("C-c w r"     . rotate-windows)
-         ("C-x 4 f"     . find-file-other-window)))
+  :bind (("C-x 2"   . vsplit-last-buffer)
+         ("C-x 3"   . hsplit-last-buffer)
+         ("C-c w r" . rotate-windows)
+         ("C-c w T" . tear-off-window)
+         ("C-x 4 f" . find-file-other-window)))
 
 (use-package windmove :ensure nil
-  :bind (("C-x <right>" . windmove-right)
-         ("C-x <left>"  . windmove-left)
-         ("C-x <up>"    . windmove-up)
-         ("C-x <down>"  . windmove-down)))
+  :bind (("C-<right>" . windmove-right)
+         ("C-<left>"  . windmove-left)
+         ("C-<up>"    . windmove-up)
+         ("C-<down>"  . windmove-down)))
 
 ;; Courtesy: Doom emacs
 (use-package +popup :ensure nil :demand
@@ -62,7 +63,20 @@
 (use-package transpose-frame
   :bind ("C-c w t" . transpose-frame))
 (use-package ace-window
-  :bind ("C-:" . ace-window))
+  :bind (("C-;" . ace-window-one-command)
+         ("C-:" . ace-window))
+  :config
+  ;; Courtesy: karthinks
+  (defun ace-window-one-command ()
+    (interactive)
+    (let ((win (aw-select " ACE")))
+      (when (windowp win)
+        (with-selected-window win
+          (let* ((command (key-binding
+                           (read-key-sequence
+                            (format "Run in %s..." (buffer-name)))))
+                 (this-command command))
+            (call-interactively command)))))))
 
 (use-package tab-bar
   :ensure nil
@@ -102,7 +116,7 @@ configurations."
          ("C-c w Z" . zoom-out))
   :init
   (setq zoom-ignored-buffer-name-regexps '("^\*ansi-term.*"))
-   ;; slightly bigger than what golden ration gives me.
+  ;; slightly bigger than what golden ration gives me.
   (setq zoom-size '(0.7 . 0.7))
   :config
   (defun zoom-out()
