@@ -18,6 +18,9 @@
                ("C-c C-d" . nil))))
 (use-package json-ts-mode
   :ensure nil
+  :init
+  (eval-after-load 'org
+    '(add-to-list 'org-src-lang-modes '("json" . json-ts)))
   :bind (:map json-ts-mode-map
               ("C-z p" . json-mode-kill-path))
   :config

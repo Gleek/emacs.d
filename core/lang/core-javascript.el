@@ -28,7 +28,9 @@
 (use-package js
   :ensure nil
   :mode ("\\.jsx?\\'" . js-ts-mode)
+  :bind (:map js-ts-mode-map ("M-." . nil))
   :config
+  (setq js-indent-level 2)
   (add-hook 'js-ts-mode-hook (lambda() (setq format-all-formatters '(("Javascript" prettier)))))
 
   ;; Update js--treesit-font-lock-settings to remove invalid queries
