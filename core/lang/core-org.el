@@ -376,10 +376,7 @@
                                '((plantuml . t)
                                  (emacs-lisp . t)
                                  (shell . t)))
-  (add-to-list
-   'org-src-lang-modes '("plantuml" . plantuml))
-
-
+  (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
   (advice-add #'org-babel-execute:plantuml
               :override #'+plantuml-org-babel-execute:plantuml-a)
   (add-to-list 'org-babel-default-header-args:plantuml
@@ -1115,7 +1112,28 @@ the capture popup."
 ;;   :bind ("C-c o y" . org-cliplink))
 
 (use-package ox-pandoc
-  :after ox)
+  :demand t
+  :after (ox)
+  :config
+  (defun org-pandoc-export-to-custom (&optional a s v b e)
+    "Export to custom."
+    (interactive)
+    (let* ((format (intern (read-string "Enter the export format: ")))
+           (options-var (intern (format "org-pandoc-options-for-%s" format)))
+           (options (if (boundp options-var) (symbol-value options-var) nil)))
+      (org-pandoc-export format a s v b e t)))
+  (defun org-pandoc-export-to-custom-and-open (&optional a s v b e)
+    "Export to custom and open."
+    (interactive)
+    (let* ((format (intern (read-string "Enter the export format: ")))
+           (options-var (intern (format "org-pandoc-options-for-%s" format))))
+      (message "options-var => %s" options-var)
+      (unless (boundp options-var)
+        (message "setting options-var to nil => %s" options-var)
+        (set options-var nil))
+      (org-pandoc-export format a s v b e 0)))
+  (add-to-list 'org-pandoc-menu-entry '(?. "to custom" org-pandoc-export-to-custom))
+  (add-to-list 'org-pandoc-menu-entry '(?, "to custom and open" org-pandoc-export-to-custom-and-open)))
 
 
 (use-package org-web-tools)
