@@ -95,9 +95,7 @@
 (setq x-use-underline-position-properties t)
 
 
-(setq resize-mini-windows 'grow-only
-      ;; But don't let the minibuffer grow beyond this size
-      max-mini-window-height 0.15)
+(setq resize-mini-windows 'grow-only)
 
 (when IS-MAC
   (setq ns-auto-hide-menu-bar nil)
@@ -202,6 +200,13 @@
 (use-package highlight-numbers
   :hook ((prog-mode conf-mode) . highlight-numbers-mode)
   :config (setq highlight-numbers-generic-regexp "\\_<[[:digit:]]+\\(?:\\.[0-9]*\\)?\\_>"))
+
+;; Highlight long numbers to make them easy to read
+(use-package num3-mode
+  :hook ((prog-mode text-mode conf-mode) . num3-mode)
+  :config
+  (setq num3-group-size 3)
+  (setq num3-threshold 6))
 
 (use-package highlight-indent-guides
   :disabled
