@@ -269,6 +269,7 @@
         org-imenu-depth 8
         org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a."))
         org-export-with-sub-superscripts nil ;; "{}"
+        org-use-sub-superscripts nil
         org-html-checkbox-type 'html
         org-priority-faces
         '((?A . error)
@@ -814,7 +815,7 @@
                 :foreground "#fafafa")
             (?B :background "MediumPurple3"
                 :foreground "#fafafa")
-            (?C :background "DodgerBlue"
+            (?C :background "RoyalBlue"
                 :foreground "#fafafa")))))
 
 ;; (use-package org-superstar
