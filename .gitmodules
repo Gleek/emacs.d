@@ -1,12 +1,3 @@
 [submodule "org-roam-ui"]
 	path = packages/org-roam-ui
 	url = git@github.com:org-roam/org-roam-ui.git
-[submodule "packages/maccalfw"]
-	path = packages/maccalfw
-	url = https://github.com/haji-ali/maccalfw
-[submodule "packages/emacs-calfw"]
-	path = packages/emacs-calfw
-	url = https://github.com/haji-ali/emacs-calfw
-[submodule "packages/calfw-blocks"]
-	path = packages/calfw-blocks
-	url = https://github.com/haji-ali/calfw-blocks

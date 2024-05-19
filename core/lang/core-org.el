@@ -1100,18 +1100,6 @@ the capture popup."
         cfw:fchar-top-right-corner ?┓)
   (setq cfw:display-calendar-holidays nil))
 
-(when IS-MAC
-  (use-package maccalfw
-    :load-path "packages/maccalfw/"
-    :commands (maccalfw-open)
-    :config
-    (use-package calfw
-      :demand t
-      :load-path "packages/emacs-calfw/")
-    (use-package calfw-blocks
-      :demand t
-      :load-path "packages/calfw-blocks/")))
-
 
 (use-package org-timeline
   :ensure nil
