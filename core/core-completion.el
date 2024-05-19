@@ -175,7 +175,7 @@
                             ,backends))))
 
   :config
-  (setq company-idle-delay 0.1
+  (setq company-idle-delay 0.01
         company-minimum-prefix-length 2
         company-require-match 'never
         company-tooltip-limit 10

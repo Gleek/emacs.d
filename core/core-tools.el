@@ -62,6 +62,24 @@
   (interactive)
   (open-with-dragger (buffer-file-name)))
 
+(defun remind (time message)
+  "Set a reminder to notify after TIME with MESSAGE.
+TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s, 5m, 1h)"
+  (interactive "sTime: \nsMessage: ")
+  (let* ((unit (substring time -1))
+         (number (string-to-number (substring time 0 -1)))
+         (seconds (cond
+                   ((string= unit "s") number)
+                   ((string= unit "m") (* 60 number))
+                   ((string= unit "h") (* 3600 number))
+                   (t (error "Invalid time format. Use 's' for seconds, 'm' for minutes, or 'h' for hours.")))))
+    (run-at-time seconds
+                 nil
+                 (lambda (msg)
+                   (alert msg :title "Reminder")
+                   (play-sound-file (concat RES-DIR "bell.wav")))
+                 message)))
+
 (use-package emacs :ensure nil
   :bind (("C-c r". rename-file-and-buffer)
          ([f5] . kmacro-edit-macro)))
@@ -338,6 +356,12 @@
   ;; (advice-add '+rest-client-http-call :around #'restclient-http-do)
   )
 
+(use-package verb
+  :after org
+  :demand t
+  :config
+  (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
+
 
 (use-package speed-type
   :config
@@ -403,9 +427,9 @@ To reset the playlist is to undo the marks produced by non-nil
     "Toggle `bongo-random-playback-mode' in playlist buffers."
     (interactive)
     (with-bongo-playlist-buffer
-      (if (eq bongo-next-action 'bongo-play-random-or-stop)
-          (bongo-progressive-playback-mode)
-        (bongo-random-playback-mode))))
+     (if (eq bongo-next-action 'bongo-play-random-or-stop)
+         (bongo-progressive-playback-mode)
+       (bongo-random-playback-mode))))
   (defun +bongo-playlist-play-random()
     (interactive)
     (unless (bongo-playlist-buffer)
@@ -606,7 +630,6 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :commands (gptel gptel-send)
   :config
   (setq gptel-api-key (secret-get openai-key)))
-
 
 (when IS-MAC
   (defun play-sound-mac(sound)
