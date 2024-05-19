@@ -810,13 +810,19 @@
   ;;        :box (:color ,(face-attribute 'solaire-default-face :background nil t))))
   ;;   "Alternative for org-modern-label")
   ;; (add-to-list 'solaire-mode-remap-alist '(org-modern-label . solaire-org-modern-label))
+  (defface org-modern-priority-a
+    '((t :inherit (org-modern-priority) :foreground "OrangeRed3"))
+    "Face for org priority A label")
+  (defface org-modern-priority-b
+    '((t :inherit (org-modern-priority) :foreground "MediumPurple3"))
+    "Face for org priority B label")
+  (defface org-modern-priority-c
+    '((t :inherit (org-modern-priority) :foreground "RoyalBlue"))
+    "Face for org priority C label")
   (setq org-modern-priority-faces
-    (quote ((?A :background "OrangeRed3"
-                :foreground "#fafafa")
-            (?B :background "MediumPurple3"
-                :foreground "#fafafa")
-            (?C :background "RoyalBlue"
-                :foreground "#fafafa")))))
+        (quote ((?A org-modern-priority-a)
+                (?B org-modern-priority-b)
+                (?C org-modern-priority-c)))))
 
 ;; (use-package org-superstar
 ;;   :hook (org-mode . org-superstar-mode))
@@ -1151,9 +1157,7 @@ the capture popup."
     (interactive)
     (let* ((format (intern (read-string "Enter the export format: ")))
            (options-var (intern (format "org-pandoc-options-for-%s" format))))
-      (message "options-var => %s" options-var)
       (unless (boundp options-var)
-        (message "setting options-var to nil => %s" options-var)
         (set options-var nil))
       (org-pandoc-export format a s v b e 0)))
   (add-to-list 'org-pandoc-menu-entry '(?. "to custom" org-pandoc-export-to-custom))
