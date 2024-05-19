@@ -210,6 +210,21 @@
             (lambda()
               (setq confirm-kill-processes nil))))
 
+
+(use-package emacs :ensure nil
+  :config
+  (defun launch-kitty ()
+    "Launch Kitty terminal in the current default directory or project root."
+    (interactive)
+    (let* ((default-directory
+            (or (when (fboundp 'projectile-project-root)
+                  (projectile-project-root))
+                (when (fboundp 'project-root)
+                  (project-root))
+                default-directory))
+           (kitty-command (concat "kitty --directory " (shell-quote-argument default-directory))))
+      (start-process "kitty" "*kitty*" "sh" "-c" kitty-command))))
+
 (use-package detached
   :init
   (setq detached-db-directory CACHE-DIR
