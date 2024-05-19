@@ -82,6 +82,7 @@
   :bind (:map go-ts-mode-map
               ("C-z a" . +go-tag-add))
   :config
+  (add-hook 'before-save-hook '+gofmt-before-save)
   (setq-default go-ts-mode-indent-offset tab-width))
 
 (use-package go-gen-test)
