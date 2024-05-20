@@ -699,9 +699,18 @@
           (or (outline-next-heading) (point-max))
         nil)))
 
+  (defun +agenda-skip-errands-worktime()
+    (let ((tags (org-get-tags)))
+      (when (and (member "errand" tags)
+                 (let ((current-time (decode-time (current-time))))
+                   (and (<= 1 (nth 6 current-time) 5) ; Monday to Friday
+                        (<= 10 (nth 2 current-time) 17)))) ; 10 AM to 6 PM
+        (save-excursion (or (outline-next-heading) (point-max))))))
+
   (defun +agenda-skip()
     (or (+agenda-skip-projects)
-        (org-agenda-skip-entry-if 'scheduled)))
+        (org-agenda-skip-entry-if 'scheduled 'deadline)
+        (+agenda-skip-errands-worktime)))
 
 
 
@@ -726,7 +735,7 @@
                   ((org-agenda-overriding-header "Blocked Tasks")
                    (org-agenda-files '(,(concat +agenda-directory "someday.org")
                                        ,(concat +agenda-directory "next.org")))
-                   (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
+                   (org-agenda-skip-function '(+agenda-skip))))
             (todo "DELEGATED"
                   ((org-agenda-overriding-header "Delegated Tasks")
                    (org-agenda-files '(,(concat +agenda-directory "someday.org")
@@ -735,7 +744,8 @@
             (todo "WAITING"
                   ((org-agenda-overriding-header "Waiting on")
                    (org-agenda-files '(,(concat +agenda-directory "someday.org")
-                                       ,(concat +agenda-directory "next.org")))))
+                                       ,(concat +agenda-directory "next.org")))
+                   (org-agenda-skip-function '(+agenda-skip))))
 
             (todo "TODO"
                   ((org-agenda-overriding-header "Someday")
