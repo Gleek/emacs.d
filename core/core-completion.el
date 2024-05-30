@@ -285,11 +285,7 @@
 
 
 (use-package copilot
-  :disabled t
-  :load-path "packages/copilot/"
-  :ensure s
-  :ensure dash
-  :ensure editorconfig
+  :ensure (:fetcher github :repo "copilot-emacs/copilot.el")
   :commands (copilot-login copilot-diagnose)
   :bind (;; ("C-c M-f" . copilot-complete)
          :map copilot-completion-map
@@ -299,10 +295,12 @@
          ("<tab>" . 'copilot-accept-completion)
          ("M-f" . 'copilot-accept-completion-by-word)
          ("M-<return>" . 'copilot-accept-completion-by-line))
-  ;; :hook ((prog-mode . copilot-mode)
-  ;;        (text-mode . copilot-mode)
-  ;;        (conf-mode . copilot-mode))
-  )
+  :hook ((prog-mode . copilot-mode)
+         (text-mode . copilot-mode)
+         (conf-mode . copilot-mode))
+  :config
+  (setq copilot-indent-offset-warning-disable t))
+
 
 (use-package codeium
   :commands (codeium-install)

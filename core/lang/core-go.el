@@ -18,6 +18,15 @@
 
 ;; (setq auto-mode-alist (delete '("\\.go\\'" . go-ts-mode) auto-mode-alist))
 
+;; DAP support: https://emacs-lsp.github.io/dap-mode/page/configuration/#go
+;; if you want to launch a binary or test to debug, use "Go Dlv Launch File Configuration"
+;; if you want to debug current test function inside test file use "Go Dlv Test Current Function Configuration"
+;; if you want to debug current subtest put your cursor on this subtest and use "Go Dlv Test Current Subtest Configuration"
+;; if you want to debug already running application select "Go Dlv Attach Configuration"
+
+
+
+
 (push '(go-dot-mod-mode . go-mod-ts-mode) major-mode-remap-alist)
 (push '(go-mode . go-ts-mode) major-mode-remap-alist)
 
@@ -82,6 +91,8 @@
   :bind (:map go-ts-mode-map
               ("C-z a" . +go-tag-add))
   :config
+  (add-hook 'go-ts-mode-hook (lambda() (setq-local format-all-formatters '(("Go" goimports)))))
+  (add-hook 'go-ts-mode-hook (lambda() (require 'dap-dlv-go)))
   (add-hook 'before-save-hook '+gofmt-before-save)
   (setq-default go-ts-mode-indent-offset tab-width))
 

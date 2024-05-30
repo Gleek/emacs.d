@@ -28,7 +28,8 @@
 
 (use-package counsel-jq
   :after json-mode
-  :bind (:map json-mode-map ("C-c C-s" . counsel-jq))
+  :bind ((:map json-mode-map ("C-c C-s" . counsel-jq))
+         (:map json-ts-mode-map ("C-c C-s" . counsel-jq)))
   :config
   (set-popup-rule! "^\\*jq-json*\\$" :size 0.35 :ttl 0 :quit nil))
 

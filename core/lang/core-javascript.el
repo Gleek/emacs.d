@@ -31,7 +31,7 @@
   :bind (:map js-ts-mode-map ("M-." . nil))
   :config
   (setq js-indent-level 2)
-  (add-hook 'js-ts-mode-hook (lambda() (setq format-all-formatters '(("Javascript" prettier)))))
+  (add-hook 'js-ts-mode-hook (lambda() (setq-local format-all-formatters '(("Javascript" prettier)))))
 
   ;; Update js--treesit-font-lock-settings to remove invalid queries
   ;; queries starting with (function... are invalid
