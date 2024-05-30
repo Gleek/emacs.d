@@ -115,7 +115,7 @@
 
 (use-package hideshow
   :ensure hydra
-  ;; :hook (prog-mode . hs-minor-mode)
+  :hook (prog-mode . hs-minor-mode)
   :bind (:map hs-minor-mode-map
               ("C-{" . hydra-hs-folding/body)
               ("<S-mouse-1>" . +mouse-hs-toggle))
