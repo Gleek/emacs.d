@@ -216,6 +216,17 @@
   (add-hook 'nov-mode-hook 'init-nov-progress-hook))
 
 
+(use-package nov-xwidget
+  :ensure (:fetcher github :repo "chenyanming/nov-xwidget")
+  :demand t
+  :bind (:map nov-mode-map
+              ("o" . nov-xwidget-view))
+  :after nov
+  :config
+  ;; (define-key nov-mode-map (kbd "o") 'nov-xwidget-view)
+  (add-hook 'nov-mode-hook 'nov-xwidget-inject-all-files))
+
+
 
 (use-package djvu)
 
