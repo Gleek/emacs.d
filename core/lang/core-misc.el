@@ -18,6 +18,7 @@
                ("C-c C-d" . nil))))
 (use-package json-ts-mode
   :ensure nil
+  :mode "\\.json\\'"
   :init
   (eval-after-load 'org
     '(add-to-list 'org-src-lang-modes '("json" . json-ts)))
