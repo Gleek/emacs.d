@@ -70,9 +70,8 @@
   :after eshell
   (bash-completion-setup))
 
-
 (use-package eat
-  :after (eshell)
+  :after (shell-pop) ; have to load after eshell but since by usual entry point to eshell is shell-pop, this is fine.
   :demand t
   :bind (("C-~" . eat-project-or-default)
          (:map eat-mode-map
@@ -89,6 +88,8 @@
   (add-hook 'eshell-load-hook #'eat-eshell-mode)
   ;; For `eat-eshell-visual-command-mode'.
   (add-hook 'eshell-load-hook #'eat-eshell-visual-command-mode)
+
+  (require '+popup)
   (set-popup-rule! "^\\*.*eat\\*" :size 0.4 :quit nil :select t))
 
 (use-package eshell
