@@ -94,7 +94,7 @@
          ("C-x r b" . consult-bookmark)
          ("C-c s s" . consult-ripgrep)
          ("M-g M-g" . consult-goto-line)
-         ("M-y" . consult-yank-replace)
+         ("M-y" . consult-yank-pop)
          ("C-x c i" . consult-imenu)
          ("C-M-s" . consult-line)
          (:map minibuffer-local-map
