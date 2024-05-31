@@ -273,9 +273,9 @@
   (auto-insert-mode t)
   (setq auto-insert-directory (expand-file-name "auto-insert" user-emacs-directory))
 
-  (eval-after-load 'string-inflection
-    '(add-to-list 'auto-insert-alist '((php-mode . "PHP source code") . ["php.template" +autoinsert-yas-expand])))
-  (add-to-list 'auto-insert-alist '((go-mode . "Go source code") . ["go.template" +autoinsert-yas-expand]))
+
+  (add-to-list 'auto-insert-alist '((php-ts-mode . "PHP source code") . ["php.template" +autoinsert-yas-expand]))
+  (add-to-list 'auto-insert-alist '((go-ts-mode . "Go source code") . ["go.template" +autoinsert-yas-expand]))
   (add-to-list 'auto-insert-alist '((sh-mode . "Shell scripts") . ["sh.template" +autoinsert-yas-expand]))
   (add-to-list 'auto-insert-alist '((sh-mode . "Shell scripts") . ["sh.template" +autoinsert-yas-expand]))
   (add-to-list 'auto-insert-alist '((emacs-lisp-mode . "Elisp source code") . ["el.template" +autoinsert-yas-expand]))

@@ -1,6 +1,6 @@
 <?php
 
-class `(string-inflection-pascal-case-function (file-name-base (buffer-file-name)))` {
+class `(progn (require 'string-inflection) (string-inflection-pascal-case-function (file-name-base (buffer-file-name))))` {
 
     public function __construct() {
         $0
