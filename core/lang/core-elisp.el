@@ -35,7 +35,7 @@
   :config
   (add-hook 'emacs-lisp-mode-hook 'remove-elc-on-save))
 
-(use-package eros
-  :hook (emacs-lisp-mode . eros-mode))
+;; (use-package eros
+;;   :hook (emacs-lisp-mode . eros-mode))
 
 (provide 'core-elisp)
