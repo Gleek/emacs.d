@@ -299,7 +299,8 @@
          (text-mode . copilot-mode)
          (conf-mode . copilot-mode))
   :config
-  (setq copilot-indent-offset-warning-disable t))
+  (setq copilot-indent-offset-warning-disable t
+        copilot-max-char-warning-disable t))
 
 
 (use-package codeium
