@@ -2,6 +2,7 @@
   :commands (magit-status magit-dispatch)
   :bind (("C-x m" . magit-status)
          ("C-c g b" . magit-blame-addition)
+         ("C-c g f" . magit-diff-buffer-file)
          ("C-c g l" . magit-log-buffer-file))
   :init
   (setq magit-define-global-key-bindings nil)
@@ -27,6 +28,15 @@
   (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
   (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent)
   (add-hook 'magit-popup-mode-hook #'hide-mode-line-mode))
+
+
+(use-package ediff
+  :ensure nil
+  :bind ("C-c g s" . ediff-current-file)
+  :config
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+  (setq ediff-split-window-function 'split-window-horizontally)
+  (setq ediff-diff-options "-w"))
 
 ;; (use-package magit-delta
 ;;   :hook (magit-mode . magit-delta-mode))
