@@ -1,7 +1,7 @@
 (setq lsp-intelephense-files-max-size 2500000)
-(setq lsp-intelephense-licence-key "")
 (setq lsp-intelephense-licence-key (secret-get intelephense-key))
 (setq lsp-intelephense-storage-path (concat CACHE-DIR "lsp-intelephense/"))
+(setq flycheck-phpcs-standard "~/.config/phpcs/phpcs.xml")
 
 (use-package php-mode
   ;; :ensure phpactor
@@ -23,7 +23,6 @@
   ;; (dap-php-setup)
   (setq php-mode-template-compatibility nil)
   (setq c-auto-align-backslashes nil)
-  (setq flycheck-phpcs-standard "~/.config/phpcs/phpcs.xml")
   (add-hook 'php-mode-hook (lambda() (setq sp-max-pair-length 5)))
   (add-hook 'php-mode-hook 'php-enable-symfony2-coding-style)
   ;; (phpmd-ignore-error)
@@ -34,10 +33,9 @@
   :ensure (:fetcher github :repo "emacs-php/php-ts-mode")
   :config
   (defun php-local-checkers()
-    (setq flycheck-local-checkers '((lsp . ((next-checkers . ((warning . phpstan)))))
-                                    (phpstan . ((next-checkers . ((warning . php-phpmd))))))))
+    (setq-local flycheck-local-checkers-chain '((lsp . phpstan)
+                                                (phpstan . php-phpmd))))
   (set-face-attribute 'php-function-call nil :inherit 'font-lock-function-call-face)
-
   (add-hook 'php-ts-mode-hook 'php-local-checkers))
 
 
@@ -75,7 +73,6 @@
            (rest (cdr phpmd-checker))
            cmd)
       (push "--ignore-errors-on-exit" rest)
-      (message "hello")
       (setq cmd (cons ex rest))
       (setf (flycheck-checker-get 'php-phpmd 'command) cmd))
     (advice-add 'flycheck-parse-phpmd :around #'+flycheck-phpmd-parse))
@@ -86,9 +83,7 @@
   ;; Demote phpstan errors to warnings. Errors should be sytanctical errors only.
   ;; This doesn't work currently, since there's a custom parser. changed the output of the `flycheck-phpstan-parse-json' from error to warning works.
   ;; TODO: Do this from outside the package.
-  (setf (flycheck-checker-get 'phpstan 'modes) '(php-mode php-ts-mode))
-  (let ((checker (rassoc 'error (flycheck-checker-get 'phpstan 'error-patterns))))
-    (if checker (setcdr checker 'warning))))
+  (setf (flycheck-checker-get 'phpstan 'modes) '(php-mode php-ts-mode)))
 
 (use-package geben
   :init

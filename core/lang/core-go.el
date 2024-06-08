@@ -86,34 +86,16 @@
 (use-package flycheck-golangci-lint
   :hook ((go-mode go-ts-mode) . +go-setup-checkers)
   :config
+  (add-to-list 'flycheck-checker-max-level '(golangci-lint . warning))
   (setq flycheck-golangci-lint-enable-linters
         '("bodyclose" "depguard" "dupl" "errcheck" "exhaustive" "funlen" "gochecknoinits" "goconst"
           "gocritic" "gocognit" "gofmt" "goimports" "revive" "gosec" "gosimple" "govet" "ineffassign" "lll"
           "misspell" "noctx" "rowserrcheck" "staticcheck" "typecheck" "unparam" "unused"
           "whitespace" "gomodguard" "sqlclosecheck" "errcheck"))
 
-  (defun +flycheck-parse-checkstyle-warnings-only (output checker buffer)
-    "Parse Checkstyle errors from OUTPUT and return only warnings.
-
-    This function converts all errors to warnings for the specified CHECKER (golangci-lint).
-    See `flycheck-parse-checkstyle' for more details on the parameters"
-    (let ((original-errors (flycheck-parse-checkstyle output checker buffer)))
-      (mapcar (lambda (error)
-                (when (eq (flycheck-error-level error) 'error)
-                  (setf (flycheck-error-level error) 'warning))
-                error)
-              original-errors)))
-
   (defun +go-setup-checkers()
     (flycheck-golangci-lint-setup)
-
-    ;; Demote golangci errors to info
-    (dolist (patt (get 'golangci-lint 'flycheck-error-patterns))
-      (setcdr patt 'warning))
-
-    (setf (flycheck-checker-get 'golangci-lint 'error-parser)
-          #'+flycheck-parse-checkstyle-warnings-only)
-
-    (setq flycheck-local-checkers '((lsp . ((next-checkers . (golangci-lint))))))))
+    ;; Demote golangci errors to warning
+    (setq-local flycheck-local-checkers-chain '((lsp . golangci-lint)))))
 
 (provide 'core-go)

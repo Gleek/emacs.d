@@ -1,7 +1,8 @@
 * My Emacs settings
 Core components are in the ~core~ directory. They are loaded by ~init.el~
 
-Uses ~use-package~ for package management. So cloning this repo and opening emacs should install all packages automatically.
+Uses ~use-package~ and ~elpaca~ for package management.
+Cloning this repo and opening emacs should install all packages automatically.
 
 I used exwm on my linux machine but have recently moved to MacOS so the exwm components are not maintained any further.
 
@@ -11,17 +12,19 @@ I used exwm on my linux machine but have recently moved to MacOS so the exwm com
 - ~core/lang~ has language specific packages and configuration
 - ~cache~ is the directory where I try to keep all temporary files created
 - ~packages~ has all custom packages written by me or copy pasted from somewhere
-- ~elpa~ has all the packages installed in emacs
 - ~snippets~ has all the yasnippet snippets
-- ~emergency.el~ is a minimal single file init.el config that is meant to be used in scenarios where I
-  lack the freedom to clone my entire config.
+- ~emergency.el~ is a very minimal single file init.el config that is meant to be used in scenarios where I
+  lack the freedom to clone my entire config, but still want some familiarity in my environment.
 
 The UI is heavily inspired by [[https://github.com/hlissner/doom-emacs][Doom Emacs]]
 
 [[file:resources/screen.png]]
-
 Light theme
 
 [[./resources/screen-light.png]]
 ** Usage
+Install emacs on macos with:
+
+=brew install emacs-plus --with-xwidgets --with-native-comp=
+
 =git clone https://www.github.com/gleek/emacs.d ~/.config/emacs=

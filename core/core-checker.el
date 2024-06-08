@@ -31,7 +31,7 @@
         (+ispell-word-immediate))))
   ;; Courtesy: Doom
   (defun +spell-correct-fn (candidates word)
-      (completing-read (format "Corrections for %S: " word) candidates))
+    (completing-read (format "Corrections for %S: " word) candidates))
 
   (defun +spell/correct ()
     "Correct spelling of word at point."
@@ -129,24 +129,24 @@
 
   (setq-default spell-fu-faces-exclude
                 '(org-block org-block-begin-line
-                org-block-end-line org-code org-date org-footnote
-                org-formula org-latex-and-related org-link
-                org-meta-line org-property-value
-                org-ref-cite-face org-special-keyword org-tag
-                org-todo org-todo-keyword-done
-                org-todo-keyword-habt org-todo-keyword-kill
-                org-todo-keyword-outd org-todo-keyword-todo
-                org-todo-keyword-wait org-verbatim
-                markdown-code-face markdown-html-attr-name-face
-                markdown-html-attr-value-face
-                markdown-html-tag-name-face
-                markdown-inline-code-face markdown-link-face
-                markdown-markup-face markdown-plain-url-face
-                markdown-reference-face markdown-url-face
-                font-latex-math-face font-latex-sedate-face
-                font-lock-function-name-face
-                font-lock-keyword-face
-                font-lock-variable-name-face))
+                            org-block-end-line org-code org-date org-footnote
+                            org-formula org-latex-and-related org-link
+                            org-meta-line org-property-value
+                            org-ref-cite-face org-special-keyword org-tag
+                            org-todo org-todo-keyword-done
+                            org-todo-keyword-habt org-todo-keyword-kill
+                            org-todo-keyword-outd org-todo-keyword-todo
+                            org-todo-keyword-wait org-verbatim
+                            markdown-code-face markdown-html-attr-name-face
+                            markdown-html-attr-value-face
+                            markdown-html-tag-name-face
+                            markdown-inline-code-face markdown-link-face
+                            markdown-markup-face markdown-plain-url-face
+                            markdown-reference-face markdown-url-face
+                            font-latex-math-face font-latex-sedate-face
+                            font-lock-function-name-face
+                            font-lock-keyword-face
+                            font-lock-variable-name-face))
 
   (defun +spell-fu-set-face(&rest _)
     (set-face-attribute 'spell-fu-incorrect-face nil :underline `(:style ,+checker-line-style :color "#6666ff")))
@@ -183,12 +183,43 @@
 
   ;; Using mode level flycheck checkers instead of chaining them.
   ;; So that single flycheck checker can used in multiple modes..such as `lsp'
-  (defvar-local flycheck-local-checkers nil)
   (defun +flycheck-checker-get(fn checker property)
-    (or (alist-get property (alist-get checker flycheck-local-checkers))
+    (or (and (eq property 'next-checkers) (+flycheck-next-checker-get checker))
         (funcall fn checker property)))
   (advice-add 'flycheck-checker-get :around '+flycheck-checker-get)
 
+  (defvar-local flycheck-local-checkers-chain nil
+    "Chain of checkers to be used in order for the current buffer.
+Mostly required for lsp and new checkers that don't chain other.")
+  (defun +flycheck-next-checker-get(checker)
+    "Get the next flychecker in chain defined in `flycheck-local-checkers-chain'"
+    (let ((next-checker (alist-get checker flycheck-local-checkers-chain)))
+      (if next-checker
+          (list next-checker)
+        nil)))
+
+  (defvar flycheck-checker-max-level '((php-phpcs . info))
+    "Max level for flycheck checkers")
+  (defun +flycheck-parse-checkstyle-max-level (fn output checker buffer)
+    "Build as a wrapper over flycheck-parse-checkstly which also takes into account `flycheck-checker-max-level'.
+Demotes all errors over the max level to the max level."
+    (let* ((original-errors (funcall fn output checker buffer))
+           (max-level (alist-get checker flycheck-checker-max-level))
+           (levels '(error warning info))
+           (max-level-index (cl-position max-level levels)))
+      (if max-level
+          (mapcar (lambda (error)
+                    (let* ((level (flycheck-error-level error))
+                           (level-index (cl-position level levels)))
+                      ;; Demote all errors over the max level to the max level
+                      ;; eg: if error level is warning (1) and max level is info (2), demote it to info (2)
+                      (if (< level-index max-level-index)
+                          (setf (flycheck-error-level error) max-level)))
+                    error)
+                  original-errors))
+      original-errors))
+
+  (advice-add 'flycheck-parse-checkstyle :around '+flycheck-parse-checkstyle-max-level)
   (flycheck-define-checker proselint
     "A linter for prose."
     :command ("proselint" source-inplace)
