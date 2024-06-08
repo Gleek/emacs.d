@@ -1,5 +1,6 @@
 (setq lsp-intelephense-files-max-size 2500000)
 (setq lsp-intelephense-licence-key (secret-get intelephense-key))
+(setq lsp-intelephense-format-braces "k&r")
 (setq lsp-intelephense-storage-path (concat CACHE-DIR "lsp-intelephense/"))
 (setq flycheck-phpcs-standard "~/.config/phpcs/phpcs.xml")
 
@@ -32,6 +33,7 @@
   :mode "\\.php\\'"
   :ensure (:fetcher github :repo "emacs-php/php-ts-mode")
   :config
+  (add-hook 'php-ts-mode-hook (lambda() (setq-local format-all-formatters '(("PHP" (prettier "--brace-style=1tbs"))))))
   (defun php-local-checkers()
     (setq-local flycheck-local-checkers-chain '((lsp . phpstan)
                                                 (phpstan . php-phpmd))))

@@ -90,36 +90,9 @@ Position the cursor at its beginning, according to the current mode."
     (comment-or-uncomment-region beg end)
     (forward-line)))
 
-(defun untabify-buffer ()
-  (interactive)
-  (untabify (point-min) (point-max)))
 
-(defun indent-defun ()
-  "Indent the current defun."
-  (interactive)
-  (save-excursion
-    (mark-defun)
-    (indent-region (region-beginning) (region-end))))
 
-(defun indent-buffer ()
-  (interactive)
-  (indent-region (point-min) (point-max)))
 
-(defun cleanup-buffer-safe ()
-  "Perform a bunch of safe operations on the whitespace content of a buffer.
-Does not indent buffer, because it is used for a `before-save-hook', and that
-might be bad."
-  (interactive)
-  (untabify-buffer)
-  (delete-trailing-whitespace)
-  (set-buffer-file-coding-system 'utf-8))
-
-(defun cleanup-buffer ()
-  "Perform a bunch of operations on the whitespace content of a buffer.
-Including indent-buffer, which should not be called automatically on save."
-  (interactive)
-  (cleanup-buffer-safe)
-  (indent-buffer))
 
 (defun hex-region (start end)
   "urlencode the region between START and END in current buffer."
@@ -473,14 +446,71 @@ https://emacs.stackexchange.com/a/12124/2144"
   :bind (("C-c f" . +format)
          ("C-c C-f" . +format))
   :config
-  (defun +format()
+
+  (defun +format(&optional arg)
+    "Format buffer or region using lsp or format-all or cleanup-buffer.
+
+Prefers region if active.
+With prefix ARG, prompt for the formatter to use."
+    (interactive "P")
+    (let* ((chosen (and arg (completing-read "Format using: " (list "lsp" "format-all" "cleanup-buffer") nil t)))
+           (no-choose-or-lsp (or (not chosen) (string= chosen "lsp")))
+           (no-choose-or-fa (or (not chosen) (string= chosen "format-all")))
+           (no-choose-or-cb (or (not chosen) (string= chosen "cleanup-buffer")))
+           (lsp-enabled (bound-and-true-p lsp-mode))
+           (lsp-region-p (and lsp-enabled (lsp-feature? "textDocument/rangeFormatting")))
+           (lsp-formatter-p (and lsp-enabled (lsp-feature? "textDocument/formatting")))
+           (fa-formatter (gethash (format-all--language-id-buffer) format-all--language-table))
+           (fa-region-p (and fa-formatter (eq (car (gethash fa-formatter format-all--features-table)) 'region))))
+
+      (cond ((and (region-active-p) lsp-region-p no-choose-or-lsp)
+             (message "Formatting region with lsp")
+             (lsp-format-region (region-beginning) (region-end)))
+            ((and (region-active-p) fa-region-p no-choose-or-fa)
+             (message "Formatting region with format-all")
+             (format-all-ensure-formatter)
+             (format-all-region (region-beginning) (region-end)))
+            ((and lsp-formatter-p no-choose-or-lsp)
+             (message "Formatting buffer with lsp")
+             (lsp-format-buffer))
+            ((and fa-formatter no-choose-or-fa)
+             (message "Formatting buffer with format-all")
+             (format-all-ensure-formatter)
+             (format-all-buffer))
+            (no-choose-or-cb
+             (message "Cleaning buffer")
+             (cleanup-buffer)))))
+
+  (defun indent-defun ()
+    "Indent the current defun."
     (interactive)
-    (if (gethash (format-all--language-id-buffer) format-all--language-table)
-        (if (region-active-p)
-            (call-interactively 'format-all-region)
-          (call-interactively 'format-all-buffer))
-      (message "No formatter found. Cleaning buffer")
-      (cleanup-buffer))))
+    (save-excursion
+      (mark-defun)
+      (indent-region (region-beginning) (region-end))))
+
+  (defun indent-buffer ()
+    (interactive)
+    (indent-region (point-min) (point-max)))
+
+  (defun untabify-buffer ()
+    (interactive)
+    (untabify (point-min) (point-max)))
+
+  (defun cleanup-buffer-safe ()
+    "Perform a bunch of safe operations on the whitespace content of a buffer.
+Does not indent buffer, because it is used for a `before-save-hook', and that
+might be bad."
+    (interactive)
+    (untabify-buffer)
+    (delete-trailing-whitespace)
+    (set-buffer-file-coding-system 'utf-8))
+
+  (defun cleanup-buffer ()
+    "Perform a bunch of operations on the whitespace content of a buffer.
+Including indent-buffer, which should not be called automatically on save."
+    (interactive)
+    (cleanup-buffer-safe)
+    (indent-buffer)))
 
 (use-package cc-mode
   :ensure nil
