@@ -72,7 +72,7 @@
   (defun vc-gutter-init-maybe()
     (let ((file-name (buffer-file-name (buffer-base-buffer))))
       (if file-name (unless (file-remote-p file-name)
-        (git-gutter-mode t)))))
+                      (git-gutter-mode t)))))
 
   (add-hook 'find-file-hook 'vc-gutter-init-maybe)
   :config
@@ -118,7 +118,40 @@
 
 (use-package diff-hl
   :hook (dired-mode . diff-hl-dired-mode-unless-remote)
-  :hook (magit-post-refresh . diff-hl-magit-post-refresh))
+  :hook (magit-post-refresh . diff-hl-magit-post-refresh)
+  ;; :hook (find-file . diff-hl-mode)
+  :config
+  ;; Courtesy: Doom Emacs
+  (set-popup-rule! "^\\*diff-hl" :select nil :size '+popup-shrink-to-fit)
+  (setq vc-git-diff-switches '("--histogram"))
+  (setq diff-hl-flydiff-delay 0.5)
+  (setq diff-hl-show-staged-changes nil)
+  (defun +vc-diff-hl-define-bitmaps-h()
+    (define-fringe-bitmap 'diff-hl-bmp-middle [224] nil nil '(center repeated))
+    (define-fringe-bitmap 'diff-hl-bmp-delete [240 224 192 128] nil nil 'top))
+  (defun +vc-gutter-type-face-fn (type _pos)
+    (intern (format "diff-hl-%s" type)))
+  (defun +vc-gutter-type-at-pos-fn (type _pos)
+    (if (eq type 'delete)
+        'diff-hl-bmp-delete
+      'diff-hl-bmp-middle))
+  (defun +vc-gutter-fix-diff-hl-faces-h ()
+    (set-face-background 'diff-hl-insert nil)
+    (set-face-background 'diff-hl-delete nil)
+    (set-face-background 'diff-hl-change nil))
+  ;; FIXME: doesn't shrink to fit properly
+  (defun +vc-gutter--shrink-popup-a (fn &rest args)
+    (cl-letf (((symbol-function 'diff-refine-hunk)
+               (lambda ()
+                 (funcall diff-refine-hunk)
+                 (shrink-window-if-larger-than-buffer))))
+      (apply fn args)))
+  (advice-add #'diff-hl-revert-hunk-1 :around #'+vc-gutter--shrink-popup-a)
+  (add-hook 'diff-hl-mode-hook #'+vc-gutter-fix-diff-hl-faces-h)
+  (advice-add #'diff-hl-fringe-bmp-from-pos  :override #'+vc-gutter-type-at-pos-fn)
+  (advice-add #'diff-hl-fringe-bmp-from-type :override #'+vc-gutter-type-at-pos-fn)
+  (advice-add #'diff-hl-define-bitmaps :override #'+vc-diff-hl-define-bitmaps-h)
+  (setq diff-hl-draw-borders nil))
 
 
 (use-package git-timemachine)
