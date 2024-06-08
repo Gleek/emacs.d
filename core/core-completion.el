@@ -299,6 +299,8 @@
          (text-mode . copilot-mode)
          (conf-mode . copilot-mode))
   :config
+  ;; Sometimes the copilot agent doesn't start. Restarting fixes the issue.
+  (copilot-diagnose)
   (setq copilot-indent-offset-warning-disable t
         copilot-max-char-warning-disable t))
 
