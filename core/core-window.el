@@ -81,7 +81,7 @@
 (use-package tab-bar
   :ensure nil
   :bind (("C-x t n" . tab-new)
-         ("s-<tab>" . tab-next)
+         ("S-s-<tab>" . tab-next)
          ("C-x t u" . tab-bar-undo-close-tab)
          ("C-x t s" . +tab-bar-save-current-window))
   :defer 3

@@ -8,7 +8,11 @@
 
 
 (use-package emacs :ensure nil
-  :bind (("C-a" . beginning-of-line-or-indentation)))
+  :bind (("C-a" . beginning-of-line-or-indentation)
+         ("s-b" . previous-buffer)
+         ("s-f" . next-buffer)
+         ("s-<tab>" . mode-line-other-buffer)))
+
 
 (use-package avy
   :ensure t
