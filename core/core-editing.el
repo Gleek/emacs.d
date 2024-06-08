@@ -466,7 +466,7 @@ https://emacs.stackexchange.com/a/12124/2144"
                 (bound-and-true-p global-whitespace-mode)
                 (null buffer-file-name))
       (whitespace-mode +1)))
-  (setq whitespace-style '(face empty space-after-tab space-before-tab))
+  (setq whitespace-style '(face empty space-after-tab space-before-tab trailing))
   :diminish whitespace-mode)
 
 (use-package format-all
