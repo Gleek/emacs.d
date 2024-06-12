@@ -87,14 +87,20 @@
   :config
   (setf point-stack-advised-functions
         (cl-list*
-         'swiper
-         'counsel-rg
+         'consult-line
+         'consult-ripgrep
          'xref-find-references
          'lsp-find-implementation
          'lsp-find-definition-mouse
+         'treesit-beginning-of-defun
+         'treesit-end-of-defun
          'php-beginning-of-defun
          'php-end-of-defun
+         'beginning-of-defun
+         'end-of-defun
          'backward-up-list
+         'forward-list
+         'bookmark-jump
          point-stack-advised-functions))
   (point-stack-setup-advices))
 

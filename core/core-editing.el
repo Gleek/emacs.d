@@ -466,17 +466,21 @@ With prefix ARG, prompt for the formatter to use."
       (cond ((and (region-active-p) lsp-region-p no-choose-or-lsp)
              (message "Formatting region with lsp")
              (lsp-format-region (region-beginning) (region-end)))
+
             ((and (region-active-p) fa-region-p no-choose-or-fa)
              (message "Formatting region with format-all")
              (format-all-ensure-formatter)
              (format-all-region (region-beginning) (region-end)))
+
             ((and lsp-formatter-p no-choose-or-lsp)
              (message "Formatting buffer with lsp")
              (lsp-format-buffer))
+
             ((and fa-formatter no-choose-or-fa)
              (message "Formatting buffer with format-all")
              (format-all-ensure-formatter)
              (format-all-buffer))
+
             (no-choose-or-cb
              (message "Cleaning buffer")
              (cleanup-buffer)))))
