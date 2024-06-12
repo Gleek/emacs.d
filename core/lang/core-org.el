@@ -1073,9 +1073,9 @@ the capture popup."
 
 (use-package org-transclusion)
 
+(use-package calfw)
 (use-package calfw-org
-  ;; :ensure calfw
-  :ensure calfw-org
+  :ensure calfw calfw-org
   :commands (+open-calendar)
   :bind (:map org-agenda-mode-map ("C" . +open-calendar)
               :map cfw:calendar-mode-map ("?" . +calendar/show-keys))
@@ -1105,16 +1105,29 @@ the capture popup."
         cfw:fchar-top-right-corner ?┓)
   (setq cfw:display-calendar-holidays nil))
 
+(use-package calfw-blocks
+  :after (calfw)
+  :demand t
+  :ensure (:fetcher github :repo "ml729/calfw-blocks"))
+
 
 (use-package org-timeline
   :ensure nil
   :commands (org-timeline-insert-timeline)
-  ;; :hook (org-agenda-finalize . +org-insert-timeline)
+  :hook (org-agenda-finalize . +org-insert-timeline)
   :config
+  ;; Check if org agenda has scheduled items with timestamps
+  (defun +org-agenda-has-scheduled()
+    (save-excursion
+      (goto-char (point-min))
+      (if (next-single-property-change (point) 'duration)
+          t
+        nil)))
   (defun +org-insert-timeline()
-    (if (or (not (boundp 'org-ql-view-buffers-files))
-            (not org-ql-view-buffers-files))
-        (org-timeline-insert-timeline)))
+    (if (and (+org-agenda-has-scheduled)
+             (or (not (boundp 'org-ql-view-buffers-files))
+                 (not org-ql-view-buffers-files)))
+             (org-timeline-insert-timeline)))
   (setq org-timeline-space-out-consecutive t)
   (setq org-timeline-overlap-in-new-line t)
   (setq org-timeline-show-title-in-blocks t)
