@@ -41,11 +41,6 @@
                           (save-match-data
                             (and (string-match "-\\([0-9.]+\\)/" org-full-dir)) (match-string 1 org-full-dir)))
                       org-version))
-  (defvar org-plantuml-jar-path)
-  ;; helper function
-  (defun my-org-confirm-babel-evaluate (lang body)
-    "Do not ask for confirmation to evaluate code for specified languages."
-    (member lang '("plantuml")))
 
   (defun +org-refile-to-pos (file headline &optional arg)
     (let ((pos (save-excursion

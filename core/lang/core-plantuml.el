@@ -63,13 +63,14 @@ This function is called by `org-babel-execute-src-block'."
 (use-package plantuml-mode
   :mode ("\\.puml\\'" . plantuml-mode)
   :init
+  (defvar org-plantuml-jar-path)
   (setq plantuml-jar-path (concat RES-DIR "plantuml.jar")
         org-plantuml-jar-path plantuml-jar-path)
   :config
   (eval-after-load '+popup
     '(set-popup-rule! "^\\*PLANTUML" :size 0.4 :select nil :ttl 0 :side 'right))
 
-  (setq plantuml-default-exec-mode 'jar))
+  (setq plantuml-default-exec-mode 'executable))
 
 (use-package flycheck-plantuml
   :after plantuml-mode
