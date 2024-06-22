@@ -92,7 +92,9 @@
   ;; Enable use-package :ensure support for Elpaca.
   (elpaca-use-package-mode))
 
-
+(use-package emacs
+  :ensure nil
+  :bind ("C-c a p" . elpaca-manager))
 
 ;; (use-package use-package-ensure-system-package)
 (use-package benchmark-init
