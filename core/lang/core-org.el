@@ -815,19 +815,42 @@
   ;;        :box (:color ,(face-attribute 'solaire-default-face :background nil t))))
   ;;   "Alternative for org-modern-label")
   ;; (add-to-list 'solaire-mode-remap-alist '(org-modern-label . solaire-org-modern-label))
-  (defface org-modern-priority-a
-    '((t :inherit (org-modern-priority) :foreground "OrangeRed3"))
+
+
+  (defface org-modern-priority-A
+    '((t :inherit (org-modern-priority)))
     "Face for org priority A label")
-  (defface org-modern-priority-b
-    '((t :inherit (org-modern-priority) :foreground "MediumPurple3"))
+  (defface org-modern-priority-B
+    '((t :inherit (org-modern-priority)))
     "Face for org priority B label")
-  (defface org-modern-priority-c
-    '((t :inherit (org-modern-priority) :foreground "RoyalBlue"))
+  (defface org-modern-priority-C
+    '((t :inherit (org-modern-priority)))
     "Face for org priority C label")
   (setq org-modern-priority-faces
-        (quote ((?A org-modern-priority-a)
-                (?B org-modern-priority-b)
-                (?C org-modern-priority-c)))))
+        (quote ((?A org-modern-priority-A)
+                (?B org-modern-priority-B)
+                (?C org-modern-priority-C))))
+  (defvar priority-colors
+    '((?A . (:light "OrangeRed3" :dark "orange red"))
+      (?B . (:light "MediumPurple3" :dark "MediumPurple1"))
+      (?C . (:light "RoyalBlue" :dark "DeepSkyBlue2")))
+    "Colors for priority in org modern")
+
+  (defun +reset-org-priority-colors(&rest _)
+    "Resets the priority colors according to current them and priority-colors.
+
+Works by changing `org-modern-priority-A/B/C' faces dynamically."
+    (mapcar (lambda (pr)
+              (set-face-attribute
+               (intern (concat "org-modern-priority-" (char-to-string  pr)))
+               nil
+               :foreground (plist-get
+                            (cdr (assoc pr priority-colors))
+                            (intern (concat ":" (symbol-name +theme-type))))))
+            '(?A ?B ?C))
+    t)
+  (add-hook 'enable-theme-functions '+reset-org-priority-colors)
+  (+reset-org-priority-colors))
 
 ;; (use-package org-superstar
 ;;   :hook (org-mode . org-superstar-mode))
