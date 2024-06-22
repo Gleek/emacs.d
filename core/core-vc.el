@@ -162,9 +162,6 @@
   :ensure nil
   :hook (find-file . vc-refresh-state))
 
-(define-globalized-minor-mode global-autorevert-mode auto-revert-mode
-  (lambda ()
-    (auto-revert-mode -1)))
 (use-package autorevert
   :ensure nil
   :defer 1

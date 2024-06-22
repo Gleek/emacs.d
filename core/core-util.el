@@ -24,6 +24,11 @@
 Useful to override functions to become empty"
   nil)
 
+(defun return-true(&rest _)
+  "Return t no matter what the inputs here.
+Useful to override functions to become empty"
+  t)
+
 
 (defun string-length<(str1 str2)
   "Retuns non-nil if STR1 is less in length than STR2."

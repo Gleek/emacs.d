@@ -594,6 +594,16 @@
               (overlay-put ov 'line-height line-height)
               (overlay-put ov 'line-spacing (1- line-height))))))))
 
+  (defun remove-mouse-face ()
+    "Remove mouse face in the current buffer."
+    (remove-text-properties (point-min) (point-max) '(mouse-face t)))
+
+  (defun disable-solaire()
+    (setq-local solaire-mode-real-buffer-fn #'return-true))
+
+  (add-hook 'org-agenda-finalize-hook #'remove-mouse-face)
+  (add-hook 'org-agenda-finalize-hook #'hl-line-mode)
+  ;; (add-hook 'org-agenda-finalize-hook #'disable-solaire)
   ;; (add-hook 'org-agenda-finalize-hook #'org-agenda-log-mode-colorize-block)
 
 
@@ -757,6 +767,7 @@
   (setq org-agenda-files (mapcar (lambda(file) (concat +agenda-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "someday.org"))
         org-agenda-window-setup 'current-window
         org-agenda-skip-unavailable-files t
+        org-agenda-skip-scheduled-if-done t
         org-agenda-span 10
         org-agenda-block-separator (aref "━" 0)
         org-agenda-start-on-weekday nil
@@ -1150,7 +1161,7 @@ the capture popup."
     (if (and (+org-agenda-has-scheduled)
              (or (not (boundp 'org-ql-view-buffers-files))
                  (not org-ql-view-buffers-files)))
-             (org-timeline-insert-timeline)))
+        (org-timeline-insert-timeline)))
   (setq org-timeline-space-out-consecutive t)
   (setq org-timeline-overlap-in-new-line t)
   (setq org-timeline-show-title-in-blocks t)
