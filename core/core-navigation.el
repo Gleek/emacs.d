@@ -83,7 +83,8 @@
   :ensure nil
   :defer 2
   :bind (("s-[" . point-stack-pop)
-         ("s-]" . point-stack-forward-stack-pop))
+         ("s-]" . point-stack-forward-stack-pop)
+         ("s-SPC" . consult-point-stack))
   :config
   (setf point-stack-advised-functions
         (cl-list*

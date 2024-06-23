@@ -55,7 +55,8 @@
   :group 'convenience)
 
 (defcustom point-stack-advised-functions
-  '(isearch-mode find-function-do-it find-library
+  '(isearch-mode
+    find-function-do-it find-library
     imenu beginning-of-buffer end-of-buffer
     xref-find-definitions counsel-imenu counsel-git-grep)
   "Functions that will be advised by `point-stack-setup-advices'."
@@ -104,6 +105,18 @@
     (set-window-start nil (nth 2 loc))
     (goto-char (cadr loc))))
 
+
+(defun consult-point-stack()
+  "Jump to markers in forward and default stack"
+  (interactive)
+  (require 'consult)
+  (let* ((locs (append (window-parameter nil 'point-stack-forward)
+                       (window-parameter nil 'point-stack-stack)))
+         (markers (mapcar (lambda(loc)
+                            (set-marker (make-marker) (cadr loc) (car loc)))
+                          locs)))
+    (consult-global-mark markers)))
+
 (defun point-stack--value (name action &optional arg)
   (let* ((parameter (intern (concat "point-stack-" (symbol-name name))))
          (value (window-parameter nil parameter)))
@@ -112,10 +125,11 @@
           ((eq action 'null)
            (null value))
           (t (set-window-parameter nil parameter
-                                   (pcase action
-                                     (`set arg)
-                                     (`push (cons arg value))
-                                     (`shift (cdr value))))))))
+                                   (delete-dups
+                                    (pcase action
+                                      (`set arg)
+                                      (`push (cons arg value))
+                                      (`shift (cdr value)))))))))
 
 ;;;###autoload
 (defun point-stack-setup-advices ()
