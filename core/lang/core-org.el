@@ -1453,21 +1453,58 @@ TODO: Add checkbox based on todo state. If in todo show [ ] if done show [X] in 
         (insert "- " (funcall formatter-fn element) "\n"))
       (delete-char -1))))
 
+(use-package org-re-reveal
+  :commands (+org-re-reveal-run)
+  :config
+  (setq org-re-reveal-root  (concat CACHE-DIR "reveal.js")
+        org-re-reveal-revealjs-version "4"
+        +org-re-reveal-exact-working-version "5.1.0")
+
+  (defun +org-re-reveal-run()
+    (interactive)
+    (org-re-reveal-setup (lambda ()
+                           (org-re-reveal-export-to-html-and-browse))))
+
+  (defun org-re-reveal-setup(callback)
+    ;; Check if directory org-re-reveal-root exists
+    (if (file-exists-p org-re-reveal-root)
+        ;; If it exists, directly call the callback
+        (funcall callback)
+      ;; Otherwise, download the repository
+      (progn
+        (message "Reveal.js directory not found. Downloading...")
+        (let ((process (start-process-shell-command
+                        "git-clone-reveal.js"
+                        "*git-clone-reveal.js*"
+                        (format "git clone --depth 1 --branch %s %s %s"
+                                +org-re-reveal-exact-working-version
+                                "https://github.com/hakimel/reveal.js"
+                                org-re-reveal-root))))
+          ;; Set a sentinel to run the callback when the process finishes
+          (set-process-sentinel process
+                                (lambda (proc event)
+                                  (when (string= event "finished\n")
+                                    (funcall callback)))))))))
+
+
+
 (use-package org-tree-slide
   :after org
   :commands org-tree-slide-mode
   :bind (:map org-mode-map
               ("C-z P" . org-tree-slide-mode))
   :config
-  (org-tree-slide-simple-profile)
+  (org-tree-slide-presentation-profile)
   (setq org-tree-slide-activate-message " "
         org-tree-slide-deactivate-message " "
         org-tree-slide-modeline-display nil
-        org-tree-slide-heading-emphasis t)
+        org-tree-slide-header t
+        org-tree-slide-heading-emphasis t
+        +org-present-hide-first-heading t)
   (add-hook 'org-tree-slide-after-narrow-hook #'org-display-inline-images)
   (add-hook 'org-tree-slide-mode-hook #'+org-present-prettify-slide-h)
-  (add-hook 'org-tree-slide-play-hook #'+org-present-hide-blocks-h)
-  (defvar +org-present-text-scale 5
+  ;; (add-hook 'org-tree-slide-play-hook #'+org-present-hide-blocks-h)
+  (defvar +org-present-text-scale 3
     "The `text-scale-amount' for `org-tree-slide-mode'.")
   (defun +org-present-hide-blocks-h ()
     "Hide org #+ constructs."
@@ -1503,8 +1540,7 @@ TODO: Add checkbox based on todo state. If in todo show [ ] if done show [X] in 
 
       (cond (org-tree-slide-mode
              (set-window-fringes nil 0 0)
-             (when (bound-and-true-p flyspell-mode)
-               (flyspell-mode -1))
+             (spell-fu-mode -1)
              ;; (add-hook 'kill-buffer-hook #'+org-present--cleanup-org-tree-slides-mode
              ;;           nil 'local)
              (text-scale-set +org-present-text-scale)
@@ -1516,6 +1552,26 @@ TODO: Add checkbox based on todo state. If in todo show [ ] if done show [X] in 
              (org-remove-inline-images)
              (org-mode)))
       (redraw-display)))
+
+  (defun +org-tree-slide--set-slide-header (blank-lines)
+    "Set the header with overlay.
+Some number of BLANK-LINES will be shown below the header."
+    (org-tree-slide--hide-slide-header)
+    (setq org-tree-slide--header-overlay
+          (make-overlay (point-min) (+ 1 (point-min))))
+    (overlay-put org-tree-slide--header-overlay 'after-string " ")
+    (overlay-put org-tree-slide--header-overlay
+                 'face
+                 'org-tree-slide-header-overlay-face)
+    (if org-tree-slide-header
+        (overlay-put org-tree-slide--header-overlay 'display
+                     (concat (when org-tree-slide-breadcrumbs
+                               (concat (org-tree-slide--get-parents
+                                        org-tree-slide-breadcrumbs)))
+                             (org-tree-slide--get-blank-lines blank-lines)))
+      (overlay-put org-tree-slide--header-overlay 'display
+                   (org-tree-slide--get-blank-lines blank-lines))))
+  ;; (advice-add 'org-tree-slide--set-slide-header :override #'+org-tree-slide--set-slide-header)
   (defun +org-present--cleanup-org-tree-slides-mode ()
     (unless (cl-loop for buf in (doom-buffers-in-mode 'org-mode)
                      if (buffer-local-value 'org-tree-slide-mode buf)

@@ -286,6 +286,8 @@
                    (completing-read "Width" '("200" "160" "150" "100" "70") nil t)))
     (olivetti-reset-all-windows)))
 
+(use-package centered-window)
+
 
 (use-package mini-frame
   :bind ("C-c t m" . +toggle-mini-frame)
