@@ -965,6 +965,7 @@ Works by changing `org-modern-priority-A/B/C' faces dynamically."
          ("C-c o s" . consult-org-roam-search)
          ("C-c o r d" . org-roam-dailies-goto-date)
          ("C-c o r r" . org-roam-dailies-goto-today)
+         ("C-c n d" . org-roam-dailies-goto-today)
          ("C-c o r m" . org-roam-dailies-goto-tomorrow)
          ("C-c o r y" . org-roam-dailies-goto-yesterday)
          (:map org-mode-map
@@ -1111,8 +1112,7 @@ the capture popup."
 (use-package calfw-org
   :ensure calfw calfw-org
   :commands (+open-calendar)
-  :bind (:map org-agenda-mode-map ("C" . +open-calendar)
-              :map cfw:calendar-mode-map ("?" . +calendar/show-keys))
+  :bind (:map cfw:calendar-mode-map ("?" . +calendar/show-keys))
   :config
   (set-popup-rule! "^\\*cfw:details\\*$")
   (setq cfw:org-overwrite-default-keybinding t)
@@ -1166,6 +1166,13 @@ the capture popup."
   (setq org-timeline-overlap-in-new-line t)
   (setq org-timeline-show-title-in-blocks t)
   (set-face-attribute 'org-timeline-block nil :inherit 'highlight :background nil))
+
+
+(use-package org-timeblock
+  :after (org-agenda)
+  :demand t
+  :bind (:map org-agenda-mode-map
+              ("C" . org-timeblock)))
 
 (use-package org-appear
   ;; (setq org-hide-emphasis-markers t)
