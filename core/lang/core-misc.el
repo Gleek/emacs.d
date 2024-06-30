@@ -1,4 +1,3 @@
-
 (use-package apache-mode :ensure t)
 (use-package csv-mode :ensure t)
 
@@ -68,5 +67,13 @@
                ("C-c C-d" . nil))))
 
 (use-package make-mode :ensure nil)
+
+
+(use-package feature-mode
+  :bind (:map feature-mode-map
+              ("M-." . nil))        ; let lsp handle this
+  :config
+  (with-eval-after-load 'lsp-cucumber
+    (setq lsp-cucumber-glue (vconcat ["**/*_test.go"] lsp-cucumber-glue))))
 
 (provide 'core-misc)
