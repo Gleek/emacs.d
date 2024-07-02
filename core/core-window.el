@@ -47,7 +47,8 @@
          ("C-<down>"  . windmove-down)))
 
 ;; Courtesy: Doom emacs
-(use-package +popup :ensure nil :demand
+(use-package +popup :ensure nil
+  :commands (set-popup-rule! set-popup-rules!)
   :bind ("C-c w p" . +popup/buffer)
   :config (setq +popup-margin-width nil)
   (+popup-mode t))
@@ -84,7 +85,6 @@
          ("S-s-<tab>" . tab-next)
          ("C-x t u" . tab-bar-undo-close-tab)
          ("C-x t s" . +tab-bar-save-current-window))
-  :defer 3
   :config
   (defun +tab-bar-get-tabs()
     (mapcar (lambda (tab)
