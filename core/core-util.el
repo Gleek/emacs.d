@@ -87,5 +87,12 @@ This checks if the variable is set."
                 collect `(set (intern (concat "secret/" ,(symbol-name key))) ,value))))
 
 
+(defun +debug(obj &optional buffer)
+  (let ((buffer (or buffer "*debug*")))
+    (with-output-to-temp-buffer buffer
+      (princ (pp-to-string obj)))
+    (display-buffer (get-buffer buffer))))
+
+
 (provide 'core-util)
 ;;; core-util ends here

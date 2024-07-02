@@ -41,7 +41,7 @@
 (use-package "lang/core-proto" :ensure nil :demand t)
 (use-package "lang/core-org" :ensure nil :demand t)
 (use-package "lang/core-elisp" :ensure nil :demand t)
-(use-package "lang/core-plantuml" :ensure nil :demand t)
+(use-package "lang/core-diagram" :ensure nil :demand t)
 (use-package "lang/core-misc" :ensure nil :demand t)
 
 (provide 'init)
