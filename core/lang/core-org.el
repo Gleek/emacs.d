@@ -150,11 +150,6 @@
       (buffer-string)))
 
   (setq org-capture-templates
-        '(("t" "Todo with project and category" entry
-           (file+headline "~/path/to/inbox.org" "TODO")
-           (function my/org-capture-template-from-file))))
-
-  (setq org-capture-templates
         `(("i" "inbox" entry (file ,(concat +agenda-directory "inbox.org"))
            "* TODO %?")
           ("l" "link" entry (file ,(concat +agenda-directory "inbox.org"))
@@ -313,9 +308,6 @@
   ;;   (winner-undo))
 
   (setq org-display-remote-inline-images 'download) ; TRAMP urls
-  (org-link-set-parameters "http"  :image-data-fun #'+org-http-image-data-fn)
-  (org-link-set-parameters "https" :image-data-fun #'+org-http-image-data-fn)
-  (org-link-set-parameters "img"   :image-data-fun #'+org-inline-image-data-fn)
 
   ;; (font-lock-remove-keywords 'org-mode
   ;;                       '(("^ *\\((-)\\) "
@@ -714,7 +706,7 @@
 
   (defun +agenda-skip()
     (or (+agenda-skip-projects)
-        (org-agenda-skip-entry-if 'scheduled 'deadline)
+        (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
         (+agenda-skip-errands-worktime)))
 
 
@@ -1148,7 +1140,7 @@ the capture popup."
 (use-package org-timeline
   :ensure nil
   :commands (org-timeline-insert-timeline)
-  :hook (org-agenda-finalize . +org-insert-timeline)
+  ;; :hook (org-agenda-finalize . +org-insert-timeline)
   :config
   ;; Check if org agenda has scheduled items with timestamps
   (defun +org-agenda-has-scheduled()
@@ -1171,8 +1163,15 @@ the capture popup."
 (use-package org-timeblock
   :after (org-agenda)
   :demand t
-  :bind (:map org-agenda-mode-map
-              ("C" . org-timeblock)))
+  :bind (("C-c a c" . org-timeblock)
+         (:map org-agenda-mode-map
+               (("C" . org-timeblock)))
+         (:map org-timeblock-mode-map
+               (("c" . +capture-inbox))))
+  :config
+  (setq org-timeblock-inbox-file (concat +agenda-directory "inbox.org"))
+  (setq org-timeblock-files org-agenda-files)
+  (setq org-timeblock-show-future-repeats t))
 
 (use-package org-appear
   ;; (setq org-hide-emphasis-markers t)
@@ -1579,19 +1578,24 @@ Some number of BLANK-LINES will be shown below the header."
       (overlay-put org-tree-slide--header-overlay 'display
                    (org-tree-slide--get-blank-lines blank-lines))))
   ;; (advice-add 'org-tree-slide--set-slide-header :override #'+org-tree-slide--set-slide-header)
-  (defun +org-present--cleanup-org-tree-slides-mode ()
-    (unless (cl-loop for buf in (doom-buffers-in-mode 'org-mode)
-                     if (buffer-local-value 'org-tree-slide-mode buf)
-                     return t)
-      (org-tree-slide-mode -1)
-      (remove-hook 'kill-buffer-hook #'+org-present--cleanup-org-tree-slides-mode
-                   'local))))
+  )
 
 (use-package org-excalidraw
-  :ensure nil
-  :commands (org-excalidraw-create-drawing)
+  :after org
+  :demand t
+  :bind (:map org-mode-map
+              ("<mouse-4>" . +excalidraw-draw))
+  :ensure (:fetcher github :repo "gleek/org-excalidraw") ; Maintain my own fork since the original has bugs and not updated.
+  :commands (+excalidraw-draw)
   :config
-  (setq org-excalidraw-directory (concat +org-directory "resource/excalidraw")))
+  (defvar +excalidraw-initialized nil)
+  (defun +excalidraw-draw()
+    (interactive)
+    (if (not +excalidraw-initialized)
+        (org-excalidraw-initialize))
+    (setq +excalidraw-initialized t)
+    (org-excalidraw-create-drawing))
+  (setq org-excalidraw-directory (concat +roam-directory "resource/excalidraw")))
 
 (provide 'core-org)
 ;;; core-org.el ends here
