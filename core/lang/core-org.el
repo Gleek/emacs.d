@@ -704,9 +704,32 @@
                         (<= 10 (nth 2 current-time) 17)))) ; 10 AM to 6 PM
         (save-excursion (or (outline-next-heading) (point-max))))))
 
+  (defun org-timestamp-has-repeater-p (timestamp-str)
+    "Check if TIMESTAMP-STR contains a repeater."
+    (and (string-match-p (concat "\\(" org-ts-regexp "\\)") timestamp-str)
+         (string-match-p "\\([.+][0-9]+[hdwmy]\\)" timestamp-str)))
+
+  (defun +org-agenda-skip-if-timestamp-today-or-future ()
+    "Skip entries with any timestamp that is today or in the future."
+    (let ((end (save-excursion (org-end-of-subtree t)))
+          (skip nil))
+      (save-excursion
+        (while (and (not skip) (re-search-forward org-ts-regexp end t))
+          (let* ((timestamp (match-string 0))
+                 (timestamp-date (org-time-string-to-time timestamp))
+                 (today (org-time-string-to-time (format-time-string "%Y-%m-%d"))))
+            (when (and timestamp-date
+                       (or (time-less-p today timestamp-date)
+                           (org-timestamp-has-repeater-p timestamp)))
+              (setq skip t))))
+        (when skip
+          (goto-char end)
+          (point)))))
+
   (defun +agenda-skip()
     (or (+agenda-skip-projects)
-        (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
+        (org-agenda-skip-entry-if 'scheduled 'deadline)
+        (+org-agenda-skip-if-timestamp-today-or-future) ; All entries that have timestamps passed should show up in the agenda.
         (+agenda-skip-errands-worktime)))
 
 
@@ -1169,6 +1192,10 @@ the capture popup."
          (:map org-timeblock-mode-map
                (("c" . +capture-inbox))))
   :config
+  (setq org-timeblock-tag-colors
+        '(("errand" . org-timeblock-blue)
+          ("work" . org-timeblock-magenta)
+          ("meeting" . org-timeblock-red)))
   (setq org-timeblock-inbox-file (concat +agenda-directory "inbox.org"))
   (setq org-timeblock-files org-agenda-files)
   (setq org-timeblock-show-future-repeats t))
