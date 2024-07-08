@@ -529,6 +529,11 @@ Including indent-buffer, which should not be called automatically on save."
 (use-package dtrt-indent
   :hook (prog-mode . dtrt-indent-mode))
 
+
+(use-package emoji
+  :ensure nil
+  :bind ("C-c s e"  . emoji-search))
+
 ;; (delete-selection-mode +1)
 (setq backward-delete-char-untabify-method 'untabify)
 (setq-default cursor-in-non-selected-windows nil)
