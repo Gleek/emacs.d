@@ -11,15 +11,15 @@
 (blink-cursor-mode -1)
 (setq frame-inhibit-implied-resize t)
 ;; Font/Themes
-(defvar default-font "Jetbrains Mono")
-(set-frame-font (concat default-font " 13") 'keepsize t)
+(defvar default-font "Iosevka")
+(set-frame-font (concat default-font " 15") 'keepsize t)
 ;; (set-face-font 'variable-pitch "Baskerville 15")
 ;; (set-face-font 'variable-pitch "ETBembo 17")
 
 ;; (if IS-MAC
 ;;     (set-face-attribute 'variable-pitch nil :family "Cusvenir Next" :height 1.2)
 ;;   (set-face-attribute 'variable-pitch nil :family "Helvetica" :height 1.1))
-(set-face-attribute 'variable-pitch nil :family "Roboto Mono" :height 1.1)
+(set-face-attribute 'variable-pitch nil :family "Iosevka Aile" :height 1.0)
 (set-face-attribute 'fixed-pitch nil :family default-font :height 1.0)
 (set-fontset-font t 'arabic "KFGQPC Uthmanic Script Hafs 25")
 
