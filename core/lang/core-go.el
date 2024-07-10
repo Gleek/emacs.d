@@ -91,7 +91,8 @@ Call with prefix arg to create a new buffer with the interface definition."
   :mode "\\.go\\'"
   :bind (:map go-ts-mode-map
               ("C-z a" . +go-tag-add)
-              ("C-z i" . +generate-interface))
+              ("C-z i" . +generate-interface)
+              ("C-z s" . go-interface-to-struct))
   :config
   (add-hook 'go-ts-mode-hook (lambda() (setq-local format-all-formatters '(("Go" goimports)))))
   (add-hook 'go-ts-mode-hook (lambda() (require 'dap-dlv-go)))
@@ -136,5 +137,38 @@ Call with prefix arg to create a new buffer with the interface definition."
     (flycheck-golangci-lint-setup)
     ;; Demote golangci errors to warning
     (setq-local flycheck-local-checkers-chain '((lsp . golangci-lint)))))
+
+
+
+(defun go-interface-to-struct (&optional arg struct-name)
+  "Run imply on the interface at point.
+With prefix argument ARG, create a new buffer for the output.
+STRUCT-NAME can be used to specify the name of the struct to be created.
+
+Expects imply installed (`go install github.com/gleek/imply@latest`) and in the path."
+  (interactive "P")
+  (let* ((interface-name (thing-at-point 'symbol))
+         (file-name (buffer-file-name))
+         (package-name (file-name-nondirectory (directory-file-name (file-name-directory file-name))))
+         (default-struct-name (concat interface-name "Impl"))
+         (struct-name (or struct-name (read-string (format "Struct name (default %s): " default-struct-name)
+                                                   nil nil default-struct-name)))
+         (imply-command (format "imply %s %s %s" file-name interface-name struct-name))
+         (imply-output (shell-command-to-string imply-command))
+         (struct-start (string-match "type " imply-output))
+         (filtered-output (if struct-start
+                              (substring imply-output struct-start)
+                            imply-output)))
+    (if arg
+        ;; Create a new buffer and insert the output
+        (with-current-buffer (get-buffer-create (concat "*imply-" interface-name "*"))
+          (erase-buffer)
+          (insert imply-output)
+          (go-ts-mode)
+          (switch-to-buffer (current-buffer)))
+      ;; Insert the output after the interface in the current buffer
+      (save-excursion
+        (forward-list)
+        (insert "\n" filtered-output)))))
 
 (provide 'core-go)
