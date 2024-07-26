@@ -122,7 +122,7 @@
     ;; (push '("[ ]" .  "☐") prettify-symbols-alist)
     ;; (push '("[X]" . "☒" ) prettify-symbols-alist)
     ;; (push '("[-]" . "❍" ) prettify-symbols-alist)
-    ;; (push '("->" . "⟶" ) prettify-symbols-alist)
+    (push '("->" . "⟶" ) prettify-symbols-alist)
     ;; (push '("=>" . "⟹") prettify-symbols-alist)
     (push '("--" . "—") prettify-symbols-alist)
     (prettify-symbols-mode))
@@ -234,6 +234,49 @@
         (if (> (length tracking-link) 0)
             (org-entry-put nil "DELEGATED_TRACKING_LINK" tracking-link)))))
 
+  (defun +org-insert-date-tree ()
+      "Update existing date tree or insert a new one in the current Org buffer with inactive timestamps and checkbox counter."
+  (interactive)
+  (let* ((today (current-time))
+         (year (format-time-string "%Y" today))
+         (month (format-time-string "%B" today))
+         (week (format-time-string "%W" today))
+         (date-stamp (format-time-string "[%Y-%m-%d %a]" today))
+         (day-entry-point nil))
+    (org-with-wide-buffer
+     (goto-char (point-min))
+     (unless (re-search-forward (format "^\\* %s" year) nil t)
+       (goto-char (point-max))
+       (insert (format "\n* %s" year)))
+     (org-narrow-to-subtree)
+     (goto-char (point-min))
+     (unless (re-search-forward (format "^\\*\\* %s" month) nil t)
+       (goto-char (point-max))
+       (insert (format "\n** %s" month)))
+     (org-narrow-to-subtree)
+     (goto-char (point-min))
+     (unless (re-search-forward (format "^\\*\\*\\* Week %s" week) nil t)
+       (goto-char (point-max))
+       (insert (format "\n*** Week %s" week)))
+     (org-narrow-to-subtree)
+     (goto-char (point-min))
+     (if (re-search-forward (format "^\\*\\*\\*\\* %s" (regexp-quote date-stamp)) nil t)
+         (progn
+           (when (looking-at " \\[/\\]")
+             (delete-region (match-beginning 0) (match-end 0))
+             (insert " [0/0]"))
+           (end-of-line)
+           (setq day-entry-point (point)))
+       (goto-char (point-max))
+       (insert (format "\n**** %s [0/0]" date-stamp))
+       (setq day-entry-point (point)))
+     (widen))
+    (org-update-statistics-cookies nil)
+    (when day-entry-point
+      (goto-char day-entry-point)
+      (newline)
+      (indent-according-to-mode))))
+
   (add-hook 'org-capture-before-finalize-hook 'add-property-with-date-captured)
   (add-hook 'org-after-todo-state-change-hook 'org-entry-waiting-hook)
   (add-hook 'org-after-todo-state-change-hook 'org-entry-delegated-hook)
@@ -344,23 +387,24 @@
   ;; Prevent modifications made in invisible sections of an org document, as
   ;; unintended changes can easily go unseen otherwise.
   (setq org-catch-invisible-edits 'smart)
-
-  ;; (custom-set-faces
-  ;;  '(org-block ((t (:inherit fixed-pitch))))
-  ;;  '(org-code ((t (:inherit (shadow fixed-pitch)))))
-  ;;  '(org-document-info ((t (:foreground "dark orange"))))
-  ;;  '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
-  ;;  '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
-  ;;  '(org-link ((t (:foreground "royal blue" :underline t))))
-  ;;  '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-  ;;  '(org-property-value ((t (:inherit fixed-pitch))) t)
-  ;;  '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-  ;;  '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
-  ;;  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
-  ;;  '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
-  ;; (set-face-attribute 'org-ellipsis nil
-  ;;                     :inherit '(font-lock-comment-face default)
-  ;;                     :weight 'normal)
+  (dolist (face-attrs '(
+                        ;; (org-block :inherit 'fixed-pitch)
+                        ;; (org-code :inherit '(shadow fixed-pitch))
+                        ;; (org-document-info :foreground "dark orange")
+                        ;; (org-document-info-keyword :inherit '(shadow fixed-pitch))
+                        ;; (org-indent :inherit '(org-hide fixed-pitch))
+                        ;; (org-link :foreground "royal blue" :underline t)
+                        ;; (org-meta-line :inherit (font-lock-comment-face fixed-pitch))
+                        (org-property-value :inherit 'fixed-pitch)
+                        (org-special-keyword :inherit (font-lock-comment-face fixed-pitch))
+                        ;; (org-table :inherit 'fixed-pitch)
+                        ;; (org-tag :inherit (shadow fixed-pitch) :weight bold :height 0.8)
+                        ;; (org-ellipsis :inherit '(font-lock-comment-face default) :weight 'normal)
+                        (org-verbatim :inherit (shadow fixed-pitch))
+                        ))
+    (let ((face (car face-attrs))
+          (attributes (cdr face-attrs)))
+      (apply #'set-face-attribute face nil attributes)))
 
 
   ;; Support for plantuml
@@ -433,6 +477,7 @@
          :map org-mode-map
          ("C-s-q" . org-fill-paragraph)
          ("s-w" . org-formatted-copy)
+         ("C-z i d" . +org-insert-date-tree)
          ("C-<tab>" . nil))
   :bind* (:map org-mode-map
                ("C-y" . +org-yank)))
@@ -1488,6 +1533,8 @@ TODO: Add checkbox based on todo state. If in todo show [ ] if done show [X] in 
 
 (use-package org-re-reveal
   :commands (+org-re-reveal-run)
+  :bind (:map org-mode-map
+              ("C-z p o" . +org-re-reveal-run))
   :config
   (setq org-re-reveal-root  (concat CACHE-DIR "reveal.js")
         org-re-reveal-revealjs-version "4"
@@ -1525,7 +1572,7 @@ TODO: Add checkbox based on todo state. If in todo show [ ] if done show [X] in 
   :after org
   :commands org-tree-slide-mode
   :bind (:map org-mode-map
-              ("C-z P" . org-tree-slide-mode))
+              ("C-z p p" . org-tree-slide-mode))
   :config
   (org-tree-slide-presentation-profile)
   (setq org-tree-slide-activate-message " "
