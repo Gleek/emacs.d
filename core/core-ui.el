@@ -12,7 +12,7 @@
 (setq frame-inhibit-implied-resize t)
 ;; Font/Themes
 (defvar default-font "Iosevka")
-(set-frame-font (concat default-font " 15") 'keepsize t)
+(set-frame-font (concat default-font " 16") 'keepsize t)
 ;; (set-face-font 'variable-pitch "Baskerville 15")
 ;; (set-face-font 'variable-pitch "ETBembo 17")
 
