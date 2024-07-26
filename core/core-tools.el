@@ -165,7 +165,8 @@ TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s
     (interactive "P")
     (require 'eimp)
     (let* ((file-name (buffer-file-name))
-           (is-jpg (and file-name (string= (file-name-extension file-name) "jpg")))
+           (is-jpg (and file-name (or (string= (file-name-extension file-name) "jpg")
+                                      (string= (file-name-extension file-name) "jpeg"))))
            (convert-to-png (and is-jpg (y-or-n-p "Convert JPG to PNG before background removal?")))
            (png-file (when convert-to-png (concat (file-name-sans-extension file-name) ".png")))
            ;; Get top 5 colors
