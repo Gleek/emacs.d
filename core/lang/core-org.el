@@ -1509,13 +1509,13 @@ Without arguments, return non-nil if entry is captured."
     (interactive)
     (org-ql-search
       org-agenda-files
-      `(closed :to ,(ts-format (ts-adjust 'day -60 (ts-now))))))
+      `(closed :to ,(ts-format (ts-adjust 'day -360 (ts-now))))))
   (defun +org-archive-archivable()
     "Automatically archive all items that were closed 60 days ago or before"
     (interactive)
     (org-ql-select
       org-agenda-files
-      `(closed :to ,(ts-format (ts-adjust 'day -60 (ts-now))))
+      `(closed :to ,(ts-format (ts-adjust 'day -360 (ts-now))))
       :action 'org-archive-subtree-default))
   (cl-defun org-dblock-write:org-ql-list (params)
     "Modified version of org-ql dblock to show all headings in a list form.
