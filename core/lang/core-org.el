@@ -561,15 +561,15 @@
       (org-id-get-create)
       (let ((l (org-store-link nil)))
         (with-current-buffer (find-file-noselect (concat +agenda-directory "worklog.org"))
-        (+org-insert-date-tree)
-        (goto-char (point-max))
-        (insert (format "- [ ] %s\n" l))
-        (org-update-statistics-cookies nil)
-        (message "Pushed %s to worklog"
-                 ;; Remove the id: link format and only keep the formatted description
-                 (string-trim-right
-                  (replace-regexp-in-string "\\[\\[id:[^\]]+\\]\\[" "" l)
-                  "\]\]"))))))
+          (+org-insert-date-tree)
+          (goto-char (point-max))
+          (insert (format "- [ ] %s\n" l))
+          (org-update-statistics-cookies nil)
+          (message "Pushed %s to worklog"
+                   ;; Remove the id: link format and only keep the formatted description
+                   (string-trim-right
+                    (replace-regexp-in-string "\\[\\[id:[^\]]+\\]\\[" "" l)
+                    "\]\]"))))))
 
   ;; Courtesy: https://emacs.stackexchange.com/a/59883
   (defun org-agenda-bulk-mark-regexp-category (regexp)
@@ -843,6 +843,7 @@
   (setq org-agenda-files (mapcar (lambda(file) (concat +agenda-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "someday.org"))
         org-agenda-window-setup 'current-window
         org-agenda-skip-unavailable-files t
+        org-agenda-tags-column 'auto
         org-agenda-skip-scheduled-if-done t
         org-agenda-span 10
         org-agenda-block-separator (aref "━" 0)
@@ -893,15 +894,46 @@
 
 (use-package org-modern
   :hook ((org-mode . org-modern-mode)
-         (org-agenda-finalize . org-modern-agenda))
+         (org-agenda-finalize . +org-modern-agenda))
   :config
-  (set-face-attribute 'org-modern-symbol nil :family "Iosevka") ;; package's recommended font
+  ;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka") ;; package's recommended font
   (setq org-modern-label-border 0.2)
-  ;; (defface solaire-org-modern-label
-  ;;   `((t :inherit org-modern-label
-  ;;        :box (:color ,(face-attribute 'solaire-default-face :background nil t))))
-  ;;   "Alternative for org-modern-label")
-  ;; (add-to-list 'solaire-mode-remap-alist '(org-modern-label . solaire-org-modern-label))
+
+  ;; Courtesy: connormclaud (https://github.com/minad/org-modern/pull/209)
+  ;; The reason for this not merged is the performance hit `string-pixel-width' is supposed to cause
+  ;; Also it isn't backward compatible.
+  ;; If this slows down my agenda as well. Disabling and setting  `org-agenda-tags-column' to 0 will be the solution.
+  (defun org-modern-align-tags (&optional line)
+    "Align all tags in agenda items to `org-agenda-tags-column'.
+When optional argument LINE is non-nil, align tags only on the
+current line."
+    (let ((inhibit-read-only t)
+          (org-agenda-tags-column (if (eq 'auto org-agenda-tags-column)
+                                      (-(window-max-chars-per-line))
+                                    org-agenda-tags-column))
+          (end (and line (line-end-position)))
+          len col pixel-width)
+      (org-fold-core-ignore-modifications
+        (save-excursion
+          (goto-char (if line (line-beginning-position) (point-min)))
+          (while (re-search-forward org-tag-group-re end 'noerror)
+            (setq len (length (match-string 1))
+                  pixel-width (string-pixel-width (match-string 1))
+                  col (if (< org-agenda-tags-column 0)
+                          (- (abs org-agenda-tags-column) len)
+                        org-agenda-tags-column))
+            (goto-char (match-beginning 1))
+            (delete-region (save-excursion (skip-chars-backward " \t") (point))
+                           (point))
+            (let ((spaces (make-string (max 1 (- col (current-column) 2)) ?\s)))
+              (insert spaces)
+              (insert (propertize " " 'display `(space :align-to (- right (,pixel-width))))))
+            (goto-char (line-end-position)))))))
+
+  (defun +org-modern-agenda()
+    (org-modern-agenda)
+    (org-modern-align-tags))
+
 
 
   (defface org-modern-priority-A
