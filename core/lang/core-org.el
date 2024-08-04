@@ -1070,7 +1070,7 @@ Works by changing `org-modern-priority-A/B/C' faces dynamically."
   (setq org-roam-db-location (concat CACHE-DIR "org-roam.db"))
   :bind* (("C-c n n" . +org-roam-node-find))
   :bind (("C-c o m" . org-roam-buffer-toggle)
-         ("C-c o s" . consult-org-roam-search)
+         ("C-c o s" . org-roam-search)
          ("C-c o r d" . org-roam-dailies-goto-date)
          ("C-c o r r" . org-roam-dailies-goto-today)
          ("C-c n d" . org-roam-dailies-goto-today)
@@ -1101,7 +1101,10 @@ Works by changing `org-modern-priority-A/B/C' faces dynamically."
            "* %?"
            :target (file+datetree "journal.org" week))))
 
-
+  (defun org-roam-search ()
+    (interactive)
+    (require 'consult)
+    (consult-ripgrep org-roam-directory))
   (defun org-dblock-write:org-roam-backlinks-list (params)
     (let* ((id (plist-get params :id))
            (id (if id id (org-roam-node-id (org-roam-node-at-point))))
