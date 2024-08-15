@@ -556,20 +556,25 @@
   (defun +agenda-item-to-worklog ()
     "Copies the link to the current item inside agenda and pushes it to worklog.org with a link."
     (interactive)
-    (save-window-excursion
-      (org-agenda-switch-to)
-      (org-id-get-create)
-      (let ((l (org-store-link nil)))
-        (with-current-buffer (find-file-noselect (concat +agenda-directory "worklog.org"))
-          (+org-insert-date-tree)
-          (goto-char (point-max))
-          (insert (format "- [ ] %s\n" l))
-          (org-update-statistics-cookies nil)
-          (message "Pushed %s to worklog"
-                   ;; Remove the id: link format and only keep the formatted description
-                   (string-trim-right
-                    (replace-regexp-in-string "\\[\\[id:[^\]]+\\]\\[" "" l)
-                    "\]\]"))))))
+    (let* ((marker (or (org-get-at-bol 'org-marker)
+                       (org-agenda-error)))
+           (buffer (marker-buffer marker))
+           (pos (marker-position marker)))
+      (with-current-buffer buffer
+        (save-excursion
+          (goto-char pos)
+          (org-id-get-create)
+          (let ((l (org-store-link nil)))
+            (with-current-buffer (find-file-noselect (concat +agenda-directory "worklog.org"))
+              (+org-insert-date-tree)
+              (goto-char (point-max))
+              (insert (format "- [ ] %s\n" l))
+              (org-update-statistics-cookies nil)
+              (message "Pushed %s to worklog"
+                       ;; Remove the id: link format and only keep the formatted description
+                       (string-trim-right
+                        (replace-regexp-in-string "\\[\\[id:[^\]]+\\]\\[" "" l)
+                        "\]\]"))))))))
 
   ;; Courtesy: https://emacs.stackexchange.com/a/59883
   (defun org-agenda-bulk-mark-regexp-category (regexp)
@@ -901,7 +906,7 @@
 
   ;; Courtesy: connormclaud (https://github.com/minad/org-modern/pull/209)
   ;; The reason for this not merged is the performance hit `string-pixel-width' is supposed to cause
-  ;; Also it isn't backward compatible.
+  ;; Also it isn't backward compatible with older emacs versions
   ;; If this slows down my agenda as well. Disabling and setting  `org-agenda-tags-column' to 0 will be the solution.
   (defun org-modern-align-tags (&optional line)
     "Align all tags in agenda items to `org-agenda-tags-column'.
@@ -970,13 +975,6 @@ Works by changing `org-modern-priority-A/B/C' faces dynamically."
     t)
   (add-hook 'enable-theme-functions '+reset-org-priority-colors)
   (+reset-org-priority-colors))
-
-;; (use-package org-superstar
-;;   :hook (org-mode . org-superstar-mode))
-;; (use-package org-fancy-priorities
-;;   :hook (org-mode . org-fancy-priorities-mode)
-;;   :config
-;;   (setq org-fancy-priorities-list '("⚑" "⇧" "⇩" "☕")))
 
 (use-package org-download
   :bind (("C-c o d c" . org-download-clipboard)
