@@ -283,8 +283,8 @@
   (setq org-capture-bookmark nil)
 
   (setq org-ellipsis "⤶"
+        org-cycle-separator-lines -1
         ;; org-agenda-files `(,+agenda-directory)
-
         org-archive-location (concat +org-directory "archive.org::* From %s")
         org-startup-align-all-tables t
         org-log-done 'time
@@ -552,7 +552,6 @@
       (kill-new entries)
       (message "Marked entries copied to kill ring.")))
 
-
   (defun +agenda-item-to-worklog ()
     "Copies the link to the current item inside agenda and pushes it to worklog.org with a link."
     (interactive)
@@ -746,9 +745,10 @@
     "Return -1,0 or 1 randomly"
     (- (mod (random) 3) 1))
 
-  (defun +agenda-skip-projects()
-    "Every entry that has a sub TODO item is a project."
-    (let ((has-subtasks nil))
+  (defun +agenda-skip-projects ()
+    "Skip items with subtasks, unless they are in WAITING or BLOCKED state."
+    (let ((has-subtasks nil)
+          (current-state (org-get-todo-state)))
       (org-narrow-to-subtree)
       (save-excursion
         (org-back-to-heading t)
@@ -758,9 +758,27 @@
             (when (member (org-get-todo-state) org-not-done-keywords)
               (setq has-subtasks t)))))
       (widen)
-      (if has-subtasks
-          (or (outline-next-heading) (point-max))
+      (if (and has-subtasks (not (member current-state '("WAITING" "BLOCKED"))))
+          (progn
+            (message "skipping task with state %s" current-state)
+            (or (outline-next-heading) (point-max)))
         nil)))
+
+  (defun +agenda-skip-if-parent-blocked ()
+    "Skip items if their parent is in WAITING or BLOCKED state.
+   Does not skip if the item has no parent or is itself in WAITING or BLOCKED state."
+    (let ((parent-state nil)
+          (current-state (org-get-todo-state)))
+      (save-excursion
+        (when (org-up-heading-safe)  ; Returns nil if there's no parent
+          (setq parent-state (org-get-todo-state))))
+      (if parent-state
+          ;; If there's a parent, skip if parent is WAITING or BLOCKED
+          (when (member parent-state '("WAITING" "BLOCKED"))
+            (org-end-of-subtree t))
+        ;; If there's no parent, don't skip
+        nil)))
+
 
   (defun +agenda-skip-errands-worktime()
     (let ((tags (org-get-tags)))
@@ -794,6 +812,7 @@
 
   (defun +agenda-skip()
     (or (+agenda-skip-projects)
+        (+agenda-skip-if-parent-blocked)
         (org-agenda-skip-entry-if 'scheduled 'deadline)
         (+org-agenda-skip-if-timestamp-today-or-future) ; All entries that have timestamps passed should show up in the agenda.
         (+agenda-skip-errands-worktime)))

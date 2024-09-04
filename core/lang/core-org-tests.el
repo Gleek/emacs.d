@@ -47,7 +47,19 @@
            (,(concat "* TODO Project A\n"
                     "** DONE Subtask 1\n"
                     "** DONE Subtask 2\n")
-            . nil))))
+            . nil)
+           (,(concat "* WAITING  Project A\n"
+                    "** TODO Subtask 1\n"
+                    "** TODO Subtask 2\n")
+            . nil)
+           (,(concat "* BLOCKED Project A\n"
+                    "** TODO Subtask 1\n"
+                    "** DONE Subtask 2\n")
+            . nil)
+           (,(concat "* DELEGATED Project A\n"
+                    "** TODO Subtask 1\n"
+                    "** TODO Subtask 2\n")
+            . 23))))
     (dolist (case test-cases)
       (with-temp-buffer
         (org-mode)
