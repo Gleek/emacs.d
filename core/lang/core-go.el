@@ -130,7 +130,14 @@ Call with prefix arg to create a new buffer with the interface definition."
   (add-hook 'before-save-hook '+gofmt-before-save)
   (setq-default go-ts-mode-indent-offset tab-width))
 
-(use-package go-gen-test)
+
+;; git clone https://github.com/cweill/gotests
+;; cd gotests/gotests
+;; go build
+;; cp gotests $GOPATH/bin/.
+(use-package go-gen-test
+  :bind (:map go-ts-mode-map
+              ("C-z t" . go-gen-test-dwim)))
 
 (use-package go-mode
   :bind (:map go-mode-map
