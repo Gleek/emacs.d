@@ -13,6 +13,14 @@
                       cwd))))
     (setq default-directory cwd))
 
+  (defun +shell-pop--cd-to-cwd-eshell (cwd)
+    "Advice on the similar function but adds eshell/cd command as well. To keep eshell consistent."
+    (if (eshell-process-interact 'process-live-p)
+        (message "Won't change CWD because of running process.")
+      (setq default-directory cwd)
+      (eshell/cd cwd)
+      (eshell-reset)))
+
   ;; shell-pop--cd-to-cwd
   (defun +shell-pop-cd(o &rest args)
     (let ((abspath (expand-file-name (car args))))
@@ -20,6 +28,7 @@
              (shell-pop--cd-to-cwd-vterm abspath))
             (t (apply o args)))))
   (advice-add 'shell-pop--cd-to-cwd :around '+shell-pop-cd)
+  (advice-add 'shell-pop--cd-to-cwd-eshell :override '+shell-pop--cd-to-cwd-eshell)
 
   (defun +shellpop-eshell()
     (interactive)
