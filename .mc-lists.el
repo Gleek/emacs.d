@@ -69,6 +69,7 @@
         org-archive-subtree-default
         org-beginning-of-line
         org-cycle
+        org-decrease-number-at-point
         org-delete-char
         org-end-of-line
         org-force-self-insert
