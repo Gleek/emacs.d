@@ -51,27 +51,27 @@
 
   (defun org-formatted-copy (arg)
     "Export region to HTML, and copy it to the clipboard.
-    Earlier used a textutil implementation to convert html to rtf
-    and also a version which used pandoc to convert from org to
-    rtf directly.  But rtf text is not easily supported
-    everywhere.  This updated version uses a custom swift
-    script (pbcopy-html) which transforms html to
-    NSAttributedString. This seems like, can be pasted
-    everywhere that supports some decent formatting."
+Earlier used a textutil implementation to convert html to rtf
+and also a version which used pandoc to convert from org to
+rtf directly.  But rtf text is not easily supported
+everywhere.  This updated version uses a custom swift
+script (pbcopy-html) which transforms html to
+NSAttributedString. This seems like, can be pasted
+everywhere that supports some decent formatting."
     (interactive "P")
     (save-window-excursion
-      (let* ((org-export-with-toc nil)
-             (org-export-with-sub-superscripts nil)
-             (org-html-checkbox-type 'unicode)
-             ;; (org-export-smart-quotes-alist nil)
-             (org-export-with-smart-quotes t)
-             (export-type (if arg "rtf" "attributed"))
-             (buf (org-export-to-buffer 'html "*Formatted Copy*" nil nil t t))
-             (html (with-current-buffer buf (buffer-string)))
-             ;; Remove electric quotes as they get messed up in some applications
-             (html (string-multi-replace '(("”" "\"") ("“" "\"") ("’" "'")) html)))
-        (shell-command (format "pbcopy-html --type=%s %s" export-type (shell-quote-argument html)))
-        (kill-buffer buf))))
+      (let ((org-export-with-toc nil)
+            (org-export-with-sub-superscripts nil)
+            (org-html-checkbox-type 'unicode)
+            ;; (org-export-smart-quotes-alist nil)
+            (org-export-with-smart-quotes t)
+            (export-type (if arg "rtf" "attributed")))
+        (let* ((buf (org-export-to-buffer 'html "*Formatted Copy*" nil nil t t))
+               (html (with-current-buffer buf (buffer-string)))
+               ;; Remove electric quotes as they get messed up in some applications
+               (html (string-multi-replace '(("”" "\"") ("“" "\"") ("’" "'")) html)))
+          (shell-command (format "pbcopy-html --type=%s %s" export-type (shell-quote-argument html)))
+          (kill-buffer buf)))))
 
   (defun org-formatted-paste()
     "Clipboard content in html is converted to org using pandoc and inserted to the buffer."
