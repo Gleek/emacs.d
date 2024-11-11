@@ -1,5 +1,26 @@
-(setq auto-save-list-file-prefix (concat CACHE-DIR "auto-save-list/.saves-")
-      auto-save-file-name-transforms `((".*" ,auto-save-list-file-prefix t)))
+(use-package emacs
+  :ensure nil
+  :config
+  (setq auto-save-list-file-prefix (concat CACHE-DIR "auto-save-list/.saves-")
+        auto-save-file-name-transforms `((".*" ,auto-save-list-file-prefix t)))
+  ;; Courtesy: Doom
+  (defun make-hashed-autosave-filename-a(&rest args)
+    "Hashes the filename to avoid long filenames."
+    (let ((buffer-file-name
+           (if (or
+                ;; Don't do anything for non-file-visiting buffers. Names
+                ;; generated for those are short enough already.
+                (null buffer-file-name)
+                ;; If an alternate handler exists for this path, bow out.  Most of
+                ;; them end up calling `make-auto-save-file-name' again anyway, so
+                ;; we still achieve this advice's ultimate goal.
+                (find-file-name-handler buffer-file-name
+                                        'make-auto-save-file-name))
+               buffer-file-name
+             (sha1 buffer-file-name))))
+      (apply args)))
+  (advice-add 'make-auto-save-file-name :around #'make-hashed-autosave-filename-a))
+
 (use-package persistent-scratch
   :init
   :bind ("<f6>" . persistent-scratch-quick-open)
@@ -54,12 +75,12 @@
   (defun persistent-scratch-quick-open()
     (interactive)
     (let* ((scratch-buffers (persistent-scratch-get-scratches))
-          (chosen-scratch (concat "*scratch:"
-                                  (completing-read
-                                   "Choose a scratch: "
-                                   scratch-buffers nil nil nil nil
-                                   (random-alnum 4))))
-          (buffer-exists-p (get-buffer chosen-scratch)))
+           (chosen-scratch (concat "*scratch:"
+                                   (completing-read
+                                    "Choose a scratch: "
+                                    scratch-buffers nil nil nil nil
+                                    (random-alnum 4))))
+           (buffer-exists-p (get-buffer chosen-scratch)))
       (switch-to-buffer chosen-scratch)
       (unless buffer-exists-p
         (persistent-scratch-restore-this))
