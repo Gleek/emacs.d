@@ -277,6 +277,17 @@ everywhere that supports some decent formatting."
         (goto-char day-entry-point)
         (indent-according-to-mode))))
 
+
+  (defun echo-area-tooltips ()
+    "Show tooltips in the echo area automatically for current buffer.
+Useful to checking the link under point."
+    (setq-default help-at-pt-display-when-idle 'never)
+    (setq-local help-at-pt-display-when-idle t
+                help-at-pt-timer-delay 0)
+    (help-at-pt-cancel-timer)
+    (help-at-pt-set-timer))
+
+  (add-hook 'org-mode-hook #'echo-area-tooltips)
   (add-hook 'org-capture-before-finalize-hook 'add-property-with-date-captured)
   (add-hook 'org-after-todo-state-change-hook 'org-entry-waiting-hook)
   (add-hook 'org-after-todo-state-change-hook 'org-entry-delegated-hook)
