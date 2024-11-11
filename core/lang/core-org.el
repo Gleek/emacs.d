@@ -517,6 +517,7 @@ everywhere that supports some decent formatting."
                ("c" . +capture-inbox)
                ("M-*" . nil)
                ("W" . +agenda-item-to-worklog)
+               ("E" . +agenda-item-to-lifelog)
                ("r" . +org-agenda-process-inbox-item)
                ("P" . +org-process-inbox)
                ("R" . org-agenda-refile)
@@ -552,9 +553,15 @@ everywhere that supports some decent formatting."
       (kill-new entries)
       (message "Marked entries copied to kill ring.")))
 
-  (defun +agenda-item-to-worklog ()
+  (defun +agenda-item-to-lifelog()
+    (interactive)
+    (+agenda-item-to-worklog "lifelog.org"))
+
+  (defun +agenda-item-to-worklog (&optional file)
     "Copies the link to the current item inside agenda and pushes it to worklog.org with a link."
     (interactive)
+    (unless file
+      (setq file "worklog.org"))
     (let* ((marker (or (org-get-at-bol 'org-marker)
                        (org-agenda-error)))
            (buffer (marker-buffer marker))
@@ -564,16 +571,17 @@ everywhere that supports some decent formatting."
           (goto-char pos)
           (org-id-get-create)
           (let ((l (org-store-link nil)))
-            (with-current-buffer (find-file-noselect (concat +agenda-directory "worklog.org"))
+            (with-current-buffer (find-file-noselect (concat +agenda-directory file))
               (+org-insert-date-tree)
               (goto-char (point-max))
               (insert (format "- [ ] %s\n" l))
               (org-update-statistics-cookies nil)
-              (message "Pushed %s to worklog"
+              (message "Pushed %s to %s"
                        ;; Remove the id: link format and only keep the formatted description
                        (string-trim-right
                         (replace-regexp-in-string "\\[\\[id:[^\]]+\\]\\[" "" l)
-                        "\]\]"))))))))
+                        "\]\]")
+                       file)))))))
 
   ;; Courtesy: https://emacs.stackexchange.com/a/59883
   (defun org-agenda-bulk-mark-regexp-category (regexp)
