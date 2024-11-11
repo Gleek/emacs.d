@@ -293,8 +293,7 @@ Useful to checking the link under point."
   (add-hook 'org-after-todo-state-change-hook 'org-entry-delegated-hook)
   (setq org-capture-bookmark nil)
 
-  (setq org-ellipsis "⤶"
-        org-cycle-separator-lines -1
+  (setq org-ellipsis " "       ; Setting to space since org modern already modifies the heading stars to arrows.
         ;; org-agenda-files `(,+agenda-directory)
         org-archive-location (concat +org-directory "archive.org::* From %s")
         org-startup-align-all-tables t
