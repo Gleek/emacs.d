@@ -156,7 +156,7 @@ everywhere that supports some decent formatting."
            "* TODO %(org-cliplink-capture)" :immediate-finish t)
           ("c" "org-protocol-capture" entry (file ,(concat +agenda-directory "inbox.org"))
            "* TODO [[%:link][%:description]]\n\n %i" :immediate-finish t)
-          ("p" "project" entry (file ,(concat +agenda-directory "inbox.org"))
+          ("p" "project" entry (file ,(concat +agenda-directory "next.org"))
            (function +org-capture-template-from-file))))
 
 
