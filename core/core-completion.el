@@ -306,6 +306,9 @@
         copilot-max-char 10000))
 
 
+(use-package copilot-chat)
+
+
 (use-package codeium
   :commands (codeium-install)
   :disabled
