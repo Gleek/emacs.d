@@ -309,6 +309,23 @@
 (use-package copilot-chat)
 
 
+(use-package elysium
+  :bind (("C-c C-a" . elysium-query)
+         ("C-c C-s A" . elysium-keep-all-suggested-changes)
+         ("C-c C-s k" . elysium-discard-all-suggested-changes))
+  :config
+  (setq elysium-window-size 0.33)
+  (setq elysium-window-style 'vertical))
+
+
+(use-package aider
+  :ensure (:fetcher github :repo "tninja/aider.el")
+  ;; :bind (("C-c C-a" . aider-transient-menu))
+  :config
+  (setq aider-args '("--model" "gpt-4o-mini"))
+  (setenv "OPENAI_API_KEY" (secret-get openai-key)))
+
+
 (use-package codeium
   :commands (codeium-install)
   :disabled

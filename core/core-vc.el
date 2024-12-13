@@ -38,6 +38,16 @@
   (setq ediff-split-window-function 'split-window-horizontally)
   (setq ediff-diff-options "-w"))
 
+
+(use-package smerge-mode
+  :ensure nil
+  :bind (:map smerge-mode-map
+              ("C-c C-s m" . smerge-keep-mine)
+              ("C-c C-s o" . smerge-keep-other)
+              ("C-c C-s b" . smerge-keep-base)
+              ("C-c C-s a" . smerge-keep-all)
+              ("C-c C-s RET" . smerge-keep-current)))
+
 ;; (use-package magit-delta
 ;;   :hook (magit-mode . magit-delta-mode))
 
