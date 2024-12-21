@@ -885,7 +885,7 @@ Useful to checking the link under point."
                    (org-agenda-cmp-user-defined #'org-random-cmp)
                    (org-agenda-files '(,(concat +agenda-directory "someday.org")))
                    (org-agenda-sorting-strategy '(user-defined-up))
-                   (org-agenda-max-entries 10)))
+                   (org-agenda-max-entries (if +agenda-disable-skips nil 10))))
             nil))))
 
 
