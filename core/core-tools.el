@@ -428,9 +428,9 @@ To reset the playlist is to undo the marks produced by non-nil
     "Toggle `bongo-random-playback-mode' in playlist buffers."
     (interactive)
     (with-bongo-playlist-buffer
-     (if (eq bongo-next-action 'bongo-play-random-or-stop)
-         (bongo-progressive-playback-mode)
-       (bongo-random-playback-mode))))
+      (if (eq bongo-next-action 'bongo-play-random-or-stop)
+          (bongo-progressive-playback-mode)
+        (bongo-random-playback-mode))))
   (defun +bongo-playlist-play-random()
     (interactive)
     (unless (bongo-playlist-buffer)
@@ -629,8 +629,25 @@ To actually enable this, evaluate `+bongo-remove-headers'."
 
 (use-package gptel
   :commands (gptel gptel-send)
+  :bind (("C-c q s" . gptel-send)
+         ("C-c q r" . gptel-rewrite)
+         ("C-c q c" . gptel)
+         ("C-c q m" . gptel-menu))
   :config
-  (setq gptel-api-key (secret-get openai-key)))
+  (setq gptel-model 'gemini-2.0-flash-exp)
+
+  (setq gptel-api-key (secret-get openai-key))
+  (setq gptel-backend (gptel-make-gemini "Gemini" :key (secret-get gemini-key) :stream t))
+
+  (gptel-make-openai "TogetherAI"
+    :host "api.together.xyz"
+    :key (secret-get together-ai-key)
+    :stream t
+    :models '(;; has many more, check together.ai
+              mistralai/Mixtral-8x7B-Instruct-v0.1
+              codellama/CodeLlama-13b-Instruct-hf
+              codellama/CodeLlama-34b-Instruct-hf)))
+
 
 (when IS-MAC
   (defun play-sound-mac(sound)

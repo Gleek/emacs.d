@@ -306,16 +306,40 @@
         copilot-max-char 10000))
 
 
-(use-package copilot-chat)
+(use-package copilot-chat
+  :bind (("C-c q o" . copilot-chat-display)
+         ("C-c q p" . copilot-custom-chat-prompt-selection))
+  :config
+  (setq copilot-chat-frontend 'shell-maker))
 
 
 (use-package elysium
-  :bind (("C-c C-a" . elysium-query)
+  :bind (("C-c q a" . elysium-query)
          ("C-c C-s A" . elysium-keep-all-suggested-changes)
          ("C-c C-s k" . elysium-discard-all-suggested-changes))
   :config
+  ;; The manual merge that this creates is on wrong lines. TODO: Fix this. gptel-rewrite does it correctly but adds lang tags.
   (setq elysium-window-size 0.33)
-  (setq elysium-window-style 'vertical))
+  (setq elysium-window-style 'horizontal)
+  (defhydra elysium-smerge-hydra (:color blue :hint nil :quit-key nil)
+    "
+        Smerge Navigation
+        _n_: Next conflict    _p_: Previous conflict
+        _a_: Accept lower     _k_: Keep upper
+        _A_: Accept all       _R_: Reject all
+        _r_: Resolve          _q_: Quit"
+    ("n" smerge-next :exit nil)
+    ("p" smerge-prev :exit nil)
+    ("a" smerge-keep-lower :exit nil)
+    ("k" smerge-keep-upper :exit nil)
+    ("r" smerge-resolve :exit nil)
+    ("A" elysium-keep-all-suggested-changes :exit nil)
+    ("R" elysium-discard-all-suggested-changes :exit nil)
+    ("q" nil :exit t))
+  (defun elysium-apply-changes-setup ()
+    (smerge-mode t)
+    (elysium-smerge-hydra/body))
+  (add-hook 'elysium-apply-changes-hook #'elysium-apply-changes-setup))
 
 
 (use-package aider
