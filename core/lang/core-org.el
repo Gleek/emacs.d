@@ -526,6 +526,7 @@ Useful to checking the link under point."
                ("i" . org-agenda-clock-in)
                ("c" . +capture-inbox)
                ("M-*" . nil)
+               ("o" . +agenda-toggle-skips)
                ("W" . +agenda-item-to-worklog)
                ("E" . +agenda-item-to-lifelog)
                ("r" . +org-agenda-process-inbox-item)
@@ -777,9 +778,7 @@ Useful to checking the link under point."
               (setq has-subtasks t)))))
       (widen)
       (if (and has-subtasks (not (member current-state '("WAITING" "BLOCKED"))))
-          (progn
-            (message "skipping task with state %s" current-state)
-            (or (outline-next-heading) (point-max)))
+          (or (outline-next-heading) (point-max))
         nil)))
 
   (defun +agenda-skip-if-parent-blocked ()
@@ -803,7 +802,7 @@ Useful to checking the link under point."
       (when (and (member "errand" tags)
                  (let ((current-time (decode-time (current-time))))
                    (and (<= 1 (nth 6 current-time) 5) ; Monday to Friday
-                        (<= 10 (nth 2 current-time) 17)))) ; 10 AM to 6 PM
+                        (<= 11 (nth 2 current-time) 17)))) ; 11 AM to 6 PM
         (save-excursion (or (outline-next-heading) (point-max))))))
 
   (defun org-timestamp-has-repeater-p (timestamp-str)
@@ -828,12 +827,23 @@ Useful to checking the link under point."
           (goto-char end)
           (point)))))
 
+  (defvar +agenda-disable-skips nil
+    "Lot of tasks are skipped from agenda to give a clearer view `+agenda-skip'. But this variable can be toggled to show all")
+  (defun +agenda-toggle-skips()
+    (interactive)
+    (setq +agenda-disable-skips (not +agenda-disable-skips))
+    (org-agenda-redo-all))
+
   (defun +agenda-skip()
-    (or (+agenda-skip-projects)
-        (+agenda-skip-if-parent-blocked)
-        (org-agenda-skip-entry-if 'scheduled 'deadline)
-        (+org-agenda-skip-if-timestamp-today-or-future) ; All entries that have timestamps passed should show up in the agenda.
-        (+agenda-skip-errands-worktime)))
+    "Collect all skip functions and return the point to skip to."
+    (if +agenda-disable-skips
+        nil
+      (or
+       (+agenda-skip-projects)
+       (+agenda-skip-if-parent-blocked)
+       (org-agenda-skip-entry-if 'scheduled 'deadline)
+       (+org-agenda-skip-if-timestamp-today-or-future) ; All entries that have timestamps passed should show up in the agenda.
+       (+agenda-skip-errands-worktime))))
 
 
 
