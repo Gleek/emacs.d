@@ -430,7 +430,7 @@ Useful to checking the link under point."
 
   ;; automatically show the resulting image
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
-  (add-hook 'org-clock-in-hook (lambda() (org-todo "DOING")) 'append)
+  (add-hook 'org-clock-in-hook (lambda() (if (org-get-todo-state) (org-todo "DOING"))) 'append)
 
   ;; Courtesy: doom emacs (popup/+hacks.el)
   (defun +popup--supress-delete-other-windows-a (origin-fn &rest args)
@@ -491,6 +491,15 @@ Useful to checking the link under point."
          ("C-<tab>" . nil))
   :bind* (:map org-mode-map
                ("C-y" . +org-yank)))
+
+
+(use-package org-mru-clock
+  :bind ("s-c" . org-mru-clock-in)
+  :config
+  (setq org-mru-clock-how-many 100)
+  (setq org-mru-clock-keep-formatting t)
+  (setq org-mru-clock-persist-file (concat CACHE-DIR "org-mru-clock"))
+  (org-mru-clock-mode 1))
 
 (use-package org-protocol
   :ensure nil
@@ -950,7 +959,6 @@ Useful to checking the link under point."
   :config
   ;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka") ;; package's recommended font
   (setq org-modern-label-border 0.2)
-
   ;; Courtesy: connormclaud (https://github.com/minad/org-modern/pull/209)
   ;; The reason for this not merged is the performance hit `string-pixel-width' is supposed to cause
   ;; Also it isn't backward compatible with older emacs versions
