@@ -206,7 +206,11 @@
   :hook ((prog-mode text-mode conf-mode) . num3-mode)
   :config
   (setq num3-group-size 3)
-  (setq num3-threshold 6))
+  (setq num3-threshold 6)
+  (defun num3-face-setup(&rest _)
+    (set-face-attribute 'num3-face-even nil :underline t :weight 'bold :background (face-attribute 'default :background)))
+  (add-hook 'enable-theme-functions #'num3-face-setup)
+  (num3-face-setup))
 
 (use-package highlight-indent-guides
   :disabled
