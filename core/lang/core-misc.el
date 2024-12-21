@@ -27,9 +27,8 @@
   (add-hook 'json-ts-mode-hook (lambda() (setq format-all-formatters '(("JSON" prettier))))))
 
 (use-package counsel-jq
-  :after json-mode
-  :bind ((:map json-mode-map ("C-c C-s" . counsel-jq))
-         (:map json-ts-mode-map ("C-c C-s" . counsel-jq)))
+  :after json-ts-mode
+  :bind ((:map json-ts-mode-map ("C-c C-s" . counsel-jq)))
   :config
   (set-popup-rule! "^\\*jq-json*\\$" :size 0.35 :ttl 0 :quit nil))
 
