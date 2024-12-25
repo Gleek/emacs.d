@@ -200,7 +200,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (treemacs-load-theme "nerd-icons"))
 
 (use-package lsp-mode
-  :hook ((js-mode js2-mode js3-mode js-ts-mode rjsx-mode go-mode rust-mode php-mode go-ts-mode php-ts-mode feature-mode) . lsp-deferred)
+  :hook ((js-mode js2-mode js3-mode js-ts-mode rjsx-mode go-mode rust-mode php-mode go-ts-mode php-ts-mode feature-mode python-ts-mode) . lsp-deferred)
   :commands lsp
   :bind ((:map lsp-mode-map
                ("C-c p r" . lsp-rename)
