@@ -371,6 +371,7 @@ https://emacs.stackexchange.com/a/12124/2144"
   :diminish smartparens-mode)
 
 (use-package undo-tree
+  :disabled t ; Trying out vundo and undo-fu for sometime
   :defer 1
   :ensure t
   :bind (:map undo-tree-map
@@ -409,6 +410,48 @@ https://emacs.stackexchange.com/a/12124/2144"
   (setq undo-tree-auto-save-history t)
   (setq undo-tree-history-directory-alist `(("." . ,(concat CACHE-DIR "undo"))))
   :diminish undo-tree-mode)
+
+
+(use-package undo-fu
+  :defer 1
+  :config
+    (setq undo-limit 400000           ; 400kb (default is 160kb)
+        undo-strong-limit 3000000   ; 3mb   (default is 240kb)
+        undo-outer-limit 48000000)  ; 48mb  (default is 24mb)
+
+  (define-minor-mode undo-fu-mode
+    "Enables `undo-fu' for the current session."
+    :keymap (let ((map (make-sparse-keymap)))
+              (define-key map [remap undo] #'undo-fu-only-undo)
+              (define-key map [remap undo-redo] #'undo-fu-only-redo)
+              (define-key map (kbd "C-_")     #'undo-fu-only-undo)
+              (define-key map (kbd "M-_")     #'undo-fu-only-redo)
+              (define-key map (kbd "C-M-_")   #'undo-fu-only-redo-all)
+              (define-key map (kbd "C-x r u") #'undo-fu-session-save)
+              (define-key map (kbd "C-x r U") #'undo-fu-session-recover)
+              map)
+    :init-value nil
+    :global t)
+
+  (undo-fu-mode t))
+
+(use-package undo-fu-session
+  :after undo-fu
+  :config
+  (setq undo-fu-session-incompatible-files '("\\.gpg$" "/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+  (when (executable-find "zstd")
+    (setq undo-fu-session-compression 'zst))
+  (undo-fu-session-global-mode t))
+
+
+(use-package vundo
+  :bind (:map vundo-mode-map
+              ("C-g" . vundo-quit))
+  :config
+  ;; Iosevk
+  (set-face-attribute 'vundo-default nil :font "FiraCode Nerd Font Mono" :family "FiraCode Nerd Font")
+  (setq vundo-glyph-alist vundo-unicode-symbols
+        vundo-compact-display t))
 
 
 (use-package so-long
