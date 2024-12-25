@@ -136,7 +136,12 @@
   (defvar +light-theme 'doom-one-light)
   (defvar +dark-theme 'doom-one)
 
+  (defun +disable-all-themes()
+    (interactive)
+    (mapc #'disable-theme custom-enabled-themes))
+
   (defun +apply-theme (theme-type)
+    (+disable-all-themes)
     (setq +theme-type theme-type)
     (disable-theme 'solaire-swap-bg-theme)
     (let ((theme (if (eq theme-type 'light) +light-theme +dark-theme)))
@@ -147,20 +152,11 @@
 
   (defun +switch-theme-type()
     (interactive)
-    (disable-theme +theme-type)
     (+apply-theme (if (eq +theme-type 'light) 'dark 'light)))
 
   (+apply-theme +theme-type)
   (doom-themes-org-config)
-  ;; (add-hook 'ns-system-appearance-change-functions
-  ;;           #'(lambda (appearance)
-  ;;               (+apply-theme appearance)
-  ;;               ;; (mapc #'disable-theme custom-enabled-themes)
-  ;;               ;; (pcase appearance
-  ;;               ;;   ('light (progn (load-theme 'doom-one-light t) (solaire-global-mode +1)))
-  ;;               ;;   ('dark (progn (load-theme 'doom-one t) (solaire-global-mode +1))))
-  ;;               ))
-  )
+  (add-hook 'ns-system-appearance-change-functions #'+apply-theme))
 
 
 
