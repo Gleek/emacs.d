@@ -587,6 +587,6 @@ Including indent-buffer, which should not be called automatically on save."
 (setq-default bidi-display-reordering 'left-to-right
               bidi-paragraph-direction 'left-to-right) ;; To render bidirectional text
 
-(setq tab-always-indent t)
+(setq tab-always-indent 'complete)
 (put 'narrow-to-region 'disabled nil)
 (provide 'core-editing)

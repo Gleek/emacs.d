@@ -251,8 +251,7 @@ Demotes all errors over the max level to the max level."
     (setq flycheck-posframe-warning-prefix "⚠ "
           flycheck-posframe-info-prefix "··· "
           flycheck-posframe-prefix "··· "
-          flycheck-posframe-error-prefix "✕ ")
-    (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p)))
+          flycheck-posframe-error-prefix "✕ ")))
 
 (use-package flycheck-popup-tip
   :disabled t

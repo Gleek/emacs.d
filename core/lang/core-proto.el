@@ -6,7 +6,6 @@
   ;; For some reason protobuf is not running prog-mode-hook
   (add-hook 'protobuf-mode-hook (lambda()
                                   (run-hooks 'prog-mode-hook)))
-  (company-backend-for-hook 'protobuf-mode-hook '((company-capf company-yasnippet)))
   (setq flycheck-protoc-import-path
         `(,(concat (expand-file-name "~/Development/") (rot13 "mbzngb/mbzngb-rirag-ertvfgel/"))))
   (defconst my-protobuf-style

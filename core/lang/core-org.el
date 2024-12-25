@@ -369,7 +369,6 @@ Useful to checking the link under point."
 
   (add-hook 'org-mode-hook 'visual-line-mode)
   ;; (add-hook 'org-mode-hook 'toggle-truncate-lines)
-  (company-backend-for-hook 'org-mode-hook '((company-capf company-yasnippet company-dabbrev)))
   (add-hook 'org-mode-hook 'variable-pitch-for-notes)
 
   (setq org-modules

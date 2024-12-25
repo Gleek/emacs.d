@@ -163,6 +163,7 @@
 
 
 (use-package company
+  :disabled t
   :ensure company-quickhelp
   :hook ((prog-mode . +enable-company)
          (text-mode . +enable-company)
@@ -250,6 +251,72 @@
               ((boundp sym)   'ElispVariable)
               ((featurep sym) 'ElispFeature)
               ((facep sym)    'ElispFace))))))
+
+(use-package corfu
+  :defer 1
+  :config
+  (global-corfu-mode t)
+  (setq corfu-auto t
+        corfu-auto-delay 0.04
+        corfu-auto-prefix 2
+        global-corfu-modes '((not erc-mode help-mode vterm-mode) t)
+        corfu-preselect 'valid
+        corfu-count 10
+        corfu-max-width 120
+        corfu-on-exact-match nil)
+
+  (setq corfu-popupinfo-delay '(1.0 . 1.0))
+  (add-to-list 'completion-category-overrides `(lsp-capf (styles ,@completion-styles)))
+  (add-hook 'corfu-mode-hook 'corfu-history-mode)
+  (add-hook 'corfu-mode-hook 'corfu-popupinfo-mode)
+
+  (with-eval-after-load 'savehist
+    (add-to-list 'savehist-additional-variables 'corfu-history)))
+
+
+
+(use-package cape
+  :after (corfu)
+  :demand t
+  :config
+  (defun +cape-dabbrev-elisp-block()
+    (add-hook 'completion-at-point-functions #'cape-elisp-block 0 t))
+  (defun +cape-dabbrev()
+    (add-hook 'completion-at-point-functions #'cape-dabbrev 20 t))
+  (add-hook 'org-mode-hook #'+cape-dabbrev-elisp-block)
+  (add-hook 'markdown-mode-hook #'+cape-dabbrev-elisp-block)
+
+  (dolist (mode '(text-mode-hook prog-mode-hook conf-mode-hook comint-mode-hook eshell-mode-hook))
+    (add-hook mode #'+cape-dabbrev))
+
+  (setq cape-dabbrev-check-other-buffers t)
+  (add-hook 'completion-at-point-functions #'cape-file -10)
+  (add-hook 'completion-at-point-functions #'cape-dabbrev 20)
+  (setq dabbrev-ignored-buffer-regexps
+        '("\\` "
+          "\\(?:\\(?:[EG]?\\|GR\\)TAGS\\|e?tags\\|GPATH\\)\\(<[0-9]+>\\)?"))
+  (setq dabbrev-upcase-means-case-search t))
+
+
+
+(use-package yasnippet-capf
+  :after (corfu)
+  :demand t
+  :config
+  (defun +yasnippet-capf()
+    (add-hook 'completion-at-point-functions #'yasnippet-capf 30 t))
+  (add-hook 'yas-minor-mode-hook #'+yasnippet-capf)
+  (add-to-list 'completion-at-point-functions #'yasnippet-capf))
+
+
+
+
+
+(use-package nerd-icons-corfu
+  :after (corfu)
+  :demand t
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
 
 (use-package yasnippet

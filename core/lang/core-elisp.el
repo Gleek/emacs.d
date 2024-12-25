@@ -25,8 +25,8 @@
            (insert (current-kill 0)))))
 
 
-(eval-after-load 'company
-  '(company-backend-for-hook 'emacs-lisp-mode-hook '((company-capf :with company-yasnippet))))
+;; (eval-after-load 'company
+;;   '(company-backend-for-hook 'emacs-lisp-mode-hook '((company-capf :with company-yasnippet))))
 
 
 (use-package emacs :ensure nil

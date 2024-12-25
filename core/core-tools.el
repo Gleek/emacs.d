@@ -320,7 +320,6 @@ TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s
   :config
   (set-popup-rule! "^\\*HTTP Response" :size 0.4 :quit 'other)
   (set-popup-rule! "^\\*Restclient Info" :size 0.4 :quit 'other)
-  (company-backend-for-hook 'restclient-mode-hook '((company-restclient company-yasnippet)))
   (add-hook 'restclient-mode-hook
             (lambda()
               (setq imenu-generic-expression '((nil "^[A-Z]+\s+.+" 0)))))
