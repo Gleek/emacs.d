@@ -320,6 +320,7 @@ Useful to checking the link under point."
           (?C . success))
         org-startup-indented t
         org-clock-sound (concat RES-DIR "bell.wav")
+        org-agenda-clockreport-parameter-plist '(:maxlevel 3)
         org-id-link-to-org-use-id 'create-if-interactive
         org-todo-keywords '((sequence "TODO(t)" "DOING(o)"  "|" "DONE(d)")
                             (sequence "BLOCKED(b@/!)" "DELEGATED(e!)" "WAITING(w!)" "|" "CANCELLED(c@/!)"))
@@ -498,8 +499,7 @@ Useful to checking the link under point."
   :config
   (setq org-mru-clock-how-many 100)
   (setq org-mru-clock-keep-formatting t)
-  (setq org-mru-clock-persist-file (concat CACHE-DIR "org-mru-clock"))
-  (org-mru-clock-mode 1))
+  (setq org-mru-clock-persist-file (concat CACHE-DIR "org-mru-clock")))
 
 (use-package org-protocol
   :ensure nil
