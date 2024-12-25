@@ -445,8 +445,9 @@ https://emacs.stackexchange.com/a/12124/2144"
 
 
 (use-package vundo
-  :bind (:map vundo-mode-map
-              ("C-g" . vundo-quit))
+  :bind (("C-x u" . vundo)
+         (:map vundo-mode-map
+               ("C-g" . vundo-quit)))
   :config
   ;; Iosevk
   (set-face-attribute 'vundo-default nil :font "FiraCode Nerd Font Mono" :family "FiraCode Nerd Font")
