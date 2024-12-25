@@ -112,7 +112,9 @@
 
 
 (use-package solaire-mode
-  :ensure t)
+  :demand t
+  :config
+  (solaire-global-mode t))
 
 (use-package hide-mode-line
   :bind ("C-c t M" . hide-mode-line-mode)
@@ -148,7 +150,6 @@
     (disable-theme +theme-type)
     (+apply-theme (if (eq +theme-type 'light) 'dark 'light)))
 
-  (solaire-global-mode +1)
   (+apply-theme +theme-type)
   (doom-themes-org-config)
   ;; (add-hook 'ns-system-appearance-change-functions
