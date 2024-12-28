@@ -91,7 +91,42 @@ This checks if the variable is set."
   (let ((buffer (or buffer "*debug*")))
     (with-output-to-temp-buffer buffer
       (princ (pp-to-string obj)))
+    (with-current-buffer buffer
+      (emacs-lisp-mode)
+      (goto-char (point-min)))
     (display-buffer (get-buffer buffer))))
+
+
+(defun get-primary-monitor-resolution()
+  "Get the resolution for the primary monitor."
+  (let* ((monitors (display-monitor-attributes-list))
+         (primary-monitor (car monitors))
+         (geometry (alist-get 'geometry primary-monitor))
+         (width (nth 2 geometry))
+         (height (nth 3 geometry)))
+    (list width height)))
+
+(defun get-active-monitor-resolution ()
+  "Get the resolution of the currently active monitor."
+  (let* ((frame-pos (frame-position))
+         (frame-x (car frame-pos))
+         (frame-y (cdr frame-pos))
+         (monitors (display-monitor-attributes-list))
+         (active-monitor (seq-find (lambda (monitor)
+                                     (let* ((geometry (alist-get 'geometry monitor))
+                                            (x (nth 0 geometry))
+                                            (y (nth 1 geometry))
+                                            (width (nth 2 geometry))
+                                            (height (nth 3 geometry)))
+                                       (and (>= frame-x x)
+                                            (< frame-x (+ x width))
+                                            (>= frame-y y)
+                                            (< frame-y (+ y height)))))
+                                   monitors))
+         (geometry (alist-get 'geometry active-monitor))
+         (width (nth 2 geometry))
+         (height (nth 3 geometry)))
+    (list width height)))
 
 
 (provide 'core-util)
