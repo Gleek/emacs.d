@@ -436,9 +436,11 @@ https://emacs.stackexchange.com/a/12124/2144"
   (undo-fu-mode t))
 
 (use-package undo-fu-session
-  :after undo-fu
+  :after (undo-fu)
+  :demand t
   :config
   (setq undo-fu-session-incompatible-files '("\\.gpg$" "/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+  (setq undo-fu-session-directory (expand-file-name "undo-fu-session" CACHE-DIR))
   (when (executable-find "zstd")
     (setq undo-fu-session-compression 'zst))
   (undo-fu-session-global-mode t))
@@ -449,7 +451,6 @@ https://emacs.stackexchange.com/a/12124/2144"
          (:map vundo-mode-map
                ("C-g" . vundo-quit)))
   :config
-  ;; Iosevk
   (set-face-attribute 'vundo-default nil :font "FiraCode Nerd Font Mono" :family "FiraCode Nerd Font")
   (setq vundo-glyph-alist vundo-unicode-symbols
         vundo-compact-display t))
