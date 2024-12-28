@@ -372,7 +372,7 @@
 
 (use-package copilot-chat
   :bind (("C-c q o" . copilot-chat-display)
-         ("C-c q p" . copilot-custom-chat-prompt-selection))
+         ("C-c q p" . copilot-chat-custom-prompt-selection))
   :config
   (setq copilot-chat-frontend 'shell-maker))
 
