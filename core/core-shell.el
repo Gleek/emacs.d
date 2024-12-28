@@ -258,5 +258,15 @@
       (dtache-start-session (concat "sshuttle -l 0.0.0.0 -r " command) nil))))
 
 
+(use-package dwim-shell-command
+  :bind (([remap shell-command] . dwim-shell-command)
+         :map dired-mode-map
+         ([remap dired-do-async-shell-command] . dwim-shell-command)
+         ([remap dired-do-shell-command] . dwim-shell-command)
+         ([remap dired-smart-shell-command] . dwim-shell-command))
+  :config
+  (require 'dwim-shell-commands))
+
+
 
 (provide 'core-shell)
