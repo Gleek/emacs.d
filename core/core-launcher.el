@@ -67,7 +67,7 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
   (defun +launch-default-launcher()
     (interactive)
     (let* ((consult-omni-multi-sources
-            '("Numi" "Apps" "Org Agenda" "Buffer" "Static launcher" "DuckDuckGo API" "Z Fixed launch")))
+            '("Numi" "Apps" "Org Agenda" "Buffer" "Static launcher" "DuckDuckGo API" "Web search")))
       (+launch-consult-omni)))
 
 
@@ -111,7 +111,7 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
       ("Ask GPT" . +launch-gptel))
     "List of launcher entries and their associated functions.")
 
-  (defvar consult-omni-fixed-entries
+  (defvar consult-omni-web-searches-entries
     '(("DuckDuckGo" . "https://duckduckgo.com/?q=%s")
       ("devdocs.io" . "https://devdocs.io/#q=%s")
       ("Youtube" . "https://www.youtube.com/results?search_query=%s"))
@@ -130,18 +130,18 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
                                            :query input))
                 filtered-candidates))))
 
-  (cl-defun consult-omni--fixed-launcher-results(input &rest args &key callback &allow-other-keys)
+  (cl-defun consult-omni--web-searches-results(input &rest args &key callback &allow-other-keys)
     "Return hardcoded entries matching INPUT."
     (defvar consult-omni--fixed-timer nil)
     (when consult-omni--fixed-timer
       (cancel-timer consult-omni--fixed-timer))
     (let ((entries (reverse (mapcar (lambda (cand)
                                       (propertize (format "Search for \"%s\" on %s" input (car cand))
-                                                  :source "Search"
+                                                  :source "Web Search"
                                                   :title (car cand)
                                                   :url nil
                                                   :query input))
-                                    consult-omni-fixed-entries))))
+                                    consult-omni-web-searches-entries))))
       (funcall callback  entries)
       entries))
 
@@ -152,10 +152,10 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
       (when entry
         (funcall (cdr entry)))))
 
-  (defun consult-omni--fixed-execute(cand)
+  (defun consult-omni--web-search-execute(cand)
     (let* ((query (get-text-property 0 :query cand))
            (engine (get-text-property 0 :title cand))
-           (entry (assoc engine consult-omni-fixed-entries)))
+           (entry (assoc engine consult-omni-web-searches-entries)))
       (when entry
         (browse-url (format (cdr entry) query)))))
 
@@ -204,16 +204,16 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
                               :annotate nil
                               :min-input 0)
 
-  (consult-omni-define-source "Z Fixed launch"
-                              :narrow-char ?f
+  (consult-omni-define-source "Web search"
+                              :narrow-char ?w
                               :category 'consult-omni-fixed-launch
                               :type 'dynamic
                               :require-match t
                               :face 'default
-                              :request #'consult-omni--fixed-launcher-results
+                              :request #'consult-omni--web-searches-results
                               :on-return #'ignore
                               :on-preview #'ignore
-                              :on-callback #'consult-omni--fixed-execute
+                              :on-callback #'consult-omni--web-search-execute
                               :preview-key consult-omni-preview-key
                               :search-hist 'consult-omni--search-history
                               :select-hist 'consult-omni--selection-history

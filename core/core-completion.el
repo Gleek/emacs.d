@@ -97,6 +97,7 @@
          ("M-y" . consult-yank-pop)
          ("C-x c i" . consult-imenu)
          ("C-M-s" . consult-line)
+         ("C-M-S-s" . consult-line-multi)
          (:map minibuffer-local-map
                ("M-s" . consult-history)
                ("M-r" . consult-history)))
