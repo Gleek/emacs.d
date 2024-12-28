@@ -580,6 +580,16 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :after vertico
   :bind ("M-*" . vertico-calc))
 
+(use-package calc-currency
+  :ensure (:fetcher github :repo "jws85/calc-currency")
+  :commands (calc-currency-load)
+  :after (calc)
+  :demand t
+  :config
+  ;; (calc-currency-update-file)
+  (calc-currency-load))
+
+
 (use-package shortdoc :ensure nil
   :bind ("C-h s" . shortdoc-display-group))
 
