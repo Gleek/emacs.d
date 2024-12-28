@@ -749,7 +749,7 @@ Useful to checking the link under point."
     (interactive)
     (save-window-excursion
       (org-agenda-switch-to)
-      (org-roam-refile)))
+      (call-interactively 'org-roam-refile)))
 
   ;; Automatically save all org agenda buffers at regular intervals. Earlier I achieved this with
   ;; autosave, which created a lot of orphan files everywhere.
