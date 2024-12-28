@@ -256,7 +256,7 @@
   :defer 1
   :config
   (global-corfu-mode t)
-  (setq corfu-auto t
+  (setq corfu-auto nil
         corfu-auto-delay 0.04
         corfu-auto-prefix 2
         global-corfu-modes '((not erc-mode help-mode vterm-mode) t)
@@ -307,9 +307,6 @@
     (add-hook 'completion-at-point-functions #'yasnippet-capf 30 t))
   (add-hook 'yas-minor-mode-hook #'+yasnippet-capf)
   (add-to-list 'completion-at-point-functions #'yasnippet-capf))
-
-
-
 
 
 (use-package nerd-icons-corfu
