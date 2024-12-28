@@ -74,7 +74,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :bind ("C-x C-b" . ibuffer)
   :config
   ;; Courtesy doom
-  (set-popup-rule! "^\\*Ibuffer\\*$" :ignore t)
+  ;; (set-popup-rule! "^\\*Ibuffer\\*$" :ignore t)
   (setq ibuffer-show-empty-filter-groups nil
         ibuffer-filter-group-name-face '(:inherit (success bold))
         ibuffer-formats

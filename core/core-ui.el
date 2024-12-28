@@ -244,7 +244,7 @@
 
 (use-package doom-dashboard :ensure nil :demand t
   :bind (:map +doom-dashboard-mode-map
-              ([left-margin mouse-1]  .  #'ignore)
+              ([left-margin mouse-1]  .  nil)
               ([remap forward-button] .  #'+doom-dashboard/forward-button)
               ([remap backward-button].  #'+doom-dashboard/backward-button)
               ("n"      .  #'forward-button)

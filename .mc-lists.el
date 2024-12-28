@@ -33,6 +33,7 @@
         duplicate-current-line-or-region
         electric-newline-and-maybe-indent
         end-of-visual-line
+        eros-eval-last-sexp
         eval-and-replace
         eval-last-sexp
         eval-print-last-sexp
@@ -40,6 +41,7 @@
         fold-this-unfold-at-point
         forward-sexp
         helm-show-kill-ring
+        help-for-help
         indent-for-tab-command
         indent-new-comment-line
         indent-rigidly

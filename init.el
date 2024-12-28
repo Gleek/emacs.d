@@ -21,6 +21,7 @@
 (use-package "core-vc" :ensure nil :demand t)
 (use-package "core-web" :ensure nil :demand t)
 (use-package "core-tools" :ensure nil :demand t)
+(use-package "core-launcher" :ensure nil :demand t)
 
 (when IS-LINUX
   (add-to-list 'command-switch-alist

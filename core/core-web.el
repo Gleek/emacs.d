@@ -141,7 +141,10 @@ To be used by `eww-after-render-hook'."
   (elfeed-tube-setup)
   (setq elfeed-tube-captions-languages '("en-gb" "en" "english" "english (auto generated)")))
 
-
+(use-package browser-hist
+  :commands (browser-hist-search)
+  :config
+  (setq browser-hist-default-browser 'firefox))
 
 (provide 'core-web)
 ;;; core-web.el ends here

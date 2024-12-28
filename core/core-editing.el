@@ -575,9 +575,11 @@ Including indent-buffer, which should not be called automatically on save."
   :hook (prog-mode . dtrt-indent-mode))
 
 
-(use-package emoji
+(use-package emoji-search
   :ensure nil
-  :bind ("C-c s e"  . emoji-search))
+  :bind ("C-c s e" . emoji-search-completing-read)
+  :config
+  (setq emoji-search-download-dir CACHE-DIR))
 
 ;; (delete-selection-mode +1)
 (setq backward-delete-char-untabify-method 'untabify)
