@@ -23,6 +23,13 @@
   :ensure t)
 
 
+(use-package jq-mode
+  :after (json-ts-mode)
+  :bind (:map json-ts-mode-map ("C-z s" . jq-interactively))
+  :config
+  (setq jq-interactive-font-lock-mode 'json-ts-mode)
+  (setq jq-interactive-delay 0))
+
 ;; (use-package rjsx-mode :mode ("\\.jsx\\'" . rjsx-mode) )
 
 (use-package js
