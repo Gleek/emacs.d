@@ -13,7 +13,7 @@
 
 (use-package consult-omni
   :ensure (:fetcher github :repo "armindarvish/consult-omni" :files (:defaults "sources/*.el"))
-  :commands (+launcher-default-launcher consult-omni)
+  :commands (+launch-default-launcher consult-omni)
   :config
   (setq consult-omni-show-preview t)
   (setq consult-omni-preview-key "C-o")
@@ -26,34 +26,36 @@
 F is expected to show up in the minibuffer.
 Currently the frame is shown on the primary monitor.
 Should be updated to show on the active monitor."
-    (let* ((vertico-count 30)
-           (width (floor (* 0.35 (car (get-primary-monitor-resolution)))))
+    (let* ((vertico-count 20)
+           (width (floor (* 0.45 (car (get-primary-monitor-resolution)))))
            (height (floor (* 0.5 (cadr (get-primary-monitor-resolution)))))
-           (left  (floor (* 0.3 (car (get-primary-monitor-resolution)))))
+           (left  (floor (* 0.25 (car (get-primary-monitor-resolution)))))
            (top (floor (* 0.3 (cadr (get-primary-monitor-resolution)))))
            (params `((name . "emacs-launcher")
                      (width . ,(cons 'text-pixels width))
                      (height . ,(cons 'text-pixels height))
                      (left . ,left)
                      (top . ,top)
-                     (internal-border-width . 3)
-                     ;; (line-spacing . 5.1)
+                     (internal-border-width . 15)
                      (undecorated . t)
+                     (no-focus-on-map . t)
+                     (delete-before-next-focus . t)
+                     (no-other-frame . t)
+                     (font . ,(concat default-font "-16"))
                      (alpha-background . 70)
                      (minibuffer . only)))
            (frame (make-frame params)))
       (with-selected-frame frame
-        (select-frame-set-input-focus (selected-frame))
+        (select-frame-set-input-focus frame)
         (unwind-protect
             (progn (apply f args)
                    nil)
           (progn
-            (when (frame-live-p frame) (delete-frame frame))
+            (when (frame-live-p frame) (delete-frame frame t))
             nil)))))
   (defun +launch-consult-omni()
     (interactive)
-    (launcher-creator 'consult-omni "" (propertize "  " 'face 'consult-omni-path-face)))
-
+    (launcher-creator 'consult-omni "" (propertize "\n  " 'face 'consult-omni-path-face)))
 
   (defun +launch--update-source-prop (source-key prop value)
     "Externally update the property PROP of SOURCE-KEY with VALUE.
@@ -67,7 +69,8 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
   (defun +launch-default-launcher()
     (interactive)
     (let* ((consult-omni-multi-sources
-            '("Numi" "Apps" "Org Agenda" "Buffer" "Static launcher" "DuckDuckGo API" "Web search")))
+            '("Numi" "Apps" "Org Agenda" "Buffer" "Static launcher" "DuckDuckGo API" "Web search"))
+           (consult-async-split-style nil)) ; Remove that # from the beginning of the search. Nothing seems to be affected.
       (+launch-consult-omni)))
 
 
@@ -79,8 +82,8 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
 
   (defun +launch-gptel()
     (interactive)
-    (cl-letf (((symbol-function 'consult-omni--gptel-preview) (lambda (cand) (kill-new cand))))
-      (launcher-creator 'consult-omni-gptel-static)))
+    (launcher-creator 'consult-omni-gptel-static))
+
 
   (defun +launch-file()
     (interactive)
@@ -160,7 +163,7 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
         (browse-url (format (cdr entry) query)))))
 
   (setq consult-omni-numi-regexp-pattern "\\(.*[[:digit:]\/\*\+-=%^&$\(\{\[].*\\)")
-  (setq consult-omni-multi-sources '("Apps"))
+  (setq consult-omni-multi-sources '("Numi" "Apps" "Org Agenda" "Buffer" "Static launcher" "DuckDuckGo API" "Web search"))
   (setq consult-omni-sources-modules-to-load
         (list 'consult-omni-apps
               'consult-omni-buffer
@@ -222,8 +225,6 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
                               :sort nil
                               :interactive consult-omni-intereactive-commands-type
                               :annotate nil))
-
-
 
 
 
