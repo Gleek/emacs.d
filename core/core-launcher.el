@@ -114,12 +114,6 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
       ("Ask GPT" . +launch-gptel))
     "List of launcher entries and their associated functions.")
 
-  (defvar consult-omni-web-searches-entries
-    '(("DuckDuckGo" . "https://duckduckgo.com/?q=%s")
-      ("devdocs.io" . "https://devdocs.io/#q=%s")
-      ("Youtube" . "https://www.youtube.com/results?search_query=%s"))
-    "List of fixed entries and their associated functions.")
-
   (cl-defun consult-omni--launcher-fetch-results (input &rest args &key callback &allow-other-keys)
     "Return hardcoded entries matching INPUT."
     (let ((candidates (mapcar #'car consult-omni-launcher-entries)))
@@ -132,6 +126,20 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
                                            :url nil
                                            :query input))
                 filtered-candidates))))
+
+  (defun consult-omni--launcher-execute (cand)
+    "Execute function associated with CAND."
+    (let ((entry (assoc cand consult-omni-launcher-entries)))
+      (when entry
+        (funcall (cdr entry)))))
+
+
+
+  (defvar consult-omni-web-searches-entries
+    '(("DuckDuckGo" . "https://duckduckgo.com/?q=%s")
+      ("devdocs.io" . "https://devdocs.io/#q=%s")
+      ("Youtube" . "https://www.youtube.com/results?search_query=%s"))
+    "List of fixed entries and their associated functions.")
 
   (cl-defun consult-omni--web-searches-results(input &rest args &key callback &allow-other-keys)
     "Return hardcoded entries matching INPUT."
@@ -148,12 +156,6 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
       (funcall callback  entries)
       entries))
 
-
-  (defun consult-omni--launcher-execute (cand)
-    "Execute function associated with CAND."
-    (let ((entry (assoc cand consult-omni-launcher-entries)))
-      (when entry
-        (funcall (cdr entry)))))
 
   (defun consult-omni--web-search-execute(cand)
     (let* ((query (get-text-property 0 :query cand))
