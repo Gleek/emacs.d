@@ -37,7 +37,7 @@ Should be updated to show on the active monitor."
                      (left . ,left)
                      (top . ,top)
                      (internal-border-width . 15)
-                     (undecorated . t)
+                     (undecorated-round . t)
                      (no-focus-on-map . t)
                      (delete-before-next-focus . t)
                      (no-other-frame . t)
@@ -98,11 +98,11 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
   (defun +launch-zoom()
     (interactive)
     (require 'dwim-shell-commands)
-    (let ((zoomlink (shell-quote-argument (secret-get zoomlink))))
+    (let ((zoomlink (secret-get zoomlink)))
       (if zoomlink
           (progn
-            (async-shell-command (format "open %s" zoomlink))
-            (kill-new zoomlink))
+            (async-shell-command (format "open %s" (shell-quote-argument zoomlink)))
+            (kill-new (format "%s" zoomlink)))
         (message "No zoom link found."))))
 
 
@@ -153,7 +153,7 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
                                                   :url nil
                                                   :query input))
                                     consult-omni-web-searches-entries))))
-      (funcall callback  entries)
+      (setq consult-omni--fixed-timer (run-with-timer 1 nil callback  entries))
       entries))
 
 
@@ -211,7 +211,7 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
 
   (consult-omni-define-source "Web search"
                               :narrow-char ?w
-                              :category 'consult-omni-fixed-launch
+                              :category 'consult-omni-web-search
                               :type 'dynamic
                               :require-match t
                               :face 'default
