@@ -208,15 +208,16 @@
   (num3-face-setup))
 
 (use-package highlight-indent-guides
-  :disabled
-  ;; :bind ("C-c t h" . highlight-indent-guides-mode)
+  :bind ("C-c t h" . highlight-indent-guides-mode)
   :config
   (setq highlight-indent-guides-method 'character))
 
 (use-package indent-bars
+  ;; Even though this has stipples, so no breaking lines but they are too dark.
+  ;; Changing the color isn't working for stipples, might be an emacs bug.
+  :disabled
+  ;; :bind ("C-c t h" . +toggle-indent-bars)
   :ensure (:fetcher github :repo "jdtsmith/indent-bars")
-  :bind ("C-c t h" . +toggle-indent-bars)
-  :ensure nil
   :config
   ;; Workaround until https://github.com/jdtsmith/indent-bars/issues/31#issuecomment-2031605144 is fixed
   (remove-hook 'enable-theme-functions #'indent-bars-reset)
@@ -233,7 +234,7 @@
    indent-bars-color '(highlight :face-bg t :blend 0.2)
    ;; ideally should be nil but the blend doesn't work on my emacs.
    ;; Though stipple lines are visually better but dark black lines are too distracting.
-   indent-bars-prefer-character t
+   indent-bars-prefer-character nil
    indent-bars-pattern "."
    indent-bars-width-frac 0.1
    indent-bars-pad-frac 0.1
