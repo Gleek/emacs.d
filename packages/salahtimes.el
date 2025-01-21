@@ -28,7 +28,7 @@
   :group 'salahtimes
   :type 'string)
 
-(defcustom salah-times-buffer "*salah-times*"
+(defcustom salah-times-buffer " *salah-times*"
   "The buffer to render the salahtimes in."
   :group 'salahtimes
   :type 'string)
