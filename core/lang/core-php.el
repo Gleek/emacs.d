@@ -4,42 +4,24 @@
 (setq lsp-intelephense-storage-path (concat CACHE-DIR "lsp-intelephense/"))
 (setq flycheck-phpcs-standard "~/.config/phpcs/phpcs.xml")
 
-(use-package php-mode
-  ;; :ensure phpactor
-  ;; :ensure php-refactor-mode
-  :bind (:map php-mode-map
-              ("C-c C-c" . nil)
-              ("C-c C-d" . nil)
-              ("C-." . nil))
-  :config
-  ;; Makes typing smooth with very little affect on syntax
-  ;; highlighting. We're using tree-sitter anyway.
-  (advice-add 'php-syntax-propertize-function :override #'return-false)
-  ;; Applying syntax propertize on extended region is slow. Disable
-  ;; that and instead depend on tree-sitter to do the highlighting.
-  (advice-add 'php-syntax-propertize-extend-region :override #'return-false)
-  (remove-hook 'syntax-propertize-extend-region-functions #'php-syntax-propertize-extend-region)
-  (setq flycheck-phpmd-rulesets '("cleancode" "codesize" "controversial" "design" "naming"))
-  ;; (require 'dap-php)
-  ;; (dap-php-setup)
-  (setq php-mode-template-compatibility nil)
-  (setq c-auto-align-backslashes nil)
-  (add-hook 'php-mode-hook (lambda() (setq sp-max-pair-length 5)))
-  (add-hook 'php-mode-hook 'php-enable-symfony2-coding-style)
-  ;; (phpmd-ignore-error)
-  (setq c-basic-offset 4))
 
 (use-package php-ts-mode
+  :init
+  (add-to-list 'major-mode-remap-alist '(php-mode . php-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(php-mode-maybe . php-ts-mode))
   :mode "\\.php\\'"
-  :ensure (:fetcher github :repo "emacs-php/php-ts-mode")
+  :ensure nil
   :config
   (add-hook 'php-ts-mode-hook (lambda() (setq-local format-all-formatters '(("PHP" (prettier "--brace-style=1tbs"))))))
   (defun php-local-checkers()
     (setq-local flycheck-local-checkers-chain '((lsp . phpstan)
                                                 (phpstan . php-phpmd))))
-  (set-face-attribute 'php-function-call nil :inherit 'font-lock-function-call-face)
-  (add-hook 'php-ts-mode-hook 'php-local-checkers))
-
+  (defun php-disable-lsp-imenu()
+    "The imenu produced by php-ts-mode is better than what lsp intelephense outputs"
+    (setq-local lsp-enable-imenu nil))
+  ;; (set-face-attribute 'php-function-call nil :inherit 'font-lock-function-call-face)
+  (add-hook 'php-ts-mode-hook 'php-local-checkers)
+  (add-hook 'php-ts-mode-hook 'php-disable-lsp-imenu))
 
 (use-package web-mode
   :init
