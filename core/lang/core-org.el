@@ -1125,8 +1125,7 @@ Works by changing `org-modern-priority-A/B/C' faces dynamically."
   (setq org-roam-dailies-directory +roam-directory)
   (setq org-roam-db-location (concat CACHE-DIR "org-roam.db"))
   :bind* (("C-c n n" . +org-roam-node-find))
-  :bind (("C-c o m" . org-roam-buffer-toggle)
-         ("C-c o s" . org-roam-search)
+  :bind (("C-c o s" . org-roam-search)
          ("C-c o r d" . org-roam-dailies-goto-date)
          ("C-c o r r" . org-roam-dailies-goto-today)
          ("C-c n d" . org-roam-dailies-goto-today)
@@ -1149,13 +1148,34 @@ Works by changing `org-modern-priority-A/B/C' faces dynamically."
   (add-to-list 'org-roam-file-exclude-regexp "logseq/")
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:50}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
-  (defvar org-roam-capture-immediate-template
-    (append (car org-roam-capture-templates) '(:immediate-finish t)))
+
 
   (setq org-roam-dailies-capture-templates
         '(("d" "default" entry
            "* %?"
            :target (file+datetree "journal.org" week))))
+  (setq org-roam-capture-templates
+        '(("b" "brain" plain
+           "%?"
+           :if-new (file+head "brain/${slug}.org"
+                              "#+title: ${title}\n")
+           :immediate-finish t
+           :unnarrowed t)
+          ("r" "reference" plain "%?"
+           :if-new
+           (file+head "reference/${title}.org" "#+title: ${title}\n")
+           :immediate-finish t
+           :unnarrowed t)
+          ("p" "post" plain "%?"
+           :if-new
+           (file+head "posts/${title}.org" "#+title: ${title}\n#+filetags: :post:\n")
+           :immediate-finish t
+           :unnarrowed t)))
+
+  (defvar org-roam-brain-capture-immediate-template
+    (car org-roam-capture-templates))
+  (defvar org-roam-ref-capture-immediate-template
+    (cadr org-roam-capture-templates))
 
   (defun org-roam-search ()
     (interactive)
@@ -1188,17 +1208,6 @@ Works by changing `org-modern-priority-A/B/C' faces dynamically."
     (interactive)
     (org-roam-graph 1 (org-roam-node-at-point 'assert)))
 
-  (defun org-roam-company-insert()
-    "Hacky way to quickly initiate a similar functionality to
-org-roam-insert-immediate, but using company.
-
-Unused as of now as it does not create new nodes if existing ones are not found."
-    (interactive)
-    (require 'company)
-    (insert "[[roam:")
-    (save-excursion (insert "]]"))
-    (call-interactively 'company-capf))
-
   (defun +org-roam-node-find ()
     "Copy of org-roam-node-find with the only change being the goto in
 the capture call and use mtime to sort
@@ -1216,8 +1225,12 @@ the capture popup."
 
   (defun org-roam-insert-immediate (arg &rest args)
     (interactive "P")
-    (let ((args (push arg args))
-          (org-roam-capture-templates (list org-roam-capture-immediate-template)))
+    (let* ((is-brain (string-suffix-p "brain/" (file-name-directory (or (buffer-file-name) default-directory))))
+           (template (if is-brain
+                         org-roam-brain-capture-immediate-template
+                       org-roam-ref-capture-immediate-template))
+           (args (push arg args))
+           (org-roam-capture-templates (list template)))
       (apply #'org-roam-node-insert args)))
   (defun +do-org-roam-bindings()
     (when (let ((file-name (buffer-file-name (buffer-base-buffer))))
