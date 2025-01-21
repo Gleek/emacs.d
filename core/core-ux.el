@@ -54,6 +54,14 @@
   (defun +show-paren-mode()
     (unless show-paren-mode (show-paren-mode))))
 
+(use-package ultra-scroll
+  :ensure (ultra-scroll :host github :repo "jdtsmith/ultra-scroll")
+  :init
+  (setq scroll-conservatively 0
+    scroll-margin 0)
+  :config
+  (ultra-scroll-mode 1))
+
 
 (use-package which-key
   :defer 1
