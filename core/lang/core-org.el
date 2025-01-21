@@ -957,7 +957,9 @@ Useful to checking the link under point."
          (org-agenda-finalize . +org-modern-agenda))
   :config
   ;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka") ;; package's recommended font
-  (setq org-modern-label-border 0.2)
+  (setq org-modern-label-border 1)
+  (add-to-list 'consult-preview-allowed-hooks 'global-org-modern-mode)
+
   ;; Courtesy: connormclaud (https://github.com/minad/org-modern/pull/209)
   ;; The reason for this not merged is the performance hit `string-pixel-width' is supposed to cause
   ;; Also it isn't backward compatible with older emacs versions
