@@ -168,6 +168,13 @@
   :init
   (setq disk-usage--format-files 'file-name-nondirectory))
 
+
+(use-package consult-dir
+  :bind (("C-x C-d" . consult-dir)
+         :map minibuffer-local-completion-map
+         ("C-x C-d" . consult-dir)
+         ("C-x C-j" . consult-dir-jump-file)))
+
 ;; https://github.com/Fuco1/dired-hacks/issues/126
 ;; (use-package dired-collapse
 ;;   :hook (dired-mode . dired-collapse-mode))
