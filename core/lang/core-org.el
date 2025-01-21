@@ -312,6 +312,8 @@ Useful to checking the link under point."
         org-imenu-depth 8
         org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a."))
         org-export-with-sub-superscripts nil ;; "{}"
+        org-export-with-section-numbers nil
+        org-html-validation-link nil
         org-use-sub-superscripts nil
         org-html-checkbox-type 'html
         org-priority-faces
