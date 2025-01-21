@@ -237,26 +237,6 @@ TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s
            `("-crop" ,(concat (format "%dx%d+%d+%d" image-width image-height dx dy))))))))))
 
 
-(use-package paradox
-  :ensure t
-  :init
-  (defvar paradox-automatically-star)
-  (defvar paradox-execute-asynchronously)
-  (setq paradox-automatically-star nil)
-  (setq paradox-execute-asynchronously t)
-  :config
-  (setq paradox-github-token (secret-get github-token))
-  (defconst paradox--package-count
-    '(("total" . 0) ("built-in" . 0)
-      ("obsolete" . 0) ("deleted" . 0)
-      ("available" . 0) ("new" . 0)
-      ("held" . 0) ("disabled" . 0)
-      ("dependency" . 0) ("avail-obso" . 0)
-      ("incompat" . 0)  ("external" . 0)
-      ("installed" . 0) ("unsigned" . 0)
-      ;; Add source manually to the paradox list to handle vc packages
-      ("source" . 0))))
-
 (use-package transient
   :init
   (setq transient-levels-file (concat CACHE-DIR "transient/levels.el")
