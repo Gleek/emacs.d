@@ -185,7 +185,8 @@
   :hook ((prog-mode text-mode conf-mode) . display-line-numbers-mode)
   :bind ("C-c t l". display-line-numbers-mode)
   :config
-  (setq-default display-line-numbers-widen t))
+  (setq-default display-line-numbers-widen t)
+  (setq display-line-numbers-width-start t))
 
 (use-package hl-line
   :ensure nil
