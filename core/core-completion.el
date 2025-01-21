@@ -166,7 +166,7 @@
   :defer 1
   :config
   (global-corfu-mode t)
-  (setq corfu-auto nil
+  (setq-default corfu-auto t
         corfu-auto-delay 0.04
         corfu-auto-prefix 2
         global-corfu-modes '((not erc-mode help-mode vterm-mode) t)
@@ -175,6 +175,12 @@
         corfu-max-width 120
         corfu-on-exact-match nil)
 
+  (defun text-corfu-configuration()
+    (setq-local corfu-auto-prefix 3
+                corfu-auto-delay 0.2))
+
+  (add-hook 'text-mode-hook #'text-corfu-configuration)
+
   (setq corfu-popupinfo-delay '(1.0 . 1.0))
   (add-to-list 'completion-category-overrides `(lsp-capf (styles ,@completion-styles)))
   (add-hook 'corfu-mode-hook 'corfu-history-mode)
@@ -182,31 +188,6 @@
 
   (with-eval-after-load 'savehist
     (add-to-list 'savehist-additional-variables 'corfu-history)))
-
-
-
-(use-package cape
-  :after (corfu)
-  :demand t
-  :config
-  (defun +cape-dabbrev-elisp-block()
-    (add-hook 'completion-at-point-functions #'cape-elisp-block 0 t))
-  (defun +cape-dabbrev()
-    (add-hook 'completion-at-point-functions #'cape-dabbrev 20 t))
-  (add-hook 'org-mode-hook #'+cape-dabbrev-elisp-block)
-  (add-hook 'markdown-mode-hook #'+cape-dabbrev-elisp-block)
-
-  (dolist (mode '(text-mode-hook prog-mode-hook conf-mode-hook comint-mode-hook eshell-mode-hook))
-    (add-hook mode #'+cape-dabbrev))
-
-  (setq cape-dabbrev-check-other-buffers t)
-  (add-hook 'completion-at-point-functions #'cape-file -10)
-  (add-hook 'completion-at-point-functions #'cape-dabbrev 20)
-  (setq dabbrev-ignored-buffer-regexps
-        '("\\` "
-          "\\(?:\\(?:[EG]?\\|GR\\)TAGS\\|e?tags\\|GPATH\\)\\(<[0-9]+>\\)?"))
-  (setq dabbrev-upcase-means-case-search t))
-
 
 
 (use-package yasnippet-capf
