@@ -30,7 +30,7 @@
          ("C-s" . isearch-forward)
          ("C-M-r" . isearch-backward-regexp)
          (:map isearch-mode-map
-               ("M-e" . consult-isearch-history)
+               ("M-r" . consult-isearch-history)
                ("C-M-s" . consult-line)
                ("C-o" . consult-line)))
   :config

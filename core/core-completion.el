@@ -93,6 +93,8 @@
          ("C-x B" . consult-project-buffer)
          ("C-x r b" . consult-bookmark)
          ("C-c s s" . consult-ripgrep)
+         ("M-s g" . consult-ripgrep)
+         ("M-s r" . consult-isearch-history)
          ("M-g M-g" . consult-goto-line)
          ("M-y" . consult-yank-pop)
          ("C-x c i" . consult-imenu)
