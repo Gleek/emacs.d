@@ -101,7 +101,7 @@
   (setq ns-auto-hide-menu-bar nil)
   (setq ns-use-srgb-colorspace t)
   (set-fontset-font
-   t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)
+   t 'symbol (font-spec :family "Apple Color Emoji") nil)
   (add-to-list
    'default-frame-alist'(ns-transparent-titlebar . t))
   (use-package ns-auto-titlebar
@@ -354,7 +354,7 @@
   (setq cursor-type 'bar)
   (electric-quote-local-mode t)
   (setq bidi-paragraph-direction nil)
-  (variable-pitch-mode t)
+  ;; (variable-pitch-mode t) ; disabling for now. Doesn't support all symbols
   (display-line-numbers-mode -1)
   (setq left-margin-width 5)
   (setq right-margin-width 5))
