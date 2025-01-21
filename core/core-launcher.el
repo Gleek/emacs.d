@@ -11,6 +11,20 @@
 
 ;;; Code:
 
+;; (use-package yequake
+;;   :config
+;;   (add-to-list 'yequake-frames '("emacs-launcher"
+;;                                  (buffer-fns . #'consult-omni-multi)
+;;                                  (width . 0.4)
+;;                                  (height . 0.5)
+;;                                  (top . 0.3)
+;;                                  (frame-parameters . ((name . "emacs-launcher")
+;;                                                       (minibuffer . only)
+;;                                                       (autoraise . t)
+;;                                                       (undecorated . t)
+;;                                                       (window-system . ns))))))
+
+
 (use-package consult-omni
   :ensure (:fetcher github :repo "armindarvish/consult-omni" :files (:defaults "sources/*.el"))
   :commands (+launch-default-launcher consult-omni)
@@ -55,7 +69,7 @@ Should be updated to show on the active monitor."
             nil)))))
   (defun +launch-consult-omni()
     (interactive)
-    (launcher-creator 'consult-omni "" (propertize "\n  " 'face 'consult-omni-path-face)))
+    (launcher-creator 'consult-omni "" (propertize "\n   " 'face 'consult-omni-path-face)))
 
   (defun +launch--update-source-prop (source-key prop value)
     "Externally update the property PROP of SOURCE-KEY with VALUE.
@@ -97,13 +111,10 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
 
   (defun +launch-zoom()
     (interactive)
-    (require 'dwim-shell-commands)
     (let ((zoomlink (secret-get zoomlink)))
-      (if zoomlink
-          (progn
-            (async-shell-command (format "open %s" (shell-quote-argument zoomlink)))
-            (kill-new (format "%s" zoomlink)))
-        (message "No zoom link found."))))
+      (when zoomlink
+        (start-process "Zoom" nil "open" zoomlink)
+        (kill-new (format "%s" zoomlink)))))
 
 
   (defvar consult-omni-launcher-entries
