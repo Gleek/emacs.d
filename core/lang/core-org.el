@@ -908,7 +908,7 @@ Useful to checking the link under point."
         org-agenda-tags-column 'auto
         org-agenda-skip-scheduled-if-done t
         org-agenda-span 10
-        org-agenda-block-separator (aref "━" 0)
+        org-agenda-block-separator ?─; (aref "━" 0)
         org-agenda-start-on-weekday nil
         org-agenda-start-day nil
         org-agenda-time-grid `((daily today require-timed remove-match)
