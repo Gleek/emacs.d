@@ -1146,7 +1146,7 @@ Works by changing `org-modern-priority-A/B/C' faces dynamically."
                ("C-c o n R" . org-roam-ref-remove)))
   :config
   (add-to-list 'org-roam-file-exclude-regexp "logseq/")
-  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:50}" 'face 'org-tag)))
+  (setq org-roam-node-display-template (concat "${type:15} ${title:*} " (propertize "${tags:50}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
 
 
@@ -1176,6 +1176,16 @@ Works by changing `org-modern-priority-A/B/C' faces dynamically."
     (car org-roam-capture-templates))
   (defvar org-roam-ref-capture-immediate-template
     (cadr org-roam-capture-templates))
+
+  (cl-defmethod org-roam-node-type ((node org-roam-node))
+    "Return the TYPE of NODE."
+    (condition-case nil
+        (file-name-nondirectory
+         (directory-file-name
+          (file-name-directory
+           (file-relative-name (org-roam-node-file node) org-roam-directory))))
+      (error "")))
+
 
   (defun org-roam-search ()
     (interactive)
