@@ -270,8 +270,8 @@
          ("M-f" . 'copilot-accept-completion-by-word)
          ("M-<return>" . 'copilot-accept-completion-by-line))
   :config
-  ;; Sometimes the copilot agent doesn't start. Restarting fixes the issue.
-  (copilot-diagnose)
+  (copilot-diagnose)   ; Sometimes the copilot agent doesn't start. Restarting fixes the issue.
+  (setq copilot-install-dir (expand-file-name "copilot" CACHE-DIR))
   (setq copilot-indent-offset-warning-disable t
         copilot-max-char-warning-disable t
         copilot-max-char 10000))
