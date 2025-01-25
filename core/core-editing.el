@@ -579,7 +579,8 @@ Including indent-buffer, which should not be called automatically on save."
   :ensure nil
   :bind ("C-c s e" . emoji-search-completing-read)
   :config
-  (setq emoji-search-download-dir CACHE-DIR))
+  (setq emoji-search-download-dir CACHE-DIR)
+  (add-to-list 'vertico-multiform-commands '(emoji-search-completing-read grid)))
 
 ;; (delete-selection-mode +1)
 (setq backward-delete-char-untabify-method 'untabify)

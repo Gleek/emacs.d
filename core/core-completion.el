@@ -46,13 +46,23 @@
                ("<return>" . vertico-directory-enter)
                ("<backspace>" . vertico-directory-delete-char)
                ("M-<backspace>" . vertico-directory-delete-word)
+               ("M-q" . vertico-multiform-flat)
                ("C-c C-c" . embark-act)
+               (">" . embark-become)
+               ("M-*" . embark-act-all)
+               ("C-<tab>" . embark-act-with-completing-read)
                ("C-c C-o" . embark-export)))
   :hook (minibuffer-setup . vertico-repeat-save)
   :config
+  (require 'embark)
   (vertico-mode t)
+  (vertico-multiform-mode t) ; M-{B(uffer) F(lat) G(rid) R(everse) U(nobtrusive) V(ertical)}'
   (setq vertico-resize nil
         vertico-count 15)
+  (setq vertico-multiform-commands '((consult-buffer flat)))
+  ;; (setq vertico-multiform-categories
+  ;;       '((consult-location buffer)
+  ;;         (consult-grep buffer)))
   (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy))
 
 (use-package embark
@@ -62,13 +72,20 @@
                 ("C-," . embark-become)))
   :config
   (setq embark-help-key "?")
+  (setq embark-quit-after-action
+        '((consult-projectile-embark-action-remove . nil)
+          (t . t)))
   ;; (defvar +embark-become-keymap (define-keymap))
   (defun embark-act-noquit ()
     "Run action but don't quit the minibuffer afterwards."
     (interactive)
     (let ((embark-quit-after-action nil))
       (embark-act)))
-
+  (defun embark-act-with-completing-read (&optional arg)
+    (interactive "P")
+    (let* ((embark-prompter 'embark-completing-read-prompter)
+           (embark-indicators '(embark-minimal-indicator)))
+      (embark-act arg)))
   (defvar +embark-buffer-keymap (define-keymap))
   (define-key +embark-buffer-keymap "p" #'consult-projectile)
   (define-key +embark-buffer-keymap "P" #'consult-projectile-switch-project)
@@ -169,13 +186,13 @@
   :config
   (global-corfu-mode t)
   (setq-default corfu-auto t
-        corfu-auto-delay 0.04
-        corfu-auto-prefix 2
-        global-corfu-modes '((not erc-mode help-mode vterm-mode) t)
-        corfu-preselect 'valid
-        corfu-count 10
-        corfu-max-width 120
-        corfu-on-exact-match nil)
+                corfu-auto-delay 0.04
+                corfu-auto-prefix 2
+                global-corfu-modes '((not erc-mode help-mode vterm-mode) t)
+                corfu-preselect 'valid
+                corfu-count 10
+                corfu-max-width 120
+                corfu-on-exact-match nil)
 
   (defun text-corfu-configuration()
     (setq-local corfu-auto-prefix 3
