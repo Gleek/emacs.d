@@ -1,19 +1,10 @@
 (use-package dired
   :ensure nil
-  :defer 1
-  :bind (:map dired-mode-map
-              ("f" . nil))
-  :commands (dired-open-with-dragger)
-  :bind (:map dired-mode-map
-              ("rd" . dired-open-with-dragger))
+  :bind (("C-x C-j" . dired-jump)
+         (:map dired-mode-map
+               ("f" . nil)))
+  :hook (dired-mode . dired-hide-details-mode)
   :config
-  (defun dired-open-with-dragger()
-    (interactive)
-
-    (start-process-shell-command "dragger"
-                                 nil (concat "dragger " (string-join (mapcar (lambda (el) (shell-quote-argument el))
-                                                                             (dired-get-marked-files))
-                                                                     " "))))
   (setq dired-recursive-copies 'always
         dired-recursive-deletes 'always
         delete-by-moving-to-trash t
@@ -24,7 +15,7 @@
 
   (when IS-MAC
     ;; brew install coreutils
-    (setq insert-directory-program "/opt/homebrew/bin/gls"))
+    (setq insert-directory-program (executable-find "gls")))
 
   (setq dired-listing-switches
         "-AGFhlv --group-directories-first --time-style=long-iso")
@@ -35,12 +26,11 @@
         image-dired-gallery-dir (concat image-dired-dir "gallery/")
         image-dired-temp-image-file (concat image-dired-dir "temp-image")
         image-dired-temp-rotate-image-file (concat image-dired-dir "temp-rotate-image")
-        image-dired-thumb-size 150)
-
-  :hook (dired-mode . dired-hide-details-mode))
+        image-dired-thumb-size 150))
 
 (use-package wdired
   :after dired
+  :demand t
   :ensure nil
   :bind (:map dired-mode-map
               ("W" . wdired-change-to-wdired-mode)
@@ -53,6 +43,7 @@
 
 (use-package peep-dired
   :after dired
+  :demand t
   :config
   (setq peep-dired-cleanup-on-disable t)
   (setq peep-dired-cleanup-eagerly nil)
@@ -71,23 +62,6 @@
 (use-package diredfl
   :hook (dired-mode . diredfl-mode))
 
-;; (use-package dired-rainbow
-;;   :hook (dired-mode . dired-rainbow-mode))
-
-(use-package dired-subtree
-  :ensure t
-  :after dired
-  :config
-  (setq dired-subtree-use-backgrounds nil)
-  :bind (:map dired-mode-map
-              ("<tab>" . dired-subtree-toggle)
-              ("<backtab>" . dired-subtree-cycle)))
-
-;; (use-package dired-du
-;;   :bind (:map dired-mode-map
-;;               ("C-c d S" . dired-du-mode)))
-
-
 (use-package dired-aux
   :ensure nil
   :config
@@ -105,11 +79,18 @@
 
 
 (use-package dired-x
+  :hook (dired-mode . dired-omit-mode)
+  :bind (:map dired-mode-map
+              ("//" . dired-toggle-omit))
+  :demand t
   :ensure nil
-  :bind ("C-x C-j" . dired-jump)
-  :commands (dired-jump)
-  ;; :hook (dired-mode . dired-omit-mode)
   :config
+  (defun dired-toggle-omit()
+    (interactive)
+    (if dired-omit-mode
+        (dired-omit-mode -1)
+      (dired-omit-mode 1)))
+
   (setq dired-omit-verbose nil
         dired-omit-files
         (concat dired-omit-files
@@ -136,16 +117,28 @@
             ("\\.html?\\'" ,cmd)
             ("\\.md\\'" ,cmd)))))
 
-(use-package nerd-icons-dired
-  :hook (dired-mode . nerd-icons-dired-mode))
-
-(use-package fd-dired
-  ;; :bind (:map dired-mode-map
-  ;;             ("C-c d s" . fd-dired))
+(use-package dirvish
+  :after dired
+  :demand t
+  :bind (:map dired-mode-map
+              ("<tab>" . dirvish-subtree-toggle)
+              ("z" . dirvish-history-jump)
+              ("M-m" . dirvish-mark-menu))
   :config
-  (set-popup-rule! "^\\*F\\(?:d\\|ind\\)\\*$" :ignore t))
+  (dirvish-override-dired-mode)
+  (setq dirvish-attributes '(subtree-state vc-state nerd-icons collapse))
+  (setq dirvish-cache-dir (expand-file-name "dirvish/" CACHE-DIR))
+  (setq dirvish-subtree-always-show-state t)
+  (setq dirvish-header-line-height doom-modeline-height)
+  (setq dirvish-mode-line-height doom-modeline-height)
+  (setq dirvish-reuse-session t)
+  (set-face-attribute 'dirvish-hl-line nil :inherit hl-line-face)
+  (define-advice dirvish-data-for-dir (:before (_dired _buffer setup))
+    (when (and setup (memq 'vc-state dirvish-attributes))
+      (set-window-fringes nil 5 1))))
 
 (use-package dired-filter
+  :disabled t
   :hook ((dired-mode . dired-filter-mode)
          (dired-mode . dired-filter-by-dot-files)
          (dired-mode . dired-filter-by-omit))
@@ -159,11 +152,9 @@
     (dired-filter-mode -1)
     (dired-filter-mode +1)))
 
-;; (use-package dired-ranger)
-;; (use-package ranger)
-
 (use-package disk-usage
   :after dired
+  :demand t
   :bind (:map dired-mode-map
               ("C-c d S" . disk-usage-here))
   :init
@@ -175,15 +166,6 @@
          :map minibuffer-local-completion-map
          ("C-x C-d" . consult-dir)
          ("C-x C-j" . consult-dir-jump-file)))
-
-;; https://github.com/Fuco1/dired-hacks/issues/126
-;; (use-package dired-collapse
-;;   :hook (dired-mode . dired-collapse-mode))
-
-;; (use-package counsel-fd
-;;   :bind (:map dired-mode-map
-;;               ("ff". counsel-fd-file-jump)
-;;               ("fd". counsel-fd-dired-jump)))
 
 
 (provide 'core-dired)

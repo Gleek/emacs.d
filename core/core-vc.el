@@ -127,7 +127,7 @@
    :height 70))
 
 (use-package diff-hl
-  :hook (dired-mode . diff-hl-dired-mode-unless-remote)
+  ;; :hook (dired-mode . diff-hl-dired-mode-unless-remote)
   :hook (magit-post-refresh . diff-hl-magit-post-refresh)
   ;; :hook (find-file . diff-hl-mode)
   :config
