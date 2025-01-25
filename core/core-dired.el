@@ -43,7 +43,8 @@
   :after dired
   :ensure nil
   :bind (:map dired-mode-map
-              ("W" . wdired-change-to-wdired-mode))
+              ("W" . wdired-change-to-wdired-mode)
+              ("e" . wdired-change-to-wdired-mode))
   :commands wdired-change-to-wdired-mode
   :config
   (setq wdired-allow-to-change-permissions t)

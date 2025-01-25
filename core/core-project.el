@@ -134,6 +134,8 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package wgrep
   :commands wgrep-change-to-wgrep-mode
+  :bind (:map grep-mode-map
+              ("e" . wgrep-change-to-wgrep-mode))
   :config (setq wgrep-auto-save-buffer t))
 
 (use-package smart-jump

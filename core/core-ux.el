@@ -56,6 +56,7 @@
 
 (use-package ultra-scroll
   :ensure (ultra-scroll :host github :repo "jdtsmith/ultra-scroll")
+  :defer 5
   :init
   (setq scroll-conservatively 0
     scroll-margin 0)

@@ -316,7 +316,6 @@
   (add-to-list 'mini-frame-ignore-commands 'git-gutter:revert-hunk)
   (mini-frame-mode 1))
 
-
 (use-package treesit
   :ensure nil
   :init

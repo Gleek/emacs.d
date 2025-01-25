@@ -280,9 +280,7 @@ TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s
   (global-set-key [remap describe-command]  #'helpful-command)
   (global-set-key [remap describe-variable] #'helpful-variable)
   (global-set-key [remap describe-key]      #'helpful-key)
-  (global-set-key [remap describe-symbol]   #'helpful-symbol)
-  (setq counsel-describe-function-function #'helpful-callable)
-  (setq counsel-describe-variable-function #'helpful-variable))
+  (global-set-key [remap describe-symbol]   #'helpful-symbol))
 
 
 (use-package async

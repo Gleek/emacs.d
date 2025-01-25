@@ -29,6 +29,7 @@
         delete-horizontal-space
         delete-indentation
         describe-key-briefly
+        dired-next-line
         dired-unmark-backward
         duplicate-current-line-or-region
         electric-newline-and-maybe-indent
@@ -160,6 +161,7 @@
         swiper
         swiper-mc
         undo-tree-visualize
+        wdired-abort-changes
         wgrep-abort-changes
         yank-rectangle
         yas-clear-field
