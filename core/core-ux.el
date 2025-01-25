@@ -62,6 +62,12 @@
   :config
   (ultra-scroll-mode 1))
 
+(use-package mini-ontop  ; don't move windows when resizing minibuffer (vertico)
+  :ensure (mini-ontop :host github :repo "hkjels/mini-ontop.el")
+  :defer 1
+  :config
+  (mini-ontop-mode t))
+
 
 (use-package which-key
   :defer 1
