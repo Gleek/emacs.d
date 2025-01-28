@@ -148,14 +148,14 @@
              (concat (substring exwm-title 0 29))))))
 
 
-(defun exwm-counsel-yank-pop ()
-  "Same as `counsel-yank-pop' and paste into exwm buffer."
+(defun exwm-consult-yank-pop ()
+  "Same as `consult-yank-pop' and paste into exwm buffer."
   (interactive)
   (let ((inhibit-read-only t)
         ;; Make sure we send selected yank-pop candidate to
         ;; clipboard:
         (yank-pop-change-selection t))
-    (call-interactively #'counsel-yank-pop))
+    (call-interactively #'consult-yank-pop))
   (when (derived-mode-p 'exwm-mode)
     (exwm-input--fake-key ?\C-v)))
 
@@ -232,7 +232,7 @@
 (exwm-input-set-key (kbd "S-s-<XF86AudioNext>")     'play-bigfor)
 (exwm-input-set-key (kbd "S-s-<XF86AudioPrev>")     'play-bigbak)
 (exwm-input-set-key (kbd "<XF86LaunchA>")           'screenshot)
-(exwm-input-set-key (kbd "s-y")                     'exwm-counsel-yank-pop)
+(exwm-input-set-key (kbd "s-y")                     'exwm-consult-yank-pop)
 (exwm-input-set-key (kbd "s-E")                     'exwm-counsel-unicode-char)
 (exwm-input-set-key (kbd "s-B")                     'toggle-polybar)
 

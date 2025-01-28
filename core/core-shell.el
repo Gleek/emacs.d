@@ -138,25 +138,6 @@
             (propertize " λ" 'face (if (zerop eshell-last-command-status) 'success 'error))
             " "))
 
-  ;; Courtesy: Doom
-  (defun +eshell/search-history ()
-    "Search the eshell command history with helm, ivy or `eshell-list-history'."
-    (interactive)
-    (require 'em-hist)
-    (let* ((ivy-completion-beg (eshell-bol))
-           (ivy-completion-end (point-at-eol))
-           (input (buffer-substring-no-properties
-                   ivy-completion-beg
-                   ivy-completion-end)))
-      ;; Better than `counsel-esh-history' because that doesn't
-      ;; pre-populate the initial input or selection.
-      (ivy-read "Command: "
-                (delete-dups
-                 (when (> (ring-size eshell-history-ring) 0)
-                   (ring-elements eshell-history-ring)))
-                :initial-input input
-                :action #'ivy-completion-in-region-action)))
-
   (defun eshell/cdp()
     (interactive)
     (eshell/cd (projectile-project-root)))
