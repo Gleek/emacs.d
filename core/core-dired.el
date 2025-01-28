@@ -70,7 +70,8 @@
 
 (use-package dired-hist
   :load-path "packages/dired-hist.el"
-  :defer 5
+  :after dired
+  :demand t
   :bind (:map dired-mode-map
               ("l" . dired-hist-go-back)
               ("f" . dired-hist-go-forward))
@@ -130,8 +131,10 @@
   (setq dirvish-cache-dir (expand-file-name "dirvish/" CACHE-DIR))
   (setq dirvish-subtree-always-show-state t)
   (setq dirvish-header-line-height doom-modeline-height)
+  (setq dirvish-use-header-line t)
   (setq dirvish-mode-line-height doom-modeline-height)
   (setq dirvish-reuse-session t)
+  (setq dirvish-subtree-state-style 'nerd)
   (set-face-attribute 'dirvish-hl-line nil :inherit hl-line-face)
   (define-advice dirvish-data-for-dir (:before (_dired _buffer setup))
     (when (and setup (memq 'vc-state dirvish-attributes))
