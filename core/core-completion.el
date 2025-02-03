@@ -63,13 +63,18 @@
   ;; (setq vertico-multiform-categories
   ;;       '((consult-location buffer)
   ;;         (consult-grep buffer)))
-  (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy))
+  (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
+  (if (bound-and-true-p savehist-loaded)
+      (add-to-list 'savehist-additional-variables
+                   'vertico-repeat-history)))
 
 (use-package embark
   :bind* (("M-o" . embark-act)
           ("C-M-o" . embark-act-noquit)
           (:map minibuffer-local-map
-                ("C-," . embark-become)))
+                ("C-," . embark-become)
+                ("C-<tab>" . embark-act-with-completing-read)
+                ("C-<return>" . embark-dwim-noquit)))
   :config
   (setq embark-help-key "?")
   (setq embark-quit-after-action
@@ -81,6 +86,11 @@
     (interactive)
     (let ((embark-quit-after-action nil))
       (embark-act)))
+  (defun embark-dwim-noquit()
+    (interactive)
+    (let ((embark-quit-after-action nil))
+      (embark-dwim)
+      (embark--restart)))
   (defun embark-act-with-completing-read (&optional arg)
     (interactive "P")
     (let* ((embark-prompter 'embark-completing-read-prompter)

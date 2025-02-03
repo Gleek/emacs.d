@@ -451,6 +451,19 @@ https://emacs.stackexchange.com/a/12124/2144"
          (:map vundo-mode-map
                ("C-g" . vundo-quit)))
   :config
+  (defun vundo-live-diff-post-command ()
+    "Post command hook function for live diffing."
+    (when (not (memq this-command '(vundo-quit vundo-confirm)))
+      (progn
+        (vundo-diff-mark (vundo-m-parent (vundo--current-node vundo--prev-mod-list)))
+        (vundo-diff))))
+  (define-minor-mode vundo-live-diff-mode
+    "Shows live diff between the current node and its parent."
+    :lighter nil
+    (if vundo-live-diff-mode
+      (add-hook 'post-command-hook #'vundo-live-diff-post-command 0 t)
+      (remove-hook 'post-command-hook #'vundo-live-diff-post-command t)))
+  (add-hook 'vundo-mode-hook (lambda () (vundo-live-diff-mode t)))
   (set-face-attribute 'vundo-default nil :font "FiraCode Nerd Font Mono" :family "FiraCode Nerd Font")
   (setq vundo-glyph-alist vundo-unicode-symbols
         vundo-compact-display t))
