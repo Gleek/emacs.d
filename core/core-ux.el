@@ -56,6 +56,8 @@
 
 (use-package ultra-scroll
   :ensure (ultra-scroll :host github :repo "jdtsmith/ultra-scroll")
+  :bind (("C-<wheel-down>" . nil)
+         ("C-<wheel-up>" . nil)) ; ultra scroll does lazy wheel scroll and if I press C it scales everything
   :defer 5
   :init
   (setq scroll-conservatively 101
