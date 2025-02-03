@@ -56,9 +56,7 @@
 (use-package winner
   :ensure nil
   :config (winner-mode t)
-  :bind (("C-<tab>" . winner-undo)
-         ("C-S-<tab>" . winner-redo)
-         ("C-c w /" . winner-undo)
+  :bind (("C-c w /" . winner-undo)
          ("C-c w ?" . winner-redo)))
 
 (use-package transpose-frame
