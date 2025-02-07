@@ -277,6 +277,19 @@ everywhere that supports some decent formatting."
         (goto-char day-entry-point)
         (indent-according-to-mode))))
 
+  (defun post-org-clock-in()
+    (let ((state (org-get-todo-state)))
+      (when (and state (not (equal state "DOING")))
+        (org-todo "DOING")
+        (org-set-property "ORIG_STATE" state))))
+
+  (defun post-org-clock-out()
+    (let ((cur-state (org-get-todo-state))
+           (fin-state (org-entry-get nil "ORIG_STATE")))
+      (when (and cur-state fin-state (equal cur-state "DOING"))
+        (org-todo fin-state)
+        (org-delete-property "ORIG_STATE"))))
+
 
   (defun echo-area-tooltips ()
     "Show tooltips in the echo area automatically for current buffer.
@@ -432,7 +445,8 @@ Useful to checking the link under point."
 
   ;; automatically show the resulting image
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
-  (add-hook 'org-clock-in-hook (lambda() (if (org-get-todo-state) (org-todo "DOING"))) 'append)
+  (add-hook 'org-clock-in-hook #'post-org-clock-in 'append)
+  (add-hook 'org-clock-out-hook #'post-org-clock-out 'append)
 
   ;; Courtesy: doom emacs (popup/+hacks.el)
   (defun +popup--supress-delete-other-windows-a (origin-fn &rest args)
@@ -496,8 +510,13 @@ Useful to checking the link under point."
 
 
 (use-package org-mru-clock
-  :bind ("s-c" . org-mru-clock-in)
+  :bind ("s-c" . org-quick-clock-in)
   :config
+  (defun org-quick-clock-in()
+    "Start a new clock but clock out any running clock first"
+    (interactive)
+    (if (org-clocking-p) (org-clock-out))
+    (org-mru-clock-in))
   (setq org-mru-clock-how-many 100)
   (setq org-mru-clock-keep-formatting t)
   (setq org-mru-clock-persist-file (concat CACHE-DIR "org-mru-clock")))
@@ -902,7 +921,7 @@ Useful to checking the link under point."
 
 
 
-  (setq org-agenda-files (mapcar (lambda(file) (concat +agenda-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "someday.org"))
+  (setq org-agenda-files (mapcar (lambda(file) (concat +agenda-directory file)) '("inbox.org" "inbox_phone.org" "next.org" "someday.org" "trackers.org"))
         org-agenda-window-setup 'current-window
         org-agenda-skip-unavailable-files t
         org-agenda-tags-column 'auto
