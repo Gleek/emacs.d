@@ -415,7 +415,7 @@ https://emacs.stackexchange.com/a/12124/2144"
 (use-package undo-fu
   :defer 1
   :config
-    (setq undo-limit 400000           ; 400kb (default is 160kb)
+  (setq undo-limit 400000           ; 400kb (default is 160kb)
         undo-strong-limit 3000000   ; 3mb   (default is 240kb)
         undo-outer-limit 48000000)  ; 48mb  (default is 24mb)
 
@@ -449,7 +449,8 @@ https://emacs.stackexchange.com/a/12124/2144"
 (use-package vundo
   :bind (("C-x u" . vundo)
          (:map vundo-mode-map
-               ("C-g" . vundo-quit)))
+               ("C-g" . vundo-quit)
+               ("D" . vundo-live-diff-mode)))
   :config
   (defun vundo-live-diff-post-command ()
     "Post command hook function for live diffing."
@@ -461,8 +462,9 @@ https://emacs.stackexchange.com/a/12124/2144"
     "Shows live diff between the current node and its parent."
     :lighter nil
     (if vundo-live-diff-mode
-      (add-hook 'post-command-hook #'vundo-live-diff-post-command 0 t)
+        (add-hook 'post-command-hook #'vundo-live-diff-post-command 0 t)
       (remove-hook 'post-command-hook #'vundo-live-diff-post-command t)))
+
   (add-hook 'vundo-mode-hook (lambda () (vundo-live-diff-mode t)))
   (set-face-attribute 'vundo-default nil :font "FiraCode Nerd Font Mono" :family "FiraCode Nerd Font")
   (setq vundo-glyph-alist vundo-unicode-symbols
