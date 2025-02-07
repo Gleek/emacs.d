@@ -66,10 +66,10 @@
   (ultra-scroll-mode 1))
 
 (use-package mini-ontop  ; don't move windows when resizing minibuffer (vertico)
-  :disabled t ; until https://github.com/hkjels/mini-ontop.el/pull/1 is merged
   :ensure (mini-ontop :host github :repo "hkjels/mini-ontop.el")
   :defer 1
   :config
+  (setq mini-ontop-lines 15)
   (mini-ontop-mode t))
 
 
@@ -134,6 +134,7 @@
 (setq indicate-buffer-boundaries nil
       indicate-empty-lines nil)
 (setq enable-recursive-minibuffers t)
+(minibuffer-depth-indicate-mode t)
 
 (use-package page-break-lines :diminish page-break-lines-mode)
 (add-hook 'after-save-hook

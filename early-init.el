@@ -30,7 +30,6 @@
                             inhibit-message nil)
               (redisplay))))
 
-
 (defvar gc-cons-threshold-backup gc-cons-threshold)
 (setq gc-cons-threshold most-positive-fixnum)
 (defun reset-gc-cons-threshold()

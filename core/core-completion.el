@@ -59,7 +59,7 @@
   (vertico-multiform-mode t) ; M-{B(uffer) F(lat) G(rid) R(everse) U(nobtrusive) V(ertical)}'
   (setq vertico-resize nil
         vertico-count 15)
-  (setq vertico-multiform-commands '((consult-buffer flat)))
+  ;; (setq vertico-multiform-commands nil)
   ;; (setq vertico-multiform-categories
   ;;       '((consult-location buffer)
   ;;         (consult-grep buffer)))

@@ -158,7 +158,7 @@
   (doom-themes-org-config)
   (add-hook 'ns-system-appearance-change-functions #'+apply-theme))
 
-
+;; (use-package ef-themes)
 
 (use-package doom-modeline
   ;; :hook (after-init . doom-modeline-mode)

@@ -405,9 +405,9 @@ To reset the playlist is to undo the marks produced by non-nil
     "Toggle `bongo-random-playback-mode' in playlist buffers."
     (interactive)
     (with-bongo-playlist-buffer
-      (if (eq bongo-next-action 'bongo-play-random-or-stop)
-          (bongo-progressive-playback-mode)
-        (bongo-random-playback-mode))))
+     (if (eq bongo-next-action 'bongo-play-random-or-stop)
+         (bongo-progressive-playback-mode)
+       (bongo-random-playback-mode))))
   (defun +bongo-playlist-play-random()
     (interactive)
     (unless (bongo-playlist-buffer)
