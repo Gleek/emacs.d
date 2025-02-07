@@ -126,7 +126,7 @@ Call with prefix arg to create a new buffer with the interface definition."
               ("C-z s" . go-interface-to-struct))
   :config
   (add-hook 'go-ts-mode-hook (lambda() (setq-local format-all-formatters '(("Go" goimports)))))
-  (add-hook 'go-ts-mode-hook (lambda() (require 'dap-dlv-go)))
+  ;; (add-hook 'go-ts-mode-hook (lambda() (require 'dap-dlv-go)))
   (add-hook 'before-save-hook '+gofmt-before-save)
   (setq-default go-ts-mode-indent-offset tab-width))
 
