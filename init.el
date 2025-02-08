@@ -35,12 +35,12 @@
 (if (file-exists-p (expand-file-name "core/core-secrets.el" user-emacs-directory))
     (use-package "core-secrets" :ensure nil :demand t))
 
+(use-package "org/core-org" :ensure nil :demand t)
 (use-package "lang/core-go" :ensure nil :demand t)
 (use-package "lang/core-javascript" :ensure nil :demand t)
 (use-package "lang/core-markdown" :ensure nil :demand t)
 (use-package "lang/core-php" :ensure nil :demand t)
 (use-package "lang/core-proto" :ensure nil :demand t)
-(use-package "lang/core-org" :ensure nil :demand t)
 (use-package "lang/core-elisp" :ensure nil :demand t)
 (use-package "lang/core-diagram" :ensure nil :demand t)
 (use-package "lang/core-misc" :ensure nil :demand t)
