@@ -328,19 +328,19 @@
   (defun +bulk-process-entry-set-tags ()
     "Set tags for current entry."
     (interactive)
-    (call-interactively #'org-set-tags-command)
+    (call-interactively #'org-agenda-set-tags)
     (transient-resume))
 
   (defun +bulk-process-entry-set-priority ()
     "Set priority for current entry."
     (interactive)
-    (call-interactively #'org-priority)
+    (call-interactively #'org-agenda-priority)
     (transient-resume))
 
   (defun +bulk-process-entry-refile ()
     "Refile current entry and exit transient."
     (interactive)
-    (call-interactively #'org-refile)
+    (call-interactively #'org-agenda-refile)
     (transient-quit-one))
 
   (transient-define-prefix +bulk-process-entry-menu ()
@@ -833,6 +833,7 @@ TODO: Add checkbox based on todo state. If in todo show [ ] if done show [X] in 
 
 
 (use-package org-mru-clock
+  :commands (org-quick-clock-in)
   :bind ("s-c" . org-quick-clock-in)
   :config
   (defun org-quick-clock-in()
