@@ -80,6 +80,11 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
            (updated-source (plist-put source prop value)))
       (setf (cdr source-cons) updated-source)))
 
+
+  (defun +launcher-org-quick-clock-in()
+    (interactive)
+    (launcher-creator 'org-quick-clock-in))
+
   (defun +launch-default-launcher()
     (interactive)
     (let* ((consult-omni-multi-sources
