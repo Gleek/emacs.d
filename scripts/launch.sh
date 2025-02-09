@@ -8,12 +8,9 @@ if ! emacsclient -s "$SERVER_NAME" -e '(message "Launcher daemon running")' &>/d
     sleep 1
 fi
 
-if emacsclient -s "$SERVER_NAME" -e "
- (if (daemonp) nil
-     (error \"\"))
-"; then
+if [ $(emacsclient -s "server" -e "(daemonp)") = "t" ]; then
     # if it's a daemon a new frame will be created
-    (emacsclient -s "$SERVER_NAME" -c -e "$ELISP_CMD" &)
+    emacsclient -s "$SERVER_NAME" -c -e "$ELISP_CMD" &
 else
-    (emacsclient -s "$SERVER_NAME" -e "$ELISP_CMD" &)
+    emacsclient -s "$SERVER_NAME" -e "$ELISP_CMD" &
 fi
