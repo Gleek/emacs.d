@@ -19,6 +19,8 @@
 
   (setq magit-diff-refine-hunk t)
 
+  (setopt magit-format-file-function #'magit-format-file-nerd-icons)
+
   (setq magit-status-headers-hook '(magit-insert-head-branch-header))
   ;; This gives some performance boost to magit
   (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
