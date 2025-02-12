@@ -40,7 +40,7 @@
 F is expected to show up in the minibuffer.
 Currently the frame is shown on the primary monitor.
 Should be updated to show on the active monitor."
-    (let* ((vertico-count 20)
+    (let* ((vertico-count 15)
            (width (floor (* 0.45 (car (get-primary-monitor-resolution)))))
            (height (floor (* 0.5 (cadr (get-primary-monitor-resolution)))))
            (left  (floor (* 0.25 (car (get-primary-monitor-resolution)))))
@@ -88,8 +88,7 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
   (defun +launch-default-launcher()
     (interactive)
     (let* ((consult-omni-multi-sources
-            '("Numi" "Apps" "Org Agenda" "Buffer" "Static launcher" "DuckDuckGo API" "Web search"))
-           (consult-async-split-style nil)) ; Remove that # from the beginning of the search. Nothing seems to be affected.
+            '("Numi" "Apps" "Org Agenda" "Buffer" "Static launcher" "DuckDuckGo API" "Web search")))
       (+launch-consult-omni)))
 
 
@@ -97,7 +96,8 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
   (defun +launch-emoji-completing-read()
     (interactive)
     (require 'emoji-search)
-    (launcher-creator 'emoji-search-completing-read))
+    (let ((vertico-multiform-commands '((vertico-directory-enter grid)))) ; since I usually enter it via vertico only
+      (launcher-creator 'emoji-search-completing-read)))
 
   (defun +launch-gptel()
     (interactive)
