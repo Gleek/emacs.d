@@ -8,3 +8,4 @@ cache/
 *.elc
 /package-quickstart.el
 /eln-cache
+.aider*
