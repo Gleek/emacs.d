@@ -279,6 +279,9 @@
          ("<tab>" . 'copilot-accept-completion)
          ("M-f" . 'copilot-accept-completion-by-word)
          ("M-<return>" . 'copilot-accept-completion-by-line))
+  :hook ((prog-mode . copilot-mode)
+         (text-mode . copilot-mode)
+         (conf-mode . copilot-mode))
   :config
   (setq copilot-install-dir (expand-file-name "copilot" CACHE-DIR))
   (copilot-diagnose)   ; Sometimes the copilot agent doesn't start. Restarting fixes the issue.
@@ -293,44 +296,6 @@
   :config
   (setq copilot-chat-model "claude-3.5-sonnet")
   (setq copilot-chat-frontend 'shell-maker))
-
-
-(use-package elysium
-  :bind (("C-c q a" . elysium-query)
-         ("C-c C-s A" . elysium-keep-all-suggested-changes)
-         ("C-c C-s k" . elysium-discard-all-suggested-changes))
-  :config
-  ;; The manual merge that this creates is on wrong lines. TODO: Fix this. gptel-rewrite does it correctly but adds lang tags.
-  (setq elysium-window-size 0.33)
-  (setq elysium-window-style 'horizontal)
-  (defhydra elysium-smerge-hydra (:color blue :hint nil :quit-key nil)
-    "
-        Smerge Navigation
-        _n_: Next conflict    _p_: Previous conflict
-        _a_: Accept lower     _k_: Keep upper
-        _A_: Accept all       _R_: Reject all
-        _r_: Resolve          _q_: Quit"
-    ("n" smerge-next :exit nil)
-    ("p" smerge-prev :exit nil)
-    ("a" smerge-keep-lower :exit nil)
-    ("k" smerge-keep-upper :exit nil)
-    ("r" smerge-resolve :exit nil)
-    ("A" elysium-keep-all-suggested-changes :exit nil)
-    ("R" elysium-discard-all-suggested-changes :exit nil)
-    ("q" nil :exit t))
-  (defun elysium-apply-changes-setup ()
-    (smerge-mode t)
-    (elysium-smerge-hydra/body))
-  (add-hook 'elysium-apply-changes-hook #'elysium-apply-changes-setup))
-
-
-(use-package aider
-  :ensure (:fetcher github :repo "tninja/aider.el")
-  ;; :bind (("C-c C-a" . aider-transient-menu))
-  :config
-  (setq aider-args '("--model" "gpt-4o-mini"))
-  (setenv "OPENAI_API_KEY" (secret-get openai-key)))
-
 
 (use-package codeium
   :commands (codeium-install)
