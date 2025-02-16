@@ -27,7 +27,7 @@
 
 (use-package consult-omni
   :ensure (:fetcher github :repo "armindarvish/consult-omni" :files (:defaults "sources/*.el"))
-  :commands (+launch-default-launcher consult-omni)
+  :commands (+launch-default-launcher consult-omni +launcher-org-quick-clock-in)
   :config
   (setq consult-omni-show-preview t)
   (setq consult-omni-preview-key "C-o")

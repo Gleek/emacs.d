@@ -116,16 +116,16 @@
 
 
 (use-package consult
-  :bind (("C-x b" . consult-buffer)
-         ("C-x B" . consult-project-buffer)
+  :bind (("C-x b"   . consult-buffer)
+         ("C-x B"   . consult-project-buffer)
          ("C-x r b" . consult-bookmark)
          ("C-c s s" . consult-ripgrep)
-         ("M-s g" . consult-ripgrep)
-         ("M-s r" . consult-isearch-history)
+         ("M-s g"   . consult-ripgrep)
+         ("M-s r"   . consult-isearch-history)
          ("M-g M-g" . consult-goto-line)
-         ("M-y" . consult-yank-pop)
+         ("M-y"     . consult-yank-pop)
          ("C-x c i" . consult-imenu)
-         ("C-M-s" . consult-line)
+         ("C-M-s"   . consult-line)
          ("C-M-S-s" . consult-line-multi)
          (:map minibuffer-local-map
                ("M-s" . consult-history)
