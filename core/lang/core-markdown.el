@@ -1,5 +1,8 @@
 (use-package markdown-mode
   :mode ("/README\\(?:\\.md\\)?\\'" . gfm-mode)
+  :bind
+  (:map markdown-mode-map
+         ("C-z w" . copy-current-code-block))
   :init
   (defvar markdown-command)
   (setq markdown-enable-math t ; syntax highlighting for latex fragments
@@ -41,7 +44,32 @@ Returns its exit code."
   :config
   ;; (sp-local-pair '(markdown-mode gfm-mode) "`" "`"
   ;;                :unless '(:add sp-point-before-word-p sp-point-before-same-p))
-  )
+  ;; Define the copy-current-code-block function
+  (defun copy-current-code-block ()
+    "Copy the current Markdown code block to the kill ring.
+A code block is defined by triple backticks ``` as the start and end."
+    (interactive)
+    (let (beg end)
+      (save-excursion
+        ;; Search backward for the start of a code block
+        (if (re-search-backward "^```" nil t)
+            (progn
+              ;; Move to the end of the start code fence line
+              (end-of-line)
+              (setq beg (point))
+              ;; Search forward for the end of the code block
+              (if (re-search-forward "^```" nil t)
+                  (progn
+                    ;; Move to the beginning of the end code fence line
+                    (beginning-of-line)
+                    (setq end (point)))
+                (message "End of code block not found.")))
+          (message "Start of code block not found.")))
+      (if (and beg end)
+          (progn
+            (kill-ring-save beg end)
+            (message "Code block copied to clipboard."))
+        (message "No complete code block found to copy.")))))
 
 (use-package grip-mode)
 
