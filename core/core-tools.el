@@ -635,6 +635,20 @@ To actually enable this, evaluate `+bongo-remove-headers'."
               codellama/CodeLlama-13b-Instruct-hf
               codellama/CodeLlama-34b-Instruct-hf)))
 
+(use-package aidermacs
+  :bind ("C-c q a" . aidermacs-transient-menu)
+  :ensure (:fetcher github :repo "MatthewZMD/aidermacs")
+  :config
+  ;; (setq aidermacs-default-model "anthropic/claude-3-5-sonnet-20241022")
+  (setq aidermacs-default-model "o3-mini")
+  (setq aidermacs-editor-model "o3-mini")
+  (setq aidermacs-architect-model "o1-mini")
+  (setenv "OPENAI_API_KEY" (secret-get openai-key))
+  (setenv "AIDER_CHAT_LANGUAGE" "english")
+  ;; (global-set-key (kbd "C-c a") 'aidermacs-transient-menu)
+  ; See the Configuration section below
+  (setq aidermacs-use-architect-mode t))
+
 
 (when IS-MAC
   (defun play-sound-mac(sound)
