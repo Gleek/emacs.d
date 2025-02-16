@@ -69,7 +69,13 @@
   :ensure (mini-ontop :host github :repo "hkjels/mini-ontop.el")
   :defer 1
   :config
+  (defvar mini-ontop-ignore-commands
+    '(consult-buffer)
+    "List of commands to ignore mini-ontop.")
+  (defun mini-ontop-ignore-command-p()
+    (member this-command mini-ontop-ignore-commands))
   (setq mini-ontop-lines 15)
+  (add-to-list 'mini-ontop-ignore-predicates 'mini-ontop-ignore-command-p)
   (mini-ontop-mode t))
 
 
