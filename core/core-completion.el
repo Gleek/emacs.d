@@ -280,10 +280,11 @@
          ("M-f" . 'copilot-accept-completion-by-word)
          ("M-<return>" . 'copilot-accept-completion-by-line))
   :hook ((prog-mode . copilot-mode)
-         (text-mode . copilot-mode)
+         ;; (text-mode . copilot-mode)
          (conf-mode . copilot-mode))
   :config
   (setq copilot-install-dir (expand-file-name "copilot" CACHE-DIR))
+  (setq copilot-version "1.272.0")
   (copilot-diagnose)   ; Sometimes the copilot agent doesn't start. Restarting fixes the issue.
   (setq copilot-indent-offset-warning-disable t
         copilot-max-char-warning-disable t
