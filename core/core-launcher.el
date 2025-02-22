@@ -88,7 +88,7 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
   (defun +launch-default-launcher()
     (interactive)
     (let* ((consult-omni-multi-sources
-            '("Numi" "Apps" "Org Agenda" "Buffer" "Static launcher" "DuckDuckGo API" "Web search")))
+            '("Numi" "Apps" "Org Agenda" "Buffer" "Static launcher" "Web search")))
       (+launch-consult-omni)))
 
 
