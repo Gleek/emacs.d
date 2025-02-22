@@ -645,8 +645,6 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   (setq aidermacs-architect-model "o1-mini")
   (setenv "OPENAI_API_KEY" (secret-get openai-key))
   (setenv "AIDER_CHAT_LANGUAGE" "english")
-  ;; (global-set-key (kbd "C-c a") 'aidermacs-transient-menu)
-  ; See the Configuration section below
   (setq aidermacs-use-architect-mode t))
 
 

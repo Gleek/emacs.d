@@ -64,9 +64,6 @@ characters. With argument, do this that many times."
                   forward-to-whitespace)
 
 
-
-
-
 (defun smart-open-line ()
   "Insert an empty line after the current line.
 Position the cursor at its beginning, according to the current mode."
@@ -608,4 +605,6 @@ Including indent-buffer, which should not be called automatically on save."
 
 (setq tab-always-indent 'complete)
 (put 'narrow-to-region 'disabled nil)
+
+
 (provide 'core-editing)

@@ -258,6 +258,5 @@ Works by changing `org-modern-priority-A/B/C' faces dynamically."
 (use-package org-pretty-table :ensure nil
   :hook (orgtbl-mode . org-pretty-table-mode))
 
-
 (provide 'core-org-ui)
 ;;; core-org-ui.el ends here

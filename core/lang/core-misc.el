@@ -67,7 +67,10 @@
 
 (use-package make-mode :ensure nil)
 
+(use-package git-modes)
 
+;; python
+(push '(python-mode . python-ts-mode) major-mode-remap-alist)
 (use-package feature-mode
   :bind (:map feature-mode-map
               ("M-." . nil))        ; let lsp handle this
