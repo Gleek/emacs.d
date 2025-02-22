@@ -93,8 +93,6 @@
               ("R" . speak-region-buf)
               ("s-u" . reload-nov)
               ("D" . osx-dictionary-search-input)
-              ("s" . nov-search-forward)
-              ("b" . nov-search-backward)
               ([remap nov-history-back] . nov-history-back-pres-pos))
   :mode ("\\.epub\\'" . nov-mode)
   :config
@@ -105,43 +103,8 @@
     (interactive)
     (find-alternate-file nov-file-name))
 
-  ;; Courtesy: freesteph
-  ;; TODO: rewrite this to work like isearch.
-  (defun nov--search-direction (query direction)
-    "Search document for QUERY in the specified DIRECTION.  DIRECTION should be either :forward or :backward."
-    (cl-multiple-value-setq (search-fn next-page-fn buffer-edge-fn)
-      (or (and (eq direction :forward)
-               '(search-forward
-                 nov-next-document
-                 beginning-of-buffer))
-          '(search-backward
-            nov-previous-document
-            end-of-buffer)))
-    (let* ((original-index nov-documents-index)
-                   (original-point (point))
-                   (found (funcall search-fn query nil t)))
-      (while (and (not found)
-                  (funcall next-page-fn))
-        (funcall buffer-edge-fn)
-        (setf found (funcall search-fn query nil t)))
-      (unless found
-        (setf nov-documents-index original-index)
-        (nov-render-document)
-        (goto-char original-point)
-        (message "No match found for %s." query))))
-
-  (defun nov-search-backward (query)
-    "Search the document backward for QUERY."
-    (interactive "sSearch query backward: ")
-    (nov--search-direction query :backward))
-
-  (defun nov-search-forward (query)
-    "Search the document forward for QUERY."
-    (interactive "sSearch query: ")
-    (nov--search-direction query :forward))
-
-
-
+  (defun nov-font-setup()
+    (face-remap-add-relative 'variable-pitch :family "Baskerville" :height 0.9))
 
   (defun nov-history-back-pres-pos()
     "Differs from the normal nov-history-back by not recentering the
@@ -211,6 +174,7 @@
   ;; (eval-after-load 'doom-modeline
   ;;   '(nov-setup-doom-modeline))
 
+  (add-hook 'nov-mode-hook 'nov-font-setup)
   (add-hook 'nov-mode-hook 'reading-mode)
   (add-hook 'nov-mode-hook 'nov-load-doc-sizes)
   (add-hook 'nov-mode-hook 'init-nov-progress-hook))
