@@ -152,6 +152,7 @@
         mouse-set-region
         mouse-set-secondary
         mouse-start-secondary
+        org-table-copy-down
         phi-search
         php-browse-manual
         projectile-switch-project
