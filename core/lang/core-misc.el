@@ -69,8 +69,15 @@
 
 (use-package git-modes)
 
-;; python
-(push '(python-mode . python-ts-mode) major-mode-remap-alist)
+(use-package yaml-ts-mode
+  :ensure nil
+  :mode "\\.ya?ml\\'"
+  :config
+  (defun +disable-spell-fu()
+    (spell-fu-mode -1))
+  (add-hook 'yaml-ts-mode-hook #'+disable-spell-fu)
+  (add-hook 'yaml-ts-mode-hook #'flycheck-mode))
+
 (use-package feature-mode
   :bind (:map feature-mode-map
               ("M-." . nil))        ; let lsp handle this
