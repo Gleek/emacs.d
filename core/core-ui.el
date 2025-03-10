@@ -320,6 +320,11 @@
   ;; signifies the level to render treesit-font-lock-feature-list.
   (setq treesit-font-lock-level 4))
 
+(use-package treesit-auto
+  :defer 2
+  :config
+  (global-treesit-auto-mode))
+
 ;; (use-package tree-sitter
 ;;   :ensure tree-sitter
 ;;   :ensure tree-sitter-langs
