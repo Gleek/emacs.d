@@ -20,7 +20,7 @@
   (setq avy-background t)
   ;; :chords ("jk" . avy-goto-word-or-subword-1)
   :bind* (("C-\"". avy-goto-word-or-subword-1)
-         ("C-'" . avy-goto-char-timer)))
+          ("C-'" . avy-goto-char-timer)))
 
 
 (use-package isearch
@@ -123,11 +123,15 @@
 
 (use-package hideshow
   :ensure hydra
-  :hook (prog-mode . hs-minor-mode)
+  :hook (prog-mode . enable-hs-minor-mode-maybe)
   :bind (:map hs-minor-mode-map
               ("C-{" . hydra-hs-folding/body)
               ("<S-mouse-1>" . +mouse-hs-toggle))
   :config
+  (defun enable-hs-minor-mode-maybe()
+    (if (not (and (treesit-available-p)
+                  (treesit-parser-list)))
+        (hs-minor-mode t)))
   (defhydra hydra-hs-folding (:color red)
     "
   _o_pen node    _c_lose node  _t_oggle fold
@@ -144,6 +148,36 @@
     (interactive "e")
     (mouse-set-point e)
     (hs-toggle-hiding e)))
+
+(use-package treesit-fold
+  :ensure (:fetcher github :repo "emacs-tree-sitter/treesit-fold")
+  :hook ((prog-mode text-mode conf-mode) . enable-treesit-fold-maybe)
+  :bind (:map treesit-fold-mode-map
+              ("C-{" . hydra-treesit-folding/body)
+              ("<S-mouse-1>" . +mouse-treesit-toggle))
+  :config
+  (defun enable-treesit-fold-maybe()
+    (if (and (treesit-available-p)
+             (treesit-parser-list))
+        (treesit-fold-mode t)))
+
+  (defhydra hydra-treesit-folding (:color red)
+    "
+  _o_pen node    _c_lose node  _t_oggle fold
+  open _r_ecursively  _s_how all    _h_ide all
+  "
+    ("o" treesit-fold-open)
+    ("c" treesit-fold-close)
+    ("t" treesit-fold-toggle)
+    ("r" treesit-fold-open-recursively)
+    ("s" treesit-fold-open-all)
+    ("h" treesit-fold-close-all)
+    ("<tab>" hs-toggle-hiding))
+
+  (defun +mouse-treesit-toggle(e)
+    (interactive "e")
+    (mouse-set-point e)
+    (treesit-fold-toggle)))
 
 (use-package origami
   :disabled t
