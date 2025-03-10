@@ -144,6 +144,7 @@
   :ensure nil
   :bind (("C-c o c" . +capture-inbox)
          ("C-c o C" . org-capture)
+         ("C-c o O". org-clock-out)
          ("<f5>" . +capture-inbox)
          ("C-c o g" . consult-org-agenda)
          :map org-mode-map
@@ -154,7 +155,7 @@
   (add-hook 'org-after-todo-state-change-hook 'org-entry-delegated-hook)
   (add-hook 'org-clock-in-hook #'post-org-clock-in 'append)
   (add-hook 'org-clock-out-hook #'post-org-clock-out 'append)
-  (setq org-capture-bookmark nil)
+  (setq org-bookmark-names-plist nil)
   (setq org-archive-location (concat +org-directory "archive.org::* From %s")
         org-log-done 'time
         org-todo-keywords '((sequence "TODO(t)" "DOING(o)"  "|" "DONE(d)")
