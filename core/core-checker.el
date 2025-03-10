@@ -250,10 +250,14 @@ Demotes all errors over the max level to the max level."
     (defun posframe-poshandler-point-flycheck-custom(info)
       (let ((ret (posframe-poshandler-window-top-right-corner info))
             (x-offset -20)
-            (y-offset 0))
+            (y-offset 10))
         (setcar ret (+ (car ret) x-offset))
         (setcdr ret (+ (cdr ret) y-offset))
         ret))
+    (defun +flycheck-posframe-hide()
+      (if (flycheck-posframe-hidehandler nil)
+          (posframe-hide flycheck-posframe-buffer)))
+    (add-hook 'post-command-hook #'+flycheck-posframe-hide)
     ;; (flycheck-posframe-configure-pretty-defaults)
     (setq flycheck-posframe-warning-prefix "⚠ "
           flycheck-posframe-info-prefix "··· "
