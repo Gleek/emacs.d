@@ -247,11 +247,19 @@ Demotes all errors over the max level to the max level."
   (use-package flycheck-posframe
     :hook (flycheck-mode . flycheck-posframe-mode)
     :config
+    (defun posframe-poshandler-point-flycheck-custom(info)
+      (let ((ret (posframe-poshandler-window-top-right-corner info))
+            (x-offset -20)
+            (y-offset 0))
+        (setcar ret (+ (car ret) x-offset))
+        (setcdr ret (+ (cdr ret) y-offset))
+        ret))
     ;; (flycheck-posframe-configure-pretty-defaults)
     (setq flycheck-posframe-warning-prefix "⚠ "
           flycheck-posframe-info-prefix "··· "
           flycheck-posframe-prefix "··· "
-          flycheck-posframe-error-prefix "✕ ")))
+          flycheck-posframe-error-prefix "✕ "
+          flycheck-posframe-position 'point-flycheck-custom)))
 
 (use-package flycheck-popup-tip
   :disabled t
