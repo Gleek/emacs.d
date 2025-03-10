@@ -150,6 +150,7 @@
   :init
   (defun restart-and-restore()
     (interactive)
+    (require 'restart-emacs)
     (quick-desktop-save)
     (restart-emacs '("--restore")))
   :bind (("C-c R n"  . restart-emacs-start-new-emacs)
@@ -157,5 +158,4 @@
          ("C-c R R"  . restart-and-restore)))
 
 (setq confirm-kill-emacs 'yes-or-no-p)
-
 (provide 'core-session)
