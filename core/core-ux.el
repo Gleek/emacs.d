@@ -70,7 +70,7 @@
   :defer 1
   :config
   (defvar mini-ontop-ignore-commands
-    '(consult-buffer)
+    '(consult-buffer consult-projectile)
     "List of commands to ignore mini-ontop.")
   (defun mini-ontop-ignore-command-p()
     (member this-command mini-ontop-ignore-commands))
