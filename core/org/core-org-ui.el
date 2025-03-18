@@ -69,6 +69,7 @@ Useful to checking the link under point."
         org-auto-align-tags nil
         org-tags-column 0
         org-imenu-depth 8
+        org-startup-shrink-all-tables t
         org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a."))
         org-export-with-sub-superscripts nil ;; "{}"
         org-export-with-section-numbers nil
