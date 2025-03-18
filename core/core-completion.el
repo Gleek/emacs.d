@@ -288,7 +288,7 @@
   (copilot-diagnose)   ; Sometimes the copilot agent doesn't start. Restarting fixes the issue.
   (setq copilot-indent-offset-warning-disable t
         copilot-max-char-warning-disable t
-        copilot-max-char 10000))
+        copilot-max-char 100000))
 
 
 (use-package copilot-chat
