@@ -623,7 +623,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :config
   ;; (setq gptel-model 'gemini-2.0-pro-exp-02-05)
   (setq gptel-model 'gemini-2.0-flash-thinking-exp-01-21)
-
+  (setq gptel-default-mode 'org-mode)
   (setq gptel-api-key (secret-get openai-key))
   (setq gptel-backend (gptel-make-gemini "Gemini" :key (secret-get gemini-key) :stream t))
 
