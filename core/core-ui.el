@@ -159,26 +159,32 @@
   (add-hook 'ns-system-appearance-change-functions #'+apply-theme))
 
 ;; (use-package ef-themes)
+(use-package spacious-padding
+  :demand t
+  :config
+  (spacious-padding-mode t))
 
 (use-package doom-modeline
   ;; :hook (after-init . doom-modeline-mode)
   :init
   (doom-modeline-mode t)
   :config
+  (line-number-mode -1)
   (setq doom-modeline-vcs-max-length 20)
-  (setq doom-modeline-height 25)
+  (setq doom-modeline-height 22)
   (setq doom-modeline-minor-modes nil)
-  (setq doom-modeline-enable-word-count nil)
-  (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
-  (setq doom-modeline-checker-simple-format nil))
+  (setq doom-modeline-enable-word-count t)
+  (setq doom-modeline-buffer-encoding nil)
+  (setq doom-modeline-buffer-file-name-style 'truncate-with-project))
 
 
 (use-package emacs
   :ensure nil
   :config
   (size-indication-mode t)
-  (line-number-mode t)
-  (column-number-mode t))
+  ;; (line-number-mode t)
+  ;; (column-number-mode t)
+  )
 
 (use-package display-line-numbers
   :ensure nil
