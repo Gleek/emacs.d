@@ -284,7 +284,6 @@
          (conf-mode . copilot-mode))
   :config
   (setq copilot-install-dir (expand-file-name "copilot" CACHE-DIR))
-  (setq copilot-version "1.272.0")
   (copilot-diagnose)   ; Sometimes the copilot agent doesn't start. Restarting fixes the issue.
   (setq copilot-indent-offset-warning-disable t
         copilot-max-char-warning-disable t
@@ -295,7 +294,7 @@
   :bind (("C-c q o" . copilot-chat-display)
          ("C-c q p" . copilot-chat-custom-prompt-selection))
   :config
-  (setq copilot-chat-model "claude-3.5-sonnet")
+  (copilot-chat-set-model "claude-3.5-sonnet")
   (setq copilot-chat-frontend 'shell-maker))
 
 (use-package codeium
