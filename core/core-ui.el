@@ -322,6 +322,15 @@
 (use-package treesit
   :ensure nil
   :init
+  (defvar treesit-language-available-p-memoized-cache (make-hash-table :test 'equal)
+    "Cache for `treesit-language-available-p' results.")
+  ;; (clrhash treesit-language-available-p-memoized-cache)  ; To clear
+  (advice-add 'treesit-language-available-p :around
+              (lambda (orig-fn &rest args)
+                (let* ((key (cons (car args) (cadr args)))
+                       (cached (gethash key treesit-language-available-p-memoized-cache)))
+                  (or cached
+                      (puthash key (apply orig-fn args) treesit-language-available-p-memoized-cache)))))
   (setq treesit-extra-load-path (list (concat RES-DIR "treesit/")))
   ;; signifies the level to render treesit-font-lock-feature-list.
   (setq treesit-font-lock-level 4))
@@ -329,6 +338,7 @@
 (use-package treesit-auto
   :defer 2
   :config
+  (setq treesit-auto-install 'prompt)
   (global-treesit-auto-mode))
 
 ;; (use-package tree-sitter
