@@ -518,7 +518,14 @@ With prefix ARG, prompt for the formatter to use."
            (lsp-region-p (and lsp-enabled (lsp-feature? "textDocument/rangeFormatting")))
            (lsp-formatter-p (and lsp-enabled (lsp-feature? "textDocument/formatting")))
            (fa-formatter (gethash (format-all--language-id-buffer) format-all--language-table))
-           (fa-region-p (and fa-formatter (eq (car (gethash fa-formatter format-all--features-table)) 'region))))
+           (fa-region-p (let ((region-p nil))
+                          (if arg
+                              (dolist (formatter fa-formatter region-p)
+                                (when (and formatter (eq (car (gethash formatter format-all--features-table)) 'region))
+                                  (setq region-p t)))
+                            (let ((first-formatter (car fa-formatter)))
+                              (setq region-p (and first-formatter (eq (car (gethash first-formatter format-all--features-table)) 'region)))))
+                          region-p)))
 
       (cond ((and (region-active-p) lsp-region-p no-choose-or-lsp)
              (message "Formatting region with lsp")
@@ -527,7 +534,7 @@ With prefix ARG, prompt for the formatter to use."
             ((and (region-active-p) fa-region-p no-choose-or-fa)
              (message "Formatting region with format-all")
              (format-all-ensure-formatter)
-             (format-all-region (region-beginning) (region-end)))
+             (format-all-region (region-beginning) (region-end) (if arg 'always nil)))
 
             ((and lsp-formatter-p no-choose-or-lsp)
              (message "Formatting buffer with lsp")
@@ -536,7 +543,7 @@ With prefix ARG, prompt for the formatter to use."
             ((and fa-formatter no-choose-or-fa)
              (message "Formatting buffer with format-all")
              (format-all-ensure-formatter)
-             (format-all-buffer))
+             (format-all-buffer (if arg 'always nil)))
 
             (no-choose-or-cb
              (message "Cleaning buffer")
