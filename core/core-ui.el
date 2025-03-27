@@ -171,8 +171,9 @@
   :config
   (line-number-mode -1)
   (setq doom-modeline-vcs-max-length 20)
-  (setq doom-modeline-height 22)
+  (setq doom-modeline-height 19)
   (setq doom-modeline-minor-modes nil)
+  (setq doom-modeline-lsp nil)
   (setq doom-modeline-enable-word-count t)
   (setq doom-modeline-buffer-encoding nil)
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project))
