@@ -621,8 +621,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
          ("C-c q c" . gptel)
          ("C-c q m" . gptel-menu))
   :config
-  ;; (setq gptel-model 'gemini-2.0-pro-exp-02-05)
-  (setq gptel-model 'gemini-2.0-flash-thinking-exp-01-21)
+  (setq gptel-model 'gemini-2.0-flash-exp)
   (setq gptel-default-mode 'org-mode)
   (setq gptel-api-key (secret-get openai-key))
   (setq gptel-backend (gptel-make-gemini "Gemini" :key (secret-get gemini-key) :stream t))
@@ -634,7 +633,16 @@ To actually enable this, evaluate `+bongo-remove-headers'."
     :models '(;; has many more, check together.ai
               mistralai/Mixtral-8x7B-Instruct-v0.1
               codellama/CodeLlama-13b-Instruct-hf
-              codellama/CodeLlama-34b-Instruct-hf)))
+              codellama/CodeLlama-34b-Instruct-hf))
+  (gptel-make-openai "Groq"
+    :host "api.groq.com"
+    :endpoint "/openai/v1/chat/completions"
+    :stream t
+    :key (secret-get groq-key)
+    :models '(llama-3.3-70b-versatile
+              llama3-70b-8192
+              deepseek-r1-distill-qwen-32b
+              deepseek-r1-distill-llama-70b)))
 
 (use-package aidermacs
   :bind ("C-c q a" . aidermacs-transient-menu)
