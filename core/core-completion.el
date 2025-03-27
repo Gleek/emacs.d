@@ -284,7 +284,6 @@
          (conf-mode . copilot-mode))
   :config
   (setq copilot-install-dir (expand-file-name "copilot" CACHE-DIR))
-  (copilot-diagnose)   ; Sometimes the copilot agent doesn't start. Restarting fixes the issue.
   (setq copilot-indent-offset-warning-disable t
         copilot-max-char-warning-disable t
         copilot-max-char 100000))
