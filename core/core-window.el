@@ -90,7 +90,7 @@
             (funcall tab-bar-tabs-function)))
   (defun +tab-bar-create-main()
     "Create a Main tab-bar if does not exist and switch to it."
-    (let ((main-workspace "Main"))
+    (let ((main-workspace "⁘"))
       (if (member main-workspace (+tab-bar-get-tabs))
           (tab-bar-switch-to-tab main-workspace)
         (tab-bar-new-tab)
@@ -103,8 +103,7 @@ configurations."
     (call-interactively 'tab-bar-rename-tab)
     (+tab-bar-create-main)
     (tab-bar-switch-to-recent-tab))
-  (setq tab-bar-show nil)
-  (+tab-bar-create-main))
+  (setq tab-bar-show nil))
 
 (use-package zoom
   ;; :defer 1
