@@ -623,6 +623,8 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :config
   (setq gptel-model 'gemini-2.0-flash-exp)
   (setq gptel-default-mode 'org-mode)
+  (setq-default gptel-org-branching-context nil)
+  (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "*** @me")
   (setq gptel-api-key (secret-get openai-key))
   (setq gptel-backend (gptel-make-gemini "Gemini" :key (secret-get gemini-key) :stream t))
 

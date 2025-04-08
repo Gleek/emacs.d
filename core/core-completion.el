@@ -293,26 +293,8 @@
   :bind (("C-c q o" . copilot-chat-display)
          ("C-c q p" . copilot-chat-custom-prompt-selection))
   :config
-  (copilot-chat-set-model "claude-3.5-sonnet")
-  (setq copilot-chat-frontend 'shell-maker))
-
-(use-package codeium
-  :commands (codeium-install)
-  :disabled
-  :ensure nil
-  :config
-  (setq company-frontends '(company-preview-frontend))
-  (defun +codeium-completions()
-    (add-to-list 'completion-at-point-functions 'codeium-completion-at-point))
-  (defun toggle-codeium()
-    (interactive)
-    (if (member 'codeium-completion-at-point completion-at-point-functions)
-        (setq-local completion-at-point-functions (delete 'codeium-completion-at-point completion-at-point-functions))
-      (add-to-list 'completion-at-point-functions 'codeium-completion-at-point)))
-
-  ;; (add-hook 'prog-mode-hook '+codeium-completions)
-  ;; (add-hook 'text-mode-hook '+codeium-completions)
-  )
+  (setopt copilot-chat-default-model "claude-3.7-sonnet")
+  (setopt copilot-chat-frontend 'shell-maker))
 
 
 
