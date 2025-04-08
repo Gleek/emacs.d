@@ -113,11 +113,6 @@ Repeated invocations toggle between the two most recently open buffers."
   :hook (ibuffer . ibuffer-vc-set-filter-groups-by-vc-root))
 
 
-(use-package ivy-xref
-  :init
-  (setq xref-show-definitions-function #'ivy-xref-show-defs)
-  (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
-
 (use-package ag :ensure t )
 (use-package rg)
 

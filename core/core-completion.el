@@ -76,6 +76,7 @@
                 ("C-<tab>" . embark-act-with-completing-read)
                 ("C-<return>" . embark-dwim-noquit)))
   :config
+  (set-popup-rule! "^\\*Embark Export:" :size 0.35 :ttl 0 :quit nil)
   (setq embark-help-key "?")
   (setq embark-quit-after-action
         '((consult-projectile-embark-action-remove . nil)
