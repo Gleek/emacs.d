@@ -174,7 +174,7 @@
   (setq doom-modeline-height 19)
   (setq doom-modeline-minor-modes nil)
   (setq doom-modeline-lsp nil)
-  (setq doom-modeline-enable-word-count t)
+  (setq doom-modeline-enable-word-count nil)
   (setq doom-modeline-buffer-encoding nil)
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project))
 
@@ -184,8 +184,7 @@
   :config
   (size-indication-mode t)
   ;; (line-number-mode t)
-  ;; (column-number-mode t)
-  )
+  (column-number-mode t))
 
 (use-package display-line-numbers
   :ensure nil
