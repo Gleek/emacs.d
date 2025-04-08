@@ -185,7 +185,6 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
   (setq consult-omni-sources-modules-to-load
         (list 'consult-omni-apps
               'consult-omni-buffer
-              'consult-omni-calc
               'consult-omni-dict
               'consult-omni-fd
               'consult-omni-git-grep
