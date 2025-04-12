@@ -229,9 +229,9 @@ Repeated invocations toggle between the two most recently open buffers."
         lsp-enable-on-type-formatting nil
         lsp-enable-symbol-highlighting nil
         lsp-keep-workspace-alive nil
+        lsp-enable-links nil
         lsp-enable-dap-auto-configure nil ; temporary issue with dap https://github.com/emacs-lsp/dap-mode/issues/825
         ;; lsp-enable-on-type-formatting nil
-        lsp-ui-doc-enable nil
         ;; lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols)
         )
   (setq lsp-enable-indentation nil
@@ -257,16 +257,13 @@ Repeated invocations toggle between the two most recently open buffers."
         lsp-ui-doc-max-width 72
         lsp-ui-sideline-ignore-duplicate t
         lsp-ui-doc-enable t
+        lsp-ui-doc-border "dark gray"
         ;; Don't show symbol definitions in the sideline. They are pretty noisy,
         ;; and there is a bug preventing Flycheck errors from being shown (the
         ;; errors flash briefly and then disappear).
         lsp-ui-sideline-enable nil
         lsp-ui-sideline-show-hover nil
-        lsp-completion-provider :none)
-
-  (remove-hook 'lsp-ui-doc-frame-hook
-               (lambda (frame _w)
-                 (set-face-attribute 'default frame :font default-font :height 100))))
+        lsp-completion-provider :none))
 
 
 (use-package uniquify
