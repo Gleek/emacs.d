@@ -1,6 +1,6 @@
 ;;; init.el ---                                  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2022 Umar Ahmad
+;; Copyright (C) 2025 Umar Ahmad
 ;; Created: May 05, 2022
 ;; Modified: May 05, 2022
 ;; Version: 0.0.1
@@ -34,27 +34,37 @@
 (blink-cursor-mode -1)
 
 (electric-pair-mode t)
-(size-indication-mode t)
-(line-number-mode t)
 (column-number-mode t)
-(display-line-numbers-mode t)
+
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+(add-hook 'prog-mode-hook #'completion-preview-mode)
+(setq-default display-line-numbers-widen t)
+(setq display-line-numbers-width-start t)
 
 ;; (setq modus-themes-subtle-line-numbers nil)
-(setq modus-themes-mode-line '((padding . 4)))
 (setq inhibit-startup-screen t
       initial-scratch-message "")
 
-(load-theme 'modus-operandi t)
+(load-theme 'modus-vivendi t)
 
-(set-face-attribute 'default nil :height 130)
+(cond
+ ((find-font (font-spec :name "Iosevka"))
+  (set-frame-font "Iosevka-14"))
+ ((find-font (font-spec :name "Jetbrains Mono"))
+  (set-frame-font "Jetbrains Mono-14"))
+ (t (set-face-attribute 'default nil :height 140)))
+
+
 (setq-default line-spacing 0.2)
 
 
 ;; Keybindings
 (global-set-key (kbd "M-p") 'project-find-file)
+(global-set-key (kbd "C-c p p") 'project-switch-and-find-file)
 (global-set-key (kbd "M-/") 'hippie-expand)
 (global-set-key (kbd "M-;") 'comment-or-uncomment-region-or-line)
 (global-set-key (kbd "C-c s s") 'project-find-regexp)
+(global-set-key (kbd "C-x k") 'kill-current-buffer)
 (global-set-key (kbd "C-=") 'smart-mark-sexp)
 (global-set-key (kbd "C-+") 'mark-this-sexp)
 (global-set-key (kbd "C-:") 'other-window)
@@ -63,6 +73,7 @@
 (global-set-key (kbd "M-<up>") 'move-line-up)
 (global-set-key (kbd "M-<down>") 'move-line-down)
 (global-set-key (kbd "C-^") 'top-join-line)
+(global-set-key (kbd "M-^") 'delete-indentation)
 (global-set-key (kbd "C-c d") 'duplicate-current-line-or-region)
 (global-set-key (kbd "C-`") 'pop-eshell)
 (global-set-key (kbd "<C-m> a") 'rename-all-occurences)
@@ -74,9 +85,12 @@
 
 
 
-
+(setq max-mini-window-height 0.4)
+(setq resize-mini-windows 'grow-only)
 (fido-mode t)
 (fido-vertical-mode t)
+(setq completions-format 'one-column)
+(setq completions-max-height 10)
 
 
 (setq project-list-file (expand-file-name "projects" CACHE-DIR))
@@ -289,12 +303,25 @@ there's a region, all lines that region covers will be duplicated."
       (setq final (read-string (format "Replace %s with : " word)))
       (query-replace word final t (point-min) (point-max)))))
 
+(defun project-switch-and-find-file ()
+  "Switch to a project and immediately find a file within it."
+  (interactive)
+  (let ((project (project-prompt-project-dir)))
+    (when project
+      (let ((default-directory project))
+        (project-find-file)))))
 
 
+
+(require 'go-ts-mode)
+(require 'php-ts-mode)
+
+ 
 ;; Only install very critical packages on need basis
-(setq file-packages
-      '(("php" . (php-mode))
-        ("go" . (go-mode))))
+;; (setq file-packages
+;;       '(("php" . (php-mode))
+;;         ("go" . (go-mode))))
+(setq file-packages '())
 
 (defun check-essential-packages()
   (let (file-name extension ipackages)
