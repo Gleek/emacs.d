@@ -38,7 +38,18 @@
   :config
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
   (setq ediff-split-window-function 'split-window-horizontally)
-  (setq ediff-diff-options "-w"))
+  (setq ediff-diff-options "-w")
+
+  ;; Courtesy: https://emacs.stackexchange.com/a/17089/2144
+  (defvar +ediff-last-windows nil)
+  (defun +store-pre-ediff-winconfig ()
+    (setq +ediff-last-windows (current-window-configuration)))
+
+  (defun +restore-pre-ediff-winconfig ()
+    (set-window-configuration +ediff-last-windows))
+
+  (add-hook 'ediff-before-setup-hook #'+store-pre-ediff-winconfig)
+  (add-hook 'ediff-quit-hook #'+restore-pre-ediff-winconfig))
 
 
 (use-package smerge-mode
