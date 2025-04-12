@@ -12,7 +12,7 @@
 (setq frame-inhibit-implied-resize t)
 ;; Font/Themes
 (defvar default-font "Iosevka")
-(set-frame-font (concat default-font " 15") 'keepsize t)
+(set-frame-font (concat default-font " 14") 'keepsize t)
 ;; (set-face-font 'variable-pitch "Baskerville 15")
 ;; (set-face-font 'variable-pitch "ETBembo 17")
 
@@ -83,9 +83,9 @@
                 " - Emacs"))
 
 ;; Space out a little
-(setq-default line-spacing 0.2)
+(setq-default line-spacing 0.1)
 (defun set-bigger-spacing ()
-  (setq-local default-text-properties '(line-spacing 0.20 line-height 1.20)))
+  (setq-local default-text-properties '(line-spacing 0.10 line-height 1.10)))
 (add-hook 'text-mode-hook 'set-bigger-spacing)
 (add-hook 'prog-mode-hook 'set-bigger-spacing)
 (add-hook 'conf-mode-hook 'set-bigger-spacing)
