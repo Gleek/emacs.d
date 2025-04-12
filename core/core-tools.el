@@ -644,7 +644,8 @@ To actually enable this, evaluate `+bongo-remove-headers'."
     :models '(llama-3.3-70b-versatile
               llama3-70b-8192
               deepseek-r1-distill-qwen-32b
-              deepseek-r1-distill-llama-70b)))
+              deepseek-r1-distill-llama-70b))
+  (gptel-make-gh-copilot "Copilot"))
 
 (use-package aidermacs
   :bind ("C-c q a" . aidermacs-transient-menu)
