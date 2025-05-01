@@ -566,9 +566,11 @@ To actually enable this, evaluate `+bongo-remove-headers'."
 (use-package calc-currency
   :ensure (:fetcher github :repo "jws85/calc-currency")
   :commands (calc-currency-load)
-  :after (calc)
+  :after (:any calc vertico-calc)
   :demand t
   :config
+  (setq calc-currency-exchange-rates-file
+        (concat CACHE-DIR "calc-currency-exchange-rates.el"))
   ;; (calc-currency-update-file)
   (calc-currency-load))
 
