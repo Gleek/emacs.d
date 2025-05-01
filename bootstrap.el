@@ -13,7 +13,6 @@
 
 (setq debug-on-error t)
 (defconst CACHE-DIR (expand-file-name "cache/" user-emacs-directory))
-(defconst PRIV-DIR (expand-file-name "private/" user-emacs-directory))
 (defconst RES-DIR   (expand-file-name "resources/" user-emacs-directory))
 (defconst IS-MAC    (eq system-type 'darwin))
 (defconst IS-LINUX  (eq system-type 'gnu/linux))

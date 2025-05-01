@@ -25,7 +25,7 @@
   (:map eww-mode-map
         ("%" . +eww-browse-with-xwidget))
   :config
-  (setq eww-bookmarks-directory (expand-file-name "eww/" PRIV-DIR))
+  (setq eww-bookmarks-directory (expand-file-name "eww/" CACHE-DIR))
   (ensure-dir eww-bookmarks-directory)
   ;; Courtesy: protesilaos
   (defun +eww--rename-buffer ()

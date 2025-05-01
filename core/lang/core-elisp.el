@@ -1,4 +1,5 @@
 ;;;###autoload
+
 (defun byte-compile-init-dir ()
   "Byte-compile all your dotfiles."
   (interactive)
@@ -24,6 +25,11 @@
     (error (message "Invalid expression")
            (insert (current-kill 0)))))
 
+
+(use-package ielm
+  :ensure nil
+  :config
+  (setq ielm-history-file-name (expand-file-name "ielm-history.eld" CACHE-DIR)))
 
 (use-package emacs :ensure nil
   :bind (("C-c C-e" . eval-and-replace)

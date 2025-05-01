@@ -279,7 +279,7 @@
          ("M-n" . 'copilot-next-completion)
          ("<tab>" . 'copilot-accept-completion)
          ("M-f" . 'copilot-accept-completion-by-word)
-         ("M-<return>" . 'copilot-accept-completion-by-line))
+         ("C-e" . 'copilot-accept-completion-by-line))
   :hook ((prog-mode . copilot-mode)
          ;; (text-mode . copilot-mode)
          (conf-mode . copilot-mode))
@@ -294,6 +294,10 @@
   :bind (("C-c q o" . copilot-chat-display)
          ("C-c q p" . copilot-chat-custom-prompt-selection))
   :config
+  (setq copilot-chat-github-token-file (concat CACHE-DIR "copilot-chat/github-token")
+        copilot-chat-token-cache (concat CACHE-DIR "copilot-chat/token"))
+  (setq shell-maker-root-path CACHE-DIR)
+
   (setopt copilot-chat-default-model "claude-3.7-sonnet")
   (setopt copilot-chat-frontend 'shell-maker))
 

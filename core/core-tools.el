@@ -1,6 +1,5 @@
 (setq url-configuration-directory (concat CACHE-DIR "url"))
 (setq gamegrid-user-score-file-directory (concat CACHE-DIR "games"))
-(setq request-storage-directory (concat CACHE-DIR "request"))
 (defun copy-file-name-to-clipboard ()
   "Copy the current buffer file name to the clipboard."
   (interactive)
@@ -333,6 +332,12 @@ TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s
   ;;     (apply orig-fn args)))
   ;; (advice-add '+rest-client-http-call :around #'restclient-http-do)
   )
+
+(use-package request
+  :ensure nil
+  :config
+  (setopt request-storage-directory (concat CACHE-DIR "request/")))
+
 
 (use-package verb
   :after org

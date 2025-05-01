@@ -123,6 +123,7 @@ everywhere that supports some decent formatting."
                                (and (string-match "-\\([0-9.]+\\)/" org-full-dir)) (match-string 1 org-full-dir)))
                       org-version))
   (setq org-catch-invisible-edits 'smart)
+  (setq org-id-locations-file (concat CACHE-DIR "org-id-locations"))
   (setq org-format-latex-options
         (list :foreground 'auto
               :background 'auto
