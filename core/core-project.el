@@ -198,7 +198,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (treemacs-load-theme "nerd-icons"))
 
 (use-package lsp-mode
-  :hook ((js-mode js2-mode js3-mode js-ts-mode rjsx-mode go-mode rust-mode php-mode go-ts-mode php-ts-mode feature-mode python-ts-mode) . lsp-deferred)
+  :hook ((js-mode js2-mode js3-mode js-ts-mode rjsx-mode go-mode rust-mode php-mode go-ts-mode php-ts-mode feature-mode python-ts-mode ruby-ts-mode) . lsp-deferred)
   :commands lsp
   :bind ((:map lsp-mode-map
                ("C-c p r" . lsp-rename)
@@ -211,7 +211,6 @@ Repeated invocations toggle between the two most recently open buffers."
   :config
   (defun +lsp-set-priority (server priority)
     (setf (lsp--client-priority (gethash server lsp-clients)) priority))
-
   ;; (company-backend-for-hook 'lsp-mode-hook '((company-capf :with company-yasnippet)))
   (setq lsp-modeline-code-actions-segments '(name icon))
   ;; (setq lsp-signature-function 'lsp-signature-posframe)

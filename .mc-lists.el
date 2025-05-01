@@ -34,6 +34,7 @@
         duplicate-current-line-or-region
         electric-newline-and-maybe-indent
         end-of-visual-line
+        er/mark-inside-quotes
         eros-eval-last-sexp
         eval-and-replace
         eval-last-sexp
