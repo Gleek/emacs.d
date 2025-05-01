@@ -77,6 +77,7 @@
 (global-set-key (kbd "C-c d") 'duplicate-current-line-or-region)
 (global-set-key (kbd "C-`") 'pop-eshell)
 (global-set-key (kbd "<C-m> a") 'rename-all-occurences)
+(global-set-key (kbd "C-c t T") 'modus-themes-toggle)
 
 (when IS-MAC
   (setq mac-command-modifier 'meta
@@ -316,7 +317,7 @@ there's a region, all lines that region covers will be duplicated."
 (require 'go-ts-mode)
 (require 'php-ts-mode)
 
- 
+
 ;; Only install very critical packages on need basis
 ;; (setq file-packages
 ;;       '(("php" . (php-mode))
