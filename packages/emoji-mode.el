@@ -14,32 +14,32 @@
   "Return a list of candidate emojis for CHAR, or nil."
   (let ((char-downcase (downcase char)))
     (cond
-     ((eq char-downcase ?a) '("🍎" "🐜"))    ; Apple, Ant
-     ((eq char-downcase ?b) '("🍌" "🫐" "🐻" "🇧" "💡" "⚾"))    ; Banana, Blueberry, Bear
-     ((eq char-downcase ?c) '("🍒" "🐈" "🇨" "🍪" "🚗" "🚓" "🚙"))    ; Cherry, Cat, Cookie
-     ((eq char-downcase ?d) '("🍩" "🥁" "🐶" "👨‍⚕️"))    ; Doughnut, Drum, Dog
-     ((eq char-downcase ?e) '("🥚" "🐘" "🇪"))    ; Egg, Elephant
+     ((eq char-downcase ?a) '("🍎" "🐜" "✈️"))    ; Apple, Ant
+     ((eq char-downcase ?b) '("🍌" "🫐" "🐻"  "💡" "⚾" ))    ; Banana, Blueberry, Bear
+     ((eq char-downcase ?c) '("🍒" "🐈" "🍪" "🚗" "🚓" "🚙"))    ; Cherry, Cat, Cookie
+     ((eq char-downcase ?d) '("🍩" "🫏" "🥁" "🐶" "👨‍⚕️" "🦆"))    ; Doughnut, Drum, Dog
+     ((eq char-downcase ?e) '("🥚" "🐘" "🦅"))    ; Egg, Elephant
      ((eq char-downcase ?f) '("🍟" "🦊" "💐" "🐟"))    ; Fries, Fox, Flower
-     ((eq char-downcase ?g) '("🦒" "🍇" "🍏" "🟩" "🇬"))    ; Grapes, Green Apple, Green
-     ((eq char-downcase ?h) '("🏠" "🚁" "🐴" "🇭"))    ; House, Helicopter, Horse
-     ((eq char-downcase ?i) '("🍦" "🇮" "🧊"))    ; Ice Cream, Ice
-     ((eq char-downcase ?j) '("🧃" "🇯" "🃏"))        ; Juice
-     ((eq char-downcase ?k) '("🥝" "🐨" "🔑" "🇰"))    ; Kiwi, Koala, Key
-     ((eq char-downcase ?l) '("🍋" "🦁" "🍭" "🇱"))    ; Lemon, Lion, Lollipop
-     ((eq char-downcase ?m) '("🥭" "🐒" "🇲" "🌙"))    ; Mango, Monkey, Moon
-     ((eq char-downcase ?n) '("🥜" "🌃" "🇳"))        ; Nut, Night
-     ((eq char-downcase ?o) '("🍊" "🐙" "⭕" "🇴"))    ; Orange, Octopus, Circle
-     ((eq char-downcase ?p) '("🍐" "🐷" "🍕" "🇵" "🐧" "✏️"))    ; Pear, Pig, Pizza
-     ((eq char-downcase ?q) '("🇶" "👑"))
-     ((eq char-downcase ?r) '("🌈" "🐇" "🤖" "🇷"))    ; Rainbow, Rabbit, Robot
-     ((eq char-downcase ?s) '("🍓" "☀️" "⭐" "🇸"))    ; Strawberry, Sun, Star
-     ((eq char-downcase ?t) '("🧸" "🌳" "🐢" "🇹"))    ; Teddy, Tree, Turtle
+     ((eq char-downcase ?g) '("🦒" "🍇" "🍏" "🦍"))    ; Grapes, Green Apple, Green
+     ((eq char-downcase ?h) '("🏠" "🚁" "🐴"))    ; House, Helicopter, Horse
+     ((eq char-downcase ?i) '("🍦" "💉" "🪳" "🧊"))    ; Ice Cream, Ice
+     ((eq char-downcase ?j) '("🧃" "🪼" "🧥" "🃏"))        ; Juice
+     ((eq char-downcase ?k) '("🥝" "🐨" "🔑" "🪁" ))    ; Kiwi, Koala, Key
+     ((eq char-downcase ?l) '("🍋" "🦁" "🍭" ))    ; Lemon, Lion, Lollipop
+     ((eq char-downcase ?m) '("🥭" "🐒"  "🌙" "🦟" "🐁"))    ; Mango, Monkey, Moon
+     ((eq char-downcase ?n) '("🥜" "🌃" "👃" "💅"))        ; Nut, Night
+     ((eq char-downcase ?o) '("🍊" "🐙" "⭕" ))    ; Orange, Octopus, Circle
+     ((eq char-downcase ?p) '("🍐" "🐷" "🍕" "🐧" "✏️"))    ; Pear, Pig, Pizza
+     ((eq char-downcase ?q) '( "👑" ))
+     ((eq char-downcase ?r) '("🌈" "🐇" "🤖" ))    ; Rainbow, Rabbit, Robot
+     ((eq char-downcase ?s) '("🍓" "☀️" "⭐" ))    ; Strawberry, Sun, Star
+     ((eq char-downcase ?t) '("🐅" "🧸" "🌳" "🐢" ))    ; Teddy, Tree, Turtle
      ((eq char-downcase ?u) '("🦄" "☔"))    ; Unicorn, Umbrella
-     ((eq char-downcase ?v) '("🚐"))
-     ((eq char-downcase ?w) '("🍉" "🐳" "🐺" "🇼"))    ; Watermelon, Whale, Wolf
-     ((eq char-downcase ?x) '("🇽" "🎄"))
-     ((eq char-downcase ?y) '("💛" "🇾" "🪀"))    ; Yellow, Yoyo
-     ((eq char-downcase ?z) '("🦓" "🇿"))    ; Zebra, Zzz
+     ((eq char-downcase ?v) '("🚐" "🎻" "🌋"))
+     ((eq char-downcase ?w) '("🍉" "🐳" "🐺" ))    ; Watermelon, Whale, Wolf
+     ((eq char-downcase ?x) '( "🎄"))
+     ((eq char-downcase ?y) '("🥱" "💛" "🪀"))    ; Yellow, Yoyo
+     ((eq char-downcase ?z) '("🦓" "🤐"))    ; Zebra, Zzz
      (t nil))))
 
 (defun my-emoji-post-insert-hook-function ()
