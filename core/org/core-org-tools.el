@@ -124,6 +124,7 @@ everywhere that supports some decent formatting."
                       org-version))
   (setq org-catch-invisible-edits 'smart)
   (setq org-id-locations-file (concat CACHE-DIR "org-id-locations"))
+  (setq org-export-with-broken-links t)
   (setq org-format-latex-options
         (list :foreground 'auto
               :background 'auto
