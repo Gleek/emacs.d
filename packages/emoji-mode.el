@@ -29,7 +29,7 @@
      ((eq char-downcase ?m) '("🥭" "🐒"  "🌙" "🦟" "🐁"))    ; Mango, Monkey, Moon
      ((eq char-downcase ?n) '("🥜" "🌃" "👃" "💅"))        ; Nut, Night
      ((eq char-downcase ?o) '("🍊" "🐙" "⭕" ))    ; Orange, Octopus, Circle
-     ((eq char-downcase ?p) '("🍐" "🐷" "🍕" "🐧" "✏️"))    ; Pear, Pig, Pizza
+     ((eq char-downcase ?p) '("🍐" "🐷" "🍕" "🐧" "✏️" "🦜"))    ; Pear, Pig, Pizza
      ((eq char-downcase ?q) '( "👑" ))
      ((eq char-downcase ?r) '("🌈" "🐇" "🤖" ))    ; Rainbow, Rabbit, Robot
      ((eq char-downcase ?s) '("🍓" "☀️" "⭐" ))    ; Strawberry, Sun, Star
@@ -38,7 +38,7 @@
      ((eq char-downcase ?v) '("🚐" "🎻" "🌋"))
      ((eq char-downcase ?w) '("🍉" "🐳" "🐺" ))    ; Watermelon, Whale, Wolf
      ((eq char-downcase ?x) '( "🎄"))
-     ((eq char-downcase ?y) '("🥱" "💛" "🪀"))    ; Yellow, Yoyo
+     ((eq char-downcase ?y) '("🥱" "💛" "🪀" "🐂"))    ; Yellow, Yoyo
      ((eq char-downcase ?z) '("🦓" "🤐"))    ; Zebra, Zzz
      (t nil))))
 
