@@ -1,3 +1,14 @@
+;;; core-tools.el --- Core utility tools and packages for Emacs -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+;; This file contains a collection of essential utility tools and packages
+;; that enhance the Emacs experience.  It includes file management utilities,
+;; productivity enhancements, external integrations like AI assistants (gptel),
+;; and various other convenience features.
+
+;;; Code:
+
 (setq url-configuration-directory (concat CACHE-DIR "url"))
 (setq gamegrid-user-score-file-directory (concat CACHE-DIR "games"))
 (defun copy-file-name-to-clipboard ()
@@ -652,7 +663,405 @@ To actually enable this, evaluate `+bongo-remove-headers'."
               llama3-70b-8192
               deepseek-r1-distill-qwen-32b
               deepseek-r1-distill-llama-70b))
-  (gptel-make-gh-copilot "Copilot"))
+  (gptel-make-gh-copilot "Copilot")
+
+  (gptel-make-tool
+   :function (lambda (buffer)
+               (with-temp-message (format "Reading buffer: %s" buffer)
+                 (condition-case err
+                     (if (buffer-live-p (get-buffer buffer))
+                         (with-current-buffer buffer
+                           (buffer-substring-no-properties (point-min) (point-max)))
+                       (format "Error: buffer %s is not live." buffer))
+                   (error (format "Error reading buffer %s: %s"
+                                  buffer (error-message-string err))))))
+   :name "read_buffer"
+   :description "Return the contents of an Emacs buffer"
+   :args (list '(:name "buffer"
+                       :type string
+                       :description "The name of the buffer whose contents are to be retrieved"))
+   :category "emacs"
+   :include t)
+
+  (gptel-make-tool
+   :function (lambda (buffer text)
+               (with-temp-message (format "Appending to buffer: %s" buffer)
+                 (condition-case err
+                     (if (buffer-live-p (get-buffer buffer))
+                         (with-current-buffer buffer
+                           (goto-char (point-max))
+                           (insert text)
+                           (format "Successfully appended text to buffer %s." buffer))
+                       (format "Error: buffer %s is not live or does not exist." buffer))
+                   (error (format "Error appending to buffer %s: %s"
+                                  buffer (error-message-string err))))))
+   :name "append_to_buffer"
+   :description "Append the given text to the end of an Emacs buffer. Returns a success or error message."
+   :args (list
+          '(:name "buffer"
+                  :type string
+                  :description "The name of the buffer to append to.")
+          '(:name "text"
+                  :type string
+                  :description "The text to append to the buffer."))
+   :category "emacs"
+   :include t)
+
+  (defun gptel-read-documentation (symbol)
+    "Read the documentation for SYMBOL, which can be a function or variable."
+    (with-temp-message (format "Reading documentation for: %s" symbol)
+      (condition-case err
+          (let ((sym (intern symbol)))
+            (cond
+             ((fboundp sym)
+              (documentation sym))
+             ((boundp sym)
+              (documentation-property sym 'variable-documentation))
+             (t
+              (format "No documentation found for %s" symbol))))
+        (error (format "Error reading documentation for %s: %s"
+                       symbol (error-message-string err))))))
+
+  (gptel-make-tool
+   :name "read_documentation"
+   :function #'gptel-read-documentation
+   :description "Read the documentation for a given function or variable"
+   :args (list '(:name "name"
+                       :type string
+                       :description "The name of the function or variable whose documentation is to be retrieved"))
+   :category "emacs"
+   :include t)
+
+
+  (gptel-make-tool
+   :function (lambda (text)
+               (with-temp-message (format "Sending message: %s" text)
+                 (message "%s" text)
+                 (format "Message sent: %s" text)))
+   :name "echo_message"
+   :description "Send a message to the *Messages* buffer"
+   :args (list '(:name "text"
+                       :type string
+                       :description "The text to send to the messages buffer"))
+   :category "emacs"
+   :include t)
+
+  (gptel-make-tool
+   :function (lambda (path filename content)
+               (with-temp-message (format "Creating file: %s in %s" filename path)
+                 (condition-case err
+                     (let ((full-path (expand-file-name filename path)))
+                       (with-temp-buffer
+                         (insert content)
+                         (write-file full-path))
+                       (format "Created file %s in %s" filename path))
+                   (error (format "Error creating file %s in %s: %s"
+                                  filename path (error-message-string err))))))
+   :name "create_file"
+   :description "Create a new file with the specified content"
+   :args (list '(:name "path"
+                       :type string
+                       :description "The directory where to create the file")
+               '(:name "filename"
+                       :type string
+                       :description "The name of the file to create")
+               '(:name "content"
+                       :type string
+                       :description "The content to write to the file"))
+   :category "filesystem"
+   :include t)
+
+
+  (gptel-make-tool
+   :function (lambda (file_name)
+               (find-file-other-window file_name))
+   :name "open_file"
+   :description "Open the file for the user and display window"
+   :args (list '(:name "file_name"
+                       :type string
+                       :description "The file to open. This file opens in another window"))
+   :category "emacs"
+   :include t)
+
+  (gptel-make-tool
+   :function (lambda (file_name line_number)
+               (find-file-other-window file_name)
+               (if (not (equal line_number 0))
+                   (goto-line line_number)))
+   :name "open_file_on_line"
+   :description "Open the file for the user and focuses on a particular line number and display window"
+   :args (list '(:name "file_name"
+                       :type string
+                       :description "The file to open. This file opens in another window")
+               '(:name "line_number"
+                       :type number
+                       :description "The line number which should be focused"))
+   :category "emacs"
+   :include t)
+
+
+
+  (gptel-make-tool
+   :function (lambda (parent name)
+               (with-temp-message (format "Creating directory: %s in %s" name parent)
+                 (condition-case err
+                     (progn
+                       (make-directory (expand-file-name name parent) t)
+                       (format "Directory %s created/verified in %s" name parent))
+                   (error (format "Error creating directory %s in %s: %s"
+                                  name parent (error-message-string err))))))
+   :name "make_directory"
+   :description "Create a new directory with the given name in the specified parent directory"
+   :args (list '(:name "parent"
+                       :type string
+                       :description "The parent directory where the new directory should be created, e.g. /tmp")
+               '(:name "name"
+                       :type string
+                       :description "The name of the new directory to create, e.g. testdir"))
+   :category "filesystem"
+   :confirm t
+   :include t)
+
+
+  (gptel-make-tool
+   :function (lambda (directory)
+               (with-temp-message (format "Listing directory: %s" directory)
+                 (condition-case err
+                     (mapconcat #'identity
+                                (directory-files directory)
+                                "\n")
+                   (error (format "Error listing directory: %s - %s" directory (error-message-string err))))))
+   :name "list_directory"
+   :description "List the contents of a given directory"
+   :args (list '(:name "directory"
+                       :type string
+                       :description "The path to the directory to list"))
+   :category "filesystem"
+   :include t)
+  ;; courtesy: munen
+  (gptel-make-tool
+   :name "apply_diff"
+   :description (concat
+                 "Applies a diff (patch) to a specified file. "
+                 "The diff must be in the unified format (output of 'diff -u original_file new_file'). "
+                 "The LLM should generate the diff such that the file paths within the diff "
+                 "(e.g., '--- a/filename' '+++ b/filename') are appropriate for the 'file_path' argument and chosen 'patch_options'. "
+                 "Common 'patch_options' include: '' (empty, if paths in diff are exact or relative to current dir of file_path), "
+                 "'-p0' (if diff paths are full or exactly match the target including prefixes like 'a/'), "
+                 "'-p1' (if diff paths have one leading directory to strip, e.g., diff has 'a/src/file.c' and you want to patch 'src/file.c' from project root). "
+                 "Default options are '-N' (ignore already applied patches).")
+   :args (list
+          '(:name "file_path"
+                  :type string
+                  :description "The path to the file that needs to be patched.")
+          '(:name "diff_content"
+                  :type string
+                  :description "The diff content in unified format (e.g., from 'diff -u').")
+          '(:name "patch_options"
+                  :type string
+                  :optional t
+                  :description "Optional: Additional options for the 'patch' command (e.g., '-p1', '-p0', '-R'). Defaults to '-N'. Prepend other options if needed, e.g., '-p1 -N'.")
+          '(:name "working_dir"
+                  :type string
+                  :optional t
+                  :description "Optional: The directory in which to interpret file_path and run patch. Defaults to the current buffer's directory if not specified."))
+   :category "filesystem"
+   :confirm t
+   :function
+   (lambda (file_path diff_content &optional patch_options working_dir)
+     (let ((original-default-directory default-directory)
+           (user-patch-options (if (and patch_options (not (string-empty-p patch_options)))
+                                   (split-string patch_options " " t)
+                                 nil))
+           ;; Combine user options with -N, ensuring -N is there.
+           ;; If user provides -N or --forward, use their version. Otherwise, add -N.
+           (base-options '("-N"))
+           (effective-patch-options '()))
+
+       (if user-patch-options
+           (if (or (member "-N" user-patch-options) (member "--forward" user-patch-options))
+               (setq effective-patch-options user-patch-options)
+             (setq effective-patch-options (append user-patch-options base-options)))
+         (setq effective-patch-options base-options))
+
+       (let* ((out-buf-name (generate-new-buffer-name "*patch-stdout*"))
+              (err-buf-name (generate-new-buffer-name "*patch-stderr*"))
+              (target-file nil)
+              (exit-status -1) ; Initialize to a known non-zero value
+              (result-output "")
+              (result-error ""))
+         (unwind-protect
+             (progn
+               (when (and working_dir (not (string-empty-p working_dir)))
+                 (setq default-directory (expand-file-name working_dir)))
+
+               (setq target-file (expand-file-name file_path))
+
+               (unless (file-exists-p target-file)
+                 ;; Use error to signal failure, which gptel should catch.
+                 (error "File to patch does not exist: %s" target-file))
+
+               (with-temp-message (format "Applying diff to: `%s` with options: %s" target-file effective-patch-options)
+                 (with-temp-buffer
+                   (insert diff_content)
+                   (unless (eq (char-before (point-max)) ?\n)
+                     (goto-char (point-max))
+                     (insert "\n"))
+
+                   ;; Pass buffer *names* to call-process-region
+                   (setq exit-status (apply #'call-process-region
+                                            (point-min) (point-max)
+                                            "patch"       ; Command
+                                            nil           ; delete region (no)
+                                            (list out-buf-name err-buf-name) ; stdout/stderr buffer names
+                                            nil           ; display (no)
+                                            (append effective-patch-options (list target-file))))))
+
+               ;; Retrieve content from buffers using their names
+               (let ((stdout-buf (get-buffer out-buf-name))
+                     (stderr-buf (get-buffer err-buf-name)))
+                 (when stdout-buf
+                   (with-current-buffer stdout-buf
+                     (setq result-output (buffer-string))))
+                 (when stderr-buf
+                   (with-current-buffer stderr-buf
+                     (setq result-error (buffer-string)))))
+
+               (if (= exit-status 0)
+                   (format "Diff successfully applied to %s.\nPatch command options: %s\nPatch STDOUT:\n%s\nPatch STDERR:\n%s"
+                           target-file effective-patch-options result-output result-error)
+                 ;; Signal an Elisp error, which gptel will catch and display.
+                 ;; The arguments to 'error' become the error message.
+                 (error "Failed to apply diff to %s (exit status %s).\nPatch command options: %s\nPatch STDOUT:\n%s\nPatch STDERR:\n%s"
+                        target-file exit-status effective-patch-options result-output result-error)))
+           ;; Cleanup clause of unwind-protect
+           (setq default-directory original-default-directory)
+           (let ((stdout-buf-obj (get-buffer out-buf-name))
+                 (stderr-buf-obj (get-buffer err-buf-name)))
+             (when (buffer-live-p stdout-buf-obj) (kill-buffer stdout-buf-obj))
+             (when (buffer-live-p stderr-buf-obj) (kill-buffer stderr-buf-obj)))))))
+   :include t)
+
+
+  (gptel-make-tool
+   :function (lambda (command &optional working_dir)
+               (with-temp-message (format "Executing command: `%s`" command)
+                 (let ((default-directory (if (and working_dir (not (string= working_dir "")))
+                                              (expand-file-name working_dir)
+                                            default-directory)))
+                   (shell-command-to-string command))))
+   :name "run_command"
+   :description "Executes a shell command and returns the output as a string. IMPORTANT: This tool allows execution of arbitrary code; user confirmation will be required before any command is run."
+   :args (list
+          '(:name "command"
+                  :type string
+                  :description "The complete shell command to execute.")
+          '(:name "working_dir"
+                  :type string
+                  :description "Optional: The directory in which to run the command. Defaults to the current directory if not specified."))
+   :category "command"
+   :confirm t
+   :include t)
+
+  (gptel-make-tool
+   :function (lambda (callback query files directory)
+               (let ((cmd (format "rg --line-number %s %s"
+                                  (shell-quote-argument query)
+                                  (if (and files (not (string= files "")))
+                                      (shell-quote-argument files)
+                                    "")))
+                     (default-directory (if (and directory (not (string= directory "")))
+                                            (expand-file-name directory)
+                                          default-directory))
+                     (output-buffer (generate-new-buffer "*gptel-ripgrep*"))
+                     (in-known-project (and (fboundp 'projectile-relevant-known-projects)
+                                            (member (expand-file-name default-directory)
+                                                    (projectile-relevant-known-projects)))))
+                 (if (and (not in-known-project)
+                          (not (y-or-n-p (format "Directory %s is not in projectile-relevant-known-projects. Run ripgrep anyway? " default-directory))))
+                     (progn
+                       (kill-buffer output-buffer)
+                       (funcall callback (format "Search aborted: directory %s is not in known projects" default-directory)))
+                   (with-temp-message (format "Searching for: %s in %s" query directory)
+                     (make-process
+                      :name "gptel-ripgrep"
+                      :buffer output-buffer
+                      :command (list shell-file-name shell-command-switch cmd)
+                      :sentinel (lambda (process _event)
+                                  (when (eq (process-status process) 'exit)
+                                    (with-current-buffer output-buffer
+                                      (let ((output (buffer-string)))
+                                        (funcall callback output)
+                                        (kill-buffer output-buffer))))))))))
+   :name "search_with_ripgrep"
+   :description "Search for text patterns in files using ripgrep (rg). Use this instead of grep for better performance."
+   :args (list
+          '(:name "query"
+                  :type string
+                  :description "The search pattern to find")
+          '(:name "files"
+                  :type string
+                  :description "Optional: File patterns to include (e.g., \"*.py\" or leave empty for all files)"
+                  :optional t)
+          '(:name "directory"
+                  :type string
+                  :description "Directory to search in"
+                  :optional t))
+   :category "search"
+   :async t
+   :include t)
+
+
+  (gptel-make-tool
+   :function (lambda (buffer_name content)
+               (with-temp-message (format "Replacing buffer contents: `%s`" buffer_name)
+                 (if (get-buffer buffer_name)
+                     (with-current-buffer buffer_name
+                       (erase-buffer)
+                       (insert content)
+                       (format "Buffer contents replaced: %s" buffer_name))
+                   (format "Error: Buffer '%s' not found" buffer_name))))
+   :name "ReplaceBuffer"
+   :description "Completely overwrites buffer contents with the provided content. IMPORTANT: This tool will erase all existing content in the specified buffer; user confirmation will be required."
+   :args (list
+          '(:name "buffer_name"
+                  :type string
+                  :description "The name of the buffer whose contents will be replaced.")
+          '(:name "content"
+                  :type string
+                  :description "The new content to write to the buffer, replacing all existing content."))
+   :category "emacs"
+   :confirm t
+   :include t)
+
+
+  (gptel-make-tool
+   :function (lambda (filepath)
+               (with-temp-message (format "Reading file: %s" filepath)
+                 (condition-case err
+                     (with-temp-buffer
+                       (insert-file-contents (expand-file-name filepath))
+                       (buffer-string))
+                   (error (format "Error reading file: %s - %s" filepath (error-message-string err))))))
+   :name "read_file"
+   :description "Read and display the contents of a file"
+   :args (list '(:name "filepath"
+                       :type string
+                       :description "Path to the file to read. Supports relative paths and ~."))
+   :category "filesystem"
+   :include t)
+
+  (gptel-make-tool
+   :function (lambda ()
+               (require 'projectile)
+               (projectile-relevant-known-projects))
+   :name "list_projects"
+   :description (concat "Returns a list of all the project paths. "
+                        "Every element of the list is in quotes and the signifies the directory for the project."
+                        " All commands for the project might be run in that directory.")
+   :category "emacs"
+   :include t))
+
 
 (use-package aidermacs
   :bind ("C-c q a" . aidermacs-transient-menu)
@@ -678,6 +1087,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :init
   (setq nsm-settings-file (concat CACHE-DIR "network-security.data")))
 
+
 (use-package keycast
   :bind ("C-c t k" . +toggle-keycast)
   :config
@@ -694,4 +1104,5 @@ To actually enable this, evaluate `+bongo-remove-headers'."
 
 
 (provide 'core-tools)
-;;; core-tools.ends here
+
+;;; core-tools.el ends here
