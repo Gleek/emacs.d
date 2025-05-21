@@ -72,6 +72,7 @@
         org-agenda-previous-line
         org-archive-subtree-default
         org-beginning-of-line
+        org-ctrl-c-ctrl-c
         org-cycle
         org-decrease-number-at-point
         org-delete-char
@@ -129,6 +130,7 @@
         +shellpop-vterm
         company-complete
         company-complete-selection
+        copilot-accept-completion-by-line
         counsel-M-x
         god-local-mode
         god-mode-self-insert

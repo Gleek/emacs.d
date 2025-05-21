@@ -226,6 +226,7 @@
   :config
   (defun +yasnippet-capf()
     (add-hook 'completion-at-point-functions #'yasnippet-capf 30 t))
+  (setq yasnippet-capf-max-search-distance 20)
   (add-hook 'yas-minor-mode-hook #'+yasnippet-capf)
   (add-to-list 'completion-at-point-functions #'yasnippet-capf))
 
