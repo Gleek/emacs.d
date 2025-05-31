@@ -7,11 +7,11 @@
 ;; Author: Umar Ahmad
 ;;; Commentary:
 ;;
-;; This library provides GPTel tools for integrating language models
-;; seamlessly with Emacs. It registers a suite of commands via `gptel-make-tool'
+;; This library provides GPTel tools for integrating with gptel.
+;; It registers a suite of commands via `gptel-make-tool'
 ;; covering buffer operations, file manipulation, diff application,
 ;; search, and shell command execution.
-;; Tools defined here empower GPT-driven workflows inside Emacs.
+;; Tools defined here empower GPT-driven workflows inside Emacs (edit made via new edit_buffer tool).
 ;;
 ;;; Code:
 
@@ -90,8 +90,8 @@ When LINE_NUMBER is nil or 0, just open the file for viewing.
 Otherwise, position cursor at the specified LINE_NUMBER."
   (find-file-other-window file_name)
   (if (and line_number (not (zerop line_number)))
-      (goto-char (point-min))
-    (forward-line (1- line_number))))
+      (progn (goto-char (point-min))
+             (forward-line (1- line_number)))))
 
 (defun gptel-tool-make-directory (parent name)
   "Create directory NAME in PARENT directory."
@@ -505,6 +505,16 @@ Returns a status message indicating success or error."
   "List all open buffers in Emacs."
   (mapconcat #'buffer-name (buffer-list) ", "))
 
+(defun gptel-tool-list-matching-buffers(buffer-name-regex)
+  "List all open buffers whose names match BUFFER-NAME-REGEX."
+  (let ((matching-buffers (seq-filter
+                           (lambda (buf)
+                             (string-match-p buffer-name-regex (buffer-name buf)))
+                           (buffer-list))))
+    (if matching-buffers
+        (mapconcat #'buffer-name matching-buffers ", ")
+      "No matching buffers found.")))
+
 (defun gptel-tool-list-visible-buffers()
   "List all visible buffers in Emacs.
 Returns a comma-separated string of buffer names that are currently displayed
@@ -514,42 +524,134 @@ in Emacs windows."
              (window-list)
              ", "))
 
-(defun gptel-tool-edit-file (file-path file-edits)
-  "In FILE-PATH, apply FILE-EDITS with pattern matching and replacing.
-  Edit FILE-PATH by applying the edits in FILE-EDITS.
+(defun gptel-tool-edit-file (target file-edits &optional target-is-buffer)
+  "Edit TARGET by applying a sequence of line-specific edits defined in FILE-EDITS. Each edit specifies a line number and text replacement.
+
 FILE-EDITS should be a list of plists with :line_number, :old_string, and :new_string.
 Shows a diff of changes with ediff and returns a status message indicating success or failure."
-      (with-current-buffer (get-buffer-create "*edit-file*")
-        (insert-file-contents (expand-file-name file-path))
-        (let ((inhibit-read-only t)
-              (case-fold-search nil)
-              (file-name (expand-file-name file-path))
-              (edit-success nil))
-          ;; apply changes
-          (dolist (file-edit (seq-into file-edits 'list))
+  (let ((logs (list (format "Starting edit for %s (%d edits)" target (length file-edits)))))
+    (with-current-buffer (get-buffer-create "*edit-file*")
+      (let* ((inhibit-read-only t)
+             (case-fold-search nil)
+             (edit-success nil)
+             (target-buffer nil)
+             (file-dir nil)
+             (abs-path nil))
+        ;; Handle buffer or file based on target-is-buffer flag
+        (if target-is-buffer
+            (progn
+              (setq target-buffer (get-buffer target))
+              (unless target-buffer
+                (let ((err-msg (format "Buffer does not exist: %s" target)))
+                  (push (format "Error: %s" err-msg) logs)
+                  (error "%s" (mapconcat #'identity (reverse logs) "\n"))))
+              (setq file-dir (with-current-buffer target-buffer default-directory))
+              (push (format "Using buffer: %s with directory: %s" target file-dir) logs))
+          ;; File path handling
+          (progn
+            (setq abs-path (if (file-name-absolute-p target)
+                                target
+                              (expand-file-name target default-directory)))
+            (setq file-dir (file-name-directory abs-path))
+            (push (format "Using directory: %s for file: %s" file-dir abs-path) logs)))
+
+        (setq default-directory file-dir)
+
+        ;; Clear the existing buffer content
+        (erase-buffer)
+
+        ;; For file targets, check if file exists
+        (when (and (not target-is-buffer) (not (file-exists-p abs-path)))
+          (let ((err-msg (format "File does not exist: %s (resolved from %s)" abs-path target)))
+            (push (format "Error: %s" err-msg) logs)
+            (error "%s" (mapconcat #'identity (reverse logs) "\n"))))
+
+        ;; Load content from the target (file or buffer)
+        (if target-is-buffer
+            (progn
+              (push "Reading buffer contents" logs)
+              (insert (with-current-buffer target-buffer
+                        (buffer-substring-no-properties (point-min) (point-max))))
+              ;; Use the original buffer's major mode
+              (let ((target-mode (with-current-buffer target-buffer major-mode)))
+                (funcall target-mode)
+                (push (format "Using mode: %s from buffer" major-mode) logs)))
+          (progn
+            (push "Reading file contents" logs)
+            (insert-file-contents abs-path)
+            ;; Set major mode to match the original file
+            (let ((buffer-file-name abs-path)) ; Temporarily set buffer-file-name to help mode detection
+              (set-auto-mode)
+              (setq buffer-file-name nil))
+            (push (format "Using mode: %s from file" major-mode) logs)))
+
+        ;; Sort edits by line number in descending order to avoid line number shifting
+        (let ((sorted-edits (sort (seq-into file-edits 'list)
+                                  (lambda (a b) (> (plist-get a :line_number)
+                                                   (plist-get b :line_number))))))
+
+          (push (format "Applying %d edits" (length sorted-edits)) logs)
+
+          ;; Apply changes from bottom to top to preserve line numbers
+          (dolist (file-edit sorted-edits)
             (when-let ((line-number (plist-get file-edit :line_number))
                        (old-string (plist-get file-edit :old_string))
-                       (new-string (plist-get file-edit :new_string))
-                       (is-valid-old-string (not (string= old-string ""))))
+                       (new-string (plist-get file-edit :new_string)))
+              (push (format "Processing edit at line %d" line-number) logs)
               (goto-char (point-min))
               (forward-line (1- line-number))
-              (when (search-forward old-string nil t)
-                (replace-match new-string t t)
-                (setq edit-success t))))
-          ;; return result to gptel
+              (let ((line-content (buffer-substring-no-properties
+                                   (line-beginning-position)
+                                   (line-end-position))))
+                (push (format "Line content: %s" line-content) logs)
+                (if (string= old-string "")
+                    ;; For empty old string, just insert the new string at the line position
+                    (progn
+                      (push (format "Inserting new content at line %d" line-number) logs)
+                      (move-to-column 0)
+                      (insert new-string)
+                      (when (= (char-after) ?\n)
+                        (insert "\n"))
+                      (setq edit-success t))
+                  ;; For non-empty old string, replace it with new string
+                  ;; Don't restrict search to line-end-position to support multi-line strings
+                  (if (search-forward old-string nil t)
+                      (progn
+                        (push (format "Replacing '%s' with '%s'" old-string new-string) logs)
+                        (replace-match new-string t t)
+                        (setq edit-success t))
+                    (push (format "Warning: Could not find '%s' in line %d"
+                                  old-string line-number) logs))))))
+
+          ;; Show diffs and return result
           (if edit-success
               (progn
-                ;; show diffs
-                (ediff-buffers (find-file-noselect file-name) (current-buffer))
-                (format "Successfully edited %s" file-name))
-            (format "Failed to edited %s" file-name))))
-    (format "Failed to edited %s" file-path)))
+                (push "Successfully applied edits" logs)
+                ;; Set up cleanup of temporary buffer when ediff quits
+                ;; Set up global hook to clean up the edit buffer
+                (defun gptel-tool--cleanup-edit-file-buffer ()
+                  "Clean up the *edit-file* buffer after ediff sessions."
+                  (when (get-buffer "*edit-file*")
+                    (kill-buffer "*edit-file*")))
+
+                ;; Add to both hooks to maximize chances of cleanup
+                (add-hook 'ediff-quit-hook #'gptel-tool--cleanup-edit-file-buffer)
+                (add-hook 'ediff-cleanup-hook #'gptel-tool--cleanup-edit-file-buffer)
+
+                ;; Start ediff session
+                (if target-is-buffer
+                    (ediff-buffers target-buffer (current-buffer))
+                  (ediff-buffers (find-file-noselect abs-path) (current-buffer)))
+                ;; (kill-buffer (current-buffer))
+                (mapconcat #'identity (reverse logs) "\n"))
+            (let ((err-msg (format "Failed to edit %s" (if target-is-buffer target abs-path))))
+              (push err-msg logs)
+              (error "%s" (mapconcat #'identity (reverse logs) "\n")))))))))
 
 (defun gptel-tool-read-buffer-with-lines (buffer-name)
   "Read the contents of BUFFER-NAME and return it with line numbers.
-Line numbers are prepended to each line, similar to the output of 'cat -n'.
+Line numbers are prepended to each line, similar to the output of `cat -n'.
 This is useful when you need to refer to specific line numbers in the buffer."
-  ;; Take buffer content and put it in a temp file. cat -n that file and return the result as string
   (with-temp-buffer
     (let ((temp-file (make-temp-file "gptel-buffer-")))
       (insert (gptel-tool-read-buffer buffer-name))
@@ -572,12 +674,26 @@ resolve it interactively—much nicer than blind `patch(1)` failures."
       (ediff-patch-buffer patch-buf target))
     (kill-buffer patch-buf)))
 
+(defun gptel-tool-count-lines-buffer (buffer-name)
+  "Count the number of lines in BUFFER-NAME."
+  (with-temp-message (format "Counting lines in buffer: %s" buffer-name)
+    (if (get-buffer buffer-name)
+        (with-current-buffer buffer-name
+          (save-excursion
+            (goto-char (point-min))
+            (let ((line-count 0))
+              (while (not (eobp))
+                (setq line-count (1+ line-count))
+                (forward-line 1))
+              line-count)))
+      (format "Error: Buffer '%s' not found" buffer-name))))
+
 
 ;;;;;;;;;
 
 (gptel-make-tool :name "read_buffer"
                  :function #'gptel-tool-read-buffer
-                 :description "Return the contents of an Emacs buffer. This will also give the modified contents if the buffer has been modified but not saved. For the file on disk use read_file."
+                 :description "Return the contents of an Emacs buffer. This will also give the modified contents if the buffer has been modified but not saved. For the file on disk use read_file. Avoid doing this for large buffers. Use read_lines for large buffers instead. To estimate the size of the buffer use count_lines_buffer."
                  :args (list '(:name "buffer"
                                      :type string
                                      :description "The name of the buffer whose contents are to be retrieved"))
@@ -641,7 +757,7 @@ resolve it interactively—much nicer than blind `patch(1)` failures."
 
 (gptel-make-tool :name "open_file_on_line"
                  :function #'gptel-tool-open-file-on-line
-                 :description "Open the file for the user and optionally focus on a specific line number. Potentially disrupts users flow by popping up the window. Use only when the user has specifically asked to open and see the file. In all other cases use open_file_in_background instead. For reading the file use read_file."
+                 :description "Open the file for the user and optionally focus on a specific line number. Potentially disrupts users flow by popping up the window. Use only when the user has specifically asked to open and see the file and do it once. In all other cases use open_file_in_background instead. For reading the file use read_file."
                  :args (list '(:name "file_name"
                                      :type string
                                      :description "The file to open. This file opens in another window")
@@ -874,11 +990,12 @@ resolve it interactively—much nicer than blind `patch(1)` failures."
                                 :description "Optional: The directory in which to interpret file_path and run patch. Defaults to the current buffer's directory if not specified."))
                  :category "filesystem"
                  :function #'gptel-tool-apply-diff
+                 :confirm t
                  :include t)
 
 (gptel-make-tool :name "read_lines"
                  :function #'gptel-tool-read-lines
-                 :description "Read lines from a specified buffer and prefix each line with its line number."
+                 :description "Read lines from a specified buffer and prefix each line with its line number. Always prefer this over reading full buffer but only if you have high confidence that you only need context of specific lines"
                  :args (list '(:name "buffer-name"
                                      :type string
                                      :description "The name of the buffer to read from.")
@@ -910,11 +1027,30 @@ resolve it interactively—much nicer than blind `patch(1)` failures."
                  :include t
                  :category "emacs")
 
+(gptel-make-tool :name "count_lines_buffer"
+                 :function #'gptel-tool-count-lines-buffer
+                 :description "Count the number of lines in a specified buffer. This is specially useful when combined with read_lines tool to get specific lines from the bottom of the buffer."
+                 :args (list '(:name "buffer-name"
+                                     :type string
+                                     :description "The name of the buffer to count lines in."))
+                 :category "emacs"
+                 :include t)
+
+
 
 (gptel-make-tool :name "list_buffers"
                  :function #'gptel-tool-list-buffers
                  :description "List current Emacs buffers"
                  :args nil
+                 :category "emacs"
+                 :include t)
+
+(gptel-make-tool :name "list_matching_buffers"
+                 :function #'gptel-tool-list-matching-buffers
+                 :description "List buffers whose names match a given regular expression. This is useful for finding specific buffers when you have a pattern in mind. Or if read_buffer or similar tools are not working for you. To figure out the correct buffer name."
+                 :args (list '(:name "buffer-name-regex"
+                                     :type string
+                                     :description "The regular expression to match buffer names. Use an empty string to match all buffers."))
                  :category "emacs"
                  :include t)
 
@@ -926,30 +1062,31 @@ resolve it interactively—much nicer than blind `patch(1)` failures."
                  :include t)
 
 
-;; (gptel-make-tool :name "edit_file"
-;;                  :function #'gptel-tool-edit-file
-;;                  :description "Edit file with a list of edits, each edit contains a line-number,
-;; a old-string and a new-string, new-string will replace the old-string at the specified line."
-;;                  :args (list '(:name "file-path"
-;;                                      :type string
-;;                                      :description "The full path of the file to edit")
-;;                              '(:name "file-edits"
-;;                                      :type array
-;;                                      :items (:type object
-;;                                                    :properties
-;;                                                    (:line_number
-;;                                                     (:type integer :description "The line number of the file where edit starts.")
-;;                                                     :old_string
-;;                                                     (:type string
-;;                                                            :description (concat "The old-string to be replaced. This can't be blank as this is searched for replacement."
-;;                                                                                 " If a new line is to be added where nothing old is available then still have something "
-;;                                                                                 "here that you can keep it in the new string as well. For empty buffers use append_to_buffer instead."))
-;;                                                     :new_string
-;;                                                     (:type string :description "The new-string to replace old-string.")))
-;;                                      :description "The list of edits to apply on the file"))
-;;                  :category "filesystem"
-;;                  :include t
-;;                  :confirm t)
+(gptel-make-tool :name "edit_file"
+                 :function (lambda (file-path file-edits)
+                             (gptel-tool-edit-file file-path file-edits nil))
+                 :description "Edit file with a list of edits, each edit contains a line-number,
+a old-string and a new-string, new-string will replace the old-string at the specified line. Change directory before running this tool using change_directory if needed."
+                 :args (list '(:name "file-path"
+                                     :type string
+                                     :description "The full path of the file to edit")
+                             `(:name "file-edits"
+                                     :type array
+                                     :items (:type object
+                                                   :properties
+                                                   (:line_number
+                                                    (:type integer :description "The line number of the file where edit starts.")
+                                                    :old_string
+                                                    (:type string
+                                                           :description ,(concat "The old-string to be replaced. This can't be blank as this is searched for replacement."
+                                                                                 " If a new line is to be added where nothing old is available then still have something "
+                                                                                 "here that you can keep it in the new string as well. For empty buffers use append_to_buffer instead."))
+                                                    :new_string
+                                                    (:type string :description "The new-string to replace old-string.")))
+                                     :description "The list of edits to apply on the file"))
+                 :category "filesystem"
+                 :include t
+                 :confirm t)
 
 (gptel-make-tool :name "read_buffer_with_lines"
                  :function #'gptel-tool-read-buffer-with-lines
@@ -970,8 +1107,36 @@ resolve it interactively—much nicer than blind `patch(1)` failures."
                                      :type string
                                      :description "The buffer to apply the diff to."))
                  :category "emacs"
+                 :confirm t
                  :include t)
 
+
+(gptel-make-tool :name "edit_buffer"
+                 :function (lambda (buffer-name buffer-edits)
+                             (gptel-tool-edit-file buffer-name buffer-edits t))
+                 :description "Edit an Emacs buffer with a list of edits, each edit contains a line-number,
+a old-string and a new-string, new-string will replace the old-string at the specified line.
+Similar to edit_file, but operates on buffer contents rather than files on disk."
+                 :args (list '(:name "buffer-name"
+                                     :type string
+                                     :description "The name of the buffer to edit")
+                             `(:name "buffer-edits"
+                                     :type array
+                                     :items (:type object
+                                                   :properties
+                                                   (:line_number
+                                                    (:type integer :description "The line number of the buffer where edit starts.")
+                                                    :old_string
+                                                    (:type string
+                                                           :description ,(concat "The old-string to be replaced. This can't be blank as this is searched for replacement."
+                                                                                 " If a new line is to be added where nothing old is available then still have something "
+                                                                                 "here that you can keep it in the new string as well. For empty buffers use append_to_buffer instead."))
+                                                    :new_string
+                                                    (:type string :description "The new-string to replace old-string.")))
+                                     :description "The list of edits to apply on the buffer"))
+                 :category "emacs"
+                 :include t
+                 :confirm t)
 
 (provide 'core-gptel-tools)
 ;;; core-gptel-tools.el ends here
