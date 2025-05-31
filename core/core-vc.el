@@ -49,7 +49,18 @@
     (set-window-configuration +ediff-last-windows))
 
   (add-hook 'ediff-before-setup-hook #'+store-pre-ediff-winconfig)
-  (add-hook 'ediff-quit-hook #'+restore-pre-ediff-winconfig))
+  (add-hook 'ediff-quit-hook #'+restore-pre-ediff-winconfig)
+
+  ;; kill Ediff buffers on quit to avoid leftover control panels
+  (defun +ediff-cleanup-buffers ()
+    "Kill Ediff control and merge buffers when quitting Ediff."
+    (dolist (b (list ediff-control-buffer
+                     ;; ediff-buffer-A
+                     ;; ediff-buffer-B
+                     ))
+      (when (buffer-live-p b)
+        (kill-buffer b))))
+  (add-hook 'ediff-quit-hook #'+ediff-cleanup-buffers))
 
 
 (use-package smerge-mode
