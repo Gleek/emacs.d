@@ -21,10 +21,11 @@
   "Read the contents of BUFFER and return it as a string."
   (with-temp-message (format "Reading buffer: %s" buffer)
     (condition-case err
-        (if (buffer-live-p (get-buffer buffer))
-            (with-current-buffer buffer
-              (buffer-substring-no-properties (point-min) (point-max)))
-          (format "Error: buffer %s is not live." buffer))
+        (let ((buf (gptel-resolve-buffer-name buffer)))
+          (if (buffer-live-p buf)
+              (with-current-buffer buf
+                (buffer-substring-no-properties (point-min) (point-max)))
+            (format "Error: buffer %s is not live." buffer)))
       (error (format "Error reading buffer %s: %s"
                      buffer (error-message-string err))))))
 
@@ -32,12 +33,13 @@
   "Append TEXT to the end of BUFFER. Return a success or error message."
   (with-temp-message (format "Appending to buffer: %s" buffer)
     (condition-case err
-        (if (buffer-live-p (get-buffer buffer))
-            (with-current-buffer buffer
-              (goto-char (point-max))
-              (insert text)
-              (format "Successfully appended text to buffer %s." buffer))
-          (format "Error: buffer %s is not live or does not exist." buffer))
+        (let ((buf (gptel-resolve-buffer-name buffer)))
+          (if (buffer-live-p buf)
+              (with-current-buffer buf
+                (goto-char (point-max))
+                (insert text)
+                (format "Successfully appended text to buffer %s." buffer))
+            (format "Error: buffer %s is not live or does not exist." buffer)))
       (error (format "Error appending to buffer %s: %s"
                      buffer (error-message-string err))))))
 
@@ -210,12 +212,13 @@ WORKING_DIR can specify a different directory to run the patch command from."
 (defun gptel-tool-replace-buffer (buffer_name content)
   "Replace the contents of BUFFER_NAME with CONTENT."
   (with-temp-message (format "Replacing buffer contents: `%s`" buffer_name)
-    (if (get-buffer buffer_name)
-        (with-current-buffer buffer_name
-          (erase-buffer)
-          (insert content)
-          (format "Buffer contents replaced: %s" buffer_name))
-      (format "Error: Buffer '%s' not found" buffer_name))))
+    (let ((buf (gptel-resolve-buffer-name buffer_name)))
+      (if (buffer-live-p buf)
+          (with-current-buffer buf
+            (erase-buffer)
+            (insert content)
+            (format "Buffer contents replaced: %s" buffer_name))
+        (format "Error: Buffer '%s' not found" buffer_name)))))
 
 (defun gptel-tool-read-file (filepath)
   "Read and return the contents of FILEPATH."
@@ -237,10 +240,11 @@ WORKING_DIR can specify a different directory to run the patch command from."
 
 (defun gptel-tool-get-buffer-directory (buffer)
   "Get the directory of the specified BUFFER."
-  (if (buffer-live-p (get-buffer buffer))
-      (with-current-buffer buffer
-        default-directory)
-    (format "Error: Buffer %s is not live." buffer)))
+  (let ((buf (gptel-resolve-buffer-name buffer)))
+    (if (buffer-live-p buf)
+        (with-current-buffer buf
+          default-directory)
+      (format "Error: Buffer %s is not live." buffer))))
 
 (defun gptel-tool-list-project-files (pattern)
   "List files in project that match PATTERN.
@@ -463,18 +467,21 @@ This is an internal implementation function used by the `apply_diff` tool."
 Each line is prefixed with its line number.
 Returns the lines as a concatenated string."
   (condition-case err
-      (let ((lines '()))
-        (with-current-buffer buffer-name
-          (save-excursion
-            (goto-char (point-min))
-            (forward-line (1- start-line))
-            (while (and (<= start-line end-line) (not (eobp)))
-              (let ((line-content (buffer-substring-no-properties
-                                   (line-beginning-position)
-                                   (line-end-position))))
-                (push (format "%d: %s" start-line line-content) lines))
-              (forward-line 1)
-              (setq start-line (1+ start-line)))))
+      (let ((lines '())
+            (buf (gptel-resolve-buffer-name buffer-name)))
+        (if (buffer-live-p buf)
+            (with-current-buffer buf
+              (save-excursion
+                (goto-char (point-min))
+                (forward-line (1- start-line))
+                (while (and (<= start-line end-line) (not (eobp)))
+                  (let ((line-content (buffer-substring-no-properties
+                                       (line-beginning-position)
+                                       (line-end-position))))
+                    (push (format "%d: %s" start-line line-content) lines))
+                  (forward-line 1)
+                  (setq start-line (1+ start-line)))))
+          (error "Buffer %s not found" buffer-name))
         (mapconcat 'identity (nreverse lines) "\n"))
     (error (format "Error: %S" err))))
 
@@ -485,20 +492,23 @@ Returns a status message indicating success or error."
   (message "Replacing lines %d to %d in buffer=%s"
            start-line end-line buffer-name)
   (condition-case err
-      (with-current-buffer buffer-name
-        (save-excursion
-          ;; NOCOMMIT: I think this has an off-by-one error
-          ;; where it deletes too many lines; we might also
-          ;; want to support a pure insert, maybe just by
-          ;; changing end-line to be exclusive
-          (goto-char (point-min))
-          (forward-line (1- start-line))
-          (let ((start-point (line-beginning-position)))
-            (forward-line (1+ (- end-line start-line)))
-            (let ((end-point (line-end-position)))
-              (delete-region start-point end-point)
-              (goto-char start-point)
-              (insert replacement-string "\n")))))
+      (let ((buf (gptel-resolve-buffer-name buffer-name)))
+        (if (buffer-live-p buf)
+            (with-current-buffer buf
+              (save-excursion
+                ;; NOCOMMIT: I think this has an off-by-one error
+                ;; where it deletes too many lines; we might also
+                ;; want to support a pure insert, maybe just by
+                ;; changing end-line to be exclusive
+                (goto-char (point-min))
+                (forward-line (1- start-line))
+                (let ((start-point (line-beginning-position)))
+                  (forward-line (1+ (- end-line start-line)))
+                  (let ((end-point (line-end-position)))
+                    (delete-region start-point end-point)
+                    (goto-char start-point)
+                    (insert replacement-string "\n")))))
+          (error "Buffer %s not found" buffer-name)))
     (error (format "Error: %S" err))))
 
 (defun gptel-tool-list-buffers()
@@ -665,28 +675,90 @@ This is useful when you need to refer to specific line numbers in the buffer."
 The patch must be standard unified format ("@@ -l,s +l,s @@" hunks).
 If a hunk fails to apply cleanly, Ediff will pop up so you can
 resolve it interactively—much nicer than blind `patch(1)` failures."
-  (let* ((target buffer)
+  (let* ((target-buf (gptel-resolve-buffer-name buffer))
          (patch-buf (generate-new-buffer "*unified-diff*")))
+    (unless (buffer-live-p target-buf)
+      (error "Target buffer '%s' not found" buffer))
     (with-current-buffer patch-buf
       (insert diff-text)
       (diff-mode))
     (save-excursion
-      (ediff-patch-buffer patch-buf target))
+      (ediff-patch-buffer patch-buf target-buf))
     (kill-buffer patch-buf)))
 
 (defun gptel-tool-count-lines-buffer (buffer-name)
   "Count the number of lines in BUFFER-NAME."
   (with-temp-message (format "Counting lines in buffer: %s" buffer-name)
-    (if (get-buffer buffer-name)
-        (with-current-buffer buffer-name
-          (save-excursion
-            (goto-char (point-min))
-            (let ((line-count 0))
-              (while (not (eobp))
-                (setq line-count (1+ line-count))
-                (forward-line 1))
-              line-count)))
-      (format "Error: Buffer '%s' not found" buffer-name))))
+    (let ((buf (gptel-resolve-buffer-name buffer-name)))
+      (if (buffer-live-p buf)
+          (with-current-buffer buf
+            (save-excursion
+              (goto-char (point-min))
+              (let ((line-count 0))
+                (while (not (eobp))
+                  (setq line-count (1+ line-count))
+                  (forward-line 1))
+                line-count)))
+        (format "Error: Buffer '%s' not found" buffer-name)))))
+
+(defun gptel-resolve-buffer-name (buffer-name-or-path)
+  "Find the correct buffer object for BUFFER-NAME-OR-PATH.
+
+Tries multiple strategies to locate the right buffer:
+1. If it looks like a file path, find buffer visiting that file
+2. Look for exact buffer name match
+3. Find buffers with partial name matches
+4. If multiple matches, prefer buffers in current project
+5. Fall back to most recently used buffer
+
+Returns the buffer object if found, nil otherwise."
+  (cond
+   ;; ;; Case 1: Already a buffer object
+   ;; ((bufferp buffer-name-or-path) buffer-name-or-path)
+
+   ;; Case 2: Nil or empty string
+   ((not (and buffer-name-or-path (stringp buffer-name-or-path)))
+    nil)
+
+   ;; ;; Case 3: Exact buffer name match
+   ;; ((get-buffer buffer-name-or-path))
+
+   ;; Case 4: Might be a file path
+   ((and (string-match-p "/" buffer-name-or-path)
+         (file-exists-p buffer-name-or-path))
+    (find-file-noselect buffer-name-or-path t))
+
+   ;; Case 5: Try to find matching buffers
+   (t
+    (let* ((name-regexp (regexp-quote buffer-name-or-path))
+           (matching-buffers
+            (seq-filter (lambda (buf)
+                          (string-match-p name-regexp (buffer-name buf)))
+                        (buffer-list))))
+      (cond
+       ;; Case 5.1: No matches
+       ((null matching-buffers)
+        nil)
+
+       ;; Case 5.2: Single match
+       ((= (length matching-buffers) 1)
+        (car matching-buffers))
+
+       ;; Case 5.3: Multiple matches, try to find in project
+       (t
+        (if (fboundp 'projectile-project-root)
+            (let* ((project-root (projectile-project-root))
+                   (project-buffers
+                    (seq-filter (lambda (buf)
+                                  (when project-root
+                                    (projectile-project-buffer-p buf project-root)))
+                                matching-buffers)))
+              (if (= (length project-buffers) 1)
+                  (car project-buffers)
+                ;; Case 5.4: Fall back to most recent buffer
+                (car matching-buffers)))
+          ;; Case 5.5: No projectile, just use most recent
+          (car matching-buffers))))))))
 
 
 ;;;;;;;;;
