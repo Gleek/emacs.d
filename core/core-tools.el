@@ -629,6 +629,14 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   (setq salah-country (secret-get country))
   (setq salah-school (secret-get salah-school))
   (setq salah-next-days 2)
+  (advice-add 'salah-times--render :around #'+salah-times--disable-padding)
+  (defun +salah-times--disable-padding (orig-fun &rest args)
+    (unwind-protect
+        (progn
+          (spacious-padding-mode -1)
+          (apply orig-fun args))
+      (spacious-padding-mode 1)))
+
   (set-popup-rule! "^ \\*salah-times\\*" :select nil :size '+popup-shrink-to-fit))
 
 
