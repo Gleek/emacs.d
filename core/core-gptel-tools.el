@@ -788,7 +788,7 @@ Returns a formatted string with error type, line, column, and message."
                  :async t
                  :include t)
 
-(gptel-make-tool :name "ReplaceBuffer"
+(gptel-make-tool :name "replace_buffer"
                  :function #'gptel-tool-replace-buffer
                  :description "Completely overwrites buffer contents with the provided content. IMPORTANT: This tool will erase all existing content in the specified buffer; user confirmation will be required."
                  :args (list
@@ -987,7 +987,11 @@ a old-string and a new-string, new-string will replace the old-string at the spe
                              (gptel-tool-edit-file buffer-name buffer-edits t))
                  :description "Edit an Emacs buffer with a list of edits, each edit contains a line-number,
 a old-string and a new-string, new-string will replace the old-string at the specified line.
-Similar to edit_file, but operates on buffer contents rather than files on disk."
+Similar to edit_file, but operates on buffer contents rather than files on disk.
+Prefer this over edit_file if the user is directly working on this as well as it will give the latest content.
+This should ideally be called once for all edits in a single buffer so that line numbers are correctly handled.
+If for some reason this needs to be run multiple times on a single buffer, reading the buffer again would be
+required to get the updated line numbers"
                  :args (list '(:name "buffer-name"
                                      :type string
                                      :description "The name of the buffer to edit")
