@@ -514,10 +514,13 @@ Shows a diff of changes with ediff and returns a status message indicating succe
                 (add-hook 'ediff-quit-hook #'gptel-tool--cleanup-edit-file-buffer)
                 (add-hook 'ediff-cleanup-hook #'gptel-tool--cleanup-edit-file-buffer)
 
-                ;; Start ediff session
-                (if target-is-buffer
-                    (ediff-buffers target-buffer (current-buffer))
-                  (ediff-buffers (find-file-noselect abs-path) (current-buffer)))
+                ;; Prevent creation of backup files
+                (let ((ediff-backup-extension "")
+                      (ediff-patch-options "-f"))    ; -f forces patch without backups
+                  ;; Start ediff session
+                  (if target-is-buffer
+                      (ediff-buffers target-buffer (current-buffer))
+                    (ediff-buffers (find-file-noselect abs-path) (current-buffer))))
                 ;; (kill-buffer (current-buffer))
                 (mapconcat #'identity (reverse logs) "\n"))
             (let ((err-msg (format "Failed to edit %s" (if target-is-buffer target abs-path))))
