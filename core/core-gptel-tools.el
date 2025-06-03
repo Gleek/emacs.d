@@ -16,6 +16,8 @@
 ;;; Code:
 
 (require 'gptel)
+(require 'projectile nil t)  ;; Load projectile optionally
+(require 'flycheck nil t)    ;; Load flycheck optionally
 
 (defun gptel-tool-read-buffer(buffer)
   "Read the contents of BUFFER and return it as a string."
@@ -30,7 +32,7 @@
                      buffer (error-message-string err))))))
 
 (defun gptel-tool-append-to-buffer (buffer text)
-  "Append TEXT to the end of BUFFER. Return a success or error message."
+  "Append TEXT to the end of BUFFER.  Return a success or error message."
   (with-temp-message (format "Appending to buffer: %s" buffer)
     (condition-case err
         (let ((buf (gptel-resolve-buffer-name buffer)))
@@ -64,6 +66,19 @@
     (message "%s" text)
     (format "Message sent: %s" text)))
 
+(defun gptel-tool-delete-file (filepath)
+  "Delete FILEPATH by moving it to trash.
+   Returns a status message indicating success or failure."
+  (with-temp-message (format "Moving file to trash: %s" filepath)
+    (condition-case err
+        (if (file-exists-p filepath)
+            (progn
+              (delete-file filepath t)
+              (format "Successfully moved file to trash: %s" filepath))
+          (format "File does not exist: %s" filepath))
+      (error (format "Error deleting file %s: %s"
+                     filepath (error-message-string err))))))
+
 (defun gptel-tool-create-file (path filename content)
   "Create a file named FILENAME in PATH with CONTENT."
   (with-temp-message (format "Creating file: %s in %s" filename path)
@@ -79,7 +94,7 @@
 (defun gptel-tool-open-file-in-background (file_name)
   "Open FILE_NAME without displaying it to the user.
 For use when intermediary file access is needed without user visibility.
-Creates a buffer with the file contents but doesn't show it."
+Creates a buffer with file contents but does not display it to the user."
   (with-temp-message (format "Opening file in background: %s" file_name)
     (condition-case err
         (find-file-noselect file_name t)  ; t = nowarn
@@ -114,62 +129,6 @@ Otherwise, position cursor at the specified LINE_NUMBER."
                    "\n")
       (error (format "Error listing directory: %s - %s" directory (error-message-string err))))))
 
-(defun gptel-tool-apply-diff (file_path diff_content &optional patch_options working_dir)
-  "Apply DIFF_CONTENT to FILE_PATH with PATCH_OPTIONS in WORKING_DIR.
-The diff must be in the unified format (output of 'diff -u original_file new_file').
-FILE_PATH should be the path to the file that needs to be modified.
-PATCH_OPTIONS can include flags like -p0, -p1, etc. to handle path stripping.
-WORKING_DIR can specify a different directory to run the patch command from."
-  (let ((original-default-directory default-directory)
-        (temp-diff-file (make-temp-file "gptel-patch-"))
-        (options (if (and patch_options (not (string-empty-p patch_options)))
-                     (split-string patch_options " " t)
-                   '("-N")))  ;; Default to -N (ignore already applied)
-        (exit-status -1)
-        (stdout-str "")
-        (stderr-str ""))
-
-    (unwind-protect
-        (progn
-          ;; Change to specified working directory if provided
-          (when (and working_dir (not (string-empty-p working_dir)))
-            (setq default-directory (expand-file-name working_dir)))
-
-          ;; Expand target file path
-          (let ((target-file (expand-file-name file_path)))
-
-            ;; Check that target file exists
-            (unless (file-exists-p target-file)
-              (error "File to patch does not exist: %s" target-file))
-
-            ;; Write diff content to temporary file
-            (with-temp-file temp-diff-file
-              (insert diff_content))
-
-            ;; Run patch command
-            (with-temp-message (format "Applying diff to: `%s` with options: %s" target-file options)
-              (let ((result (apply #'call-process
-                                   "patch"                  ;; command
-                                   nil                      ;; infile
-                                   (list t t)               ;; collect both stdout and stderr
-                                   nil                      ;; no display
-                                   (append options (list target-file "-i" temp-diff-file)))))
-                (setq exit-status result)
-                (with-current-buffer standard-output
-                  (setq stdout-str (buffer-string)))))
-
-            ;; Return result based on exit status
-            (if (eq exit-status 0)
-                (format "Patch successfully applied to %s.\nOutput:\n%s"
-                        target-file stdout-str)
-              (error "Failed to apply patch to %s (exit status %s).\nOutput:\n%s"
-                     target-file exit-status stdout-str))))
-
-      ;; Cleanup
-      (setq default-directory original-default-directory)
-      (when (file-exists-p temp-diff-file)
-        (delete-file temp-diff-file)))))
-
 (defun gptel-tool-run-command (command &optional working_dir)
   "Execute shell COMMAND in WORKING_DIR and return the output."
   (with-temp-message (format "Executing command: `%s`" command)
@@ -178,36 +137,69 @@ WORKING_DIR can specify a different directory to run the patch command from."
                                default-directory)))
       (shell-command-to-string command))))
 
+(defun gptel-tool--build-ripgrep-command (query files)
+  "Build ripgrep command for QUERY in FILES."
+  (format "rg --line-number %s %s"
+          (shell-quote-argument query)
+          (if (and files (not (string= files "")))
+              (shell-quote-argument files) "")))
+
+(defun gptel-tool--get-search-directory (directory)
+  "Get expanded search DIRECTORY or default-directory."
+  (if (and directory (not (string= directory "")))
+      (expand-file-name directory)
+    default-directory))
+
+(defun gptel-tool--in-known-project-p (search-dir)
+  "Check if SEARCH-DIR is in a known project."
+  (when (fboundp 'projectile-relevant-known-projects)
+    (let ((known-projects (seq-filter
+                           (lambda (proj)
+                             (not (string= (expand-file-name proj)
+                                           (expand-file-name "~"))))
+                           (projectile-relevant-known-projects))))
+      (or (member search-dir known-projects)
+          (seq-some (lambda (project-dir)
+                      (string-prefix-p
+                       (expand-file-name project-dir)
+                       search-dir))
+                    known-projects)))))
+
+(defun gptel-tool--make-process-sentinel (callback)
+  "Create a process sentinel that calls CALLBACK with results."
+  (lambda (proc _event)
+    (when (eq (process-status proc) 'exit)
+      (let ((buf (process-buffer proc)))
+        (when (buffer-live-p buf)
+          (with-current-buffer buf
+            (let ((output (buffer-string)))
+              (funcall callback output)
+              (kill-buffer buf))))))))
+
 (defun gptel-tool-search-with-ripgrep (callback query files directory)
   "Search for QUERY in FILES within DIRECTORY using ripgrep and call CALLBACK with results."
-  (let ((cmd (format "rg --line-number %s %s"
-                     (shell-quote-argument query)
-                     (if (and files (not (string= files "")))
-                         (shell-quote-argument files)
-                       "")))
-        (default-directory (if (and directory (not (string= directory "")))
-                               (expand-file-name directory)
-                             default-directory))
-        (output-buffer (generate-new-buffer "*gptel-ripgrep*"))
-        (in-known-project (and (fboundp 'projectile-relevant-known-projects)
-                               (member (expand-file-name default-directory)
-                                       (projectile-relevant-known-projects)))))
+  (let* ((search-dir (gptel-tool--get-search-directory directory))
+         (default-directory search-dir)
+         (output-buffer (generate-new-buffer "*gptel-ripgrep*"))
+         (cmd (gptel-tool--build-ripgrep-command query files))
+         (in-known-project (gptel-tool--in-known-project-p search-dir)))
+
     (if (and (not in-known-project)
-             (not (y-or-n-p (format "Directory %s is not in projectile-relevant-known-projects. Run ripgrep anyway? " default-directory))))
-        (progn
-          (kill-buffer output-buffer)
-          (funcall callback (format "Search aborted: directory %s is not in known projects" default-directory)))
-      (with-temp-message (format "Searching for: %s in %s" query directory)
+             (not (y-or-n-p
+                   (format "Directory %s is not in a known project. Run ripgrep anyway? "
+                           search-dir))))
+        (funcall callback
+                 (format "Search aborted: directory %s is not in known projects"
+                         search-dir))
+
+      (with-temp-message (format "Searching for: %s in %s buffer %s"
+                                 query search-dir output-buffer)
         (make-process
          :name "gptel-ripgrep"
          :buffer output-buffer
          :command (list shell-file-name shell-command-switch cmd)
-         :sentinel (lambda (process _event)
-                     (when (eq (process-status process) 'exit)
-                       (with-current-buffer output-buffer
-                         (let ((output (buffer-string)))
-                           (funcall callback output)
-                           (kill-buffer output-buffer))))))))))
+         :sentinel (gptel-tool--make-process-sentinel callback))))))
+
 
 (defun gptel-tool-replace-buffer (buffer_name content)
   "Replace the contents of BUFFER_NAME with CONTENT."
@@ -249,142 +241,16 @@ WORKING_DIR can specify a different directory to run the patch command from."
 (defun gptel-tool-list-project-files (pattern)
   "List files in project that match PATTERN.
 PATTERN is a regular expression to filter files.
-Returns a list of matching file paths or empty list if no matches or empty pattern."
-  "List files in project that match PATTERN.
-PATTERN is a regular expression to filter files.
-Returns a list of matching file paths or empty list if no matches or empty pattern."
+Returns a list of matching file paths or empty list if no matches
+or empty pattern."
   (when (and pattern (not (string-empty-p pattern)))
     (require 'projectile)
-    (let ((project-root (projectile-project-root))
-          (files nil))
+    (let ((project-root (projectile-project-root)))
       (if project-root
-          (setq files (mapcar (lambda (file) (concat project-root file))
-                              (seq-filter (lambda (file) (string-match-p pattern file))
-                                          (projectile-project-files project-root))))
+          (mapcar (lambda (file) (concat project-root file))
+                  (seq-filter (lambda (file) (string-match-p pattern file))
+                              (projectile-project-files project-root)))
         (format "Error: Not in a projectile project")))))
-
-;; (defun gptel-tool-apply-diff-to-buffer (diff_content buffer_name &optional working_dir)
-;;   "Apply DIFF_CONTENT to BUFFER_NAME interactively.
-;; If WORKING_DIR is provided, change to that directory before applying the diff.
-;; Shows diff in a temporary buffer and prompts user to apply changes."
-;;   (require 'diff-mode)
-;;   (let ((original-default-directory default-directory)
-;;         (diff-buffer-name "*gptel-diff-preview*"))
-;;     (unless (buffer-live-p (get-buffer buffer_name))
-;;       (error "Target buffer %s is not live" buffer_name))
-
-;;     (with-current-buffer (get-buffer-create diff-buffer-name)
-;;       (erase-buffer)
-;;       (insert diff_content)
-;;       (diff-mode)
-;;       (goto-char (point-min))
-;;       (when (and working_dir (not (string-empty-p working_dir)))
-;;         (setq default-directory (concat (expand-file-name working_dir) "/")))
-;;       (display-buffer (current-buffer)))
-
-;;     (if (y-or-n-p (format "Apply this diff to buffer %s? " buffer_name))
-;;         (progn
-;;           (with-current-buffer diff-buffer-name
-;;             (condition-case err
-;;                 (diff-apply-hunk)
-;;               (error (format "Error applying diff to buffer %s: %s" buffer_name (error-message-string err))))))
-;;       (progn
-;;         ;; (kill-buffer diff-buffer-name)
-;;         (format "Diff application canceled by user.")))))
-
-;; (defun gptel-tool-apply-diff-to-buffer (diff-content buffer-name &optional working-dir)
-;;   "Apply a single unified-diff hunk DIFF-CONTENT to BUFFER-NAME.
-;; Recalculate hunk offsets from matching context, show a preview, prompt the user,
-;; and on header‐apply failure fall back to a pure context‐based apply."
-;;   (require 'diff-mode)
-;;   (require 'cl-lib)
-;;   (let* ((buf (or (get-buffer buffer-name)
-;;                   (when (file-exists-p buffer-name)
-;;                     (find-file-noselect buffer-name t))))
-;;          (preview-buf (get-buffer-create "*gptel-diff-preview*"))
-;;          ;; these will be filled in when parsing the hunk:
-;;          context-line
-;;          orig-old-start
-;;          old-count
-;;          real-new-start
-;;          new-count)
-;;     (unless (buffer-live-p buf)
-;;       (error "Target buffer %s is not live or visitable" buffer-name))
-
-;;     ;; Prepare the preview buffer
-;;     (with-current-buffer preview-buf
-;;       (setq default-directory
-;;             (or working-dir
-;;                 (with-current-buffer buf default-directory)))
-;;       (erase-buffer)
-;;       (insert diff-content)
-;;       (diff-mode))
-
-;;     ;; Parse the hunk header, extract context and recompute counts & offsets
-;;     (with-current-buffer preview-buf
-;;       (goto-char (point-min))
-;;       (when (re-search-forward
-;;              "^@@ -\\([0-9]+\\),[0-9]+ +\\+\\([0-9]+\\),[0-9]+ @@"
-;;              nil t)
-;;         ;; stash the original old-start
-;;         (setq orig-old-start (string-to-number (match-string 1)))
-;;         ;; locate the body of this one hunk
-;;         (let* ((hunk-beg   (match-beginning 0))
-;;                (body-start (progn (forward-line 1) (point)))
-;;                (body-end   (progn
-;;                              (goto-char body-start)
-;;                              (while (and (not (eobp))
-;;                                          (not (looking-at "^@@ ")))
-;;                                (forward-line 1))
-;;                              (point)))
-;;                (hunk-lines (split-string
-;;                             (buffer-substring-no-properties
-;;                              body-start body-end)
-;;                             "\n" t)))
-;;           ;; first non-+/-/@@ line is our context
-;;           (setq context-line
-;;                 (cl-find-if
-;;                  (lambda (ln)
-;;                    (and (not (string-prefix-p "+" ln))
-;;                         (not (string-prefix-p "-" ln))
-;;                         (not (string-prefix-p "@@" ln))))
-;;                  hunk-lines))
-;;           ;; recalc counts
-;;           (setq old-count
-;;                 (cl-count-if (lambda (ln) (not (string-prefix-p "+" ln)))
-;;                              hunk-lines)
-;;                 new-count
-;;                 (cl-count-if (lambda (ln) (not (string-prefix-p "-" ln)))
-;;                              hunk-lines))
-;;           ;; recalc new-start by searching context in the real buffer
-;;           (setq real-new-start
-;;                 (with-current-buffer buf
-;;                   (goto-char (point-min))
-;;                   (if (and context-line
-;;                            (search-forward context-line nil t))
-;;                       (line-number-at-pos (match-beginning 0))
-;;                     ;; fallback to original if not found
-;;                     (string-to-number (match-string 2)))))
-;;           ;; rewrite header
-;;           (goto-char hunk-beg)
-;;           (kill-line)
-;;           (insert (format "@@ -%d,%d +%d,%d @@"
-;;                           orig-old-start old-count
-;;                           real-new-start new-count)))))
-
-;;     ;; Show & prompt
-;;     (display-buffer preview-buf)
-;;     (with-current-buffer preview-buf
-;;       (if (y-or-n-p (format "Apply this diff to buffer %s? " buffer-name))
-;;           (condition-case err
-;;               (diff-apply-hunk)
-;;             (error
-;;              (message "Header apply failed: %s — retrying by context…" err)
-;;              (goto-char (point-min))
-;;              (when (and context-line
-;;                         (search-forward context-line nil t))
-;;                (diff-apply-hunk))))
-;;         (message "Diff application canceled")))))
 
 (defun gptel-tool-apply-diff (file_path diff_content &optional patch_options working_dir)
   "Apply DIFF_CONTENT to FILE_PATH with PATCH_OPTIONS in WORKING_DIR.
@@ -560,8 +426,8 @@ Shows a diff of changes with ediff and returns a status message indicating succe
           ;; File path handling
           (progn
             (setq abs-path (if (file-name-absolute-p target)
-                                target
-                              (expand-file-name target default-directory)))
+                               target
+                             (expand-file-name target default-directory)))
             (setq file-dir (file-name-directory abs-path))
             (push (format "Using directory: %s for file: %s" file-dir abs-path) logs)))
 
@@ -670,22 +536,6 @@ This is useful when you need to refer to specific line numbers in the buffer."
         (insert (shell-command-to-string (format "cat -n %s" temp-file)))
         (buffer-string)))))
 
-(defun gptel-tool-apply-unified-diff (diff-text buffer)
-  "Apply unified DIFF-TEXT to BUFFER.
-The patch must be standard unified format ("@@ -l,s +l,s @@" hunks).
-If a hunk fails to apply cleanly, Ediff will pop up so you can
-resolve it interactively—much nicer than blind `patch(1)` failures."
-  (let* ((target-buf (gptel-resolve-buffer-name buffer))
-         (patch-buf (generate-new-buffer "*unified-diff*")))
-    (unless (buffer-live-p target-buf)
-      (error "Target buffer '%s' not found" buffer))
-    (with-current-buffer patch-buf
-      (insert diff-text)
-      (diff-mode))
-    (save-excursion
-      (ediff-patch-buffer patch-buf target-buf))
-    (kill-buffer patch-buf)))
-
 (defun gptel-tool-count-lines-buffer (buffer-name)
   "Count the number of lines in BUFFER-NAME."
   (with-temp-message (format "Counting lines in buffer: %s" buffer-name)
@@ -760,6 +610,39 @@ Returns the buffer object if found, nil otherwise."
           ;; Case 5.5: No projectile, just use most recent
           (car matching-buffers))))))))
 
+(defun gptel-tool-list-flycheck-errors (buffer-name)
+  "Get flycheck errors for BUFFER-NAME, truncated to maximum 100 errors.
+Returns a formatted string with error type, line, column, and message."
+  (condition-case err
+      (let* ((buf (gptel-resolve-buffer-name buffer-name))
+             (max-errors 100)
+             (errors-list nil))
+        (if (buffer-live-p buf)
+            (with-current-buffer buf
+              (if (bound-and-true-p flycheck-mode)
+                  (progn
+                    (setq errors-list
+                          (seq-take
+                           (mapcar
+                            (lambda (err)
+                              (let* ((err-type (flycheck-error-level err))
+                                     (line (flycheck-error-line err))
+                                     (column (flycheck-error-column err))
+                                     (message (flycheck-error-message err)))
+                                (format "%s at line %d, col %d: %s"
+                                        (or err-type "unknown")
+                                        (or line 0)
+                                        (or column 0)
+                                        (or message "no message"))))
+                            (flycheck-overlay-errors-in (point-min) (point-max)))
+                           max-errors))
+                    (if errors-list
+                        (mapconcat 'identity errors-list "\n")
+                      "No flycheck errors found in buffer"))
+                "Flycheck mode is not enabled in this buffer"))
+          (format "Error: Buffer %s not found" buffer-name)))
+    (error (format "Error getting flycheck errors: %S" err))))
+
 
 ;;;;;;;;;
 
@@ -801,6 +684,16 @@ Returns the buffer object if found, nil otherwise."
                                      :type string
                                      :description "The text to send to the messages buffer"))
                  :category "emacs"
+                 :include t)
+
+(gptel-make-tool :name "delete_file"
+                 :function #'gptel-tool-delete-file
+                 :description "Delete a file by moving it to trash. Requires user confirmation."
+                 :args (list '(:name "filepath"
+                                     :type string
+                                     :description "The full path of the file to delete"))
+                 :category "filesystem"
+                 :confirm t
                  :include t)
 
 (gptel-make-tool :name "create_file"
@@ -861,36 +754,6 @@ Returns the buffer object if found, nil otherwise."
                  :category "filesystem"
                  :include t)
 
-;; (gptel-make-tool
-;;  :name "apply_diff"
-;;  :description (concat
-;;                "Applies a diff (patch) to a specified file. "
-;;                "The diff must be in the unified format (output of 'diff -u original_file new_file'). "
-;;                "The LLM should generate the diff such that the file paths within the diff "
-;;                "(e.g., '--- a/filename' '+++ b/filename') are appropriate for the 'file_path' argument and chosen 'patch_options'. "
-;;                "Common 'patch_options' include: '' (empty, if paths in diff are exact or relative to current dir of file_path), "
-;;                "'-p0' (if diff paths are full or exactly match the target including prefixes like 'a/'), "
-;;                "'-p1' (if diff paths have one leading directory to strip, e.g., diff has 'a/src/file.c' and you want to patch 'src/file.c' from project root). "
-;;                "Default options are '-N' (ignore already applied patches).")
-;;  :args (list
-;;         '(:name "file_path"
-;;                 :type string
-;;                 :description "The path to the file that needs to be patched.")
-;;         '(:name "diff_content"
-;;                 :type string
-;;                 :description "The diff content in unified format (e.g., from 'diff -u').")
-;;         '(:name "patch_options"
-;;                 :type string
-;;                 :optional t
-;;                 :description "Optional: Additional options for the 'patch' command (e.g., '-p1', '-p0', '-R'). Defaults to '-N'. Prepend other options if needed, e.g., '-p1 -N'.")
-;;         '(:name "working_dir"
-;;                 :type string
-;;                 :optional t
-;;                 :description "Optional: The directory in which to interpret file_path and run patch. Defaults to the current buffer's directory if not specified."))
-;;  :category "filesystem"
-;;  :confirm t
-;;  :function #'gptel-tool-apply-diff
-;;  :include t)
 
 (gptel-make-tool :name "run_command"
                  :function #'gptel-tool-run-command
@@ -983,56 +846,6 @@ Returns the buffer object if found, nil otherwise."
                  :category "project"
                  :include t)
 
-;; (gptel-make-tool :name "apply_diff_to_buffer"
-;;                  :function #'gptel-tool-apply-diff-to-buffer
-;;                  :description "Apply diff content to a buffer interactively. Shows a preview and prompts for confirmation. Note: final buffer isn’t saved to disk and must be saved manually.
-;; When generating diffs for this tool, emit exactly one unified-diff hunk in this format:
-;; --- filename
-;; +++ filename
-;; @@ -oldStart,oldCount +newStart,newCount @@
-;; -context line(s)
-;; -removed line(s)
-;; +added line(s)
-;;  context line(s)
-;; No extra text."
-;;                  :args (list
-;;                         '(:name "diff_content"
-;;                                 :type string
-;;                                 :description "The diff content in unified format (e.g., from 'diff -u')")
-;;                         '(:name "buffer_name"
-;;                                 :type string
-;;                                 :description "The name of the buffer to apply the diff to")
-;;                         '(:name "working_dir"
-;;                                 :type string
-;;                                 :optional t
-;;                                 :description "Optional: The directory in which to interpret relative paths in the diff"))
-;;                  :category "emacs"
-;;                  :confirm t
-;;                  :include t)
-
-;; (gptel-make-tool :name "apply_diff_to_buffer"
-;;                  :function #'gptel-tool-apply-diff-to-buffer
-;;                  :description
-;;                  "Apply a single unified-diff hunk to an Emacs buffer by recalculating
-;;  hunk offsets from matching context. Opens a preview in *gptel-diff-preview*,
-;;  prompts the user, and falls back to pure context matching on header failure."
-;;                  :args (list
-;;                         ;; Required diff content
-;;                         '(:name "diff_content"
-;;                                 :type string
-;;                                 :description "The diff hunk in unified format (one hunk only).")
-;;                         ;; Target buffer (or file path) to apply the diff into
-;;                         '(:name "buffer_name"
-;;                                 :type string
-;;                                 :description "Name of the live buffer or file path to patch.")
-;;                         ;; Optional working directory
-;;                         '(:name "working_dir"
-;;                                 :type string
-;;                                 :optional t
-;;                                 :description "Directory to use as default-directory when applying."))
-;;                  :category "emacs"
-;;                  :confirm t
-;;                  :include t)
 
 (gptel-make-tool :name "apply_diff"
                  :description (concat
@@ -1169,20 +982,6 @@ a old-string and a new-string, new-string will replace the old-string at the spe
                  :category "emacs"
                  :include t)
 
-(gptel-make-tool :name "apply_unified_diff"
-                 :function #'gptel-tool-apply-unified-diff
-                 :description "Apply a unified diff string to a buffer using Ediff"
-                 :args (list '(:name "diff-text"
-                                     :type string
-                                     :description "The unified diff text to apply.")
-                             '(:name "buffer"
-                                     :type string
-                                     :description "The buffer to apply the diff to."))
-                 :category "emacs"
-                 :confirm t
-                 :include t)
-
-
 (gptel-make-tool :name "edit_buffer"
                  :function (lambda (buffer-name buffer-edits)
                              (gptel-tool-edit-file buffer-name buffer-edits t))
@@ -1209,6 +1008,15 @@ Similar to edit_file, but operates on buffer contents rather than files on disk.
                  :category "emacs"
                  :include t
                  :confirm t)
+
+(gptel-make-tool :name "list_flycheck_errors"
+                 :function #'gptel-tool-list-flycheck-errors
+                 :description "Check flycheck errors, warnings and other issues in a buffer. Returns up to 100 errors by default."
+                 :args (list '(:name "buffer-name"
+                                     :type string
+                                     :description "The name of the buffer to check for flycheck errors."))
+                 :category "emacs"
+                 :include t)
 
 (provide 'core-gptel-tools)
 ;;; core-gptel-tools.el ends here
