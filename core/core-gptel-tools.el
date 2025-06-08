@@ -18,6 +18,126 @@
 (require 'gptel)
 (require 'projectile nil t)  ;; Load projectile optionally
 (require 'flycheck nil t)    ;; Load flycheck optionally
+(require 'xref)
+(require 'elisp-mode)  ; for elisp--xref-backend
+(require 'lsp-mode nil t)
+
+
+(defun gptel-tool--make-xref-formatter (callback)
+  "Create an xref formatter that will send results to CALLBACK.
+Returns a function suitable for use as `xref-show-xrefs-function'."
+  (lambda (fetcher _alist)
+    (when-let ((xrefs (funcall fetcher)))
+      (funcall callback
+               (mapconcat
+                (lambda (xref)
+                  (let* ((loc (xref-item-location xref))
+                         (group (xref-location-group loc))
+                         ;; Resolve real file path
+                         (real-file (file-truename group))
+                         ;; Get correct line number
+                         (line (or (with-current-buffer (find-file-noselect real-file)
+                                   (save-excursion
+                                     (goto-char (xref-location-marker loc))
+                                     (line-number-at-pos)))
+                                 (xref-location-line loc)
+                                 0)))
+                    ;; Return plain text without properties
+                    (substring-no-properties
+                     (format "%s:%d: %s"
+                             real-file
+                             line
+                             (xref-item-summary xref)))))
+                xrefs
+                "\n")))))
+
+(defun gptel-tool-find-definitions (callback symbol buffer-name line-number)
+  "Find definitions of SYMBOL in BUFFER-NAME at LINE-NUMBER.
+Returns file:line: summary format for each definition via CALLBACK."
+  (let ((buf (gptel-resolve-buffer-name buffer-name)))
+    (if (not (buffer-live-p buf))
+        (funcall callback (format "Error: Buffer %s not found" buffer-name))
+      (with-current-buffer buf
+        (save-excursion
+          (goto-char (point-min))
+          (forward-line (1- line-number))
+          (let ((line-end (line-end-position)))
+            (if (not (search-forward symbol line-end t))
+                (funcall callback
+                         (format "Error: Symbol '%s' not found on line %d" symbol line-number))
+              (when-let* ((backend (or (xref-find-backend)
+                                       (user-error "No xref backend found")))
+                          (identifier (xref-backend-identifier-at-point backend)))
+                (with-temp-message (format "Finding definitions of %s..." symbol)
+                  (condition-case err
+                      (let* ((formatter (gptel-tool--make-xref-formatter callback))
+                             (xref-show-xrefs-function formatter)
+                             (xref-show-definitions-function formatter))
+                        (xref-find-definitions identifier))
+                    (error (funcall callback
+                                    (format "Error finding definitions: %s" (error-message-string err))))))))))))))
+
+(defun gptel-tool-find-references (callback symbol buffer-name line-number)
+  "Find all references to SYMBOL in BUFFER-NAME at LINE-NUMBER.
+Returns file:line: summary format for each reference via CALLBACK."
+  (let ((buf (gptel-resolve-buffer-name buffer-name)))
+    (if (not (buffer-live-p buf))
+        (funcall callback (format "Error: Buffer %s not found" buffer-name))
+      (with-current-buffer buf
+        (save-excursion
+          (goto-char (point-min))
+          (forward-line (1- line-number))
+          (let ((line-end (line-end-position)))
+            (if (not (search-forward symbol line-end t))
+                (funcall callback
+                         (format "Error: Symbol '%s' not found on line %d" symbol line-number))
+              (when-let* ((backend (or (xref-find-backend)
+                                       (user-error "No xref backend found")))
+                          (identifier (xref-backend-identifier-at-point backend)))
+                (with-temp-message (format "Finding references to %s..." symbol)
+                  (condition-case err
+                      (let ((xref-show-xrefs-function (gptel-tool--make-xref-formatter callback)))
+                        (xref-find-references identifier))
+                    (error (funcall callback
+                                    (format "Error finding references: %s" (error-message-string err))))))))))))))
+
+
+(defun gptel-tool-find-apropos (callback pattern buffer-name)
+  "Find all symbols matching PATTERN in BUFFER-NAME using xref-find-apropos.
+Returns results in file:line: context format via CALLBACK."
+  (let ((buf (gptel-resolve-buffer-name buffer-name)))
+    (if (not (buffer-live-p buf))
+        (funcall callback (format "Error: Buffer %s not found" buffer-name))
+      (with-current-buffer buf
+        (with-temp-message (format "Finding symbols matching '%s'..." pattern)
+          (condition-case err
+              (let ((xref-show-xrefs-function (gptel-tool--make-xref-formatter callback)))
+                (xref-find-apropos pattern))
+            (error (funcall callback
+                            (format "Error finding symbols: %s" (error-message-string err))))))))))
+
+(defun gptel-tool-get-imenu (buffer-name)
+  "Return all items of an imenu after recomputing it for the BUFFER-NAME.
+Get the result as string with line number: text"
+  (let* ((buf (gptel-resolve-buffer-name buffer-name))
+         (imenu-use-markers t))
+    (if (not (buffer-live-p buf))
+        (format "Error: Buffer %s which resolved to %s not found" buffer-name buf)
+      (with-current-buffer buf
+        (mapconcat
+         #'(lambda(el)
+             (let* ((marker (cdr el))
+                    (text (car el))
+                    (line-num (save-excursion
+                                (goto-char marker)
+                                (line-number-at-pos)))
+                    (stripped-text (substring-no-properties text)))
+               (format "%s: %s" line-num stripped-text)))
+         (imenu--truncate-items
+          (save-excursion
+            (without-restriction
+              (funcall imenu-create-index-function))))
+         "\n")))))
 
 (defun gptel-tool-read-buffer(buffer)
   "Read the contents of BUFFER and return it as a string."
@@ -400,6 +520,31 @@ in Emacs windows."
              (window-list)
              ", "))
 
+(defun gptel-tool--smart-text-match (text)
+  "Find TEXT in current buffer with flexible whitespace handling.
+Tries exact match first, then tries with flexible whitespace matching.
+Returns non-nil if a match is found, nil otherwise.
+The match can be used with `replace-match' afterwards.
+
+Searching is done in this order:
+1. Exact match from current position
+2. Search with any leading whitespace from current position
+3. From buffer beginning: exact match
+4. From buffer beginning: with any leading whitespace"
+  (or (search-forward text nil t)
+      ;; Split into lines, escape each line as regex, then handle whitespace
+      (when-let* ((lines (split-string text "\n"))
+                  (regex (mapconcat
+                          (lambda (line)
+                            (concat "\\s-*" (regexp-quote (string-trim-left line))))
+                          lines
+                          "\n")))
+        (or (re-search-forward regex nil t)
+            (save-excursion
+              (goto-char (point-min))
+              (or (search-forward text nil t)
+                  (re-search-forward regex nil t)))))))
+
 (defun gptel-tool-edit-file (target file-edits &optional target-is-buffer)
   "Edit TARGET by applying a sequence of line-specific edits defined in FILE-EDITS. Each edit specifies a line number and text replacement.
 
@@ -491,13 +636,14 @@ Shows a diff of changes with ediff and returns a status message indicating succe
                       (setq edit-success t))
                   ;; For non-empty old string, replace it with new string
                   ;; Don't restrict search to line-end-position to support multi-line strings
-                  (if (search-forward old-string nil t)
+                  (if (gptel-tool--smart-text-match old-string)
                       (progn
                         (push (format "Replacing '%s' with '%s'" old-string new-string) logs)
                         (replace-match new-string t t)
                         (setq edit-success t))
-                    (push (format "Warning: Could not find '%s' in line %d"
-                                  old-string line-number) logs))))))
+                    (push (format "Warning: Could not find '%s' in line %d or anywhere in the buffer.\n\nUse read_lines or read_buffer_with_lines to see the updated content."
+                                  old-string line-number)
+                          logs))))))
 
           ;; Show diffs and return result
           (if edit-success
@@ -567,7 +713,7 @@ Tries multiple strategies to locate the right buffer:
 Returns the buffer object if found, nil otherwise."
   (cond
    ;; ;; Case 1: Already a buffer object
-   ;; ((bufferp buffer-name-or-path) buffer-name-or-path)
+   ((bufferp (get-buffer buffer-name-or-path)) (get-buffer buffer-name-or-path))
 
    ;; Case 2: Nil or empty string
    ((not (and buffer-name-or-path (stringp buffer-name-or-path)))
@@ -840,6 +986,50 @@ Returns a formatted string with error type, line, column, and message."
                  :category "emacs"
                  :include t)
 
+(gptel-make-tool :name "find_references"
+                 :function #'gptel-tool-find-references
+                 :description "Find all references to specified symbol on given line in buffer. Returns file:line: content format showing the entire line where the symbol appears, without affecting the user's view or cursor position."
+                 :args (list '(:name "symbol"
+                                    :type string
+                                    :description "The symbol to search for and find references to")
+                            '(:name "buffer-name"
+                                    :type string
+                                    :description "The name of the buffer containing the symbol")
+                            '(:name "line-number"
+                                    :type integer
+                                    :description "The line number where to search for the symbol"))
+                 :category "emacs"
+                 :include t)
+
+(gptel-make-tool :name "find_definitions"
+                 :function #'gptel-tool-find-definitions
+                 :description "Find definitions of specified symbol on given line in buffer. Returns results in file:line: context format via callback."
+                 :args (list '(:name "symbol"
+                                    :type string
+                                    :description "The symbol to search for and find definitions of")
+                            '(:name "buffer-name"
+                                    :type string
+                                    :description "The name of the buffer containing the symbol")
+                            '(:name "line-number"
+                                    :type integer
+                                    :description "The line number where to search for the symbol"))
+                 :category "emacs"
+                 :include t
+                 :async t)
+
+(gptel-make-tool :name "find_apropos"
+                 :function #'gptel-tool-find-apropos
+                 :description "Find all symbols matching pattern in specified buffer using xref-find-apropos. Returns results in file:line: context format."
+                 :args (list '(:name "pattern"
+                                   :type string
+                                   :description "Pattern to match symbol names")
+                            '(:name "buffer-name"
+                                   :type string
+                                   :description "The name of the buffer to search in"))
+                 :category "emacs"
+                 :include t
+                 :async t)
+
 (gptel-make-tool :name "list_project_files"
                  :function #'gptel-tool-list-project-files
                  :description "List files in the current project that match a regular expression pattern."
@@ -991,10 +1181,11 @@ a old-string and a new-string, new-string will replace the old-string at the spe
                  :description "Edit an Emacs buffer with a list of edits, each edit contains a line-number,
 a old-string and a new-string, new-string will replace the old-string at the specified line.
 Similar to edit_file, but operates on buffer contents rather than files on disk.
-Prefer this over edit_file if the user is directly working on this as well as it will give the latest content.
+Prefer this over any other edit method (such as edit_file, apply_diff, etc) specially if the user is directly working on some file as it will give the latest content.
 This should ideally be called once for all edits in a single buffer so that line numbers are correctly handled.
 If for some reason this needs to be run multiple times on a single buffer, reading the buffer again would be
-required to get the updated line numbers"
+required to get the updated line numbers. Instead of giving large blocks of text to search and edit, use the buffer-edits
+array to send in smaller multiple edits, possibly for every line of edit, while still editing one file at a time. ALWAYS PREFER SMALLER EDITS AND ALL EDITS IN A SINGLE BUFFER IN A SINGLE TOOL CALL"
                  :args (list '(:name "buffer-name"
                                      :type string
                                      :description "The name of the buffer to edit")
@@ -1006,9 +1197,10 @@ required to get the updated line numbers"
                                                     (:type integer :description "The line number of the buffer where edit starts.")
                                                     :old_string
                                                     (:type string
-                                                           :description ,(concat "The old-string to be replaced. This can't be blank as this is searched for replacement."
-                                                                                 " If a new line is to be added where nothing old is available then still have something "
-                                                                                 "here that you can keep it in the new string as well. For empty buffers use append_to_buffer instead."))
+                                                           :description ,(concat "The old-string to be replaced. If this is blank the new-string will be simply inserted. "
+                                                                                 "This string will be exactly searched on the line number so has to match the original content exactly. "
+                                                                                 "Having smaller old-string is preferred as there is increased chance of failure in searching large strings. "
+                                                                                 "And failure to match will cause failure to edit that particular block"))
                                                     :new_string
                                                     (:type string :description "The new-string to replace old-string.")))
                                      :description "The list of edits to apply on the buffer"))
@@ -1022,6 +1214,17 @@ required to get the updated line numbers"
                  :args (list '(:name "buffer-name"
                                      :type string
                                      :description "The name of the buffer to check for flycheck errors."))
+                 :category "emacs"
+                 :include t)
+
+(gptel-make-tool :name "get_imenu"
+                 :function #'gptel-tool-get-imenu
+                 :description "Get the imenu listings for a buffer. Which is a list of important positions of a buffer.
+This could be places where all declarations are present for a buffer -- Global variables, structs, function definitions, etc.
+Good to understand relevant portions of the buffer without reading the full buffer"
+                 :args (list '(:name "buffer-name"
+                                     :type string
+                                     :description "The name of the buffer to get the imenu for."))
                  :category "emacs"
                  :include t)
 
