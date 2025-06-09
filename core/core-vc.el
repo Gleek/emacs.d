@@ -34,7 +34,8 @@
 
 (use-package ediff
   :ensure nil
-  :bind ("C-c g s" . ediff-current-file)
+  :bind (("C-c g s" . ediff-current-file)
+         ("C-c g B" . ediff-buffers-dwim))
   :config
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
   (setq ediff-split-window-function 'split-window-horizontally)
@@ -60,7 +61,26 @@
                      ))
       (when (buffer-live-p b)
         (kill-buffer b))))
-  (add-hook 'ediff-quit-hook #'+ediff-cleanup-buffers))
+  (add-hook 'ediff-quit-hook #'+ediff-cleanup-buffers)
+
+  (defun ediff-buffers-dwim ()
+    "Smart function for ediff buffers.
+     If exactly 2 buffers are visible, runs ediff-buffers on them.
+     If exactly 3 buffers are visible, runs ediff-buffers3.
+     Otherwise falls back to interactive ediff-buffers."
+    (interactive)
+    (let* ((visible-buffers (mapcar #'window-buffer (window-list)))
+           (visible-count (length visible-buffers)))
+      (cond
+       ((= visible-count 2)
+        (ediff-buffers (car visible-buffers)
+                      (cadr visible-buffers)))
+       ((= visible-count 3)
+        (ediff-buffers3 (nth 0 visible-buffers)
+                       (nth 1 visible-buffers)
+                       (nth 2 visible-buffers)))
+       (t
+        (call-interactively #'ediff-buffers))))))
 
 
 (use-package smerge-mode
