@@ -372,81 +372,6 @@ or empty pattern."
                               (projectile-project-files project-root)))
         (format "Error: Not in a projectile project")))))
 
-(defun gptel-tool-apply-diff (file_path diff_content &optional patch_options working_dir)
-  "Apply DIFF_CONTENT to FILE_PATH with PATCH_OPTIONS in WORKING_DIR.
-This is an internal implementation function used by the `apply_diff` tool."
-  (let ((original-default-directory default-directory)
-        (user-patch-options (if (and patch_options (not (string-empty-p patch_options)))
-                                (split-string patch_options " " t)
-                              nil))
-        ;; Combine user options with -N, ensuring -N is there.
-        ;; If user provides -N or --forward, use their version. Otherwise, add -N.
-        (base-options '("-N"))
-        (effective-patch-options '()))
-
-    (if user-patch-options
-        (if (or (member "-N" user-patch-options) (member "--forward" user-patch-options))
-            (setq effective-patch-options user-patch-options)
-          (setq effective-patch-options (append user-patch-options base-options)))
-      (setq effective-patch-options base-options))
-
-    (let* ((out-buf-name (generate-new-buffer-name "*patch-stdout*"))
-           (err-buf-name (generate-new-buffer-name "*patch-stderr*"))
-           (target-file nil)
-           (exit-status -1) ; Initialize to a known non-zero value
-           (result-output "")
-           (result-error ""))
-      (unwind-protect
-          (progn
-            (when (and working_dir (not (string-empty-p working_dir)))
-              (setq default-directory (expand-file-name working_dir)))
-
-            (setq target-file (expand-file-name file_path))
-
-            (unless (file-exists-p target-file)
-              ;; Use error to signal failure, which gptel should catch.
-              (error "File to patch does not exist: %s" target-file))
-
-            (with-temp-message (format "Applying diff to: `%s` with options: %s" target-file effective-patch-options)
-              (with-temp-buffer
-                (insert diff_content)
-                (unless (eq (char-before (point-max)) ?\n)
-                  (goto-char (point-max))
-                  (insert "\n"))
-
-                ;; Pass buffer *names* to call-process-region
-                (setq exit-status (apply #'call-process-region
-                                         (point-min) (point-max)
-                                         "patch"       ; Command
-                                         nil           ; delete region (no)
-                                         (list out-buf-name err-buf-name) ; stdout/stderr buffer names
-                                         nil           ; display (no)
-                                         (append effective-patch-options (list target-file))))))
-
-            ;; Retrieve content from buffers using their names
-            (let ((stdout-buf (get-buffer out-buf-name))
-                  (stderr-buf (get-buffer err-buf-name)))
-              (when stdout-buf
-                (with-current-buffer stdout-buf
-                  (setq result-output (buffer-string))))
-              (when stderr-buf
-                (with-current-buffer stderr-buf
-                  (setq result-error (buffer-string)))))
-
-            (if (= exit-status 0)
-                (format "Diff successfully applied to %s.\nPatch command options: %s\nPatch STDOUT:\n%s\nPatch STDERR:\n%s"
-                        target-file effective-patch-options result-output result-error)
-              ;; Signal an Elisp error, which gptel will catch and display.
-              ;; The arguments to 'error' become the error message.
-              (error "Failed to apply diff to %s (exit status %s).\nPatch command options: %s\nPatch STDOUT:\n%s\nPatch STDERR:\n%s"
-                     target-file exit-status effective-patch-options result-output result-error)))
-        ;; Cleanup clause of unwind-protect
-        (setq default-directory original-default-directory)
-        (let ((stdout-buf-obj (get-buffer out-buf-name))
-              (stderr-buf-obj (get-buffer err-buf-name)))
-          (when (buffer-live-p stdout-buf-obj) (kill-buffer stdout-buf-obj))
-          (when (buffer-live-p stderr-buf-obj) (kill-buffer stderr-buf-obj)))))))
-
 ;; Courtesy: gfredericks
 (defun gptel-tool-read-lines (buffer-name start-line end-line)
   "Read lines from BUFFER-NAME between START-LINE and END-LINE, inclusive.
@@ -792,7 +717,6 @@ Returns a formatted string with error type, line, column, and message."
           (format "Error: Buffer %s not found" buffer-name)))
     (error (format "Error getting flycheck errors: %S" err))))
 
-
 ;;;;;;;;;
 
 (gptel-make-tool :name "read_buffer"
@@ -819,7 +743,7 @@ Returns a formatted string with error type, line, column, and message."
 
 (gptel-make-tool :name "read_documentation"
                  :function #'gptel-read-documentation
-                 :description "Read the documentation for a given function or variable"
+                 :description "Read the documentation for a given elisp function or variable"
                  :args (list '(:name "name"
                                      :type string
                                      :description "The name of the function or variable whose documentation is to be retrieved"))
@@ -988,7 +912,7 @@ Returns a formatted string with error type, line, column, and message."
 
 (gptel-make-tool :name "find_references"
                  :function #'gptel-tool-find-references
-                 :description "Find all references to specified symbol on given line in buffer. Returns file:line: content format showing the entire line where the symbol appears, without affecting the user's view or cursor position."
+                 :description "Find all references to specified symbol on given line in buffer. Returns file:line: content format showing the entire line where the symbol appears, without affecting the user's view or cursor position. This will be more accurate the running a simple search commands as it will use language heuristics to get the references. It also fallbacks to search automatically if language heuristics are not present."
                  :args (list '(:name "symbol"
                                     :type string
                                     :description "The symbol to search for and find references to")
@@ -1003,7 +927,7 @@ Returns a formatted string with error type, line, column, and message."
 
 (gptel-make-tool :name "find_definitions"
                  :function #'gptel-tool-find-definitions
-                 :description "Find definitions of specified symbol on given line in buffer. Returns results in file:line: context format via callback."
+                 :description "Find definitions of specified symbol on given line in buffer. Returns results in file:line: context format via callback. This will be more accurate the running a simple search commands as it will use language heuristics to get the declaration. It also fallbacks to search automatically in case those language heuristics are not present."
                  :args (list '(:name "symbol"
                                     :type string
                                     :description "The symbol to search for and find definitions of")
@@ -1019,7 +943,7 @@ Returns a formatted string with error type, line, column, and message."
 
 (gptel-make-tool :name "find_apropos"
                  :function #'gptel-tool-find-apropos
-                 :description "Find all symbols matching pattern in specified buffer using xref-find-apropos. Returns results in file:line: context format."
+                 :description "Find all symbols matching pattern in specified buffer using xref-find-apropos. Returns results in file:line: context format. This will be more accurate the running a simple search commands as it will use language heuristics to get the declaration. It also fallbacks to search automatically in case those language heuristics are not present. This is also a general search and only uses the buffer name to focus on the project. Any buffer in the project for that language can be used. This does a fuzzy search mostly and lists all possible matches. Is better than find_definition if we don't have the exact line for the symbol to search for"
                  :args (list '(:name "pattern"
                                    :type string
                                    :description "Pattern to match symbol names")
@@ -1039,37 +963,6 @@ Returns a formatted string with error type, line, column, and message."
                  :category "project"
                  :include t)
 
-
-(gptel-make-tool :name "apply_diff"
-                 :description (concat
-                               "Applies a diff (patch) to a specified file. "
-                               "USE THIS TOOL FOR ALL LLMs EXCEPT GEMINI (use apply_diff_fenced for Gemini). "
-                               "The diff must be in the unified format (output of 'diff -u original_file new_file'). "
-                               "The LLM should generate the diff such that the file paths within the diff "
-                               "(e.g., '--- a/filename' '+++ b/filename') are appropriate for the 'file_path' argument and chosen 'patch_options'. "
-                               "Common 'patch_options' include: '' (empty, if paths in diff are exact or relative to current dir of file_path), "
-                               "'-p0' (if diff paths are full or exactly match the target including prefixes like 'a/'), "
-                               "'-p1' (if diff paths have one leading directory to strip, e.g., diff has 'a/src/file.c' and you want to patch 'src/file.c' from project root). "
-                               "Default options are '-N' (ignore already applied patches).")
-                 :args (list
-                        '(:name "file_path"
-                                :type string
-                                :description "The path to the file that needs to be patched.")
-                        '(:name "diff_content"
-                                :type string
-                                :description "The diff content in unified format (e.g., from 'diff -u').")
-                        '(:name "patch_options"
-                                :type string
-                                :optional t
-                                :description "Optional: Additional options for the 'patch' command (e.g., '-p1', '-p0', '-R'). Defaults to '-N'. Prepend other options if needed, e.g., '-p1 -N'.")
-                        '(:name "working_dir"
-                                :type string
-                                :optional t
-                                :description "Optional: The directory in which to interpret file_path and run patch. Defaults to the current buffer's directory if not specified."))
-                 :category "filesystem"
-                 :function #'gptel-tool-apply-diff
-                 :confirm t
-                 :include t)
 
 (gptel-make-tool :name "read_lines"
                  :function #'gptel-tool-read-lines
@@ -1205,8 +1098,7 @@ array to send in smaller multiple edits, possibly for every line of edit, while 
                                                     (:type string :description "The new-string to replace old-string.")))
                                      :description "The list of edits to apply on the buffer"))
                  :category "emacs"
-                 :include t
-                 :confirm t)
+                 :include t)
 
 (gptel-make-tool :name "list_flycheck_errors"
                  :function #'gptel-tool-list-flycheck-errors
