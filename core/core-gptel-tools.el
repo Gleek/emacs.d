@@ -37,11 +37,11 @@ Returns a function suitable for use as `xref-show-xrefs-function'."
                          (real-file (file-truename group))
                          ;; Get correct line number
                          (line (or (with-current-buffer (find-file-noselect real-file)
-                                   (save-excursion
-                                     (goto-char (xref-location-marker loc))
-                                     (line-number-at-pos)))
-                                 (xref-location-line loc)
-                                 0)))
+                                     (save-excursion
+                                       (goto-char (xref-location-marker loc))
+                                       (line-number-at-pos)))
+                                   (xref-location-line loc)
+                                   0)))
                     ;; Return plain text without properties
                     (substring-no-properties
                      (format "%s:%d: %s"
@@ -419,7 +419,7 @@ Returns a status message indicating success or error."
                     ;; and we're not at the end of the buffer
                     (insert replacement-string)
                     (unless (or (string-suffix-p "\n" replacement-string)
-                              (eobp))
+                                (eobp))
                       (insert "\n"))))))
           (error "Buffer %s not found" buffer-name)))
     (error (format "Error: %S" err))))
@@ -686,6 +686,43 @@ Returns the buffer object if found, nil otherwise."
           ;; Case 5.5: No projectile, just use most recent
           (car matching-buffers))))))))
 
+(defun gptel-tool-git-log (callback &optional file-path count)
+  "Get git log for the current project or FILE-PATH.
+Shows last COUNT commits (defaults to 100).
+Returns formatted string with commit hash, date, author, and message."
+  (let* ((count (or count 100))
+         (git-cmd
+          (if file-path
+              (format "git log -n %d --pretty=format:'%%h||%%ad||%%an||%%s||%%b' --date=short %s"
+                      count (shell-quote-argument file-path))
+            (format "git log -n %d --pretty=format:'%%h||%%ad||%%an||%%s||%%b' --date=short"
+                    count)))
+         (git-output (shell-command-to-string git-cmd)))
+    (if (string-empty-p git-output)
+        (if file-path
+            (format "No git history found for file: %s" file-path)
+          "No git history found in current directory")
+      (mapconcat
+       (lambda (line)
+         (when (string-match "\\([^|]+\\)||\\([^|]+\\)||\\([^|]+\\)||\\([^|]+\\)||\\(.*\\)" line)
+           (format "Commit: %s\nDate: %s\nAuthor: %s\nSubject: %s\nDescription: %s\n"
+                   (match-string 1 line)
+                   (match-string 2 line)
+                   (match-string 3 line)
+                   (match-string 4 line)
+                   (string-trim (or (match-string 5 line) "")))))
+       (split-string git-output "\n")
+       "\n"))))
+
+(defun gptel-tool-show-commit (callback commit-hash)
+  "Show the changes in the specified COMMIT-HASH.
+Returns the diff content showing what changed in that commit."
+  (let ((git-cmd (format "git show --color=never %s" (shell-quote-argument commit-hash))))
+    (let ((output (shell-command-to-string git-cmd)))
+      (if (string-empty-p output)
+          (format "No changes found for commit: %s" commit-hash)
+        output))))
+
 (defun gptel-tool-list-flycheck-errors (buffer-name)
   "Get flycheck errors for BUFFER-NAME, truncated to maximum 100 errors.
 Returns a formatted string with error type, line, column, and message."
@@ -797,7 +834,7 @@ Returns a formatted string with error type, line, column, and message."
 
 (gptel-make-tool :name "open_file_on_line"
                  :function #'gptel-tool-open-file-on-line
-                 :description "Open the file for the user and optionally focus on a specific line number. Potentially disrupts users flow by popping up the window. Use only when the user has specifically asked to open and see the file and do it once. In all other cases use open_file_in_background instead. For reading the file use read_file."
+                 :description "Open the file for the user and optionally focus on a specific line number. Potentially disrupts users flow by popping up the window. Use only when the user has specifically asked to open and see the file and do it once. In all other cases use open_file_in_background instead. For reading the file use read_file. If you want the user to open multiple files, then print the the file name and line number in the org mode link format, e.g. [[file:<full_file_name>::<line_number>][<file_base_name>::<line_number>]]. User will then open the links manually."
                  :args (list '(:name "file_name"
                                      :type string
                                      :description "The file to open. This file opens in another window")
@@ -916,14 +953,14 @@ Returns a formatted string with error type, line, column, and message."
                  :function #'gptel-tool-find-references
                  :description "Find all references to specified symbol on given line in buffer. Returns file:line: content format showing the entire line where the symbol appears, without affecting the user's view or cursor position. This will be more accurate the running a simple search commands as it will use language heuristics to get the references. It also fallbacks to search automatically if language heuristics are not present."
                  :args (list '(:name "symbol"
-                                    :type string
-                                    :description "The symbol to search for and find references to")
-                            '(:name "buffer-name"
-                                    :type string
-                                    :description "The name of the buffer containing the symbol")
-                            '(:name "line-number"
-                                    :type integer
-                                    :description "The line number where to search for the symbol"))
+                                     :type string
+                                     :description "The symbol to search for and find references to")
+                             '(:name "buffer-name"
+                                     :type string
+                                     :description "The name of the buffer containing the symbol")
+                             '(:name "line-number"
+                                     :type integer
+                                     :description "The line number where to search for the symbol"))
                  :category "emacs"
                  :include t)
 
@@ -931,14 +968,14 @@ Returns a formatted string with error type, line, column, and message."
                  :function #'gptel-tool-find-definitions
                  :description "Find definitions of specified symbol on given line in buffer. Returns results in file:line: context format via callback. This will be more accurate the running a simple search commands as it will use language heuristics to get the declaration. It also fallbacks to search automatically in case those language heuristics are not present."
                  :args (list '(:name "symbol"
-                                    :type string
-                                    :description "The symbol to search for and find definitions of")
-                            '(:name "buffer-name"
-                                    :type string
-                                    :description "The name of the buffer containing the symbol")
-                            '(:name "line-number"
-                                    :type integer
-                                    :description "The line number where to search for the symbol"))
+                                     :type string
+                                     :description "The symbol to search for and find definitions of")
+                             '(:name "buffer-name"
+                                     :type string
+                                     :description "The name of the buffer containing the symbol")
+                             '(:name "line-number"
+                                     :type integer
+                                     :description "The line number where to search for the symbol"))
                  :category "emacs"
                  :include t
                  :async t)
@@ -947,11 +984,11 @@ Returns a formatted string with error type, line, column, and message."
                  :function #'gptel-tool-find-apropos
                  :description "Find all symbols matching pattern in specified buffer using xref-find-apropos. Returns results in file:line: context format. This will be more accurate the running a simple search commands as it will use language heuristics to get the declaration. It also fallbacks to search automatically in case those language heuristics are not present. This is also a general search and only uses the buffer name to focus on the project. Any buffer in the project for that language can be used. This does a fuzzy search mostly and lists all possible matches. Is better than find_definition if we don't have the exact line for the symbol to search for"
                  :args (list '(:name "pattern"
-                                   :type string
-                                   :description "Pattern to match symbol names")
-                            '(:name "buffer-name"
-                                   :type string
-                                   :description "The name of the buffer to search in"))
+                                     :type string
+                                     :description "Pattern to match symbol names")
+                             '(:name "buffer-name"
+                                     :type string
+                                     :description "The name of the buffer to search in"))
                  :category "emacs"
                  :include t
                  :async t)
@@ -1120,6 +1157,31 @@ Good to understand relevant portions of the buffer without reading the full buff
                                      :type string
                                      :description "The name of the buffer to get the imenu for."))
                  :category "emacs"
+                 :include t)
+
+(gptel-make-tool :name "git_log"
+                 :function #'gptel-tool-git-log
+                 :description "Get git log for current project or specific file. Shows commit hash, date, author, subject and description for each commit."
+                 :args (list '(:name "file-path"
+                                     :type string
+                                     :description "Optional: Path to file to get history for. If not provided, shows project history."
+                                     :optional t)
+                             '(:name "count"
+                                     :type integer
+                                     :description "Optional: Number of commits to show (defaults to 100)"
+                                     :optional t))
+                 :category "git"
+                 :async t
+                 :include t)
+
+(gptel-make-tool :name "show_commit"
+                 :function #'gptel-tool-show-commit
+                 :description "Show the complete diff of changes made in a specific commit."
+                 :args (list '(:name "commit-hash"
+                                     :type string
+                                     :description "The commit hash to show changes for"))
+                 :category "git"
+                 :async t
                  :include t)
 
 (provide 'core-gptel-tools)
