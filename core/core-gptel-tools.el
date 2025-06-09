@@ -407,18 +407,20 @@ Returns a status message indicating success or error."
         (if (buffer-live-p buf)
             (with-current-buffer buf
               (save-excursion
-                ;; NOCOMMIT: I think this has an off-by-one error
-                ;; where it deletes too many lines; we might also
-                ;; want to support a pure insert, maybe just by
-                ;; changing end-line to be exclusive
                 (goto-char (point-min))
                 (forward-line (1- start-line))
-                (let ((start-point (line-beginning-position)))
-                  (forward-line (1+ (- end-line start-line)))
-                  (let ((end-point (line-end-position)))
+                (let ((start-point (point)))
+                  ;; Go to the beginning of the line after the last line to replace
+                  (forward-line (- (1+ end-line) start-line))
+                  (let ((end-point (point)))
                     (delete-region start-point end-point)
                     (goto-char start-point)
-                    (insert replacement-string "\n")))))
+                    ;; Only add newline if the replacement string doesn't end with one
+                    ;; and we're not at the end of the buffer
+                    (insert replacement-string)
+                    (unless (or (string-suffix-p "\n" replacement-string)
+                              (eobp))
+                      (insert "\n"))))))
           (error "Buffer %s not found" buffer-name)))
     (error (format "Error: %S" err))))
 
