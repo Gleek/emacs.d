@@ -765,7 +765,7 @@ Returns a formatted string with error type, line, column, and message."
                  :args (list '(:name "filepath"
                                      :type string
                                      :description "The full path of the file to delete"))
-                 :category "filesystem"
+                 :category "emacs"
                  :confirm t
                  :include t)
 
@@ -781,7 +781,7 @@ Returns a formatted string with error type, line, column, and message."
                              '(:name "content"
                                      :type string
                                      :description "The content to write to the file"))
-                 :category "filesystem"
+                 :category "emacs"
                  :include t)
 
 (gptel-make-tool :name "open_file_in_background"
@@ -814,7 +814,7 @@ Returns a formatted string with error type, line, column, and message."
                              '(:name "name"
                                      :type string
                                      :description "The name of the new directory to create, e.g. testdir"))
-                 :category "filesystem"
+                 :category "emacs"
                  :confirm t
                  :include t)
 
@@ -824,7 +824,7 @@ Returns a formatted string with error type, line, column, and message."
                  :args (list '(:name "directory"
                                      :type string
                                      :description "The path to the directory to list"))
-                 :category "filesystem"
+                 :category "emacs"
                  :include t)
 
 
@@ -857,7 +857,7 @@ Returns a formatted string with error type, line, column, and message."
                                 :type string
                                 :description "Directory to search in"
                                 :optional t))
-                 :category "search"
+                 :category "emacs"
                  :async t
                  :include t)
 
@@ -881,7 +881,7 @@ Returns a formatted string with error type, line, column, and message."
                  :args (list '(:name "filepath"
                                      :type string
                                      :description "Path to the file to read. Supports relative paths and ~."))
-                 :category "filesystem"
+                 :category "emacs"
                  :include t)
 
 (gptel-make-tool :name "list_projects"
@@ -898,7 +898,7 @@ Returns a formatted string with error type, line, column, and message."
                  :args (list '(:name "dir"
                                      :type string
                                      :description "The new default directory to set. Supports relative paths and ~."))
-                 :category "filesystem"
+                 :category "emacs"
                  :include t)
 
 (gptel-make-tool :name "get_buffer_directory"
@@ -960,7 +960,7 @@ Returns a formatted string with error type, line, column, and message."
                  :args (list '(:name "pattern"
                                      :type string
                                      :description "Regular expression pattern to match filenames. Empty pattern returns no results."))
-                 :category "project"
+                 :category "emacs"
                  :include t)
 
 
@@ -1055,7 +1055,7 @@ a old-string and a new-string, new-string will replace the old-string at the spe
                                                     :new_string
                                                     (:type string :description "The new-string to replace old-string.")))
                                      :description "The list of edits to apply on the file"))
-                 :category "filesystem"
+                 :category "emacs"
                  :include t
                  :confirm t)
 
