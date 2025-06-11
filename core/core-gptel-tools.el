@@ -232,10 +232,14 @@ Creates a buffer with file contents but does not display it to the user."
   "Open FILE_NAME in another window and optionally go to LINE_NUMBER.
 When LINE_NUMBER is nil or 0, just open the file for viewing.
 Otherwise, position cursor at the specified LINE_NUMBER."
-  (find-file-other-window file_name)
-  (if (and line_number (not (zerop line_number)))
-      (progn (goto-char (point-min))
-             (forward-line (1- line_number)))))
+  ;; First check if buffer exists
+  (let* ((buf (gptel-resolve-buffer-name file_name)))
+    (if (and buf (buffer-live-p buf))
+        (switch-to-buffer-other-window buf)
+      (find-file-other-window file_name))
+    (when (and line_number (not (zerop line_number)))
+      (goto-char (point-min))
+      (forward-line (1- line_number)))))
 
 (defun gptel-tool-make-directory (parent name)
   "Create directory NAME in PARENT directory."
@@ -786,7 +790,7 @@ Returns a formatted string with error type, line, column, and message."
                  :description "Open the file for the user and optionally focus on a specific line number. Potentially disrupts users flow by popping up the window. Use only when the user has specifically asked to open and see the file and do it once. In all other cases use open_file_in_background instead. For reading the file use read_file. If you want the user to open multiple files, then print the the file name and line number in the org mode link format, e.g. [[file:<full_file_name>::<line_number>][<file_base_name>::<line_number>]]. User will then open the links manually."
                  :args (list '(:name "file_name"
                                      :type string
-                                     :description "The file to open. This file opens in another window")
+                                     :description "The file path or buffer name to open. This opens in another window")
                              '(:name "line_number"
                                      :type number
                                      :description "The line number which should be focused. Use 0 or nil to just open the file."))
