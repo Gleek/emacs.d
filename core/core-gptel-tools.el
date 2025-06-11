@@ -116,6 +116,13 @@ Returns results in file:line: context format via CALLBACK."
             (error (funcall callback
                             (format "Error finding symbols: %s" (error-message-string err))))))))))
 
+(defun gptel-tool-get-recent-files ()
+  "Return a list of recently accessed files from `recentf-list'.
+Requires the recentf package to be enabled."
+  (if (and (boundp 'recentf-list) recentf-list)
+      (mapconcat #'identity recentf-list "\n")
+    "No recent files found. Make sure recentf-mode is enabled."))
+
 (defun gptel-tool-get-imenu (buffer-name)
   "Return all items of an imenu after recomputing it for the BUFFER-NAME.
 Get the result as string with line number: text"
@@ -1090,6 +1097,13 @@ Good to understand relevant portions of the buffer without reading the full buff
                                      :optional t))
                  :category "git"
                  :async t
+                 :include t)
+
+(gptel-make-tool :name "get_recent_files"
+                 :function #'gptel-tool-get-recent-files
+                 :description "Returns a list of files that were recently opened or modified in Emacs. This uses Emacs' built-in file history tracking (recentf) which maintains a list of files the user has interacted with, sorted from most recent to oldest. Each file is returned with its full path. The list updates automatically as users open and save files in Emacs."
+                 :args nil
+                 :category "emacs"
                  :include t)
 
 (gptel-make-tool :name "show_commit"
