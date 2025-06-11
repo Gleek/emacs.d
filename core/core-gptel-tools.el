@@ -444,11 +444,11 @@ Returns a comma-separated string of buffer names that are currently displayed
 in Emacs windows, excluding the buffer that called this function."
   (let* ((current-buf (current-buffer))
          (visible-bufs (delq nil
-                            (mapcar (lambda (w)
-                                     (let ((buf (window-buffer w)))
-                                       (unless (eq buf current-buf)
-                                         (buffer-name buf))))
-                                   (window-list)))))
+                             (mapcar (lambda (w)
+                                       (let ((buf (window-buffer w)))
+                                         (unless (eq buf current-buf)
+                                           (buffer-name buf))))
+                                     (window-list)))))
     (mapconcat #'identity visible-bufs ", ")))
 
 (defun gptel-tool--smart-text-match (text)
@@ -532,12 +532,12 @@ Shows ediff and calls CALLBACK when complete."
                 (progn
                   (move-to-column 0)
                   (insert new-string)
-                  (when (= (char-after) ?\n)
+                  (when (and (char-after) (= (char-after) ?\n))
                     (insert "\n")))
-              (unless (gptel-tool--smart-text-match old-string)
+              (if (gptel-tool--smart-text-match old-string)
+                  (replace-match new-string t t)
                 (setq success nil)
-                (funcall callback  (format "Could not find '%s' in line %d" old-string line-number)))
-              (replace-match new-string t t)))))
+                (funcall callback (format "Could not find '%s' in line %d" old-string line-number)))))))
       (if success
           (gptel-tool--compare-and-patch callback buffer temp-buffer)))))
 
