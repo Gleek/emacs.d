@@ -727,6 +727,42 @@ To actually enable this, evaluate `+bongo-remove-headers'."
                     "You alwasy give links to the source of the information you provide."
                     "The link format would be [[https://example.com/full/web-page-url/][Web page title]]"))
 
+  (defun gptel-summarize-chat ()
+    "Summarize chat conversations and replace the current buffer content with the summary."
+    (interactive)
+    (let* ((orig-buffer (current-buffer))
+           (gptel-backend (alist-get "Copilot" gptel--known-backends
+                                     nil nil #'equal))
+           (gptel-model "claude-3.5-sonnet"))
+      (gptel-request (concat (buffer-string)
+                             "\n\nSummarize in detail this partial conversation about programming.\n"
+                             "Include less detail about older parts and more detail about the most recent messages.\n"
+                             "Start a new paragraph every time the topic changes!\n\n"
+                             "This is only part of a longer conversation so *DO NOT* conclude the summary with language like \"Finally, ...\". Because the conversation continues after the summary.\n"
+                             "The summary *MUST* include the function names, libraries, packages, project directories that are being discussed.\n"
+                             "The summary *MUST* include the filenames and buffer names that are being referenced by the assistant inside the =...= fenced code blocks!\n"
+                             "The summary *MUST* include the important learnings and the course of the conversation.\n"
+                             "The summaries *MUST NOT* include detailed code blocks!\n\n"
+                             "The summaries *MUST NOT* include file contents that you read but only file / buffer names!\n\n"
+                             "The summaries *CAN* include specific line numbers in buffer and files that you referred to in the course of conversation!\n\n"
+                             "Phrase the summary with the USER in first person, telling the ASSISTANT about the conversation.\n"
+                             "Write *as* the user.\n"
+                             "The user should refer to the assistant as *you*.\n"
+                             "Start the summary with \"I asked you...\"\n\n")
+        :system  "Summarize this LLM conversation transcript. Follow the summarization instructions at the bottom very carefully."
+        :callback (lambda (response info)
+                    (if response
+                        (with-current-buffer orig-buffer
+                          (let ((inhibit-read-only t))
+                            (save-excursion
+                              (goto-char (point-min))
+                              (delete-region (point-min) (point-max))
+                              (insert "*** I spoke to you previously about a number of things.\n\n" response)
+                              (fill-region (point-min) (point-max))
+                              (goto-char (point-min)))
+                            (message "Chat summarized successfully")))
+                      (message "Response failed with status: %S" (prin1-to-string info))))))))
+
 
 (use-package aidermacs
   :bind ("C-c q a" . aidermacs-transient-menu)
