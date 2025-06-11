@@ -689,7 +689,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
       "get_buffer_directory" "change_directory" "list_projects" "read_file" "replace_buffer"
       "search_with_ripgrep" "list_directory" "make_directory" "open_file_on_line"
       "open_file_in_background" "create_file" "delete_file" "echo_message" "append_to_buffer"
-      "read_buffer" "get_recent_files"))
+      "read_buffer" "get_recent_files" "eval_elisp" "buffer_details"))
   (gptel-make-preset 'architect
     :description "Preset for architectural tasks"
     :backend "Copilot"
@@ -707,7 +707,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
              "list_project_files" "find_apropos" "find_definitions" "find_references"
              "get_buffer_directory" "change_directory" "list_projects" "read_file"
              "search_with_ripgrep" "list_directory" "open_file_in_background" "read_buffer"
-             "get_recent_files"))
+             "get_recent_files" "eval_elisp" "buffer_details"))
 
   (gptel-make-preset 'fact
     :description "Preset for answering questions on current context without tools"

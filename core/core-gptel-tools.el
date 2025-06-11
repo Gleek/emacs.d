@@ -711,6 +711,39 @@ Returns a formatted string with error type, line, column, and message."
           (format "Error: Buffer %s not found" buffer-name)))
     (error (format "Error getting flycheck errors: %S" err))))
 
+(defun gptel-tool-buffer-details (buffer-name)
+  "Get detailed information about a buffer named BUFFER-NAME.
+  Returns a formatted string with various buffer properties."
+  (let* ((buf (gptel-resolve-buffer-name buffer-name)))
+    (if (not (buffer-live-p buf))
+        (format "Error: Buffer '%s' not found" buffer-name)
+      (with-current-buffer buf
+        (let* ((buf-file (buffer-file-name))
+               (visible-windows (get-buffer-window-list buf nil t))
+               (size (buffer-size))
+               (line-count (line-number-at-pos (point-max)))
+               (encoding (coding-system-plist buffer-file-coding-system))
+               (project-root (and (fboundp 'projectile-project-root)
+                                 (projectile-project-root))))
+          (format "Buffer: %s\nFile: %s\nVisible: %s\nSize: %d bytes\nLines: %d\nEncoding: %s\nMajor Mode: %s\nProject: %s\nSaved: %s \nDefault Directory: %s"
+                  (buffer-name)
+                  (or buf-file "none")
+                  (if visible-windows "Yes" "No")
+                  size
+                  line-count
+                  (or (plist-get encoding :name) "unknown")
+                  major-mode
+                  (or project-root "none")
+                   (if (buffer-modified-p) "No" "Yes")
+                   default-directory))))))
+
+(defun gptel-tool-eval-elisp (elisp-form)
+  "Evaluate ELISP-FORM and return the result as a string."
+  (condition-case err
+      (let ((result (eval (read (format "%s" elisp-form)) t)))
+        (format "%S" result))
+    (error (format "Error evaluating elisp: %s" (error-message-string err)))))
+
 ;;;;;;;;;
 
 (gptel-make-tool :name "read_buffer"
@@ -1110,6 +1143,25 @@ Good to understand relevant portions of the buffer without reading the full buff
                  :description "Returns a list of files that were recently opened or modified in Emacs. This uses Emacs' built-in file history tracking (recentf) which maintains a list of files the user has interacted with, sorted from most recent to oldest. Each file is returned with its full path. The list updates automatically as users open and save files in Emacs."
                  :args nil
                  :category "emacs"
+                 :include t)
+
+(gptel-make-tool :name "buffer_details"
+                 :function #'gptel-tool-buffer-details
+                 :description "Get detailed information about a buffer including its name, associated file, visibility status, size, line count, encoding, major mode, project status, and whether it has been saved. Useful for debugging or getting a complete overview of a buffer's state."
+                 :args (list '(:name "buffer-name"
+                             :type string
+                             :description "The name of the buffer to get details for"))
+                 :category "emacs"
+                 :include t)
+
+(gptel-make-tool :name "eval_elisp"
+                 :function #'gptel-tool-eval-elisp
+                 :description "Evaluates an Emacs Lisp expression and returns the result. Use this to build and evaluate small Lisp programs for calculations, checking conditions, or querying Emacs state. For example: (length (buffer-list)) to count buffers, (buffer-modified-p (get-buffer \"foo.el\")) to check if a buffer is modified, or (+ 1 2 3) for calculations. IMPORTANT: This tool can execute arbitrary code and should be used with caution."
+                 :args (list '(:name "elisp-form"
+                                     :type string
+                                     :description "The Emacs Lisp form to evaluate"))
+                 :category "elisp"
+                 :confirm t
                  :include t)
 
 (gptel-make-tool :name "show_commit"
