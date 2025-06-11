@@ -650,10 +650,10 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   (setq gptel-model 'gemini-2.0-flash-exp)
   (setq gptel-default-mode 'org-mode)
   (setq-default gptel-org-branching-context nil)
-  (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "*** @me")
+  (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "*** ")
   (setq gptel-api-key (secret-get openai-key))
   (setq gptel-backend (gptel-make-gemini "Gemini" :key (secret-get gemini-key) :stream t))
-
+  (require 'core-gptel-tools)
   (gptel-make-openai "TogetherAI"
     :host "api.together.xyz"
     :key (secret-get together-ai-key)
@@ -662,6 +662,11 @@ To actually enable this, evaluate `+bongo-remove-headers'."
               mistralai/Mixtral-8x7B-Instruct-v0.1
               codellama/CodeLlama-13b-Instruct-hf
               codellama/CodeLlama-34b-Instruct-hf))
+  (gptel-make-gemini "Gemini Grounded"
+    :stream t
+    :key (secret-get gemini-key)
+    :request-params '(:tools [(:google_search ())]))
+
   (gptel-make-openai "Groq"
     :host "api.groq.com"
     :endpoint "/openai/v1/chat/completions"
@@ -672,7 +677,55 @@ To actually enable this, evaluate `+bongo-remove-headers'."
               deepseek-r1-distill-qwen-32b
               deepseek-r1-distill-llama-70b))
   (gptel-make-gh-copilot "Copilot")
-  (require 'core-gptel-tools))
+  (gptel-make-preset 'coder
+    :description "Preset for coding tasks"
+    :backend "Copilot"
+    :model 'claude-3.5-sonnet
+    :tools
+    '("show_commit" "git_log" "run_command" "read_documentation" "get_imenu"
+      "list_flycheck_errors" "edit_buffer" "read_buffer_with_lines" "list_visible_buffers"
+      "list_matching_buffers" "list_buffers" "count_lines_buffer" "replace_lines" "read_lines"
+      "list_project_files" "find_apropos" "find_definitions" "find_references"
+      "get_buffer_directory" "change_directory" "list_projects" "read_file" "replace_buffer"
+      "search_with_ripgrep" "list_directory" "make_directory" "open_file_on_line"
+      "open_file_in_background" "create_file" "delete_file" "echo_message" "append_to_buffer"
+      "read_buffer"))
+  (gptel-make-preset 'architect
+    :description "Preset for architectural tasks"
+    :backend "Copilot"
+    :model 'claude-3.7-sonnet
+    :system (concat "Act as an expert architect engineer and provide direction to your editor engineer. "
+                    "Study the change request and the current code. "
+                    "Describe how to modify the code to complete the request. "
+                    "The editor engineer will rely solely on your instructions, so make them unambiguous and complete. "
+                    "Explain all needed code changes clearly and completely, but concisely. "
+                    "Just show the changes needed. "
+                    "DO NOT show the entire updated function/file/etc!")
+    :tools '("show_commit" "git_log"  "read_documentation" "get_imenu"
+             "list_flycheck_errors"  "read_buffer_with_lines" "list_visible_buffers"
+             "list_matching_buffers" "list_buffers" "count_lines_buffer" "read_lines"
+             "list_project_files" "find_apropos" "find_definitions" "find_references"
+             "get_buffer_directory" "change_directory" "list_projects" "read_file"
+             "search_with_ripgrep" "list_directory" "open_file_in_background" "read_buffer"))
+
+  (gptel-make-preset 'fact
+    :description "Preset for answering questions on current context without tools"
+    :backend "ChatGPT"
+    :model 'gpt-4o-mini
+    :tools nil)
+
+  (gptel-make-preset 'google
+    :description "Preset for Google search"
+    :backend "Gemini Grounded"
+    :model 'gemini-2.5-flash-preview-05-20
+    :tools nil
+    :include-reasoning nil
+    :system (concat "You are an LLM agent running inside Emacs."
+                    "You acting as expert analyst and researcher with access to google search. "
+                    "You always google search your answers and answer based on latest data. "
+                    "Be precise in your answers and do not reply in long paragraphs. "
+                    "You alwasy give links to the source of the information you provide."
+                    "The link format would be [[https://example.com/full/web-page-url/][Web page title]]"))
 
 
 (use-package aidermacs
