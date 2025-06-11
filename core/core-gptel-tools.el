@@ -441,11 +441,15 @@ Returns a status message indicating success or error."
 (defun gptel-tool-list-visible-buffers()
   "List all visible buffers in Emacs.
 Returns a comma-separated string of buffer names that are currently displayed
-in Emacs windows."
-  (mapconcat #'(lambda (w)
-                 (buffer-name (window-buffer w)))
-             (window-list)
-             ", "))
+in Emacs windows, excluding the buffer that called this function."
+  (let* ((current-buf (current-buffer))
+         (visible-bufs (delq nil
+                            (mapcar (lambda (w)
+                                     (let ((buf (window-buffer w)))
+                                       (unless (eq buf current-buf)
+                                         (buffer-name buf))))
+                                   (window-list)))))
+    (mapconcat #'identity visible-bufs ", ")))
 
 (defun gptel-tool--smart-text-match (text)
   "Find TEXT in current buffer with flexible whitespace handling.
@@ -1004,7 +1008,7 @@ Returns a formatted string with error type, line, column, and message."
 
 (gptel-make-tool :name "list_visible_buffers"
                  :function #'gptel-tool-list-visible-buffers
-                 :description "List currently visible buffers in Emacs. This is a great way to find out what the user is talking about. Use it if you're unsure about what the query."
+                 :description "List currently visible buffers in Emacs, excluding the buffer that made this call. This is a great way to find out what other buffers the user is looking at. Use it if you're unsure about what the user is referring to or user is specifically reffering to some file by \"this\" or similar words."
                  :args nil
                  :category "emacs"
                  :include t)
