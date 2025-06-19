@@ -347,9 +347,13 @@ Otherwise, position cursor at the specified LINE_NUMBER."
   "Read and return the contents of FILEPATH."
   (with-temp-message (format "Reading file: %s" filepath)
     (condition-case err
-        (with-temp-buffer
-          (insert-file-contents (expand-file-name filepath))
-          (buffer-string))
+        (let ((expanded-path (expand-file-name filepath)))
+          ;; Open the file in Emacs (in background)
+          (find-file-noselect expanded-path t)
+          ;; Read and return the contents
+          (with-temp-buffer
+            (insert-file-contents expanded-path)
+            (buffer-string)))
       (error (format "Error reading file: %s - %s" filepath (error-message-string err))))))
 
 (defun gptel-tool-list-projects ()
