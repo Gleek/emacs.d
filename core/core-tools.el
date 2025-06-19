@@ -647,7 +647,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
          ("C-c q c" . gptel)
          ("C-c q m" . gptel-menu))
   :config
-  (setq gptel-model 'gemini-2.0-flash-exp)
+  (setq gptel-model 'gemini-2.5-flash)
   (setq gptel-default-mode 'org-mode)
   (setq-default gptel-org-branching-context nil)
   (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "*** ")
@@ -700,7 +700,8 @@ To actually enable this, evaluate `+bongo-remove-headers'."
                     "The editor engineer will rely solely on your instructions, so make them unambiguous and complete. "
                     "Explain all needed code changes clearly and completely, but concisely. "
                     "Just show the changes needed. "
-                    "DO NOT show the entire updated function/file/etc!")
+                    "DO NOT show the entire updated function/file/etc!\n"
+                    "When giving a structured response with headings, start with heading level 4.")
     :tools '("show_commit" "git_log"  "read_documentation" "get_imenu"
              "list_flycheck_errors"  "read_buffer_with_lines" "list_visible_buffers"
              "list_matching_buffers" "list_buffers" "count_lines_buffer" "read_lines"
@@ -718,7 +719,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   (gptel-make-preset 'google
     :description "Preset for Google search"
     :backend "Gemini Grounded"
-    :model 'gemini-2.5-flash-preview-05-20
+    :model 'gemini-2.5-flash
     :tools nil
     :include-reasoning nil
     :system (concat "You are an LLM agent running inside Emacs."
@@ -738,6 +739,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
       (gptel-request (concat (buffer-string)
                              "\n\nSummarize in detail this partial conversation about programming.\n"
                              "Include less detail about older parts and more detail about the most recent messages.\n"
+                             "Incase the chat starts with a recap such as \"I spoke to you previously...\", then include as much detail from it as possible.\n"
                              "Start a new paragraph every time the topic changes!\n\n"
                              "This is only part of a longer conversation so *DO NOT* conclude the summary with language like \"Finally, ...\". Because the conversation continues after the summary.\n"
                              "The summary *MUST* include the function names, libraries, packages, project directories that are being discussed.\n"
