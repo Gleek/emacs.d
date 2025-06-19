@@ -270,10 +270,12 @@ Otherwise, position cursor at the specified LINE_NUMBER."
 
 (defun gptel-tool--build-ripgrep-command (query files)
   "Build ripgrep command for QUERY in FILES."
-  (format "rg --line-number %s %s"
+  (format "rg --line-number %s%s"
           (shell-quote-argument query)
           (if (and files (not (string= files "")))
-              (shell-quote-argument files) "")))
+              (format " -g %s" (shell-quote-argument files))
+            ""))
+)
 
 (defun gptel-tool--get-search-directory (directory)
   "Get expanded search DIRECTORY or default-directory."
