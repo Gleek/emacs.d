@@ -375,13 +375,14 @@ PATTERN is a regular expression to filter files.
 Returns a list of matching file paths or empty list if no matches
 or empty pattern."
   (when (and pattern (not (string-empty-p pattern)))
-    (require 'projectile)
-    (let ((project-root (projectile-project-root)))
-      (if project-root
-          (mapcar (lambda (file) (concat project-root file))
-                  (seq-filter (lambda (file) (string-match-p pattern file))
-                              (projectile-project-files project-root)))
-        (format "Error: Not in a projectile project")))))
+    (let ((default-directory (if (fboundp 'projectile-project-root)
+                                (or (projectile-project-root) default-directory)
+                              default-directory)))
+      (split-string
+       (string-trim
+        (shell-command-to-string
+         (format "fd -H -t f --full-path %s" (shell-quote-argument pattern))))
+       "\n" t))))
 
 ;; Courtesy: gfredericks
 (defun gptel-tool-read-lines (buffer-name start-line end-line)
