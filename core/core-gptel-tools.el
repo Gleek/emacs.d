@@ -207,14 +207,19 @@ Get the result as string with line number: text"
                      filepath (error-message-string err))))))
 
 (defun gptel-tool-create-file (path filename content)
-  "Create a file named FILENAME in PATH with CONTENT."
+  "Create a file named FILENAME in PATH with CONTENT.
+   If the file already exists, returns the buffer name and suggests using edit_buffer."
   (with-temp-message (format "Creating file: %s in %s" filename path)
     (condition-case err
         (let ((full-path (expand-file-name filename path)))
-          (with-temp-buffer
-            (insert content)
-            (write-file full-path))
-          (format "Created file %s in %s" filename path))
+          (if (file-exists-p full-path)
+              (let ((buf (find-file-noselect full-path)))
+                (format "File already exists. Use edit_buffer with buffer name '%s' to modify it."
+                        (buffer-name buf)))
+            (with-temp-buffer
+              (insert content)
+              (write-file full-path)
+              (format "Created file %s in %s" filename path))))
       (error (format "Error creating file %s in %s: %s"
                      filename path (error-message-string err))))))
 
