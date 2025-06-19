@@ -26,6 +26,15 @@
     (insert-file-contents (concat +agenda-directory "project_t.org"))
     (buffer-string)))
 
+(defun +open-worklog()
+  (interactive)
+  (let ((buffer (find-file-noselect (concat +agenda-directory "worklog.org"))))
+    (switch-to-buffer buffer)
+    (goto-char (point-max))
+    (re-search-backward "^\\*\\*\\* Week" nil t)
+    (org-fold-show-entry)
+    (goto-char (point-max))))
+
 (defun add-property-with-date-captured ()
   "Add CAPTURED property to the current item."
   (interactive)
@@ -145,6 +154,7 @@
   :bind (("C-c o c" . +capture-inbox)
          ("C-c o C" . org-capture)
          ("C-c o O". org-clock-out)
+         ("C-c o W" . +open-worklog)
          ("<f5>" . +capture-inbox)
          ("C-c o g" . consult-org-agenda)
          :map org-mode-map
