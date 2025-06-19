@@ -74,11 +74,11 @@
       (cond
        ((= visible-count 2)
         (ediff-buffers (car visible-buffers)
-                      (cadr visible-buffers)))
+                       (cadr visible-buffers)))
        ((= visible-count 3)
         (ediff-buffers3 (nth 0 visible-buffers)
-                       (nth 1 visible-buffers)
-                       (nth 2 visible-buffers)))
+                        (nth 1 visible-buffers)
+                        (nth 2 visible-buffers)))
        (t
         (call-interactively #'ediff-buffers))))))
 
@@ -211,6 +211,17 @@
 (use-package git-timemachine)
 
 (use-package gitignore-templates)
+
+(use-package consult-gh
+  :config
+  (setopt consult-gh-default-clone-directory "~/Development/")
+  (setopt consult-gh-repo-maxnum 200))
+
+(use-package consult-gh-embark
+  :demand t
+  :after consult-gh
+  :config
+  (consult-gh-embark-mode +1))
 
 (use-package vc
   :ensure nil
