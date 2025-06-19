@@ -473,19 +473,20 @@ Searching is done in this order:
 2. Search with any leading whitespace from current position
 3. From buffer beginning: exact match
 4. From buffer beginning: with any leading whitespace"
-  (or (search-forward text nil t)
-      ;; Split into lines, escape each line as regex, then handle whitespace
-      (when-let* ((lines (split-string text "\n"))
-                  (regex (mapconcat
-                          (lambda (line)
-                            (concat "\\s-*" (regexp-quote (string-trim-left line))))
-                          lines
-                          "\n")))
-        (or (re-search-forward regex nil t)
-            (save-excursion
-              (goto-char (point-min))
-              (or (search-forward text nil t)
-                  (re-search-forward regex nil t)))))))
+  (when text
+    (or (search-forward text nil t)
+        ;; Split into lines, escape each line as regex, then handle whitespace
+        (when-let* ((lines (split-string text "\n"))
+                    (regex (mapconcat
+                            (lambda (line)
+                              (concat "\\s-*" (regexp-quote (string-trim-left line))))
+                            lines
+                            "\n")))
+          (or (re-search-forward regex nil t)
+              (save-excursion
+                (goto-char (point-min))
+                (or (search-forward text nil t)
+                    (re-search-forward regex nil t))))))))
 
 (defun gptel-tool--copy-buffer-for-edit (buffer)
   "Create a temp buffer with same content and mode as BUFFER.
@@ -508,6 +509,10 @@ Calls CALLBACK when complete. Verifies if all changes were accepted."
            (cleanup-hook
             (lambda ()
               (remove-hook 'ediff-quit-hook cleanup-hook)
+              ;; First kill the temp buffer since we're done with it
+              (when (buffer-live-p temp-buffer)
+                (kill-buffer temp-buffer))
+              ;; Then cleanup any ediff-related buffers
               (dolist (buf (buffer-list))
                 (when (and (buffer-live-p buf)
                            (string-match-p "\\*ediff-\\|\\*Ediff" (buffer-name buf)))
