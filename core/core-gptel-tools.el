@@ -392,7 +392,7 @@ or empty pattern."
       (split-string
        (string-trim
         (shell-command-to-string
-         (format "fd -H -t f --full-path %s" (shell-quote-argument pattern))))
+         (format "fd -t f --full-path %s" (shell-quote-argument pattern))))
        "\n" t))))
 
 ;; Courtesy: gfredericks
