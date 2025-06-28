@@ -174,7 +174,7 @@ Useful to checking the link under point."
   :hook ((org-mode . org-modern-mode)
          (org-agenda-finalize . +org-modern-agenda))
   :config
-  ;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka") ;; package's recommended font
+  (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
   (setq org-modern-label-border 1)
   (add-to-list 'consult-preview-allowed-hooks 'global-org-modern-mode)
 

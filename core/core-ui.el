@@ -11,7 +11,7 @@
 (blink-cursor-mode -1)
 (setq frame-inhibit-implied-resize t)
 ;; Font/Themes
-(defvar default-font "Iosevka")
+(defvar default-font "Iosevka Term")
 (set-frame-font (concat default-font " 14") 'keepsize t)
 ;; (set-face-font 'variable-pitch "Baskerville 15")
 ;; (set-face-font 'variable-pitch "ETBembo 17")

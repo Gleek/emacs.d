@@ -610,6 +610,11 @@ To actually enable this, evaluate `+bongo-remove-headers'."
     (setq-local line-spacing 0.0)))
 (use-package ascii-art-to-unicode)
 
+(use-package uniline
+  :bind (:map uniline-mode-map
+              ("`" . uniline-launch-interface))
+  :config
+  (require 'uniline-transient))
 (use-package epaint :ensure nil
   :load-path "packages/epaint/"
   :commands (epaint))
