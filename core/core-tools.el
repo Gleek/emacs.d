@@ -691,7 +691,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
       "list_flycheck_errors" "edit_buffer" "read_buffer_with_lines" "list_visible_buffers"
       "list_matching_buffers" "list_buffers" "count_lines_buffer" "replace_lines" "read_lines"
       "list_project_files" "find_apropos" "find_definitions" "find_references"
-      "get_buffer_directory" "change_directory" "list_projects" "read_file" "replace_buffer"
+      "get_buffer_directory" "change_directory" "list_projects" "read_file"
       "search_with_ripgrep" "list_directory" "make_directory" "open_file_on_line"
       "open_file_in_background" "create_file" "delete_file" "echo_message" "append_to_buffer"
       "read_buffer" "get_recent_files" "eval_elisp" "buffer_details"))
@@ -706,13 +706,14 @@ To actually enable this, evaluate `+bongo-remove-headers'."
                     "Explain all needed code changes clearly and completely, but concisely. "
                     "Just show the changes needed. "
                     "DO NOT show the entire updated function/file/etc!\n"
-                    "When giving a structured response with headings, start with heading level 4.")
+                    "When giving a structured response with headings, start with heading level 4. "
+                    "When referring to a file on a line number in the response, use the format [[file:<full_file_name>::<line_number>][<file_base_name>::<line_number>]]")
     :tools '("show_commit" "git_log"  "read_documentation" "get_imenu"
              "list_flycheck_errors"  "read_buffer_with_lines" "list_visible_buffers"
              "list_matching_buffers" "list_buffers" "count_lines_buffer" "read_lines"
              "list_project_files" "find_apropos" "find_definitions" "find_references"
              "get_buffer_directory" "change_directory" "list_projects" "read_file"
-             "search_with_ripgrep" "list_directory" "open_file_in_background" "read_buffer"
+             "search_with_ripgrep" "list_directory" "open_file_in_background" "open_file_on_line" "read_buffer"
              "get_recent_files" "eval_elisp" "buffer_details"))
 
   (gptel-make-preset 'fact
