@@ -3,7 +3,6 @@
   :bind (("C-x C-j" . dired-jump)
          (:map dired-mode-map
                ("f" . nil)))
-  :hook (dired-mode . dired-hide-details-mode)
   :config
   (setq dired-recursive-copies 'always
         dired-recursive-deletes 'always
