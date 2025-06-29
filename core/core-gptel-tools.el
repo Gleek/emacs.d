@@ -761,6 +761,20 @@ Returns a formatted string with error type, line, column, and message."
         (format "%S" result))
     (error (format "Error evaluating elisp: %s" (error-message-string err)))))
 
+(defun gptel-tool-delete-directory (directory recursive)
+  "Delete DIRECTORY. If RECURSIVE is non-nil, delete contents recursively.
+   Move to trash when possible. Returns a status message indicating success or failure."
+  (with-temp-message (format "Deleting directory: %s" directory)
+    (condition-case err
+        (let ((expanded-dir (expand-file-name directory)))
+          (if (file-directory-p expanded-dir)
+              (progn
+                (delete-directory expanded-dir recursive t) ; t means move to trash
+                (format "Successfully deleted directory: %s" expanded-dir))
+            (format "Directory does not exist: %s" expanded-dir)))
+      (error (format "Error deleting directory %s: %s"
+                     directory (error-message-string err))))))
+
 ;;;;;;;;;
 
 (gptel-make-tool :name "read_buffer"
@@ -1189,6 +1203,19 @@ Good to understand relevant portions of the buffer without reading the full buff
                                      :description "The commit hash to show changes for"))
                  :category "git"
                  :async t
+                 :include t)
+
+(gptel-make-tool :name "delete_directory"
+                 :function #'gptel-tool-delete-directory
+                 :description "Delete a directory, with optional recursive deletion. Moves to trash when possible. Requires user confirmation."
+                 :args (list '(:name "directory"
+                                     :type string
+                                     :description "The path of the directory to delete")
+                             '(:name "recursive"
+                                     :type boolean
+                                     :description "Whether to recursively delete the directory and its contents"))
+                 :category "emacs"
+                 :confirm t
                  :include t)
 
 (provide 'core-gptel-tools)
