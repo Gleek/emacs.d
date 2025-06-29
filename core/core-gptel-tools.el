@@ -21,6 +21,7 @@
 (require 'xref)
 (require 'elisp-mode)  ; for elisp--xref-backend
 (require 'lsp-mode nil t)
+(require 'diff nil t)
 
 
 (defun gptel-tool--make-xref-formatter (callback)
@@ -54,15 +55,21 @@ Returns a function suitable for use as `xref-show-xrefs-function'."
 (defun gptel-tool-find-definitions (callback symbol buffer-name line-number)
   "Find definitions of SYMBOL in BUFFER-NAME at LINE-NUMBER.
 Returns file:line: summary format for each definition via CALLBACK."
-  (let ((buf (gptel-resolve-buffer-name buffer-name)))
-    (if (not (buffer-live-p buf))
-        (funcall callback (format "Error: Buffer %s not found" buffer-name))
+  (cond
+   ((or (null symbol) (string-empty-p symbol))
+    (funcall callback "Error: Symbol cannot be empty"))
+   ((< line-number 1)
+    (funcall callback "Error: Line number must be positive"))
+   ((not (buffer-live-p (gptel-resolve-buffer-name buffer-name)))
+    (funcall callback (format "Error: Buffer %s not found" buffer-name)))
+   (t
+    (let ((buf (gptel-resolve-buffer-name buffer-name)))
       (with-current-buffer buf
         (save-excursion
           (goto-char (point-min))
           (forward-line (1- line-number))
-          (let ((line-end (line-end-position)))
-            (if (not (search-forward symbol line-end t))
+          (let ((search-result (gptel-tool--smart-text-match symbol)))
+            (if (not search-result)
                 (funcall callback
                          (format "Error: Symbol '%s' not found on line %d" symbol line-number))
               (when-let* ((backend (or (xref-find-backend)
@@ -75,20 +82,26 @@ Returns file:line: summary format for each definition via CALLBACK."
                              (xref-show-definitions-function formatter))
                         (xref-find-definitions identifier))
                     (error (funcall callback
-                                    (format "Error finding definitions: %s" (error-message-string err))))))))))))))
+                                    (format "Error finding definitions: %s" (error-message-string err)))))))))))))))
 
 (defun gptel-tool-find-references (callback symbol buffer-name line-number)
   "Find all references to SYMBOL in BUFFER-NAME at LINE-NUMBER.
 Returns file:line: summary format for each reference via CALLBACK."
-  (let ((buf (gptel-resolve-buffer-name buffer-name)))
-    (if (not (buffer-live-p buf))
-        (funcall callback (format "Error: Buffer %s not found" buffer-name))
+  (cond
+   ((or (null symbol) (string-empty-p symbol))
+    (funcall callback "Error: Symbol cannot be empty"))
+   ((< line-number 1)
+    (funcall callback "Error: Line number must be positive"))
+   ((not (buffer-live-p (gptel-resolve-buffer-name buffer-name)))
+    (funcall callback (format "Error: Buffer %s not found" buffer-name)))
+   (t
+    (let ((buf (gptel-resolve-buffer-name buffer-name)))
       (with-current-buffer buf
         (save-excursion
           (goto-char (point-min))
           (forward-line (1- line-number))
-          (let ((line-end (line-end-position)))
-            (if (not (search-forward symbol line-end t))
+          (let ((search-result (gptel-tool--smart-text-match symbol)))
+            (if (not search-result)
                 (funcall callback
                          (format "Error: Symbol '%s' not found on line %d" symbol line-number))
               (when-let* ((backend (or (xref-find-backend)
@@ -99,22 +112,26 @@ Returns file:line: summary format for each reference via CALLBACK."
                       (let ((xref-show-xrefs-function (gptel-tool--make-xref-formatter callback)))
                         (xref-find-references identifier))
                     (error (funcall callback
-                                    (format "Error finding references: %s" (error-message-string err))))))))))))))
+                                    (format "Error finding references: %s" (error-message-string err)))))))))))))))
 
 
 (defun gptel-tool-find-apropos (callback pattern buffer-name)
   "Find all symbols matching PATTERN in BUFFER-NAME using xref-find-apropos.
 Returns results in file:line: context format via CALLBACK."
-  (let ((buf (gptel-resolve-buffer-name buffer-name)))
-    (if (not (buffer-live-p buf))
-        (funcall callback (format "Error: Buffer %s not found" buffer-name))
+  (cond
+   ((or (null pattern) (string-empty-p pattern))
+    (funcall callback "Error: Search pattern cannot be empty"))
+   ((not (buffer-live-p (gptel-resolve-buffer-name buffer-name)))
+    (funcall callback (format "Error: Buffer %s not found" buffer-name)))
+   (t
+    (let ((buf (gptel-resolve-buffer-name buffer-name)))
       (with-current-buffer buf
         (with-temp-message (format "Finding symbols matching '%s'..." pattern)
           (condition-case err
               (let ((xref-show-xrefs-function (gptel-tool--make-xref-formatter callback)))
                 (xref-find-apropos pattern))
             (error (funcall callback
-                            (format "Error finding symbols: %s" (error-message-string err))))))))))
+                            (format "Error finding symbols: %s" (error-message-string err)))))))))))
 
 (defun gptel-tool-get-recent-files ()
   "Return a list of recently accessed files from `recentf-list'.
@@ -355,12 +372,13 @@ Otherwise, position cursor at the specified LINE_NUMBER."
   (with-temp-message (format "Reading file: %s" filepath)
     (condition-case err
         (let ((expanded-path (expand-file-name filepath)))
-          ;; Open the file in Emacs (in background)
-          (find-file-noselect expanded-path t)
-          ;; Read and return the contents
-          (with-temp-buffer
-            (insert-file-contents expanded-path)
-            (buffer-string)))
+          (if (file-exists-p expanded-path)
+              (progn
+                (find-file-noselect expanded-path t)
+                (with-temp-buffer
+                  (insert-file-contents expanded-path)
+                  (buffer-string)))
+            (format "Error: File does not exist: %s" expanded-path)))
       (error (format "Error reading file: %s - %s" filepath (error-message-string err))))))
 
 (defun gptel-tool-list-projects ()
@@ -370,7 +388,12 @@ Otherwise, position cursor at the specified LINE_NUMBER."
 
 (defun gptel-tool-change-default-directory(dir)
   "Change the default directory for file operations to DIR."
-  (setq default-directory (expand-file-name dir)))
+  (let ((expanded-dir (expand-file-name dir)))
+    (if (file-directory-p expanded-dir)
+        (progn
+          (setq default-directory expanded-dir)
+          (format "Changed directory to: %s" expanded-dir))
+      (format "Error: Directory does not exist: %s" expanded-dir))))
 
 (defun gptel-tool-get-buffer-directory (buffer)
   "Get the directory of the specified BUFFER."
@@ -400,24 +423,30 @@ or empty pattern."
   "Read lines from BUFFER-NAME between START-LINE and END-LINE, inclusive.
 Each line is prefixed with its line number.
 Returns the lines as a concatenated string."
-  (condition-case err
-      (let ((lines '())
-            (buf (gptel-resolve-buffer-name buffer-name)))
-        (if (buffer-live-p buf)
-            (with-current-buffer buf
-              (save-excursion
-                (goto-char (point-min))
-                (forward-line (1- start-line))
-                (while (and (<= start-line end-line) (not (eobp)))
-                  (let ((line-content (buffer-substring-no-properties
-                                       (line-beginning-position)
-                                       (line-end-position))))
-                    (push (format "%d: %s" start-line line-content) lines))
-                  (forward-line 1)
-                  (setq start-line (1+ start-line)))))
-          (error "Buffer %s not found" buffer-name))
-        (mapconcat 'identity (nreverse lines) "\n"))
-    (error (format "Error: %S" err))))
+  (cond
+   ((< start-line 1)
+    (format "Error: Start line must be positive, got %d" start-line))
+   ((< end-line start-line)
+    (format "Error: End line (%d) must be greater than or equal to start line (%d)" end-line start-line))
+   ((not (buffer-live-p (gptel-resolve-buffer-name buffer-name)))
+    (format "Error: Buffer %s not found" buffer-name))
+   (t
+    (condition-case err
+        (let ((lines '())
+              (buf (gptel-resolve-buffer-name buffer-name)))
+          (with-current-buffer buf
+            (save-excursion
+              (goto-char (point-min))
+              (forward-line (1- start-line))
+              (while (and (<= start-line end-line) (not (eobp)))
+                (let ((line-content (buffer-substring-no-properties
+                                     (line-beginning-position)
+                                     (line-end-position))))
+                  (push (format "%d: %s" start-line line-content) lines))
+                (forward-line 1)
+                (setq start-line (1+ start-line)))))
+          (mapconcat 'identity (nreverse lines) "\n"))
+      (error (format "Error: %S" err))))))
 
 (defun gptel-tool-replace-lines (buffer-name start-line end-line replacement-string)
   "In BUFFER-NAME, replace lines from START-LINE to END-LINE with REPLACEMENT-STRING.
@@ -513,6 +542,25 @@ Assumes BUFFER is valid."
       (funcall (with-current-buffer buffer major-mode)))
     (current-buffer)))
 
+(defun gptel-tool--calculate-diff (content1 content2)
+  "Calculate the diff between CONTENT1 and CONTENT2, returning a clean diff as a string."
+  (with-temp-buffer
+    (let ((buf1 (current-buffer)))
+      (insert content1)
+      (with-temp-buffer
+        (let ((buf2 (current-buffer)))
+          (insert content2)
+          (with-temp-buffer
+            (let ((diff-buf (current-buffer)))
+              (diff-no-select buf1 buf2 nil 'noasync diff-buf)
+              (with-current-buffer diff-buf
+                (goto-char (point-min))
+                (forward-line 3)
+                (let ((start (point)))
+                  (goto-char (point-max))
+                  (forward-line -1)
+                  (buffer-substring-no-properties start (point)))))))))))
+
 (defun gptel-tool--compare-and-patch (callback buffer temp-buffer)
   "Run ediff between BUFFER and TEMP-BUFFER with cleanup hooks.
 Calls CALLBACK when complete. Verifies if all changes were accepted."
@@ -534,7 +582,11 @@ Calls CALLBACK when complete. Verifies if all changes were accepted."
                                       (buffer-substring-no-properties (point-min) (point-max)))
                                     final-content)
                            "All edits complete"
-                         "All edits not accepted by user")))))
+                         (concat "All edits not accepted by user. Here are the edits that were rejected by the user in diff format:\n"
+                                 (gptel-tool--calculate-diff
+                                  (with-current-buffer buffer
+                                    (buffer-substring-no-properties (point-min) (point-max)))
+                                  final-content)))))))
     (add-hook 'ediff-quit-hook cleanup-hook)
     (ediff-buffers buffer temp-buffer)))
 
@@ -567,9 +619,11 @@ Shows ediff and calls CALLBACK when complete."
               (if (gptel-tool--smart-text-match old-string)
                   (replace-match new-string t t)
                 (setq success nil)
-                (funcall callback (format "Could not find '%s' in line %d" old-string line-number)))))))
+                (funcall callback (format "Could not find '%s' in line %d or anywhere else in the buffer" old-string line-number)))))))
       (if success
           (gptel-tool--compare-and-patch callback buffer temp-buffer)))))
+
+
 
 
 (defun gptel-tool-read-buffer-with-lines (buffer-name)
@@ -981,6 +1035,7 @@ Returns a formatted string with error type, line, column, and message."
                                      :type integer
                                      :description "The line number where to search for the symbol"))
                  :category "emacs"
+                 :async t
                  :include t)
 
 (gptel-make-tool :name "find_definitions"
@@ -1114,7 +1169,7 @@ If multiple calls are needed, re-read the buffer to get updated line numbers.
 Returns (with recommended actions):
 - \"Couldn't find '<text>' in line <n>\" - Recheck the text and try again, or break edit into smaller parts
 - \"All edits complete\" - Success, no further action needed
-- \"All edits not accepted by user\" - Try a different approach or ask user if they expected something else"
+- \"All edits not accepted by user\" - Provides the diff for unaccepted changes; consider a different approach or consult with the user"
                  :args (list '(:name "buffer-name"
                                      :type string
                                      :description "The name of the buffer to edit")
@@ -1123,7 +1178,7 @@ Returns (with recommended actions):
                                      :items (:type object
                                                    :properties
                                                    (:line_number
-                                                    (:type integer :description "The line number where edit starts.")
+                                                    (:type integer :description "The line number where edit starts. If text is not found on that line then the whole buffer is searched")
                                                     :old_string
                                                     (:type string
                                                            :description "Text to replace. Can be empty for pure insertions.")
