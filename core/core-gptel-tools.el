@@ -289,13 +289,26 @@ Otherwise, position cursor at the specified LINE_NUMBER."
                    "\n")
       (error (format "Error listing directory: %s - %s" directory (error-message-string err))))))
 
+
+(defun gptel-tool--record-run-command-history (command working-dir)
+  "Record COMMAND run in WORKING-DIR to history file."
+  (let* ((history-file (expand-file-name "gptel-tool-run-command/history" CACHE-DIR))
+         (dir (file-name-directory history-file))
+         (timestamp (format-time-string "%Y%m%d%H%M%S")))
+    (make-directory dir t)
+    (with-temp-buffer
+      (insert (format "%s\t%s\t%s\n" timestamp (or working-dir "") command))
+      (append-to-file (point-min) (point-max) history-file))))
+
 (defun gptel-tool-run-command (command &optional working_dir)
   "Execute shell COMMAND in WORKING_DIR and return the output."
   (with-temp-message (format "Executing command: `%s`" command)
     (let ((default-directory (if (and working_dir (not (string= working_dir "")))
                                  (expand-file-name working_dir)
                                default-directory)))
-      (shell-command-to-string command))))
+      (let ((output (shell-command-to-string command)))
+        (gptel-tool--record-run-command-history command default-directory)
+        output))))
 
 (defun gptel-tool--build-ripgrep-command (query files)
   "Build ripgrep command for QUERY in FILES."
@@ -629,9 +642,6 @@ Shows ediff and calls CALLBACK when complete."
                 (funcall callback (format "Could not find '%s' in line %d or anywhere else in the buffer" old-string line-number)))))))
       (if success
           (gptel-tool--compare-and-patch callback buffer temp-buffer)))))
-
-
-
 
 (defun gptel-tool-read-buffer-with-lines (buffer-name)
   "Read the contents of BUFFER-NAME and return it with line numbers.
