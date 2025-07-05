@@ -244,24 +244,31 @@ Get the result as string with line number: text"
   "Open FILE_NAME without displaying it to the user.
 For use when intermediary file access is needed without user visibility.
 Creates a buffer with file contents but does not display it to the user."
-  (with-temp-message (format "Opening file in background: %s" file_name)
-    (condition-case err
-        (find-file-noselect file_name t)  ; t = nowarn
-      (error (format "Error opening file in background: %s - %s"
-                     file_name (error-message-string err))))))
+  (if (or (null file_name)
+          (string-empty-p file_name)
+          (not (file-exists-p file_name)))
+      (error "Error: file_name must be a path to an existing file for open_file_in_background")
+    (with-temp-message (format "Opening file in background: %s" file_name)
+      (condition-case err
+          (find-file-noselect file_name t)
+        (error (format "Error opening file in background: %s - %s" file_name (error-message-string err)))))))
 
 (defun gptel-tool-open-file-on-line (file_name line_number)
   "Open FILE_NAME in another window and optionally go to LINE_NUMBER.
 When LINE_NUMBER is nil or 0, just open the file for viewing.
 Otherwise, position cursor at the specified LINE_NUMBER."
   ;; First check if buffer exists
-  (let* ((buf (gptel-resolve-buffer-name file_name)))
-    (if (and buf (buffer-live-p buf))
-        (switch-to-buffer-other-window buf)
-      (find-file-other-window file_name))
-    (when (and line_number (not (zerop line_number)))
-      (goto-char (point-min))
-      (forward-line (1- line_number)))))
+  (if (or (null file_name)
+          (string-empty-p file_name)
+          (not (file-exists-p file_name)))
+      (error "Error: file_name must be a path to an existing file for open_file_on_line")
+    (let* ((buf (gptel-resolve-buffer-name file_name)))
+      (if (and buf (buffer-live-p buf))
+          (switch-to-buffer-other-window buf)
+        (find-file-other-window file_name))
+      (when (and line_number (not (zerop line_number)))
+        (goto-char (point-min))
+        (forward-line (1- line_number))))))
 
 (defun gptel-tool-make-directory (parent name)
   "Create directory NAME in PARENT directory."
@@ -582,7 +589,7 @@ Calls CALLBACK when complete. Verifies if all changes were accepted."
                                       (buffer-substring-no-properties (point-min) (point-max)))
                                     final-content)
                            "All edits complete"
-                         (concat "All edits not accepted by user. Here are the edits that were rejected by the user in diff format:\n"
+                         (concat "Edits NOT accepted by user. Here are the edits that were rejected by the user in diff format:\n"
                                  (gptel-tool--calculate-diff
                                   (with-current-buffer buffer
                                     (buffer-substring-no-properties (point-min) (point-max)))
@@ -1169,7 +1176,7 @@ If multiple calls are needed, re-read the buffer to get updated line numbers.
 Returns (with recommended actions):
 - \"Couldn't find '<text>' in line <n>\" - Recheck the text and try again, or break edit into smaller parts
 - \"All edits complete\" - Success, no further action needed
-- \"All edits not accepted by user\" - Provides the diff for unaccepted changes; consider a different approach or consult with the user"
+- \"Edits NOT accepted by user\" - Provides the diff for unaccepted changes; consider a different approach or consult with the user"
                  :args (list '(:name "buffer-name"
                                      :type string
                                      :description "The name of the buffer to edit")
