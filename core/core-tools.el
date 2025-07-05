@@ -689,7 +689,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
     :tools
     '("show_commit" "git_log" "run_command" "read_documentation" "get_imenu"
       "list_flycheck_errors" "edit_buffer" "read_buffer_with_lines" "list_visible_buffers"
-      "list_matching_buffers" "list_buffers" "count_lines_buffer" "replace_lines" "read_lines"
+      "list_matching_buffers" "list_buffers" "count_lines_buffer" "read_lines"
       "list_project_files" "find_apropos" "find_definitions" "find_references"
       "get_buffer_directory" "change_directory" "list_projects" "read_file"
       "search_with_ripgrep" "list_directory" "make_directory" "open_file_on_line"

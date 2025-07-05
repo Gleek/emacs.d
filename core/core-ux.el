@@ -68,6 +68,7 @@
 (use-package mini-ontop  ; don't move windows when resizing minibuffer (vertico)
   :ensure (mini-ontop :host github :repo "hkjels/mini-ontop.el")
   :defer 1
+  :disabled t ; causes random jumps.
   :config
   (defvar mini-ontop-ignore-commands
     '(consult-buffer consult-projectile consult-xref)
