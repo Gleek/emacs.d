@@ -11,6 +11,8 @@
 
 ;;; Code:
 
+(require 'mod-number nil t)
+
 (defun org-formatted-copy (arg)
   "Export region to HTML, and copy it to the clipboard.
 Earlier used a textutil implementation to convert html to rtf
@@ -103,6 +105,17 @@ everywhere that supports some decent formatting."
   (switch-to-buffer (current-buffer)))
 
 
+(defun +org-increase-number-at-point(n)
+  (interactive "P")
+  (if (and (org-at-clock-log-p) (org-at-timestamp-p 'lax))
+      (org-shiftcontrolup n)
+    (change-number-at-point n)))
+
+(defun +org-decrease-number-at-point(n)
+  (interactive "p")
+  (if (and (org-at-clock-log-p) (org-at-timestamp-p 'lax))
+      (org-shiftcontroldown n)
+    (change-number-at-point (- n))))
 
 
 (use-package org
@@ -112,6 +125,8 @@ everywhere that supports some decent formatting."
          :map org-mode-map
          ("C-s-q" . org-fill-paragraph)
          ("s-w" . org-formatted-copy)
+         ("C-S-<up>" . +org-increase-number-at-point)
+         ("C-S-<down>" . +org-decrease-number-at-point)
          ("C-<tab>" . nil))
   :bind* (:map org-mode-map
                ("C-y" . +org-yank))
