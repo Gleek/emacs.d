@@ -300,15 +300,44 @@ Otherwise, position cursor at the specified LINE_NUMBER."
       (insert (format "%s\t%s\t%s\n" timestamp (or working-dir "") command))
       (append-to-file (point-min) (point-max) history-file))))
 
-(defun gptel-tool-run-command (command &optional working_dir)
-  "Execute shell COMMAND in WORKING_DIR and return the output."
-  (with-temp-message (format "Executing command: `%s`" command)
-    (let ((default-directory (if (and working_dir (not (string= working_dir "")))
-                                 (expand-file-name working_dir)
-                               default-directory)))
-      (let ((output (shell-command-to-string command)))
-        (gptel-tool--record-run-command-history command default-directory)
-        output))))
+(defun gptel-tool--run-get-id (command working-directory)
+  (let* ((project-name
+          (or (and (fboundp 'projectile-project-p)
+                   (projectile-project-p)
+                   (projectile-project-name))
+              (file-name-nondirectory (directory-file-name working-directory))))
+         (hash (substring (md5 command) 0 4)))
+    (format "gptel-tool-run-%s-%s" project-name hash)))
+
+(defun gptel-tool-run-command (command &optional working-directory)
+  (let* ((dir (or working-directory default-directory))
+         (id (gptel-tool--run-get-id command dir))
+         (buffer (get-buffer-create id))
+         proc output status)
+    (with-current-buffer buffer
+      (erase-buffer))
+    (let ((default-directory dir))
+      (setq proc (start-process-shell-command id buffer command)))
+    (gptel-tool--record-run-command-history command dir)
+    (sit-for 0.1)
+    (with-current-buffer buffer
+      (setq output (buffer-string)))
+    (setq status (process-status proc))
+    (cond
+     ((memq status '(exit signal))
+      (let* ((exit-code (process-exit-status proc))
+             (status-str (if (zerop exit-code)
+                             "Status: complete"
+                           (format "Status: failed with exit code %d" exit-code))))
+        (concat output "\n" status-str)))
+     ((eq status 'run)
+      (concat
+       output
+       (format
+        "\nStatus: running\nBuffer: %s\nOutput is still being generated, check the buffer `%s' later to see the full output."
+        id id))))))
+
+
 
 (defun gptel-tool--build-ripgrep-command (query files)
   "Build ripgrep command for QUERY in FILES."
@@ -959,7 +988,7 @@ Returns a formatted string with error type, line, column, and message."
 
 (gptel-make-tool :name "run_command"
                  :function #'gptel-tool-run-command
-                 :description "Executes a shell command and returns the output as a string. IMPORTANT: This tool allows execution of arbitrary code; user confirmation will be required before any command is run."
+                 :description "Executes a shell command and returns the output as a string. IMPORTANT: This tool allows execution of arbitrary code; user confirmation will be required before any command is run. The response will be the output of the command execution with status of the current command. If the status is Running, it will also return a buffer name which can be checked later for the output till that time."
                  :args (list
                         '(:name "command"
                                 :type string
