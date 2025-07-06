@@ -192,6 +192,7 @@
                                            try-complete-lisp-symbol))
   :bind ("M-/" . hippie-expand))
 
+
 (use-package corfu
   :defer 1
   :config
@@ -201,7 +202,7 @@
                 corfu-auto-prefix 2
                 global-corfu-modes '((not erc-mode help-mode vterm-mode) t)
                 corfu-preselect 'valid
-                corfu-count 10
+                corfu-count 3
                 corfu-max-width 120
                 corfu-on-exact-match nil)
 
@@ -210,11 +211,10 @@
                 corfu-auto-delay 0.2))
 
   (add-hook 'text-mode-hook #'text-corfu-configuration)
-
-  (setq corfu-popupinfo-delay '(1.0 . 1.0))
+  (setq corfu-popupinfo-delay '(2.0 . 1.0))
   (add-to-list 'completion-category-overrides `(lsp-capf (styles ,@completion-styles)))
   (add-hook 'corfu-mode-hook 'corfu-history-mode)
-  (add-hook 'corfu-mode-hook 'corfu-popupinfo-mode)
+  (add-hook 'corfu-mode-hook 'corfu-echo-mode)
 
   (with-eval-after-load 'savehist
     (add-to-list 'savehist-additional-variables 'corfu-history)))
@@ -278,9 +278,9 @@
          ("C-g" . 'copilot-clear-overlay)
          ("M-p" . 'copilot-previous-completion)
          ("M-n" . 'copilot-next-completion)
-         ("<tab>" . 'copilot-accept-completion)
-         ("M-f" . 'copilot-accept-completion-by-word)
-         ("C-e" . 'copilot-accept-completion-by-line))
+         ("<backtab>" . 'copilot-accept-completion)
+         ("M-F" . 'copilot-accept-completion-by-word)
+         ("C-S-e" . 'copilot-accept-completion-by-line))
   :hook ((prog-mode . copilot-mode)
          ;; (text-mode . copilot-mode)
          (conf-mode . copilot-mode))
