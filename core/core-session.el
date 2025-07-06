@@ -92,6 +92,7 @@
   :hook (after-init . recentf-mode)
   :config
   (setq recentf-save-file (concat CACHE-DIR "recentf"))
+  (setq recentf-max-saved-items 1000)
   (setq recentf-filename-handlers
         '(substring-no-properties    ; strip out lingering text properties
           abbreviate-file-name)))

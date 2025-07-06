@@ -131,6 +131,7 @@
   (setq dirvish-subtree-always-show-state t)
   (setq dirvish-header-line-height doom-modeline-height)
   (setq dirvish-use-header-line t)
+  (setq dirvish-hide-cursor nil)
   (setq dirvish-mode-line-height doom-modeline-height)
   (setq dirvish-reuse-session t)
   (setq dirvish-subtree-state-style 'nerd)

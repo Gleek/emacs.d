@@ -87,9 +87,9 @@
   :defer 1
   :config
   (ligature-set-ligatures 't '("<---" "<--"  "<<-" "<-" "->" "-->" "--->" "<->" "<-->" "<--->" "<---->" "<!--"
-                                       "<==" "<===" "<=" "=>" "=>>" "==>" "===>" ">=" "<=>" "<==>" "<===>" "<====>" "<!---"
-                                       "<~~" "<~" "~>" "~~>" "::" ":::" "==" "!=" "===" "!=="
-                                       ":=" ":-" ":+" "<*" "<*>" "*>" "<|" "<|>" "|>" "+:" "-:" "=:" "++" "+++"))
+                               "<==" "<===" "<=" "=>" "=>>" "==>" "===>" ">=" "<=>" "<==>" "<===>" "<====>" "<!---"
+                               "<~~" "<~" "~>" "~~>" "::" ":::" "==" "!=" "===" "!=="
+                               ":=" ":-" ":+" "<*" "<*>" "*>" "<|" "<|>" "|>" "+:" "-:" "=:" "++" "+++"))
   (global-ligature-mode t))
 
 (use-package solaire-mode
@@ -104,18 +104,26 @@
 (use-package nerd-icons :ensure (:wait t))
 
 (use-package doom-themes
-  ;; :ensure solaire-mode
   :init
   (defvar doom-themes-treemacs-enable-variable-pitch)
   (setq doom-themes-treemacs-enable-variable-pitch nil)
-  :bind ("C-c t T" . +switch-theme-type)
   :demand t
   :config
+  (doom-themes-org-config))
+
+;; (use-package ef-themes)
+;; Theme controller
+(use-package emacs
+  :ensure nil
+  :bind ("C-c t T" . +switch-theme-type)
+  :after (doom-themes solaire-mode)
+  :demand
+  :config
+  (defvar +light-theme 'doom-one-light)
+  (defvar +dark-theme 'doom-spacegrey)
   (defvar +theme-type 'light)
   (when IS-MAC
     (setq +theme-type ns-system-appearance))
-  (defvar +light-theme 'doom-one-light)
-  (defvar +dark-theme 'doom-one)
 
   (defun +disable-all-themes()
     (interactive)
@@ -136,11 +144,10 @@
     (+apply-theme (if (eq +theme-type 'light) 'dark 'light)))
 
   (+apply-theme +theme-type)
-  (doom-themes-org-config)
   (add-hook 'ns-system-appearance-change-functions #'+apply-theme))
 
-;; (use-package ef-themes)
 (use-package spacious-padding
+  :disabled t
   :demand t
   :config
   (spacious-padding-mode t))
@@ -152,7 +159,7 @@
   :config
   (line-number-mode -1)
   (setq doom-modeline-vcs-max-length 20)
-  (setq doom-modeline-height 19)
+  (setq doom-modeline-height 28)
   (setq doom-modeline-minor-modes nil)
   (setq doom-modeline-lsp nil)
   (setq doom-modeline-enable-word-count nil)
