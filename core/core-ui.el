@@ -10,6 +10,8 @@
       initial-scratch-message "")
 (blink-cursor-mode -1)
 (setq frame-inhibit-implied-resize t)
+(setq frame-resize-pixelwise t)
+
 ;; Font/Themes
 (defvar default-font "Iosevka Term")
 (set-frame-font (concat default-font " 14") 'keepsize t)
@@ -120,7 +122,7 @@
   :demand
   :config
   (defvar +light-theme 'doom-one-light)
-  (defvar +dark-theme 'doom-spacegrey)
+  (defvar +dark-theme 'doom-nord-aurora)
   (defvar +theme-type 'light)
   (when IS-MAC
     (setq +theme-type ns-system-appearance))

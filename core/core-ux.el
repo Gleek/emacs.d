@@ -57,10 +57,12 @@
 (use-package ultra-scroll
   :ensure (ultra-scroll :host github :repo "jdtsmith/ultra-scroll")
   :bind (("C-<wheel-down>" . nil)
-         ("C-<wheel-up>" . nil)) ; ultra scroll does lazy wheel scroll and if I press C it scales everything
+         ("C-<wheel-up>" . nil)
+         ("C-M-<wheel-down>" . nil)
+         ("C-M-<wheel-up>" . nil)) ; ultra scroll does lazy wheel scroll and if I press C it scales everything
   :defer 5
   :init
-  (setq scroll-conservatively 101
+  (setq scroll-conservatively 99
     scroll-margin 0)
   :config
   (ultra-scroll-mode 1))
@@ -68,7 +70,7 @@
 (use-package mini-ontop  ; don't move windows when resizing minibuffer (vertico)
   :ensure (mini-ontop :host github :repo "hkjels/mini-ontop.el")
   :defer 1
-  :disabled t ; causes random jumps.
+  :disabled t ; causes random point jumps.
   :config
   (defvar mini-ontop-ignore-commands
     '(consult-buffer consult-projectile consult-xref)
