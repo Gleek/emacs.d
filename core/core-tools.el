@@ -600,21 +600,28 @@ To actually enable this, evaluate `+bongo-remove-headers'."
       (impostman-parse-file collection nil output-alist))))
 
 
-;; (use-package package-safe-delete)
+(defun reset-line-spacing()
+  (setq-local line-spacing 0.0))
 
 (use-package artist
   :ensure nil
-  :hook (artist-mode . reset-line-spacing)
-  :config
-  (defun reset-line-spacing()
-    (setq-local line-spacing 0.0)))
+  :hook (artist-mode . reset-line-spacing))
+
 (use-package ascii-art-to-unicode)
 
 (use-package uniline
+  :init
+  (autoload 'uniline-mode "uniline" "Major mode for editing uniline text files." t)
+  :commands (unline-mode)
   :bind (:map uniline-mode-map
               ("`" . uniline-launch-interface))
   :config
+  (add-hook 'uniline-mode-hook 'reset-line-spacing)
+  (add-hook 'uniline-mode-hook 'picture-mode)
   (require 'uniline-transient))
+
+
+
 (use-package epaint :ensure nil
   :load-path "packages/epaint/"
   :commands (epaint))
