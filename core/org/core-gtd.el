@@ -648,13 +648,15 @@
   :config
   (org-edna-load))
 
-(use-package org-wild-notifier
+(use-package org-alert
   :defer 5
   :config
-  (setq org-wild-notifier-alert-time '(5))
-  (setq org-wild-notifier-keyword-whitelist nil)
-  (org-wild-notifier-mode))
-
+  (setopt org-alert-notify-cutoff 5)
+  (setopt org-alert-interval 150)
+  (setopt org-alert-notify-after-event-cutoff 0)
+  (setopt org-alert-notification-title "Agenda")
+  ;; TODO: alert for non scheduled entries as well: https://github.com/spegoraro/org-alert/issues/27
+  (org-alert-enable))
 
 
 (use-package calfw)
