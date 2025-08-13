@@ -140,16 +140,31 @@ Requires the recentf package to be enabled."
       (mapconcat #'identity recentf-list "\n")
     "No recent files found. Make sure recentf-mode is enabled."))
 
+(defun gptel-tool--imenu-flatten (index)
+  "Recursively flatten imenu alist INDEX into a list of leaf items."
+  (cl-labels
+      ((flat (lst)
+         (cl-loop for el in lst
+                  if (imenu--subalist-p el)
+                  append (flat (cdr el))
+                  else collect el)))
+    (flat index)))
+
 (defun gptel-tool-get-imenu (buffer-name)
-  "Return all items of an imenu after recomputing it for the BUFFER-NAME.
+  "Return all items of an imenu after recomputing it for BUFFER-NAME.
 Get the result as string with line number: text"
   (let* ((buf (gptel-resolve-buffer-name buffer-name))
          (imenu-use-markers t))
     (if (not (buffer-live-p buf))
         (format "Error: Buffer %s which resolved to %s not found" buffer-name buf)
       (with-current-buffer buf
-        (mapconcat
-         #'(lambda(el)
+        (let* ((imenu-alist (imenu--truncate-items
+                             (save-excursion
+                               (without-restriction
+                                 (funcall imenu-create-index-function)))))
+               (flat-items (gptel-tool--imenu-flatten imenu-alist)))
+          (mapconcat
+           (lambda (el)
              (let* ((marker (cdr el))
                     (text (car el))
                     (line-num (save-excursion
@@ -157,11 +172,8 @@ Get the result as string with line number: text"
                                 (line-number-at-pos)))
                     (stripped-text (substring-no-properties text)))
                (format "%s: %s" line-num stripped-text)))
-         (imenu--truncate-items
-          (save-excursion
-            (without-restriction
-              (funcall imenu-create-index-function))))
-         "\n")))))
+           flat-items
+           "\n"))))))
 
 (defun gptel-tool-read-buffer(buffer)
   "Read the contents of BUFFER and return it as a string."
