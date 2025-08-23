@@ -32,6 +32,7 @@
 (menu-bar-mode -1)
 
 (blink-cursor-mode -1)
+(line-number-mode -1)
 
 (electric-pair-mode t)
 (column-number-mode t)
@@ -78,6 +79,13 @@
 (global-set-key (kbd "C-`") 'pop-eshell)
 (global-set-key (kbd "<C-m> a") 'rename-all-occurences)
 (global-set-key (kbd "C-c t T") 'modus-themes-toggle)
+(global-set-key (kbd "C-x m") 'project-vc-dir)
+
+;; Local keybindings
+(with-eval-after-load 'flymake
+  (define-key flymake-mode-map (kbd "C-c ! l") 'flymake-show-buffer-diagnostics))
+
+
 
 (when IS-MAC
   (setq mac-command-modifier 'meta
@@ -144,6 +152,13 @@
 (setq auto-save-list-file-prefix (concat CACHE-DIR "auto-save-list/.saves-")
       auto-save-file-name-transforms `((".*" ,auto-save-list-file-prefix t))
       backup-directory-alist `(("" . ,(concat CACHE-DIR "backups/per-save"))))
+
+(setq treesit-font-lock-level 4)
+
+;; Cleanup modeline to remove persistent minor modes
+(setq minor-mode-alist--backup minor-mode-alist)
+(dolist (mode '(completion-preview-mode eldoc-mode))
+  (setq minor-mode-alist (assq-delete-all mode minor-mode-alist)))
 
 
 
