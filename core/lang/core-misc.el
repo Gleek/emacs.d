@@ -85,4 +85,17 @@
   (with-eval-after-load 'lsp-cucumber
     (setq lsp-cucumber-glue (vconcat ["**/*_test.go"] lsp-cucumber-glue))))
 
+
+(use-package clojure-ts-mode)
+(use-package cider)
+
+
+(use-package pyvenv)
+(use-package pipenv)
+(use-package pip-requirements)
+(use-package pyimport)
+(use-package py-isort)
+(use-package uv-mode
+  :hook (python-ts-mode))
+
 (provide 'core-misc)
