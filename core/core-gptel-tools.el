@@ -606,7 +606,9 @@ Assumes BUFFER is valid."
       (erase-buffer)
       (insert (with-current-buffer buffer
                 (buffer-substring-no-properties (point-min) (point-max))))
-      (funcall (with-current-buffer buffer major-mode)))
+      (funcall (with-current-buffer buffer major-mode))
+      (if (eq (with-current-buffer buffer major-mode) 'org-mode)
+          (org-show-all)))
     (current-buffer)))
 
 (defun gptel-tool--calculate-diff (content1 content2)
