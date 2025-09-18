@@ -25,6 +25,7 @@
 
 ;; Trying out ekg
 (use-package ekg
+  :disabled t
   :init
   (setq ekg-db-file (concat +ekg-directory "ekg.db"))
   :bind (("C-c o u" . ekg-show-notes-with-all-tags)

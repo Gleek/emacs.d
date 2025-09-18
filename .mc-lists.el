@@ -3,6 +3,7 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        +org-increase-number-at-point
         +org-yank
         LaTeX-babel-insert-hyphen
         backward-up-list
@@ -39,6 +40,7 @@
         eval-and-replace
         eval-last-sexp
         eval-print-last-sexp
+        eval-region
         fold-this
         fold-this-unfold-at-point
         forward-sexp
@@ -135,6 +137,7 @@
         god-local-mode
         god-mode-self-insert
         godef-jump
+        handle-switch-frame
         helm-M-x
         helm-mini
         helm-projectile

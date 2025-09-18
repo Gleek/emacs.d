@@ -641,13 +641,13 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   (setq salah-country (secret-get country))
   (setq salah-school (secret-get salah-school))
   (setq salah-next-days 2)
-  (advice-add 'salah-times--render :around #'+salah-times--disable-padding)
-  (defun +salah-times--disable-padding (orig-fun &rest args)
-    (unwind-protect
-        (progn
-          (spacious-padding-mode -1)
-          (apply orig-fun args))
-      (spacious-padding-mode 1)))
+  ;; (advice-remove 'salah-times--render #'+salah-times--disable-padding)
+  ;; (defun +salah-times--disable-padding (orig-fun &rest args)
+  ;;   (unwind-protect
+  ;;       (progn
+  ;;         (spacious-padding-mode -1)
+  ;;         (apply orig-fun args))
+  ;;     (spacious-padding-mode 1)))
 
   (set-popup-rule! "^ \\*salah-times\\*" :select nil :size '+popup-shrink-to-fit))
 
@@ -691,8 +691,8 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   (gptel-make-gh-copilot "Copilot")
   (gptel-make-preset 'coder
     :description "Preset for coding tasks"
-    :backend "Copilot"
-    :model 'claude-3.5-sonnet
+    :backend "ChatGPT"
+    :model 'gpt-4.1
     :tools
     '("show_commit" "git_log" "run_command" "read_documentation" "get_imenu"
       "list_flycheck_errors" "edit_buffer" "read_buffer_with_lines" "list_visible_buffers"
@@ -746,9 +746,9 @@ To actually enable this, evaluate `+bongo-remove-headers'."
     "Summarize chat conversations and replace the current buffer content with the summary."
     (interactive)
     (let* ((orig-buffer (current-buffer))
-           (gptel-backend (alist-get "Copilot" gptel--known-backends
+           (gptel-backend (alist-get "ChatGPT" gptel--known-backends
                                      nil nil #'equal))
-           (gptel-model "claude-3.5-sonnet"))
+           (gptel-model "gpt-4.1"))
       (gptel-request (concat (buffer-string)
                              "\n\nSummarize in detail this partial conversation about programming.\n"
                              "Include less detail about older parts and more detail about the most recent messages.\n"

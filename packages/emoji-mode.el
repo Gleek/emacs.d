@@ -30,7 +30,7 @@
      ((eq char-downcase ?n) '("🥜" "🌃" "👃" "💅"))        ; Nut, Night
      ((eq char-downcase ?o) '("🍊" "🐙" "⭕" ))    ; Orange, Octopus, Circle
      ((eq char-downcase ?p) '("🍐" "🐷" "🍕" "🐧" "✏️" "🦜"))    ; Pear, Pig, Pizza
-     ((eq char-downcase ?q) '( "👑" ))
+     ((eq char-downcase ?q) '( "👸" ))
      ((eq char-downcase ?r) '("🌈" "🐇" "🤖" ))    ; Rainbow, Rabbit, Robot
      ((eq char-downcase ?s) '("🍓" "☀️" "⭐" ))    ; Strawberry, Sun, Star
      ((eq char-downcase ?t) '("🐅" "🧸" "🌳" "🐢" ))    ; Teddy, Tree, Turtle
