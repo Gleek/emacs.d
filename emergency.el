@@ -1,8 +1,6 @@
 ;;; init.el ---                                  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2025 Umar Ahmad
-;; Created: May 05, 2022
-;; Modified: May 05, 2022
 ;; Version: 0.0.1
 ;; Author: Umar Ahmad
 ;;; Commentary:
@@ -80,6 +78,7 @@
 (global-set-key (kbd "<C-m> a") 'rename-all-occurences)
 (global-set-key (kbd "C-c t T") 'modus-themes-toggle)
 (global-set-key (kbd "C-x m") 'project-vc-dir)
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 
 ;; Local keybindings
 (with-eval-after-load 'flymake
@@ -156,7 +155,7 @@
 (setq treesit-font-lock-level 4)
 
 ;; Cleanup modeline to remove persistent minor modes
-(setq minor-mode-alist--backup minor-mode-alist)
+;; (setq minor-mode-alist--backup minor-mode-alist)
 (dolist (mode '(completion-preview-mode eldoc-mode))
   (setq minor-mode-alist (assq-delete-all mode minor-mode-alist)))
 
@@ -335,7 +334,7 @@ there's a region, all lines that region covers will be duplicated."
 
 ;; Only install very critical packages on need basis
 ;; (setq file-packages
-;;       '(("php" . (php-mode))
+;;       '(("php" . (php-mode))		; Disabling these as both have native ts packages built-in
 ;;         ("go" . (go-mode))))
 (setq file-packages '())
 
