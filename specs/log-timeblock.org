@@ -1,0 +1,523 @@
+#+title: Log timeblock
+* Requirements
+** Overview
+This project will be implemented as an Emacs package that provides a visualization tool for calendar like entries written in a restricted org format. Task times for individual items are always specified as an explicit 'hh:mm' prefix, while date headings use the org-style [YYYY-MM-DD DDD] format. The visualization maps entries into calendar-style day views using timeblock.el, presenting start and end times for each entry as colored blocks within a single day's column.
+
+A customizable variable (e.g., `log-timeblock-files`) will store a list of org files in this format. The visualization will support ingesting and displaying data from multiple files in a single unified view.
+
+** Data Source Format
+Tasks are defined in a hierarchical org-like text file. Only the lowest-level date headers and their child task items are relevant to visualization. The format for each day is:
+
+**** [YYYY-MM-DD DDD] [X/Y]    ; date header uses org-style format
+- [X] HH:MM Task title          ; task items *must* start with hh:mm and are not org timestamps
+
+** Visualization Logic
+- Each date heading ([YYYY-MM-DD DDD]) forms a separate day/column in the visualization.
+- Each list item under a date heading represents a time-blocked task.
+- The time for each block is parsed from the HH:MM prefix in the item.
+- The duration for each block is from its start time to the start time of the next item in the merged, deduplicated and sorted list of all tasks for that date across all files. The last item in this merged list defaults to a user-configurable block duration (default: 30 minutes).
+
+** Nonfunctional Requirements
+- Tasks are visualized as non-editable blocks. Editing occurs exclusively via the org text file.
+- The calendar visualization utilizes timeblock.el's day/column view capabilities.
+- The system parses org file data but ignores intermediate headings (year, month, week).
+- The system supports ingesting and displaying data from multiple org files, visualizing all tasks and all available dates in a unified calendar view.
+- Workflow should be idiomatic to Emacs, with straightforward invocation and display.
+
+** Visualization and Navigation Functional Requirements
+1. The number of columns (dates) shown in the visualization should dynamically fit the window: (window-pixel-width) / 200, with a minimum of 1 column. Each column is always 200 pixels wide.
+
+   #+begin_src
+   --------------
+   |  D-3 | D-2 | D-1 | D   |
+   |   7  |  8  |  9  |  10 |
+   --------------
+   #+end_src
+
+2. Default view: On initialization or refresh (g), the window shows the most recent N dates (latest at rightmost column), where N is computed per above.
+
+3. Navigation Keybinds (within the visualization buffer):
+   - n: Move the visible window +1 day, pulling in the next date and dropping the earliest (but never go past latest date).
+   - p: Move the visible window -1 day, pulling in the previous date at the left. Cannot move before earliest date available.
+   - g: Reset to default/latest dynamic date view (fitting as per window width) at any time.
+   - q: Quit/close the visualization buffer.
+
+4. Navigation Example (assuming latest date is 10):
+   - Initial state: 7, 8, 9, 10
+   - Press n: remains 7, 8, 9, 10
+   - Press p: changes to 6, 7, 8, 9
+   - Press p 4x: 5,6,7,8 → 4,5,6,7 → 3,4,5,6 → 2,3,4,5
+   - Press n 2x: 3,4,5,6 → 4,5,6,7 → 5,6,7,8
+   - Press g: resets to 7,8,9,10
+
+** Detailed Functional Requirements
+1. Parse org log file to extract for each date:
+   - All child list items with HH:MM prefix under the corresponding date heading.
+   - Marked completion status ([X]/[ ]) and task title information for UI hints.
+2. Create a list of timeblock.el entry structures per date:
+   - Each entry includes:
+     - Start time: Parsed from HH:MM prefix.
+     - End time: Start time of the next task in the merged, deduplicated, and time-sorted list across all files for the date, or +30min if last.
+     - Title: Full text after the HH:MM prefix.
+     - Status: Whether completed, as possible color/hint for block (static scheme in initial version).
+     - (Optional: Completion ratio [X/Y] from heading for context)
+     - File and position for navigation: clicking a block opens the file at the corresponding task location. Each timeblock entry must store the file name and buffer position (point) of its corresponding org task; this metadata is used for navigation on click.
+3. Use timeblock-insert-column to display all entries for the selected day in an Emacs buffer.
+   - Should support jumping between days via minibuffer or similar navigation.
+   - Block color/hint reflects completion where possible.
+4. Disallow edits via the visualization interface. Changes must be made via org file editing.
+5. Display supports Emacs buffer conventions: fit in selected window, vertical scrolling if needed.
+6. Provide a simple interactive entrypoint command (e.g., `log-timeblock-visualize`) that uses the value of the custom file-list variable to parse and visualize all tasks across the specified org files in a unified calendar view.
+7. When showing timeblock columns, the title shown in each block will be the task content without the HH:MM prefix, i.e., only "Task Name" for a line like "HH:MM Task Name".
+8. Tasks lacking a time prefix and malformed/missing time entries are ignored by the visualization.
+9. If two or more tasks from multiple files share the same start time for a date, only the last such encounter is included in the visualization for that time; previous tasks are ignored.
+10. Navigation for jumping between days uses the union of all dates present across all input files.
+11. Navigation, visualization, and all logic always aggregate tasks across all configured files (no per-file filtering).
+12. All tasks, even if there are too many per day or with wide time ranges, are passed directly to the visualization library; no extra limiting/formatting is performed.
+13. Date formats and localization are not configurable—only the supported org-style format is allowed.
+14. Privacy and performance are not specifically addressed in this version; user must manage large files as needed.
+** Optional/Future Requirements
+- Allow configuration of default last-block duration.
+- Support week or month navigation and views.
+- (Future) Synchronize edits from org buffer with visualization in near real time.
+- (Future) Customize block color/themes per user option.
+* Design
+
+** Architecture and Design Notes
+
+The implementation is an Emacs package (log-timeblock.el). The package provides visualization and navigation for time-blocked org logs using timeblock.el.
+
+*** Data Representation and Pagination
+- Core state includes:
+  - List of all available dates (aggregated and deduped from all files)
+  - Current view window: a pair of indices (or range) into the dates list, indicating the visible window (default: last N, where N = log-timeblock-visible-days).
+- Navigation (pagination) is done by adjusting these indices:
+  - Moving forward (+1) or backward (-1), never exceeding the bounds.
+  - Function `log-timeblock-move-window` takes movement arg, adjusts view range, sets current window, triggers re-render.
+- All view queries draw only from this current window of dates.
+
+*** Efficient Date Parsing
+- For each visible date, scan all files with a regex to extract the subtree/content for that specific [YYYY-MM-DD DDD] heading.
+- Use a per-date parser to convert heading subtree string to a structured list of entries suitable for timeblock-insert-column.
+- Regex search and parsing are done only for the visible window; not preloading all days.
+
+*** Entry Aggregation and End-Time Assignment
+
+- The function =log-timeblock-parse-date-block= only extracts and returns raw task entries (start time, status, title, etc.) from each org block; it does not populate the =:end= property.
+- All such raw lists (from all files, per date) are merged, deduplicated by start time, and then sorted chronologically.
+- The =:end= property is then populated by traversing only the final, merged sequence, using the next task's start or the default duration if last.
+- This separation ensures global time order and correct =:end= assignment across all sources.
+
+#+begin_src elisp
+;; Prototype: aggregate, deduplicate, sort, and populate :end for a day's tasks from all files
+(defun log-timeblock--aggregate-day-tasks (date blocks &optional last-duration)
+  (let (all)
+    (dolist (fb blocks)
+      (let ((block-string (cdr fb)))
+        (when block-string
+          (setq all (append all (log-timeblock-parse-date-block date block-string))))))
+    (let* ((dedup (log-timeblock--dedup-tasks all))
+           (sorted (sort dedup (lambda (a b) (time-less-p
+                                              (apply #'encode-time (plist-get a :start))
+                                              (apply #'encode-time (plist-get b :start))))))
+           (default-last (or last-duration 30))
+           (out nil)
+           (l sorted))
+      (while l
+        (let* ((cur (car l))
+               (next (cadr l))
+               (end (if next (plist-get next :start)
+                      (log-timeblock-shift-time (plist-get cur :start) default-last))))
+          (push (plist-put cur :end end) out))
+        (setq l (cdr l)))
+      (nreverse out))))
+#+end_src
+
+*** Rendering and Visualization Flow
+
+**** Initial Load
+- On command invocation, determine current date and fetch visible range (per log-timeblock-visible-days, default 4).
+- Find the latest N dates by aggregating and sorting all available dates from the files.
+- Use data parser functions to extract and parse block data for each selected date (see log-timeblock-extract-date-blocks and log-timeblock-parse-date-block).
+- Receive parsed data and render the result using multiple timeblock.el day columns in the visualization buffer.
+
+**** Pagination and Navigation
+- Navigation keybindings and movement update the current date window (by updating window offset/index).
+- When the user moves (n/p/g), re-compute the visible window (the relevant dates).
+- Parse only the visible dates from file(s) again — avoiding unnecessary preloading.
+- Render with timeblock.el using the newly extracted and parsed data.
+- All date and column operations are purely based on the aggregated date list, always reflecting all files and current state.
+- The visualization and rendering pipeline is always: recompute visible dates → parse new data window → rerender columns.
+- Special care is taken so that pagination never steps outside bounds (earliest/latest).
+
+*** TODO Block Clickability and Navigation  [TODO: Overlay/Text-proof clickable design]
+- Each timeblock entry must store its org file path and the precise buffer point where the task resides. This property will be saved into the plist given to timeblock.el.
+- Prototypes in timeblock-example.el show mouse/key overlays for drag-and-drop; leverage a similar approach for click navigation (define a keymap or text property on the block, e.g. 'mouse-1 or RET).
+- On receiving a click/key event, call a function to open the associated file and jump to point using `find-file` and `goto-char`.
+- ● **Current design challenge:** Neither setting text properties pre-insert nor post-insert reliably attaches :file/:point info, as timeblock.el does not preserve these properties. A robust solution likely requires overlays added after rendering, or a mapping table for block regions. See alternative approaches for discussion.
+- Blocks should at minimum support mouse-1 (click) and RET for jumping; there’s no need for visual style change on hover/click.
+- Example block property: (:file "/path/to/file.org" :point 2345)
+- All clickable logic is in the visualization buffer, not the org files.
+
+** Directory & Key Files
+
+- packages/
+  - log-timeblock.el   ; main package entrypoint
+
+** User Customization
+
+- `log-timeblock-files`: List of org-like log files to aggregate and visualize. Example:
+
+#+begin_src elisp
+(setq log-timeblock-files '("~/logs/2025.org" "~/work/logs/summary.org"))
+#+end_src
+
+- `log-timeblock-last-duration`: Duration in minutes for the last task in a sequence (default: 30)
+
+#+begin_src elisp
+(setq log-timeblock-last-duration 30)
+#+end_src
+
+- `log-timeblock-visible-days`: Number of days to show per view is no longer fixed, but auto-calculated as (window-pixel-width) / 200, with a minimum of 1. This variable is no longer user-settable.
+** Main Interface/Entrypoint
+
+- `log-timeblock-visualize`: Interactive command that parses all files in `log-timeblock-files`, computes the blocks, and opens a buffer with the timeblock.el visualization. Always aggregates all files.
+
+#+begin_src text
+M-x log-timeblock-visualize ; Shows unified calendar view
+#+end_src
+
+** Data Extraction Example: Org Heading Block Collection
+
+#+begin_src elisp
+(defun log-timeblock-extract-date-blocks (dates)
+  "Given a list of date strings [YYYY-MM-DD DDD], return an alist of (date . file-blocks).
+Each entry is (date . ((file . block-string) ...)), where block-string is all text for the date heading in each file."
+  (cl-loop for date in dates
+           collect
+           (cons date
+                 (cl-loop for file in log-timeblock-files
+                          if (file-readable-p file)
+                          collect
+                          (with-temp-buffer
+                            (insert-file-contents file)
+                            (let ((case-fold-search nil)
+                                  (heading (concat "^\\*\\{4\\} \\[" date "\\]"))
+                                  (start) (end))
+                              (when (re-search-forward heading nil t)
+                                (setq start (line-beginning-position))
+                                ;; Use org-heading-regexp for the next heading
+                                (if (re-search-forward org-heading-regexp nil t)
+                                    (setq end (match-beginning 0))
+                                  (setq end (point-max)))
+                                (cons file (buffer-substring-no-properties start end)))))))))
+#+end_src
+
+;; Example usage:
+#+begin_src elisp :results value
+(let ((log-timeblock-files (list "~/Dropbox/org-files/gtd/lifelog.org"))
+      (dates '("2025-09-14 Sun")))
+  (log-timeblock-extract-date-blocks dates))
+#+end_src
+
+;; The content found (block-string) should then be passed to a second stage parser for entry extraction.
+
+** Date Block Parser Example: Extract Timeblock Entries from Date Heading
+#+begin_src elisp
+(defun log-timeblock-shift-time (dt minutes)
+  "Return new decoded time list by moving DT (a decoded time list) forward by MINUTES."
+  (let* ((new-time (time-add (apply #'encode-time dt) (seconds-to-time (* minutes 60)))))
+    (decode-time new-time)))
+
+(defun log-timeblock-parse-date-block (date block-string file &optional base-point last-duration)
+  "Parse all tasks in BLOCK-STRING, recording :file and :point (relative to FILE and BASE-POINT) in each entry.
+Returns list of plists for timeblock.el: (:start :end :status :title :file :point)."
+  (let* ((results '())
+         (date-ymd (car (split-string date)))
+         (default-last (or last-duration (and (boundp 'log-timeblock-last-duration) log-timeblock-last-duration) 30)))
+    (with-temp-buffer
+      (insert block-string)
+      (goto-char (point-min))
+      (forward-line 1) ;; skip heading
+      (while (re-search-forward "^[ \t]*[-+] \\[\\([ Xx]\\)\\] \\([0-9][0-9]:[0-9][0-9]\\) \\(.*\\)$" nil t)
+        (let ((status (string= (match-string 1) "X"))
+              (hhmm (match-string 2))
+              (title (match-string 3))
+              (pos (when base-point (+ base-point (line-beginning-position)))))
+          (push (list :start (parse-time-string (format "%s %s" date-ymd hhmm))
+                      :status status
+                      :title title
+                      :file file
+                      :point pos)
+                results)))
+      (setq results (nreverse results))
+      (let ((l results) out)
+        (while l
+          (let* ((cur (car l))
+                 (next (cadr l))
+                 (end (if next (plist-get next :start)
+                        (log-timeblock-shift-time (plist-get cur :start) default-last))))
+            (push (plist-put cur :end end) out))
+          (setq l (cdr l)))
+        (nreverse out)))))
+#+end_src
+
+
+
+;; Example with sample data from a parsed org heading:
+#+begin_src elisp
+(let ((block-string "**** [2025-09-14 Sun] [13/21]
+- [X] 10:30 Task 1
+- [X] 12:00 Task 2
+- [X] 12:30 Task 3
+- [X] 13:00 Task 4
+- [X] 13:15 Task 5
+- [X] 13:30 Task 6
+- [X] 14:00 Task 7
+- [X] 14:30 Task 8
+- [X] 16:00 Task 9
+- [X] 16:30 Task 10
+- [X] 17:00 Task 11
+- [X] 17:15 Task 12
+- [ ] 18:15 Task 13
+- [ ] 18:30 Task 14
+- [ ] 18:45 Task 15
+- [ ] 19:00 Task 16
+- [ ] 20:00 Task 17
+- [ ] 21:00 Task 18
+- [ ] 21:15 Task 19
+- [ ] 21:45 Task 20
+"))
+  (log-timeblock-parse-date-block "2025-09-14 Sun" block-string "~/Dropbox/org-files/lifelog.org" 0))
+#+end_src
+
+
+** Visualization/Rendering Example: Using timeblock.el directly
+#+begin_src elisp
+;; Example with multiple days, each with its own column, and a custom keymap (q quits buffer).
+;; (Follows timeblock-example.el usage for :keymap)
+(require 'timeblock)
+(let ((buf (get-buffer-create "*timeblock-demo*")))
+  (with-current-buffer buf
+    (erase-buffer)
+    (let ((demo-keymap (let ((map (make-sparse-keymap)))
+                        (define-key map (kbd "q")
+                          (lambda () (interactive) (kill-buffer)))
+                        map)))
+      ;; Day 1
+      (let* ((date1 (parse-time-string "2024-11-08 00:00"))
+             (entries1
+              (list
+               (list (cons 'start (parse-time-string "2024-11-08 10:00"))
+                     (cons 'end (parse-time-string "2024-11-08 14:30"))
+                     (cons 'title "Block 1"))
+               (list (cons 'start (parse-time-string "2024-11-08 14:00"))
+                     (cons 'end (parse-time-string "2024-11-08 15:00"))
+                     (cons 'title "Block 2"))
+               (list (cons 'start (parse-time-string "2024-11-08"))
+                     (cons 'end nil)
+                     (cons 'title "All-day Block")))))
+        (timeblock-insert-column
+         entries1 date1 200 (window-pixel-height)
+         :show-date t :show-all-day-entries t :show-current-time t
+         :keymap demo-keymap))
+      ;; Day 2
+      (let* ((date2 (parse-time-string "2025-09-16 Tue 00:00"))
+             (entries2
+              (list
+               (list (cons 'start (parse-time-string "2025-09-16 Tue 09:15"))
+                     (cons 'end (parse-time-string "2025-09-16 Tue 10:30"))
+                     (cons 'title "Block A"))
+               (list (cons 'start (parse-time-string "2025-09-16 Tue 13:00"))
+                     (cons 'end (parse-time-string "2025-09-16 Tue 14:15"))
+                     (cons 'title "Block B")))))
+        (timeblock-insert-column
+         entries2 date2 200 (window-pixel-height)
+         :show-date t :show-all-day-entries t :show-time t :show-current-time t
+         :keymap demo-keymap))
+      (goto-char (point-min))))
+  (pop-to-buffer buf))
+
+#+end_src
+
+#+RESULTS:
+: #<buffer *timeblock-demo*>
+
+** Prototype: Clickable Timeblock Logging Example
+
+#+begin_src elisp
+;; Prototype: Minimal clickable timeblocks example.
+(require 'timeblock)
+
+(let* ((buf (get-buffer-create "*timeblock-click-demo*"))
+       (entries
+        (list (list (cons 'start (parse-time-string "2024-11-08 10:00"))
+                    (cons 'end (parse-time-string "2024-11-08 11:00"))
+                    (cons 'title "Demo Task A")
+                    (cons 'file "/tmp/fake1.org")
+                    (cons 'point 1111))
+              (list (cons 'start (parse-time-string "2024-11-08 12:00"))
+                    (cons 'end (parse-time-string "2024-11-08 13:00"))
+                    (cons 'title "Demo Task B")
+                    (cons 'file "/tmp/fake2.org")
+                    (cons 'point 2222)))))
+  (with-current-buffer buf
+    (erase-buffer)
+    (let ((map (let ((m (make-sparse-keymap)))
+                (define-key m [mouse-1]
+                  (lambda () (interactive)
+                    (let ((file (get-text-property (point) :file))
+                          (pos (get-text-property (point) :point)))
+                      (message "Clicked block for file=%s point=%s" file pos))))
+                (define-key m (kbd "RET")
+                  (lambda () (interactive)
+                    (let ((file (get-text-property (point) :file))
+                          (pos (get-text-property (point) :point)))
+                      (message "Clicked block for file=%s point=%s" file pos))))
+                m)))
+      (timeblock-insert-column
+       entries (parse-time-string "2024-11-08 00:00") 200 (window-pixel-height)
+       :keymap map))
+    (goto-char (point-min)))
+  (pop-to-buffer buf))
+#+end_src
+
+#+RESULTS:
+: #<buffer *timeblock-click-demo*>
+
+
+** Windowed Navigation/Column Rendering Logic (Stub Implementation)
+
+Below is a prototype for the main windowed navigation and rendering logic, the core of the paginated visualization. It:
+- Starts from end_date and renders columns for the last N days, where
+N = max(1, (window-pixel-width) / 200).
+- Default end_date is today's date; it changes with 'n' and 'p' navigation commands.
+- For every date in the range, calls `timeblock-insert-column` (currently with no tasks, sets up structure for real data integration).
+
+#+begin_src elisp
+(require 'timeblock)
+
+(defvar log-timeblock-visible-days 4)
+(defvar log-timeblock-date-list nil)
+(defvar log-timeblock-end-date nil)
+
+(defvar log-timeblock-buffer-name "*log-timeblock*" "Name of the timeblock calendar buffer.")
+
+(defun log-timeblock-get-date-list (end-date n)
+  "Return list of N decreasing dates (as strings) ending with END-DATE.
+This will later aggregate org data. Here just stub values (YYYY-MM-DD DDD)."
+  ;; Replace with code aggregating from org files
+  (let ((base (date-to-time end-date)))
+    (cl-loop for i from (1- n) downto 0
+             collect (format-time-string "%Y-%m-%d %a" (time-subtract base (days-to-time i))))))
+
+(defun log-timeblock-render-columns (date-list)
+  "Render columns for DATE-LIST using timeblock.el, no tasks (yet)."
+  (let ((buf (get-buffer-create log-timeblock-buffer-name)))
+    (with-current-buffer buf
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (let ((x 0))
+          (dolist (date date-list)
+            (let ((entries (list (list (cons 'start (parse-time-string (concat (car (split-string date)) " 09:00")))
+                                       (cons 'end (parse-time-string (concat (car (split-string date)) " 10:30")))
+                                       (cons 'title "STATIC TASK")))))
+              (timeblock-insert-column
+               entries
+               (parse-time-string (concat (car (split-string date)) " 00:00"))
+               200 (window-pixel-height)
+               :show-date t))
+            (setq x (1+ x))))
+        (goto-char (point-min))))
+    (pop-to-buffer buf)))
+
+(defun log-timeblock-update-view ()
+  "Update date-list and re-render columns for current end_date."
+  (setq log-timeblock-date-list
+        (log-timeblock-get-date-list log-timeblock-end-date log-timeblock-visible-days))
+  (log-timeblock-render-columns log-timeblock-date-list))
+
+(defun log-timeblock-next-day ()
+  "Move window to next (newer) end_date, then update the view."
+  (interactive)
+  ;; Advance end_date by +1 day
+  (setq log-timeblock-end-date
+        (format-time-string "%Y-%m-%d" (time-add (date-to-time log-timeblock-end-date) (days-to-time 1))))
+  (log-timeblock-update-view))
+
+(defun log-timeblock-prev-day ()
+  "Move window to previous (older) end_date, then update the view."
+  (interactive)
+  (setq log-timeblock-end-date
+        (format-time-string "%Y-%m-%d" (time-subtract (date-to-time log-timeblock-end-date) (days-to-time 1))))
+  (log-timeblock-update-view))
+
+(defun log-timeblock-calendar ()
+  "Entrypoint: opens buffer rendering the last N days ending at today."
+  (interactive)
+  (setq log-timeblock-end-date (format-time-string "%Y-%m-%d" (current-time)))
+  (log-timeblock-update-view)
+  (with-current-buffer log-timeblock-buffer-name
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "n") #'log-timeblock-next-day)
+      (define-key map (kbd "p") #'log-timeblock-prev-day)
+      (define-key map (kbd "q") (lambda () (interactive) (kill-buffer)))
+      (use-local-map map))))
+#+end_src
+
+#+RESULTS:
+: log-timeblock-calendar
+
+To run: M-x log-timeblock-calendar
+
+Use 'n', 'p' to paginate the window. This logic will be merged with data and task rendering layers in next steps.
+
+See also: *timeblock.el* and *timeblock-faces.el* buffers for reference.
+
+Note: This failed previously due to file-local shorthands (e.g., dt-hour) not being available. Always use full symbol names (e.g., timeblock-dt-hour, timeblock-tb-insert-column) when calling from outside timeblock.el.
+* Tasks
+
+The following tasks must be completed to finish the implementation of the log-timeblock visualization package. Steps are presented in the order they occur for a single refresh or navigation event:
+
+- File & Variable Setup
+  - [X] Define customizable variables: `log-timeblock-files`, `log-timeblock-last-duration`, `log-timeblock-visible-days` (see usage in prototypes and configuration examples in spec)
+  - [X] Create the package entrypoint file and ensure correct directory structure (~/Development/config/emacs/emacs/packages/log-timeblock.el)
+
+- Data Aggregation & Parsing
+  - [X] On buffer (or command) initialization, determine the default end date (today by default). (See prototype variable: `log-timeblock-end-date`)
+  - [X] On each (re-)draw or navigation event, compute the four visible dates starting from end_date and moving backwards (using prototype logic, see: `log-timeblock-get-date-list`).
+  - [X] For these four dates only, search all files for matching date headings and extract the block for that date. (Prototype: see logic structure in `log-timeblock-extract-date-blocks`).
+  - [X] Parse every block for valid timeblocked tasks ([X] HH:MM), skipping malformed ones. (Code written: see `log-timeblock-parse-date-block`)
+  - [X] Compute and assign completion status and task title for each entry. (`log-timeblock-parse-date-block`)
+  - [X] Deduplicate entries by start time within each date window (across files); only keep the latest occurrence. (Deduplication logic is applied after merging per-file items.)
+  - [X] After merging and deduplicating, sort the list by start time and then compute :end for each entry only after this step, so that each block's end time correctly reflects the next block in the unified data (with default duration for the last).
+  - [X] For each visible date, assemble tasks into a list structure consumable by timeblock.el. (Format: list of plists; see rendering in code examples)
+  - [X] Repeat the above for every navigation/key event ('n', 'p', 'g'). (Navigation logic: see prototype functions `log-timeblock-next-day`, `log-timeblock-prev-day`, etc.)
+
+- Visualization & Rendering
+  - [X] Implement columned rendering of N days using `timeblock-insert-column`, utilizing calculated data per day (Prototype: see `log-timeblock-render-columns` and earlier utilization in the spec)
+  - [X] Dynamically size vertical height of columns to `(window-pixel-height)` (Prototype: see stub update, as in `log-timeblock-render-columns`)
+  - [X] Ensure proper separation/spacing so columns do not overlap (static width, e.g. 200px; see stub, bugfix and variable setup in prototype logic)
+  - [X] Set up interactive Emacs buffer for calendar display (`*log-timeblock*`), see `log-timeblock-calendar` in prototype
+  - [X] For each block, show only the task title, not the HH:MM (parsing logic: `log-timeblock-parse-date-block`)
+  - [X] Color/hint task block based on completion status (distinct for done/not-done, static in first version; see prototype block struct and timeblock.el display)
+  - [X] Make all columns and blocks non-editable; edits can only happen in the org files (Emacs buffer default, as in visualization and stub interfaces)
+  - [X] Dynamically calculate number of columns per view as (window-pixel-width) / 200, minimum 1.
+  - [X] Work around timeblock.el bug by stripping ‘&’ from task titles in a helper function before calling insert-column.
+
+- Navigation & Interaction
+  - [X] Default to last N (e.g., 4) dates in column windows (latest at right) (Prototype: `log-timeblock-get-date-list`)
+  - [X] Support navigation: 'n' for next day (shift window +1), 'p' for previous (-1), 'g' for reset, 'q' to quit (see prototypes: `log-timeblock-next-day`, `log-timeblock-prev-day`, buffer map in `log-timeblock-calendar`)
+  - [X] Re-compute visible window, aggregate and parse visible date blocks again on each navigation event (see navigation prototype workflow)
+  - [X] Make navigation always aggregate across all files (no per-file views; enforced by data aggregation code)
+
+- Entrypoint & Command
+  - [X] Implement `log-timeblock-visualize` as the user command to generate the visualization from all files (See interactive command outline and stub)
+  - [X] Ensure command works interactively (M-x), and is listed in documentation/examples (examples in org and elisp code blocks)
+
+- Integration/Polish
+  - [X] Connect all parsing code and rendering pipeline so navigation updates the display correctly (requires functional integration of existing prototypes)
+  - [X] Provide example data and configuration snippets in the org spec and documentation (see example and test blocks throughout the org)
+  - [X] Add tests or sample code demonstrating extraction, parsing, and rendering chain (test cases, sample usage already started in org)
+  - [X] Update documentation section and examples as features are completed (ongoing, examples and blocks to be updated with new features)
+
