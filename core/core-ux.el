@@ -33,7 +33,7 @@
 (use-package emacs
   :ensure nil
   :bind (([remap goto-line] . goto-line-with-feedback)
-          ([remap keyboard-quit] . escape-quit)))
+         ([remap keyboard-quit] . escape-quit)))
 
 ;; Find my cursor
 (use-package beacon
@@ -63,7 +63,7 @@
   :defer 5
   :init
   (setq scroll-conservatively 99
-    scroll-margin 0)
+        scroll-margin 0)
   :config
   (ultra-scroll-mode 1))
 
@@ -88,18 +88,18 @@
   (which-key-mode 1)
   ;; Courtesy: doom emacs
   (when (eq which-key-popup-type 'side-window)
-  (setq which-key-popup-type 'custom
-        which-key-custom-popup-max-dimensions-function
-        (lambda (_) (which-key--side-window-max-dimensions))
-        which-key-custom-hide-popup-function #'which-key--hide-buffer-side-window
-        which-key-custom-show-popup-function
-        (lambda (act-popup-dim)
-          (cl-letf ((symbol-function (defun display-buffer-in-side-window (buffer alist)
-                                       (+popup-display-buffer-stacked-side-window-fn
-                                        buffer (append '((vslot . -9999)) alist)))))
-                 ;; HACK Fix #2219 where the which-key popup would get cut off.
-                 (setcar act-popup-dim (1+ (car act-popup-dim)))
-                 (which-key--show-buffer-side-window act-popup-dim)))))
+    (setq which-key-popup-type 'custom
+          which-key-custom-popup-max-dimensions-function
+          (lambda (_) (which-key--side-window-max-dimensions))
+          which-key-custom-hide-popup-function #'which-key--hide-buffer-side-window
+          which-key-custom-show-popup-function
+          (lambda (act-popup-dim)
+            (cl-letf ((symbol-function (defun display-buffer-in-side-window (buffer alist)
+                                         (+popup-display-buffer-stacked-side-window-fn
+                                          buffer (append '((vslot . -9999)) alist)))))
+              ;; HACK Fix #2219 where the which-key popup would get cut off.
+              (setcar act-popup-dim (1+ (car act-popup-dim)))
+              (which-key--show-buffer-side-window act-popup-dim)))))
   ;; (which-key-setup-minibuffer)
   :diminish which-key-mode)
 
@@ -116,9 +116,17 @@
   ;; emacs-async can probably be used to initialize imenu. Disabling for now
   ;; (which-function-mode)
   (advice-add 'which-function :filter-return
-            (lambda (s) (when s (truncate-string-to-width s 30 nil nil t))))
-
+              (lambda (s) (when s (truncate-string-to-width s 30 nil nil t))))
   (set-face-foreground 'which-func "darkgrey"))
+
+(use-package buffer-terminator
+  :defer 5
+  :config
+  (setq buffer-terminator-verbose nil)
+  (setq buffer-terminator-inactivity-timeout (* 30 60))
+  (setq buffer-terminator-interval (* 10 60))
+
+  (buffer-terminator-mode 1))
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 (setq select-enable-clipboard t ;; Enabled emacs to use system clipboard
