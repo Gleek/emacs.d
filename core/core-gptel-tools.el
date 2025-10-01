@@ -382,9 +382,9 @@ Otherwise, position cursor at the specified LINE_NUMBER."
                            (projectile-relevant-known-projects))))
       (or (member search-dir known-projects)
           (seq-some (lambda (project-dir)
-                      (string-prefix-p
-                       (expand-file-name project-dir)
-                       search-dir))
+                      (or (string-prefix-p
+                           (directory-file-name (expand-file-name project-dir))
+                           (expand-file-name search-dir))))
                     known-projects)))))
 
 (defun gptel-tool--make-process-sentinel (callback)
