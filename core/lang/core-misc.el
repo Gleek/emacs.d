@@ -89,13 +89,4 @@
 (use-package clojure-ts-mode)
 (use-package cider)
 
-
-(use-package pyvenv)
-(use-package pipenv)
-(use-package pip-requirements)
-(use-package pyimport)
-(use-package py-isort)
-(use-package uv-mode
-  :hook (python-ts-mode))
-
 (provide 'core-misc)

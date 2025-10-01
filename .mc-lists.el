@@ -81,6 +81,7 @@
         org-end-of-line
         org-force-self-insert
         org-kill-line
+        org-metaright
         org-open-line
         org-return-and-maybe-indent
         org-return-indent
@@ -106,6 +107,7 @@
         string-inflection-camelcase
         string-inflection-kebab-case
         string-inflection-lower-camelcase
+        string-inflection-snake-case
         string-inflection-underscore
         subtract-number-at-point
         subword-right
