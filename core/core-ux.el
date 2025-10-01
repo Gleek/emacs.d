@@ -123,8 +123,8 @@
   :defer 5
   :config
   (setq buffer-terminator-verbose nil)
-  (setq buffer-terminator-inactivity-timeout (* 30 60))
-  (setq buffer-terminator-interval (* 10 60))
+  (setq buffer-terminator-inactivity-timeout (* 120 60))
+  (setq buffer-terminator-interval (* 30 60))
 
   (buffer-terminator-mode 1))
 
