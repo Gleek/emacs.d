@@ -124,7 +124,7 @@
                ("C-c o n R" . org-roam-ref-remove)))
   :config
   (add-to-list 'org-roam-file-exclude-regexp "logseq/")
-  (setq org-roam-node-display-template (concat "${type:15} ${title:*} " (propertize "${tags:50}" 'face 'org-tag)))
+  (setq org-roam-node-display-template "${type:15} ${title:*} ${ftags:*}")
   (org-roam-db-autosync-mode)
 
 
@@ -163,6 +163,15 @@
           (file-name-directory
            (file-relative-name (org-roam-node-file node) org-roam-directory))))
       (error "")))
+
+  (cl-defmethod org-roam-node-ftags ((node org-roam-node))
+    "Return a string of propertized tags for NODE, separated by spaces."
+    (let* ((raw-tags (org-roam-node-tags node))
+           (formatted-tags
+            (mapcar (lambda (tag)
+                      (propertize (format " #%s " tag) 'face 'org-modern-tag))
+                    raw-tags)))
+      (string-join formatted-tags " ")))
 
 
   (defun org-roam-search ()
