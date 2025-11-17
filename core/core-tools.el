@@ -666,6 +666,10 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   (setq gptel-api-key (secret-get openai-key))
   (setq gptel-backend (gptel-make-gemini "Gemini" :key (secret-get gemini-key) :stream t))
   (require 'core-gptel-tools)
+  (defun +gptel-notify(&rest _)
+    (if (and gptel-tools-auto-pilot (not (frame-focus-state)))
+        (alert "GPTel response completed" :title "GPTel")))
+  (add-hook 'gptel-post-response-functions '+gptel-notify)
   (gptel-make-openai "TogetherAI"
     :host "api.together.xyz"
     :key (secret-get together-ai-key)
@@ -694,18 +698,16 @@ To actually enable this, evaluate `+bongo-remove-headers'."
     :backend "ChatGPT"
     :model 'gpt-4.1
     :tools
-    '("show_commit" "git_log" "run_command" "read_documentation" "get_imenu"
-      "list_flycheck_errors" "edit_buffer" "read_buffer_with_lines" "list_visible_buffers"
-      "list_matching_buffers" "list_buffers" "count_lines_buffer" "read_lines"
-      "list_project_files" "find_apropos" "find_definitions" "find_references"
-      "get_buffer_directory" "change_directory" "list_projects" "read_file"
+    '("run_command" "read_documentation" "get_imenu"
+      "list_errors" "edit_buffer" "list_visible_buffers"
+      "list_buffers" "list_project_files" "find_apropos" "find_definitions" "find_references"
+      "change_directory" "list_projects" "read_file"
       "search_with_ripgrep" "list_directory" "make_directory" "open_file_on_line"
-      "open_file_in_background" "create_file" "delete_file" "echo_message" "append_to_buffer"
-      "read_buffer" "get_recent_files" "eval_elisp" "buffer_details"))
+      "create_file" "delete_file" "get_recent_files" "eval_elisp" "web_search" "web_fetch"))
   (gptel-make-preset 'architect
     :description "Preset for spec writer"
     :backend "ChatGPT"
-    :model 'gpt-5-mini
+    :model 'gpt-5
     :system (concat "You are an expert technical architect and product expert who is working on writing a spec in org-mode format.\n"
                     "Your first task would be identify the buffer which you would be editing in.\n"
                     "All spec files are usually situated as a single org file in the specs directory inside the project directory.\n\n"
@@ -738,11 +740,11 @@ To actually enable this, evaluate `+bongo-remove-headers'."
                     "We can later refer to tasks like 1.2 to refer to task 2 in section 1.\n\n"
                     "The task list would be completely exhaustive. This means if all the tasks are done, the requirements are complete according to the design. \n"
                     "Don't add any tasks that have been mentioned in requirements or design to be done later\n")
-    :tools '("run_command" "edit_buffer" "list_visible_buffers" "list_matching_buffers" "list_buffers"
-             "buffer_details" "read_lines" "read_buffer" "list_project_files" "find_apropos"
+    :tools '("run_command" "edit_buffer" "list_visible_buffers" "list_buffers"
+             "list_project_files" "find_apropos"
              "find_definitions" "find_references" "change_directory" "list_projects" "read_file"
              "search_with_ripgrep" "list_directory" "make_directory" "open_file_in_background"
-             "create_file" "delete_file" "append_to_buffer" "eval_elisp"))
+             "create_file" "delete_file" "eval_elisp"))
 
 
 

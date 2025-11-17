@@ -23,6 +23,9 @@
 (require 'lsp-mode nil t)
 (require 'diff nil t)
 
+(defvar gptel-tools-auto-pilot nil
+  "If non-nil, don't wait for user prompt where usually prompts are required.")
+
 
 (defun gptel-tool--make-xref-formatter (callback)
   "Create an xref formatter that will send results to CALLBACK.
@@ -133,11 +136,22 @@ Returns results in file:line: context format via CALLBACK."
             (error (funcall callback
                             (format "Error finding symbols: %s" (error-message-string err)))))))))))
 
-(defun gptel-tool-get-recent-files ()
-  "Return a list of recently accessed files from `recentf-list'.
+(defun gptel-filter-list-regex (pattern lst)
+  "Return list elements in LST that match regexp PATTERN, case-insensitive. If PATTERN is nil/empty, return LST."
+  (let ((case-fold-search t))
+    (if (and pattern (not (string-empty-p pattern)))
+        (cl-remove-if-not (lambda (x) (string-match-p pattern x)) lst)
+      lst)))
+
+(defun gptel-tool-get-recent-files (&optional pattern)
+  "Return a list of recently accessed files from `recentf-list' optional regexp PATTERN (case-insensitive).
+If PATTERN is non-nil/nonempty, only files matching the regexp are included.
 Requires the recentf package to be enabled."
   (if (and (boundp 'recentf-list) recentf-list)
-      (mapconcat #'identity recentf-list "\n")
+      (let ((filtered (gptel-filter-list-regex pattern recentf-list)))
+        (if filtered
+            (mapconcat #'identity filtered "\n")
+          "No files match the pattern."))
     "No recent files found. Make sure recentf-mode is enabled."))
 
 (defun gptel-tool--imenu-flatten (index)
@@ -379,7 +393,7 @@ Otherwise, position cursor at the specified LINE_NUMBER."
                            (lambda (proj)
                              (not (string= (expand-file-name proj)
                                            (expand-file-name "~"))))
-                           (projectile-relevant-known-projects))))
+                           (projectile-known-projects))))
       (or (member search-dir known-projects)
           (seq-some (lambda (project-dir)
                       (or (string-prefix-p
@@ -405,11 +419,10 @@ Otherwise, position cursor at the specified LINE_NUMBER."
          (output-buffer (generate-new-buffer "*gptel-ripgrep*"))
          (cmd (gptel-tool--build-ripgrep-command query files))
          (in-known-project (gptel-tool--in-known-project-p search-dir)))
-
-    (if (and (not in-known-project)
+    (if (and (not (or in-known-project gptel-tools-auto-pilot))
              (not (y-or-n-p
-                   (format "Directory %s is not in a known project. Run ripgrep anyway? "
-                           search-dir))))
+                   (format "Directory %s is not in a known projects (%s). Run ripgrep anyway? "
+                           search-dir (length (projectile-relevant-known-projects))))))
         (funcall callback
                  (format "Search aborted: directory %s is not in known projects"
                          search-dir))
@@ -434,6 +447,50 @@ Otherwise, position cursor at the specified LINE_NUMBER."
             (format "Buffer contents replaced: %s" buffer_name))
         (format "Error: Buffer '%s' not found" buffer_name)))))
 
+
+(defun gptel-tool-read-unified (name-or-path &optional start-line end-line)
+  "Read contents from buffer or file. Gets resolved buffer, or opens file if not found. Optionally read from START-LINE to END-LINE (inclusive, 1-based).
+If more than 5000 lines, returns only a window of ±2500 lines around point.
+If the path is relative and not found, tries to resolve relative to current project root.
+Returns a formatted string with buffer metadata (buffer_name, buffer_directory, project, total_lines, start_line, end_line) and content."
+  (let ((live-buf (gptel-resolve-buffer-name name-or-path)))
+    (if (not (buffer-live-p live-buf))
+        (format "Error: Could not resolve buffer or file for '%s'" name-or-path)
+      (with-current-buffer live-buf
+        (save-excursion
+          (let* ((buffer_name (buffer-name))
+                 (buffer_directory (or (and (buffer-file-name)
+                                            (file-name-directory (buffer-file-name)))
+                                       default-directory))
+                 (project (when (fboundp 'projectile-project-root)
+                            (ignore-errors (projectile-project-root))))
+                 (total-lines (count-lines (point-min) (point-max)))
+                 (sl (or start-line 1))
+                 (el (or end-line total-lines)))
+            (setq sl (max 1 sl))
+            (setq el (min total-lines el))
+            (let ((nlines (1+ (- el sl)))
+                  content)
+              (cond
+               ((<= nlines 5000)
+                (goto-char (point-min))
+                (forward-line (1- sl))
+                (setq content (buffer-substring-no-properties
+                               (point)
+                               (progn (forward-line nlines) (point)))))
+               (t
+                (let* ((cur-line (line-number-at-pos (or (point) (point-min))))
+                       (low (max 1 (- cur-line 2500)))
+                       (high (min total-lines (+ cur-line 2500))))
+                  (goto-char (point-min))
+                  (forward-line (1- low))
+                  (setq content (buffer-substring-no-properties
+                                 (point)
+                                 (progn (forward-line (1+ (- high low))) (point)))))))
+              (format "buffer_name: %s\nbuffer_directory: %s\nproject: %s\ntotal_lines: %d\nstart_line: %d\nend_line: %d\n---\n%s"
+                      buffer_name (or buffer_directory "") (or project "") total-lines sl el content))))))))
+
+
 (defun gptel-tool-read-file (filepath)
   "Read and return the contents of FILEPATH."
   (with-temp-message (format "Reading file: %s" filepath)
@@ -448,10 +505,11 @@ Otherwise, position cursor at the specified LINE_NUMBER."
             (format "Error: File does not exist: %s" expanded-path)))
       (error (format "Error reading file: %s - %s" filepath (error-message-string err))))))
 
-(defun gptel-tool-list-projects ()
-  "Return a list of all project paths from projectile."
+
+(defun gptel-tool-list-projects (&optional pattern)
+  "Return a list of all project paths from projectile, filtered by PATTERN (case-insensitive). If PATTERN is nil/empty, return all."
   (require 'projectile)
-  (projectile-relevant-known-projects))
+  (gptel-filter-list-regex pattern (projectile-relevant-known-projects)))
 
 (defun gptel-tool-change-default-directory(dir)
   "Change the default directory for file operations to DIR."
@@ -543,19 +601,9 @@ Returns a status message indicating success or error."
           (error "Buffer %s not found" buffer-name)))
     (error (format "Error: %S" err))))
 
-(defun gptel-tool-list-buffers()
-  "List all open buffers in Emacs."
-  (mapconcat #'buffer-name (buffer-list) ", "))
-
-(defun gptel-tool-list-matching-buffers(buffer-name-regex)
-  "List all open buffers whose names match BUFFER-NAME-REGEX."
-  (let ((matching-buffers (seq-filter
-                           (lambda (buf)
-                             (string-match-p buffer-name-regex (buffer-name buf)))
-                           (buffer-list))))
-    (if matching-buffers
-        (mapconcat #'buffer-name matching-buffers ", ")
-      "No matching buffers found.")))
+(defun gptel-tool-list-buffers(&optional pattern)
+  "List all open buffers in Emacs filtered by PATTERN (case-insensitive, optional). If PATTERN is nil/empty, return all."
+  (mapconcat #'identity (gptel-filter-list-regex pattern (mapcar #'buffer-name (buffer-list))) ", "))
 
 (defun gptel-tool-list-visible-buffers()
   "List all visible buffers in Emacs.
@@ -657,7 +705,22 @@ Calls CALLBACK when complete. Verifies if all changes were accepted."
                                     (buffer-substring-no-properties (point-min) (point-max)))
                                   final-content)))))))
     (add-hook 'ediff-quit-hook cleanup-hook)
-    (ediff-buffers buffer temp-buffer)))
+    (ediff-buffers buffer temp-buffer)
+    (unless (frame-focus-state)
+      (alert "GPTel Diff is ready for review" :title "GPTel"))))
+
+(defun gptel-tool--replace-buffer(callback buffer temp-buffer)
+  "Replace BUFFER contents with TEMP-BUFFER contents and call CALLBACK."
+  (with-current-buffer buffer
+    (let ((inhibit-read-only t)
+          (cur-point (point)))
+      (erase-buffer)
+      (insert (with-current-buffer temp-buffer
+                (buffer-substring-no-properties (point-min) (point-max))))
+      (save-buffer)
+      (goto-char cur-point)))
+  (funcall callback "All edits complete"))
+
 
 (defun gptel-tool-edit-buffer (callback buffer-name buffer-edits)
   "Edit buffer named BUFFER-NAME by applying BUFFER-EDITS.
@@ -690,7 +753,9 @@ Shows ediff and calls CALLBACK when complete."
                 (setq success nil)
                 (funcall callback (format "Could not find '%s' in line %d or anywhere else in the buffer" old-string line-number)))))))
       (if success
-          (gptel-tool--compare-and-patch callback buffer temp-buffer)))))
+          (if gptel-tools-auto-pilot
+              (gptel-tool--replace-buffer callback buffer temp-buffer)
+            (gptel-tool--compare-and-patch callback buffer temp-buffer))))))
 
 (defun gptel-tool-read-buffer-with-lines (buffer-name)
   "Read the contents of BUFFER-NAME and return it with line numbers.
@@ -731,12 +796,13 @@ Tries multiple strategies to locate the right buffer:
 
 Returns the buffer object if found, or nil if no buffer is found."
   (cond
-   ;; ;; Case 1: Already a buffer object
-   ((bufferp (get-buffer buffer-name-or-path)) (get-buffer buffer-name-or-path))
+   ;; Case 1: Already a buffer object
+   ((bufferp (get-buffer buffer-name-or-path))
+     (get-buffer buffer-name-or-path))
 
    ;; Case 2: Nil or empty string
    ((not (and buffer-name-or-path (stringp buffer-name-or-path)))
-    nil)
+     nil)
 
    ;; ;; Case 3: Exact buffer name match
    ;; ((get-buffer buffer-name-or-path))
@@ -744,26 +810,22 @@ Returns the buffer object if found, or nil if no buffer is found."
    ;; Case 4: Might be a file path
    ((and (string-match-p "/" buffer-name-or-path)
          (file-exists-p buffer-name-or-path))
-    (find-file-noselect buffer-name-or-path t))
+     (find-file-noselect buffer-name-or-path t))
 
    ;; Case 5: Try to find matching buffers
-   (t
+   ((let* ((name-regexp (regexp-quote buffer-name-or-path))
+           (matching-buffers
+            (seq-filter (lambda (buf)
+                          (string-match-p name-regexp (buffer-name buf)))
+                        (buffer-list))))
+      (and matching-buffers (not (null matching-buffers))))
     (let* ((name-regexp (regexp-quote buffer-name-or-path))
            (matching-buffers
             (seq-filter (lambda (buf)
                           (string-match-p name-regexp (buffer-name buf)))
                         (buffer-list))))
-      (cond
-       ;; Case 5.1: No matches
-       ((null matching-buffers)
-        nil)
-
-       ;; Case 5.2: Single match
-       ((= (length matching-buffers) 1)
-        (car matching-buffers))
-
-       ;; Case 5.3: Multiple matches, try to find in project
-       (t
+      (if (= (length matching-buffers) 1)
+           (car matching-buffers)
         (if (fboundp 'projectile-project-root)
             (let* ((project-root (projectile-project-root))
                    (project-buffers
@@ -772,11 +834,21 @@ Returns the buffer object if found, or nil if no buffer is found."
                                     (projectile-project-buffer-p buf project-root)))
                                 matching-buffers)))
               (if (= (length project-buffers) 1)
-                  (car project-buffers)
-                ;; Case 5.4: Fall back to most recent buffer
-                (car matching-buffers)))
-          ;; Case 5.5: No projectile, just use most recent
-          (car matching-buffers))))))))
+                   (car project-buffers)
+                 (car matching-buffers)))
+          (car matching-buffers)))))
+   ;; Case 6: No match, try searching project files
+   (t
+    (when (and (fboundp 'gptel-tool-list-project-files)
+               (fboundp 'find-file-noselect))
+      (let* ((matches (gptel-tool-list-project-files buffer-name-or-path)))
+        (when (and matches (> (length matches) 0))
+          (let* ((file-to-open (car matches))
+                   (project-root (when (fboundp 'projectile-project-root) (projectile-project-root)))
+                   (full-path (if (and project-root (not (file-name-absolute-p file-to-open)))
+                                  (expand-file-name file-to-open project-root)
+                                file-to-open)))
+             (find-file-noselect full-path t))))))))
 
 (defun gptel-tool-git-log (callback &optional file-path count)
   "Get git log for the current project or FILE-PATH.
@@ -843,10 +915,10 @@ Returns a formatted string with error type, line, column, and message."
                            max-errors))
                     (if errors-list
                         (mapconcat 'identity errors-list "\n")
-                      "No flycheck errors found in buffer"))
-                "Flycheck mode is not enabled in this buffer"))
+                      "No errors found in buffer"))
+                "Flycheck mode is not enabled in this buffer. This tool can't be used"))
           (format "Error: Buffer %s not found" buffer-name)))
-    (error (format "Error getting flycheck errors: %S" err))))
+    (error (format "Error getting errors: %S" err))))
 
 (defun gptel-tool-buffer-details (buffer-name)
   "Get detailed information about a buffer named BUFFER-NAME.
@@ -895,9 +967,139 @@ Returns a formatted string with error type, line, column, and message."
       (error (format "Error deleting directory %s: %s"
                      directory (error-message-string err))))))
 
+
+
+(defun gptel-tool--fetch-with-timeout (url url-cb tool-cb failed-msg &rest args)
+  "Fetch URL and call URL-CB in the result buffer.
+
+Call TOOL-CB if there is an error or a timeout.  TOOL-CB and ARGS are
+passed to URL-CB.  FAILED-MSG is a fragment used for messaging.  Handles
+cleanup."
+  (let* ((timeout 30) timer done
+         (inherit-process-coding-system t)
+         (proc-buffer
+          (url-retrieve
+           url (lambda (status)
+                 (setq done t)
+                 (when timer (cancel-timer timer))
+                 (if-let* ((err (plist-get status :error)))
+                     (funcall tool-cb
+                              (format "Error: %s failed with error: %S" failed-msg err))
+                   (apply url-cb tool-cb args))
+                 (kill-buffer (current-buffer)))
+           args 'silent)))
+    (setq timer
+          (run-at-time
+           timeout nil
+           (lambda (buf cb)
+             (unless done
+               (setq done t)
+               (let ((kill-buffer-query-functions)) (kill-buffer buf))
+               (funcall
+                cb (format "Error: %s timed out after %d seconds."
+                           failed-msg timeout))))
+           proc-buffer tool-cb))
+    proc-buffer))
+
+;;;; Web search
+(defun gptel-tool--shr-next-link ()
+  "Jump to the next SHR link in the buffer.  Return jump position."
+  (let ((current-prop (get-char-property (point) 'shr-url))
+        (next-pos (point)))
+    (while (and (not (eobp))
+                (setq next-pos
+                      (or (next-single-property-change (point) 'shr-url)
+                          (point-max)))
+                (let ((next-prop (get-char-property next-pos 'shr-url)))
+                  (or (equal next-prop current-prop)
+                      (equal next-prop nil))))
+      (goto-char next-pos))
+    (goto-char next-pos)))
+(defvar gptel-tool--web-search-active nil)
+
+(defun gptel-tool--web-search-eww (tool-cb query &optional count)
+  "Search the web using eww's default search engine (usually DuckDuckGo).
+
+Call TOOL-CB with the results as a string.  QUERY is the search string.
+COUNT is the number of results to return (default 5)."
+  ;; No more than two active searches at one time
+  (setq gptel-tool--web-search-active
+        (cl-delete-if-not
+         (lambda (buf) (and (buffer-live-p buf)
+                       (process-live-p (get-buffer-process buf))))
+         gptel-tool--web-search-active))
+  (if (>= (length gptel-tool--web-search-active) 2)
+      (progn (message "Web search: waiting for turn")
+             (run-at-time 5 nil #'gptel-tool--web-search-eww
+                          tool-cb query count))
+    (push (gptel-tool--fetch-with-timeout
+           (concat eww-search-prefix (url-hexify-string query))
+           #'gptel-tool--web-search-eww-callback
+           tool-cb (format "Web search for \"%s\"" query))
+          gptel-tool--web-search-active)))
+
+(defun gptel-tool--web-fix-unreadable ()
+  "Replace invalid characters from point to end in current buffer."
+  (while (and (skip-chars-forward "\0-\x3fff7f")
+              (not (eobp)))
+    (display-warning
+     '(gptel gptel-tool-tools)
+     (format "Invalid character in buffer \"%s\"" (buffer-name)))
+    (delete-char 1) (insert "?")))
+
+(defun gptel-tool--web-search-eww-callback (cb)
+  "Extract website text and run callback CB with it."
+  (let* ((count 5) (results))
+    (goto-char (point-min))
+    (goto-char url-http-end-of-headers)
+    ;; (gptel-tool--web-fix-unreadable)
+    (let* ((dom (libxml-parse-html-region (point) (point-max)))
+           (result-count 0))
+      (eww-score-readability dom)
+      ;; (erase-buffer) (buffer-disable-undo)
+      (with-temp-buffer
+        (shr-insert-document (eww-highest-readability dom))
+        (goto-char (point-min))
+        (while (and (not (eobp)) (< result-count count))
+          (let ((pos (point))
+                (url (get-char-property (point) 'shr-url))
+                (next-pos (gptel-tool--shr-next-link)))
+            (when-let* (((stringp url))
+                        (idx (string-search "http" url))
+                        (url-fmt (url-unhex-string (substring url idx))))
+              (cl-incf result-count)
+              (push (concat url-fmt "\n\n"
+                            (string-trim
+                             (buffer-substring-no-properties pos next-pos))
+                            "\n\n----\n")
+                    results))))))
+    (funcall cb (apply #'concat (nreverse results)))))
+
+;;;; Read URLs
+(defun gptel-tool--read-url (tool-cb url)
+  "Fetch URL text and call TOOL-CB with it."
+  (gptel-tool--fetch-with-timeout
+   url
+   (lambda (cb)
+     (goto-char (point-min)) (forward-paragraph)
+     (condition-case errdata
+         (let ((dom (libxml-parse-html-region (point) (point-max))))
+           (with-temp-buffer
+             (eww-score-readability dom)
+             (shr-insert-document (eww-highest-readability dom))
+             (decode-coding-region (point-min) (point-max) 'utf-8)
+             (funcall
+              cb (buffer-substring-no-properties
+                  (point-min) (point-max)))))
+       (error (funcall cb (format "Error: Request failed with error data:\n%S"
+                                  errdata)))))
+   tool-cb (format "Fetch for \"%s\"" url)))
+
+
+
 ;;;;;;;;;
 
-(gptel-make-tool :name "read_buffer"
+(gptel-make-tool :name "read_buffer_old"
                  :function #'gptel-tool-read-buffer
                  :description "Return the contents of an Emacs buffer. This will also give the modified contents if the buffer has been modified but not saved. For the file on disk use read_file. Avoid doing this for large buffers. Use read_lines for large buffers instead. To estimate the size of the buffer use count_lines_buffer."
                  :args (list '(:name "buffer"
@@ -926,6 +1128,23 @@ Returns a formatted string with error type, line, column, and message."
                                      :type string
                                      :description "The name of the function or variable whose documentation is to be retrieved"))
                  :category "elisp"
+                 :include t)
+
+(gptel-make-tool :name "read_file"
+                 :function #'gptel-tool-read-unified
+                 :description "Read the contents of a file or buffer, optionally from a line range. Input can be a buffer name, file name or file path. There's a limit of 5000 lines on the output. Use start-line and end-line to restrict the output to a specific range. If not provided, region around the cursor will be used to limit content. Returns buffer and project metadata such as buffer name, directory, project, total lines, range, and the requested content."
+                 :args (list '(:name "name-or-path"
+                                    :type string
+                                    :description "Buffer name or file path")
+                               '(:name "start-line"
+                                    :type integer
+                                    :optional t
+                                    :description "Start line (optional)")
+                               '(:name "end-line"
+                                    :type integer
+                                    :optional t
+                                    :description "End line (optional)"))
+                 :category "emacs"
                  :include t)
 
 (gptel-make-tool :name "echo_message"
@@ -970,6 +1189,7 @@ Returns a formatted string with error type, line, column, and message."
                                      :description "The file to open in the background without displaying"))
                  :category "emacs"
                  :include t)
+
 
 (gptel-make-tool :name "open_file_on_line"
                  :function #'gptel-tool-open-file-on-line
@@ -1053,7 +1273,7 @@ Returns a formatted string with error type, line, column, and message."
                  :confirm t
                  :include t)
 
-(gptel-make-tool :name "read_file"
+(gptel-make-tool :name "read_file_old"
                  :function #'gptel-tool-read-file
                  :description "Read and display the contents of a file. This shows the saved file on disk. If the file is edited on buffer read_buffer will need to be used to get the updated content"
                  :args (list '(:name "filepath"
@@ -1066,7 +1286,10 @@ Returns a formatted string with error type, line, column, and message."
                  :function #'gptel-tool-list-projects
                  :description (concat "Returns a list of all the project paths. "
                                       "Every element of the list is in quotes signifies the directory for the project."
-                                      " All commands for the project might be run in that directory.")
+                                      " All commands for the project might be run in that directory. Accepts an optional regex pattern to filter results.")
+                 :args (list '(:name "pattern"
+                                    :type string
+                                    :description "Optional regexp to filter projects. Empty returns all. Case-insensitive." :optional t))
                  :category "emacs"
                  :include t)
 
@@ -1145,7 +1368,7 @@ Returns a formatted string with error type, line, column, and message."
 
 (gptel-make-tool :name "read_lines"
                  :function #'gptel-tool-read-lines
-                 :description "Read lines from a specified buffer and prefix each line with its line number. Always prefer this over reading full buffer but only if you have high confidence that you only need context of specific lines"
+                 :description "Read lines from a specified buffer and prefix each line with its line number. Always prefer this over reading full buffer but only if you have high confidence that you only need context of specific lines. Use read_buffer if full buffer is needed"
                  :args (list '(:name "buffer-name"
                                      :type string
                                      :description "The name of the buffer to read from.")
@@ -1190,19 +1413,14 @@ Returns a formatted string with error type, line, column, and message."
 
 (gptel-make-tool :name "list_buffers"
                  :function #'gptel-tool-list-buffers
-                 :description "List current Emacs buffers"
-                 :args nil
+                 :description "List current Emacs buffers. Accepts an optional case-insensitive regex pattern to filter buffer names."
+                 :args (list '(:name "pattern"
+                                    :type string
+                                    :description "Optional regexp to filter buffer names. Empty returns all. Case-insensitive." :optional t))
                  :category "emacs"
                  :include t)
 
-(gptel-make-tool :name "list_matching_buffers"
-                 :function #'gptel-tool-list-matching-buffers
-                 :description "List buffers whose names match a given regular expression. This is useful for finding specific buffers when you have a pattern in mind. Or if read_buffer or similar tools are not working for you. To figure out the correct buffer name."
-                 :args (list '(:name "buffer-name-regex"
-                                     :type string
-                                     :description "The regular expression to match buffer names. Use an empty string to match all buffers."))
-                 :category "emacs"
-                 :include t)
+
 
 (gptel-make-tool :name "list_visible_buffers"
                  :function #'gptel-tool-list-visible-buffers
@@ -1224,13 +1442,12 @@ Returns a formatted string with error type, line, column, and message."
 (gptel-make-tool :name "edit_buffer"
                  :function #'gptel-tool-edit-buffer
                  :description "Edit an Emacs buffer with a list of edits. Each edit contains:
-- line-number: Where to apply the edit
+- line-number (optional): Where to apply the edit. Useful if same old-string is on multiple lines
 - old-string: Text to replace (can be empty for insertions)
 - new-string: Text to insert instead
 
 Prefer this tool for editing files the user is working on as it shows the latest buffer content.
 Make multiple small edits IN A SINGLE CALL rather than large block replacements.
-If multiple calls are needed, re-read the buffer to get updated line numbers.
 
 Returns (with recommended actions):
 - \"Couldn't find '<text>' in line <n>\" - Recheck the text and try again, or break edit into smaller parts
@@ -1244,7 +1461,7 @@ Returns (with recommended actions):
                                      :items (:type object
                                                    :properties
                                                    (:line_number
-                                                    (:type integer :description "The line number where edit starts. If text is not found on that line then the whole buffer is searched")
+                                                    (:type integer :description "The line number where edit starts. It is useful for precise edits otherwise the whole buffer is searched" :optional t)
                                                     :old_string
                                                     (:type string
                                                            :description "Text to replace. Can be empty for pure insertions.")
@@ -1255,12 +1472,12 @@ Returns (with recommended actions):
                  :include t
                  :async t)
 
-(gptel-make-tool :name "list_flycheck_errors"
+(gptel-make-tool :name "list_errors"
                  :function #'gptel-tool-list-flycheck-errors
-                 :description "Check flycheck errors, warnings and other issues in a buffer. Returns up to 100 errors by default."
+                 :description "Check errors, warnings and other issues in a buffer. Returns up to 100 errors by default."
                  :args (list '(:name "buffer-name"
                                      :type string
-                                     :description "The name of the buffer to check for flycheck errors."))
+                                     :description "The name of the buffer to check for errors."))
                  :category "emacs"
                  :include t)
 
@@ -1292,8 +1509,10 @@ Good to understand relevant portions of the buffer without reading the full buff
 
 (gptel-make-tool :name "get_recent_files"
                  :function #'gptel-tool-get-recent-files
-                 :description "Returns a list of files that were recently opened or modified in Emacs. This uses Emacs' built-in file history tracking (recentf) which maintains a list of files the user has interacted with, sorted from most recent to oldest. Each file is returned with its full path. The list updates automatically as users open and save files in Emacs."
-                 :args nil
+                 :description "Returns a list of files that were recently opened or modified. The list of files the user has interacted with is sorted from most recent to oldest. Each file is returned with its full path. If a regex PATTERN is given, only files matching it (case-insensitive) are returned. Empty or nil returns the full list."
+                 :args (list '(:name "pattern"
+                                     :type string
+                                     :description "Optional regexp to filter results. Empty returns all. Case-insensitive." :optional t))
                  :category "emacs"
                  :include t)
 
@@ -1338,6 +1557,42 @@ Good to understand relevant portions of the buffer without reading the full buff
                  :category "emacs"
                  :confirm t
                  :include t)
+
+
+
+;; Courtesy: karthink
+(gptel-make-tool
+ :name "web_search"
+ :function 'gptel-tool--web-search-eww
+ :description "Search the web for the first five results to a query.  The query can be an arbitrary string.  Returns the top five results from the search engine as a list of plists.  Each object has the keys `:url` and `:excerpt` for the corresponding search result.
+
+This tool uses the Emacs web browser (eww) with its default search engine (typically DuckDuckGo) to perform searches. No API key is required.
+
+If required, consider using the url as the input to the `Read` tool to get the contents of the url.  Note that this might not work as the `Read` tool does not handle javascript-enabled pages."
+ :args '((:name "query"
+                :type string
+                :description "The natural language search query, can be multiple words.")
+         (:name "count"
+                :type integer
+                :description "Number of results to return (default 5)"
+                :optional t))
+ :include t
+ :async t
+ :category "web")
+
+(gptel-make-tool
+ :function #'gptel-tool--read-url
+ :name "web_fetch"
+ :description "Fetch and read the contents of a URL.
+
+- Returns the text of the URL (not HTML) formatted for reading.
+- Request times out after 30 seconds."
+ :args '(( :name "url"
+           :type "string"
+           :description "The URL to read"))
+ :async t
+ :include t
+ :category "web")
 
 (provide 'core-gptel-tools)
 ;;; core-gptel-tools.el ends here

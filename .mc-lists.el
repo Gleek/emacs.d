@@ -120,6 +120,7 @@
         wdired-capitalize-word
         wdired-finish-edit
         wdired-next-line
+        web-mode-element-rename
         web-mode-navigate
         wgrep-change-to-wgrep-mode
         wgrep-finish-edit
