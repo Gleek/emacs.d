@@ -698,12 +698,13 @@ To actually enable this, evaluate `+bongo-remove-headers'."
     :backend "ChatGPT"
     :model 'gpt-4.1
     :tools
-    '("run_command" "read_documentation" "get_imenu"
+    '("run_command"
+      "read_documentation" "get_imenu"
       "list_errors" "edit_buffer" "list_visible_buffers"
       "list_buffers" "list_project_files" "find_apropos" "find_definitions" "find_references"
       "change_directory" "list_projects" "read_file"
       "search_with_ripgrep" "list_directory" "make_directory" "open_file_on_line"
-      "create_file" "delete_file" "get_recent_files" "eval_elisp" "web_search" "web_fetch"))
+      "create_file" "delete_file" "eval_elisp" "web_search" "web_fetch"))
   (gptel-make-preset 'architect
     :description "Preset for spec writer"
     :backend "ChatGPT"
@@ -751,8 +752,18 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   (gptel-make-preset 'fact
     :description "Preset for answering questions on current context without tools"
     :backend "ChatGPT"
+    :system (lambda()
+              (concat "You are an expert analyst and researcher. "
+                      "You use web search and web fetch to tools to answer questions. "
+                      "you also do deep research, going through multiple sources, on the topic before answering. "
+                      "You also try to find opposing information in your research to get a balanced view. "
+                      "If you don't know the answer or can't find relevant information, you admit it. "
+                      "Be precise in your answers and do not reply in long paragraphs. "
+                      "You always give sources of the information you provide. "
+                      "For links format would be [[https://example.com/full/web-page-url/][Web page title]].\n\n"
+                      "Current date and time is: " (format-time-string "%Y-%m-%d %H:%M:%S")))
     :model 'gpt-4o-mini
-    :tools nil)
+    :tools '("web_search" "web_fetch"))
 
   (gptel-make-preset 'google
     :description "Preset for Google search"

@@ -335,41 +335,42 @@ Otherwise, position cursor at the specified LINE_NUMBER."
          (hash (substring (md5 command) 0 4)))
     (format "gptel-tool-run-%s-%s" project-name hash)))
 
-(defun gptel-tool-run-command (command &optional working-directory)
-  (let* ((dir (expand-file-name (or working-directory default-directory) default-directory))
-         (id (gptel-tool--run-get-id command dir))
-         (buffer (get-buffer-create id))
-         proc output status done)
+(defun gptel-tool--run-command-poll (id callback command buffer proc attempts)
+  "Poll the command process and return output and status via CALLBACK."
+  (let ((status (and proc (process-status proc)))
+        output
+        (bufname (buffer-name buffer)))
     (with-current-buffer buffer
-      (erase-buffer))
-    (let ((default-directory dir))
-      (setq proc (start-process-shell-command id buffer command)))
-    (gptel-tool--record-run-command-history command dir)
-    (let ((attempts 20))
-      (while (and (not done) (> attempts 0))
-        (sit-for 0.5)
-        (setq status (process-status proc))
-        (when (memq status '(exit signal))
-          (setq done t))
-        (setq attempts (1- attempts))))
-    (with-current-buffer buffer
-      (setq output (buffer-string)))
-    (setq status (process-status proc))
+      (setq output (substring-no-properties (buffer-string))))
     (cond
      ((memq status '(exit signal))
       (let* ((exit-code (process-exit-status proc))
              (status-str (if (zerop exit-code)
                              "Status: complete"
                            (format "Status: failed with exit code %d" exit-code))))
-        (concat output "\n" status-str)))
-     ((eq status 'run)
-      (concat
-       output
-       (format
-        "\nStatus: running\nBuffer: %s\nOutput is still being generated, check the buffer `%s' later to see the full output."
-        id id))))))
+        (when (buffer-live-p buffer)
+          (kill-buffer buffer))
+        (funcall callback (concat output "\n" status-str))))
+     ((> attempts 0)
+      ;; Still running, reschedule poll with decremented attempts
+      (run-at-time 0.5 nil #'gptel-tool--run-command-poll id callback command buffer proc (1- attempts)))
+     (t ;; Timeout reached while still running: report running status once
+      (funcall callback (concat
+                         output
+                         (format
+                          "\nStatus: running\nBuffer: %s\nOutput is still being generated, check the buffer `%s', with read_file, later to see the full output."
+                          bufname bufname)))))))
 
-
+(defun gptel-tool-run-command (callback command &optional working-directory)
+  (let* ((dir (expand-file-name (or working-directory default-directory) default-directory))
+         (id (gptel-tool--run-get-id command dir))
+         buffer proc)
+    (let ((default-directory dir))
+      (setq buffer (eat-make id "/bin/bash" nil "-c" command)))
+    (setq proc (get-buffer-process buffer))
+    (gptel-tool--record-run-command-history command dir)
+    (run-at-time 0.5 nil #'gptel-tool--run-command-poll id callback command buffer proc 20)
+    nil))
 
 (defun gptel-tool--build-ripgrep-command (query files)
   "Build ripgrep command for QUERY in FILES."
@@ -1096,7 +1097,6 @@ COUNT is the number of results to return (default 5)."
    tool-cb (format "Fetch for \"%s\"" url)))
 
 
-
 ;;;;;;;;;
 
 (gptel-make-tool :name "read_buffer_old"
@@ -1238,6 +1238,7 @@ COUNT is the number of results to return (default 5)."
                                 :description "Optional: The directory in which to run the command. Defaults to the current directory if not specified."))
                  :category "command"
                  :confirm t
+                 :async t
                  :include t)
 
 (gptel-make-tool :name "search_with_ripgrep"
@@ -1424,7 +1425,7 @@ COUNT is the number of results to return (default 5)."
 
 (gptel-make-tool :name "list_visible_buffers"
                  :function #'gptel-tool-list-visible-buffers
-                 :description "List currently visible buffers in Emacs, excluding the buffer that made this call. This is a great way to find out what other buffers the user is looking at. Use it if you're unsure about what the user is referring to or user is specifically reffering to some file by \"this\" or similar words."
+                 :description "List currently visible buffers in Emacs, excluding the buffer that made this call. Use this to find out what other buffers the user is looking at when you're unsure about what the user is referring to or user is specifically referring to some file by \"this\", \"current\", \"here\" or similar words."
                  :args nil
                  :category "emacs"
                  :include t)
@@ -1561,38 +1562,37 @@ Good to understand relevant portions of the buffer without reading the full buff
 
 
 ;; Courtesy: karthink
-(gptel-make-tool
- :name "web_search"
- :function 'gptel-tool--web-search-eww
- :description "Search the web for the first five results to a query.  The query can be an arbitrary string.  Returns the top five results from the search engine as a list of plists.  Each object has the keys `:url` and `:excerpt` for the corresponding search result.
+(gptel-make-tool :name "web_search"
+                 :function 'gptel-tool--web-search-eww
+                 :description "Search the web for the first five results to a query.  The query can be an arbitrary string.  Returns the top five results from the search engine as a list of plists.  Each object has the keys `:url` and `:excerpt` for the corresponding search result.
 
 This tool uses the Emacs web browser (eww) with its default search engine (typically DuckDuckGo) to perform searches. No API key is required.
 
 If required, consider using the url as the input to the `Read` tool to get the contents of the url.  Note that this might not work as the `Read` tool does not handle javascript-enabled pages."
- :args '((:name "query"
-                :type string
-                :description "The natural language search query, can be multiple words.")
-         (:name "count"
-                :type integer
-                :description "Number of results to return (default 5)"
-                :optional t))
- :include t
- :async t
- :category "web")
+                 :args '((:name "query"
+                                :type string
+                                :description "The natural language search query, can be multiple words.")
+                         (:name "count"
+                                :type integer
+                                :description "Number of results to return (default 5)"
+                                :optional t))
+                 :include t
+                 :async t
+                 :category "web")
 
-(gptel-make-tool
- :function #'gptel-tool--read-url
- :name "web_fetch"
- :description "Fetch and read the contents of a URL.
+(gptel-make-tool :name "web_fetch"
+                 :function #'gptel-tool--read-url
+                 :description "Fetch and read the contents of a URL.
 
 - Returns the text of the URL (not HTML) formatted for reading.
 - Request times out after 30 seconds."
- :args '(( :name "url"
-           :type "string"
-           :description "The URL to read"))
- :async t
- :include t
- :category "web")
+                 :args '(( :name "url"
+                           :type "string"
+                           :description "The URL to read"))
+                 :async t
+                 :include t
+                 :category "web")
+
 
 (provide 'core-gptel-tools)
 ;;; core-gptel-tools.el ends here
