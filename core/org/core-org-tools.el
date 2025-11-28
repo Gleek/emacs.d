@@ -57,7 +57,7 @@ everywhere that supports some decent formatting."
       (if is-image
           (progn
             (require 'org-download)
-            (org-download-clipboard nil))
+            (+org-download-clipboard nil))
         (if is-html
             (org-formatted-paste)
           (org-yank nil)))))
@@ -181,6 +181,18 @@ everywhere that supports some decent formatting."
          ("C-c o d y" . org-download-yank))
   :init
   (setq org-download-abbreviate-filename-function (lambda (str) str))
+
+  (defun +org-download-clipboard (&optional basename)
+    "Call `org-download-clipboard' with a custom `org-id-get-create` implementation.
+If `org-download-method' is `'attach`, call the original `org-id-get-create`;
+otherwise, do nothing."
+    (interactive)
+    (let ((orig-org-id-get-create (symbol-function 'org-id-get-create)))
+      (cl-letf (((symbol-function 'org-id-get-create)
+                 (lambda ()
+                   (when (eq org-download-method 'attach)
+                     (funcall orig-org-id-get-create)))))
+        (org-download-clipboard basename))))
 
   (setq-default org-download-image-dir (concat +roam-directory "resource/downloads"))
   (when IS-MAC (setq org-download-screenshot-method "screencapture -i %s")))
