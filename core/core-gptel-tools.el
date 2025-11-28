@@ -378,8 +378,7 @@ Otherwise, position cursor at the specified LINE_NUMBER."
           (shell-quote-argument query)
           (if (and files (not (string= files "")))
               (format " -g %s" (shell-quote-argument files))
-            ""))
-)
+            "")))
 
 (defun gptel-tool--get-search-directory (directory)
   "Get expanded search DIRECTORY or default-directory."
@@ -1077,21 +1076,66 @@ COUNT is the number of results to return (default 5)."
     (funcall cb (apply #'concat (nreverse results)))))
 
 ;;;; Read URLs
+(defun gptel-tool--is-pdf-response-p ()
+  "Check if current buffer contains a PDF response.
+Returns t if Content-Type header indicates PDF, nil otherwise."
+  (goto-char (point-min))
+  (re-search-forward "^Content-Type:.*application/pdf" nil t))
+
+(defun gptel-tool--save-pdf-to-temp ()
+   "Save PDF content from current buffer to a temporary file.
+Returns the path to the temporary file."
+  (let ((temp-file (make-temp-file "gptel-pdf-" nil ".pdf")))
+    (goto-char url-http-end-of-headers)
+    (write-region (point) (point-max) temp-file nil 'silent)
+    temp-file))
+
+(defun gptel-tool--extract-pdf-with-pdftotext (pdf-file)
+  "Extract text from PDF-FILE using pdftotext with layout preservation.
+Returns the extracted text or an error message if pdftotext is not available
+or extraction fails."
+  (condition-case err
+      (let ((output (shell-command-to-string
+                     (format "pdftotext -layout %s -" (shell-quote-argument pdf-file)))))
+        (if (string-empty-p output)
+            "Error: pdftotext produced no output. PDF may be empty or unreadable."
+          output))
+    (error
+     (format "Error: pdftotext not found or failed: %s. Install poppler-utils package."
+             (error-message-string err)))))
+
 (defun gptel-tool--read-url (tool-cb url)
-  "Fetch URL text and call TOOL-CB with it."
+  "Fetch URL text and call TOOL-CB with it.
+
+Handles both HTML pages and PDF files:
+- For HTML: parses DOM and extracts readable content
+- For PDF: saves to temp file and uses pdftotext -layout to extract text"
   (gptel-tool--fetch-with-timeout
    url
    (lambda (cb)
-     (goto-char (point-min)) (forward-paragraph)
+     (goto-char (point-min))
+     (forward-paragraph)
      (condition-case errdata
-         (let ((dom (libxml-parse-html-region (point) (point-max))))
-           (with-temp-buffer
-             (eww-score-readability dom)
-             (shr-insert-document (eww-highest-readability dom))
-             (decode-coding-region (point-min) (point-max) 'utf-8)
-             (funcall
-              cb (buffer-substring-no-properties
-                  (point-min) (point-max)))))
+         (if (gptel-tool--is-pdf-response-p)
+             ;; PDF handling
+             (let ((pdf-file (gptel-tool--save-pdf-to-temp))
+                   extracted-text)
+               (unwind-protect
+                   (progn
+                     (setq extracted-text (gptel-tool--extract-pdf-with-pdftotext pdf-file))
+                     (funcall cb extracted-text))
+                 ;; Cleanup temp file
+                 (when (file-exists-p pdf-file)
+                   (delete-file pdf-file))))
+           ;; HTML handling
+           (let ((dom (libxml-parse-html-region (point) (point-max))))
+             (with-temp-buffer
+               (eww-score-readability dom)
+               (shr-insert-document (eww-highest-readability dom))
+               (decode-coding-region (point-min) (point-max) 'utf-8)
+               (funcall
+                cb (buffer-substring-no-properties
+                    (point-min) (point-max))))))
        (error (funcall cb (format "Error: Request failed with error data:\n%S"
                                   errdata)))))
    tool-cb (format "Fetch for \"%s\"" url)))
@@ -1568,7 +1612,7 @@ Good to understand relevant portions of the buffer without reading the full buff
 
 This tool uses the Emacs web browser (eww) with its default search engine (typically DuckDuckGo) to perform searches. No API key is required.
 
-If required, consider using the url as the input to the `Read` tool to get the contents of the url.  Note that this might not work as the `Read` tool does not handle javascript-enabled pages."
+If required, consider using the url as the input to the `web_fetch` tool to get the contents of the url.  Note that this might not work as the `web_fetch` tool does not handle javascript-enabled pages."
                  :args '((:name "query"
                                 :type string
                                 :description "The natural language search query, can be multiple words.")
