@@ -120,6 +120,7 @@
   (set-face-foreground 'which-func "darkgrey"))
 
 (use-package buffer-terminator
+  :disabled t ; Needs some tweaking on what to kill. Will do later
   :defer 5
   :config
   (setq buffer-terminator-verbose nil)

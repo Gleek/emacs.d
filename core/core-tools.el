@@ -683,6 +683,13 @@ To actually enable this, evaluate `+bongo-remove-headers'."
     :key (secret-get gemini-key)
     :request-params '(:tools [(:google_search ())]))
 
+  (gptel-make-bedrock "AWS"
+    :stream t
+    :region "us-east-1"
+    :aws-bearer-token (secret-get aws-bedrock-key)
+    :models '(claude-sonnet-4-20250514 claude-haiku-4-5-20251001 claude-opus-4-5-20251101)
+    :model-region 'us)
+
   (gptel-make-openai "Groq"
     :host "api.groq.com"
     :endpoint "/openai/v1/chat/completions"
@@ -695,8 +702,8 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   (gptel-make-gh-copilot "Copilot")
   (gptel-make-preset 'coder
     :description "Preset for coding tasks"
-    :backend "ChatGPT"
-    :model 'gpt-4.1
+    :backend "AWS"
+    :model 'claude-sonnet-4-20250514
     :tools
     '("run_command"
       "read_documentation" "get_imenu"
@@ -704,7 +711,8 @@ To actually enable this, evaluate `+bongo-remove-headers'."
       "list_buffers" "list_project_files" "find_apropos" "find_definitions" "find_references"
       "change_directory" "list_projects" "read_file"
       "search_with_ripgrep" "list_directory" "make_directory" "open_file_on_line"
-      "create_file" "delete_file" "eval_elisp" "web_search" "web_fetch"))
+      "create_file" "delete_file" "eval_elisp" "web_search" "web_fetch"
+      "remember" "list_tags" "get_tag" "search_memory"))
   (gptel-make-preset 'architect
     :description "Preset for spec writer"
     :backend "ChatGPT"
@@ -763,7 +771,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
                       "For links format would be [[https://example.com/full/web-page-url/][Web page title]].\n\n"
                       "Current date and time is: " (format-time-string "%Y-%m-%d %H:%M:%S")))
     :model 'gpt-4o-mini
-    :tools '("web_search" "web_fetch"))
+    :tools '("web_search" "web_fetch" "remember" "list_tags" "get_tag" "search_memory"))
 
   (gptel-make-preset 'google
     :description "Preset for Google search"

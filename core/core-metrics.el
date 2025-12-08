@@ -31,6 +31,7 @@
 ;; Requires https://activitywatch.net/
 ;; brew install activitywatch
 (use-package activity-watch-mode
+  :disabled t ; Activity watch seems to take a lot of CPU. I'm suspecting emacs making request every 2 seconds is the issue.
   :defer 2
   :config
   (setq activity-watch-project-name-resolvers '(projectile))

@@ -23,9 +23,10 @@
 (require 'lsp-mode nil t)
 (require 'diff nil t)
 
+(require 'gptel-memory)
+
 (defvar gptel-tools-auto-pilot nil
   "If non-nil, don't wait for user prompt where usually prompts are required.")
-
 
 (defun gptel-tool--make-xref-formatter (callback)
   "Create an xref formatter that will send results to CALLBACK.
