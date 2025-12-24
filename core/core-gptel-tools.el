@@ -682,29 +682,29 @@ Assumes BUFFER is valid."
 (defun gptel-tool--compare-and-patch (callback buffer temp-buffer)
   "Run ediff between BUFFER and TEMP-BUFFER with cleanup hooks.
 Calls CALLBACK when complete. Verifies if all changes were accepted."
-  (letrec ((final-content (with-current-buffer temp-buffer
-                            (buffer-substring-no-properties (point-min) (point-max))))
-           (cleanup-hook
+  (letrec ((cleanup-hook
             (lambda ()
-              (remove-hook 'ediff-quit-hook cleanup-hook)
-              ;; First kill the temp buffer since we're done with it
-              (when (buffer-live-p temp-buffer)
-                (kill-buffer temp-buffer))
-              ;; Then cleanup any ediff-related buffers
-              (dolist (buf (buffer-list))
-                (when (and (buffer-live-p buf)
-                           (string-match-p "\\*ediff-\\|\\*Ediff" (buffer-name buf)))
-                  (ignore-errors (kill-buffer buf))))
-              (funcall callback
-                       (if (string= (with-current-buffer buffer
+              (let ((final-content (with-current-buffer temp-buffer
+                                     (buffer-substring-no-properties (point-min) (point-max)))))
+                (remove-hook 'ediff-quit-hook cleanup-hook)
+                ;; First kill the temp buffer since we're done with it
+                (when (buffer-live-p temp-buffer)
+                  (kill-buffer temp-buffer))
+                ;; Then cleanup any ediff-related buffers
+                (dolist (buf (buffer-list))
+                  (when (and (buffer-live-p buf)
+                             (string-match-p "\\*ediff-\\|\\*Ediff" (buffer-name buf)))
+                    (ignore-errors (kill-buffer buf))))
+                (funcall callback
+                         (if (string= (with-current-buffer buffer
+                                        (buffer-substring-no-properties (point-min) (point-max)))
+                                      final-content)
+                             "All edits complete"
+                           (concat "Edits NOT accepted by user. Here are the edits that were rejected by the user in diff format:\n"
+                                   (gptel-tool--calculate-diff
+                                    (with-current-buffer buffer
                                       (buffer-substring-no-properties (point-min) (point-max)))
-                                    final-content)
-                           "All edits complete"
-                         (concat "Edits NOT accepted by user. Here are the edits that were rejected by the user in diff format:\n"
-                                 (gptel-tool--calculate-diff
-                                  (with-current-buffer buffer
-                                    (buffer-substring-no-properties (point-min) (point-max)))
-                                  final-content)))))))
+                                    final-content))))))))
     (add-hook 'ediff-quit-hook cleanup-hook)
     (ediff-buffers buffer temp-buffer)
     (unless (frame-focus-state)
@@ -1498,7 +1498,8 @@ Make multiple small edits IN A SINGLE CALL rather than large block replacements.
 Returns (with recommended actions):
 - \"Couldn't find '<text>' in line <n>\" - Recheck the text and try again, or break edit into smaller parts
 - \"All edits complete\" - Success, no further action needed
-- \"Edits NOT accepted by user\" - Provides the diff for unaccepted changes; consider a different approach or consult with the user"
+- \"Edits NOT accepted by user\" - Provides the diff for unaccepted changes; consider a different approach or consult with the user
+    - There maybe comments by the user in the diff about why the edit was not accepted."
                  :args (list '(:name "buffer-name"
                                      :type string
                                      :description "The name of the buffer to edit")
