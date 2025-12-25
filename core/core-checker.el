@@ -3,8 +3,7 @@
   :init
   (setq spell-fu-directory (concat CACHE-DIR "spell-fu"))
   (setq-default ispell-dictionary "british")
-  :bind (("C-M-i" . +spell-fu-fix-last-error)
-         (:map text-mode-map
+  :bind ((:map text-mode-map
                ("C-M-i" . +spell-fu-fix-last-error)))
   :config
   ;; Courtesy: https://emacs.stackexchange.com/a/55545 (ideasman42)
