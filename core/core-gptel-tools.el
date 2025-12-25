@@ -23,7 +23,7 @@
 (require 'lsp-mode nil t)
 (require 'diff nil t)
 
-(require 'gptel-memory)
+(require 'gptel-memory nil t)
 
 (defvar gptel-tools-auto-pilot nil
   "If non-nil, don't wait for user prompt where usually prompts are required.")
@@ -723,6 +723,63 @@ Calls CALLBACK when complete. Verifies if all changes were accepted."
   (funcall callback "All edits complete"))
 
 
+(defun gptel-tool--flycheck-errors (buffer)
+  "Get the list of Flycheck errors as strings for BUFFER (buffer object).
+Returns a list of error strings."
+  (with-current-buffer buffer
+    (let ((max-errors 100)
+          errors-list)
+      (if (bound-and-true-p flycheck-mode)
+          (setq errors-list
+                (seq-take
+                 (mapcar
+                  (lambda (err)
+                    (let ((err-type (flycheck-error-level err))
+                          (line (flycheck-error-line err))
+                          (column (flycheck-error-column err))
+                          (message (flycheck-error-message err)))
+                      (format "%s at line %d, col %d: %s"
+                              (or err-type "unknown")
+                              (or line 0)
+                              (or column 0)
+                              (or message "no message"))))
+                  (flycheck-overlay-errors-in (point-min) (point-max)))
+                 max-errors))
+        (error "Flycheck mode is not enabled in this buffer"))
+      errors-list)))
+
+(defun gptel-tool--wait-for-flycheck (cb buffer &optional max-retries)
+  "Wait for flycheck to finish in BUFFER (buffer object), always starting with a 0.5s delay.
+Calls callback CB when finished. Polls at 0.5s intervals, up to MAX-RETRIES. If flycheck is not enabled, returns immediately."
+  (with-current-buffer buffer
+    (if (not (bound-and-true-p flycheck-mode))
+        (funcall cb)
+      (let ((retries (or max-retries 10)))
+        (let ((run
+               (lambda ()
+                 (with-current-buffer buffer
+                   (let ((status (when (boundp 'flycheck-last-status-change) flycheck-last-status-change)))
+                     (if (and (eq status 'running) (> retries 0))
+                         (gptel-tool--wait-for-flycheck cb buffer (1- retries))
+                       (funcall cb)))))))
+          (run-at-time 0.5 nil run))))))
+
+(defun gptel-tool--append-new-errors (callback buffer edit-fn)
+  "Run EDIT-FN with a callback, then append new flycheck errors and call CALLBACK."
+  (let ((old-errors (gptel-tool--flycheck-errors buffer)))
+    (funcall edit-fn
+             (lambda (result-str)
+               (gptel-tool--wait-for-flycheck
+                (lambda ()
+                  (let* ((after-errors (gptel-tool--flycheck-errors buffer))
+                         (new-errors (cl-remove-if (lambda (err) (member err old-errors)) after-errors))
+                         (report (concat (if new-errors
+                                             (concat "\n\nNew errors post edit:\n" (mapconcat #'identity new-errors "\n"))
+                                           "\n\nNew errors post edit:\nNone")
+                                         "\nFor full list use tool `list_errors'")))
+                    (funcall callback (concat result-str report))))
+                buffer)))))
+
 (defun gptel-tool-edit-buffer (callback buffer-name buffer-edits)
   "Edit buffer named BUFFER-NAME by applying BUFFER-EDITS.
 Shows ediff and calls CALLBACK when complete."
@@ -732,9 +789,9 @@ Shows ediff and calls CALLBACK when complete."
     (let* ((temp-buffer (gptel-tool--copy-buffer-for-edit buffer))
            (sorted-edits (sort (seq-into buffer-edits 'list)
                                (lambda (a b)
-                                  (let ((ln-a (or (plist-get a :line_number) 0))
-                                        (ln-b (or (plist-get b :line_number) 0)))
-                                    (> ln-a ln-b)))))
+                                 (let ((ln-a (or (plist-get a :line_number) 0))
+                                       (ln-b (or (plist-get b :line_number) 0)))
+                                   (> ln-a ln-b)))))
            (success t))
       (with-current-buffer temp-buffer
         (dolist (edit sorted-edits)
@@ -753,10 +810,13 @@ Shows ediff and calls CALLBACK when complete."
                   (replace-match new-string t t)
                 (setq success nil)
                 (funcall callback (format "Could not find '%s' in line %d or anywhere else in the buffer" old-string line-number)))))))
-      (if success
-          (if gptel-tools-auto-pilot
-              (gptel-tool--replace-buffer callback buffer temp-buffer)
-            (gptel-tool--compare-and-patch callback buffer temp-buffer))))))
+      (gptel-tool--append-new-errors
+       callback buffer
+       (lambda (cb)
+         (if gptel-tools-auto-pilot
+             (gptel-tool--replace-buffer cb buffer temp-buffer)
+           (gptel-tool--compare-and-patch cb buffer temp-buffer)))))))
+
 
 (defun gptel-tool-read-buffer-with-lines (buffer-name)
   "Read the contents of BUFFER-NAME and return it with line numbers.
@@ -1337,6 +1397,7 @@ Handles both HTML pages and PDF files:
                                     :type string
                                     :description "Optional regexp to filter projects. Empty returns all. Case-insensitive." :optional t))
                  :category "emacs"
+                 :confirm t
                  :include t)
 
 (gptel-make-tool :name "change_directory"
@@ -1464,6 +1525,7 @@ Handles both HTML pages and PDF files:
                                     :type string
                                     :description "Optional regexp to filter buffer names. Empty returns all. Case-insensitive." :optional t))
                  :category "emacs"
+                 :confirm t
                  :include t)
 
 
@@ -1499,7 +1561,8 @@ Returns (with recommended actions):
 - \"Couldn't find '<text>' in line <n>\" - Recheck the text and try again, or break edit into smaller parts
 - \"All edits complete\" - Success, no further action needed
 - \"Edits NOT accepted by user\" - Provides the diff for unaccepted changes; consider a different approach or consult with the user
-    - There maybe comments by the user in the diff about why the edit was not accepted."
+    - There maybe comments by the user in the diff about why the edit was not accepted.
+The return also contains any new errors introduced after the edits."
                  :args (list '(:name "buffer-name"
                                      :type string
                                      :description "The name of the buffer to edit")
