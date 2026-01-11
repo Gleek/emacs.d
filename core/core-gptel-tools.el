@@ -765,20 +765,23 @@ Calls callback CB when finished. Polls at 0.5s intervals, up to MAX-RETRIES. If 
           (run-at-time 0.5 nil run))))))
 
 (defun gptel-tool--append-new-errors (callback buffer edit-fn)
-  "Run EDIT-FN with a callback, then append new flycheck errors and call CALLBACK."
-  (let ((old-errors (gptel-tool--flycheck-errors buffer)))
-    (funcall edit-fn
-             (lambda (result-str)
-               (gptel-tool--wait-for-flycheck
-                (lambda ()
-                  (let* ((after-errors (gptel-tool--flycheck-errors buffer))
-                         (new-errors (cl-remove-if (lambda (err) (member err old-errors)) after-errors))
-                         (report (concat (if new-errors
-                                             (concat "\n\nNew errors post edit:\n" (mapconcat #'identity new-errors "\n"))
-                                           "\n\nNew errors post edit:\nNone")
-                                         "\nFor full list use tool `list_errors'")))
-                    (funcall callback (concat result-str report))))
-                buffer)))))
+  "Run EDIT-FN with a callback, then append new flycheck errors and call CALLBACK. If flycheck is not available, skip error diff and call as normal."
+  (with-current-buffer buffer
+    (if (not (bound-and-true-p flycheck-mode))
+        (funcall edit-fn callback)
+      (let ((old-errors (gptel-tool--flycheck-errors buffer)))
+        (funcall edit-fn
+                 (lambda (result-str)
+                   (gptel-tool--wait-for-flycheck
+                    (lambda ()
+                      (let* ((after-errors (gptel-tool--flycheck-errors buffer))
+                             (new-errors (cl-remove-if (lambda (err) (member err old-errors)) after-errors))
+                             (report (concat (if new-errors
+                                                 (concat "\n\nNew errors post edit:\n" (mapconcat #'identity new-errors "\n"))
+                                               "\n\nNew errors post edit:\nNone")
+                                             "\nFor full list use tool `list_errors'")))
+                        (funcall callback (concat result-str report))))
+                    buffer)))))))
 
 (defun gptel-tool-edit-buffer (callback buffer-name buffer-edits)
   "Edit buffer named BUFFER-NAME by applying BUFFER-EDITS.
