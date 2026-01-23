@@ -24,7 +24,8 @@
 ;;
 ;; - Counts all checkboxes ([ ], [-], [X]) in the current subtree.
 ;; - Appends a new row with today's inactive timestamp plus TOTAL/DONE counts to
-;;   the history table that lives immediately after the block.
+;;   the history table that lives immediately after a maintained #+PLOT line
+;;   following the block.
 ;; - Fits least-squares lines TOTAL~time and DONE~time, then computes the
 ;;   intersection to project a completion date (or "∞" when not meaningful).
 ;; - Writes exactly one line of output inside the block:
@@ -111,6 +112,14 @@ Return nil if a fit is not possible."
           (let ((b (/ sxy sxx))
                 (a (- my (* (/ sxy sxx) mx))))
             (list a b)))))))
+
+(defconst org-burnup--plot-directive
+  "#+PLOT: ind:1 deps:(2 3) type:2d with:linespoints set:\"xdata time\" set:\"timefmt '%Y-%m-%d'\" set:\"format x '%Y-%m-%d'\" set:\"xtics rotate by -45\""
+  "Org-plot directive inserted above the burn-up history table.
+
+This expects the first column to be a date-like string; we currently store an
+inactive timestamp like [YYYY-MM-DD Ddd], and `org-burnup--date->days' parses
+out the YYYY-MM-DD portion for computation.")
 
 (defun org-burnup--parse-burnup-table-at-point ()
   "Parse an org-burnup table at point.
@@ -210,7 +219,21 @@ PARAMS currently ignored (reserved for future options)."
 
       (let ((insert-pos (point)))
         (cond
-         ((looking-at "^[ \t]*|")
+         ;; Expected layout is:
+         ;;   #+END:
+         ;;   #+PLOT: ...
+         ;;   | table ...
+         ((looking-at "^[ \t]*#\\+PLOT:")
+          ;; Ensure the plot directive is exactly what we expect.
+          (let ((bol (line-beginning-position))
+                (eol (line-end-position)))
+            (delete-region bol (min (1+ eol) (point-max)))
+            (insert org-burnup--plot-directive "\n"))
+
+          (forward-line 1)
+          (unless (looking-at "^[ \t]*|")
+            (error "org-burnup: expected a table after #+PLOT"))
+
           ;; Existing table: remember its beginning, append new row.
           (set-marker table-beg (point))
 
@@ -229,17 +252,44 @@ PARAMS currently ignored (reserved for future options)."
           (dotimes (_ 2)
             (unless (looking-at "^[ \t]*$")
               (insert "\n")
-              (forward-line -1)
-              )
+              (forward-line -1))
             (unless (looking-at "^[ \t]*$")
               (end-of-line)
+              (insert "\n"))
+            (forward-line 1)))
+
+         ((looking-at "^[ \t]*|")
+          ;; Backwards-compat: table exists but no #+PLOT line.
+          ;; Insert the plot directive above the table.
+          (set-marker table-beg (point))
+          (goto-char table-beg)
+          (insert org-burnup--plot-directive "\n")
+
+          ;; Append the new row at the end of the table.
+          (goto-char (org-table-end))
+          (while (and (not (eobp)) (looking-at "^[ \t]*|"))
+            (forward-line 1))
+          (insert new-row "\n")
+          (forward-line -1)
+          (org-table-align)
+
+          ;; Ensure next two lines after the table are empty.
+          (goto-char (org-table-end))
+          (beginning-of-line)
+          (forward-line 1)
+          (dotimes (_ 2)
+            (unless (looking-at "^[ \t]*$")
               (insert "\n")
-              )
+              (forward-line -1))
+            (unless (looking-at "^[ \t]*$")
+              (end-of-line)
+              (insert "\n"))
             (forward-line 1)))
 
          (t
-          ;; No table: create one and remember its beginning.
+          ;; No table: create plot directive + table and remember its beginning.
           (goto-char insert-pos)
+          (insert org-burnup--plot-directive "\n")
           (set-marker table-beg (point))
 
           (insert (mapconcat #'identity
