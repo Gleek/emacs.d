@@ -532,17 +532,32 @@ Returns a formatted string with buffer metadata (buffer_name, buffer_directory, 
 (defun gptel-tool-list-project-files (pattern)
   "List files in project that match PATTERN.
 PATTERN is a regular expression to filter files.
-Returns a list of matching file paths or empty list if no matches
-or empty pattern."
-  (when (and pattern (not (string-empty-p pattern)))
-    (let ((default-directory (if (fboundp 'projectile-project-root)
-                                (or (projectile-project-root) default-directory)
-                              default-directory)))
-      (split-string
-       (string-trim
-        (shell-command-to-string
-         (format "fd -t f --full-path %s" (shell-quote-argument pattern))))
-       "\n" t))))
+
+Return value is a *string* formatted like:
+
+Project directory: /full/path/to/project
+Current directory: /full/path/to/`default-directory'
+
+file1
+file2
+
+If PATTERN is nil/empty, return an empty listing (with directories)."
+  (let* ((project-root (when (fboundp 'projectile-project-root)
+                         (ignore-errors (projectile-project-root))))
+         (project-dir (file-truename (or project-root default-directory)))
+         (current-dir (file-truename default-directory))
+         (default-directory project-dir)
+         (files (if (and pattern (not (string-empty-p pattern)))
+                    (split-string
+                     (string-trim
+                      (shell-command-to-string
+                       (format "fd -t f --full-path %s" (shell-quote-argument pattern))))
+                     "\n" t)
+                  nil)))
+    (concat
+     "Project directory: " project-dir "\n"
+     "Current directory: " current-dir "\n\n"
+     (mapconcat #'identity files "\n"))))
 
 ;; Courtesy: gfredericks
 (defun gptel-tool-read-lines (buffer-name start-line end-line)
@@ -1395,7 +1410,10 @@ Handles both HTML pages and PDF files:
                  :function #'gptel-tool-list-projects
                  :description (concat "Returns a list of all the project paths. "
                                       "Every element of the list is in quotes signifies the directory for the project."
-                                      " All commands for the project might be run in that directory. Accepts an optional regex pattern to filter results.")
+                                      " All commands for the project might be run in that directory. Accepts an optional regex pattern to filter results."
+                                      " Use this sparingly, when you're unsure of what project is being talked about."
+                                      " If user refers to the current project assume you're in the right project "
+                                      " and use list_project_files instead to get files directly if needed.")
                  :args (list '(:name "pattern"
                                     :type string
                                     :description "Optional regexp to filter projects. Empty returns all. Case-insensitive." :optional t))
