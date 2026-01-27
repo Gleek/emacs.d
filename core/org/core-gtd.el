@@ -860,6 +860,12 @@ TODO: Add checkbox based on todo state. If in todo show [ ] if done show [X] in 
 
 
 
+(use-package org-burnup
+  :load-path "packages/org-burnup.el"
+  :ensure (gnuplot)
+  :after org
+  :demand t)
+
 
 
 (provide 'core-gtd)
