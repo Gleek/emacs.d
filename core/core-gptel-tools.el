@@ -1255,7 +1255,7 @@ Handles both HTML pages and PDF files:
 
 (gptel-make-tool :name "read_file"
                  :function #'gptel-tool-read-unified
-                 :description "Read the contents of a file or buffer, optionally from a line range. Input can be a buffer name, file name or file path. There's a limit of 5000 lines on the output. Use start-line and end-line to restrict the output to a specific range. If not provided, region around the cursor will be used to limit content. Returns buffer and project metadata such as buffer name, directory, project, total lines, range, and the requested content."
+                 :description "Read the contents of a buffer or file (by name or path). Optionally read only a line range (1-based). Output is capped at 5000 lines. Returns basic metadata (buffer/file identity, directory/project when available, total lines, returned range) followed by the content."
                  :args (list '(:name "name-or-path"
                                     :type string
                                     :description "Buffer name or file path")
@@ -1351,7 +1351,7 @@ Handles both HTML pages and PDF files:
 
 (gptel-make-tool :name "run_command"
                  :function #'gptel-tool-run-command
-                 :description "Executes a shell command and returns the output as a string. IMPORTANT: This tool allows execution of arbitrary code; user confirmation will be required before any command is run. The response will be the output of the command execution with status of the current command. If the status is Running, it will also return a buffer name which can be checked later for the output till that time."
+                 :description "Run a shell command (requires confirmation). Returns output plus a status. If still running, also returns the buffer name so you can read it later with `read_file`."
                  :args (list
                         '(:name "command"
                                 :type string
@@ -1471,25 +1471,25 @@ Handles both HTML pages and PDF files:
                  :include t
                  :async t)
 
-(gptel-make-tool :name "find_apropos"
+(gptel-make-tool :name "search_symbols"
                  :function #'gptel-tool-find-apropos
-                 :description "Find all symbols matching pattern in specified buffer using xref-find-apropos. Returns results in file:line: context format. This will be more accurate the running a simple search commands as it will use language heuristics to get the declaration. It also fallbacks to search automatically in case those language heuristics are not present. This is also a general search and only uses the buffer name to focus on the project. Any buffer in the project for that language can be used. This does a fuzzy search mostly and lists all possible matches. Is better than find_definition if we don't have the exact line for the symbol to search for"
+                 :description "Search for symbol names matching PATTERN across the current codebase (fuzzy/approximate match). Use this when you’re not sure of the exact symbol or its location. Returns matches as =file:line: summary=."
                  :args (list '(:name "pattern"
                                      :type string
                                      :description "Pattern to match symbol names")
                              '(:name "buffer-name"
                                      :type string
-                                     :description "The name of the buffer to search in"))
+                                     :description "Any buffer from the relevant project/language (used to scope the search)"))
                  :category "emacs"
                  :include t
                  :async t)
 
 (gptel-make-tool :name "list_project_files"
                  :function #'gptel-tool-list-project-files
-                 :description "List files in the current project that match a regular expression pattern."
+                 :description "List files in the current project matching regex pattern."
                  :args (list '(:name "pattern"
                                      :type string
-                                     :description "Regular expression pattern to match filenames. Empty pattern returns no results."))
+                                     :description "Regex pattern to match filenames (non empty)."))
                  :category "emacs"
                  :include t)
 
@@ -1553,7 +1553,7 @@ Handles both HTML pages and PDF files:
 
 (gptel-make-tool :name "list_visible_buffers"
                  :function #'gptel-tool-list-visible-buffers
-                 :description "List currently visible buffers in Emacs, excluding the buffer that made this call. Use this to find out what other buffers the user is looking at when you're unsure about what the user is referring to or user is specifically referring to some file by \"this\", \"current\", \"here\" or similar words."
+                 :description "List buffers currently shown in Emacs windows. Useful when user refers to “this/current/here”."
                  :args nil
                  :category "emacs"
                  :include t)
@@ -1570,35 +1570,35 @@ Handles both HTML pages and PDF files:
 
 (gptel-make-tool :name "edit_buffer"
                  :function #'gptel-tool-edit-buffer
-                 :description "Edit an Emacs buffer with a list of edits. Each edit contains:
-- line-number (optional): Where to apply the edit. Useful if same old-string is on multiple lines
-- old-string: Text to replace (can be empty for insertions)
-- new-string: Text to insert instead
+                 :description "Edit an Emacs buffer by applying a list of small text edits, then wait for the user to approve the changes.
+Each edit object supports:
+- line_number (optional): where to start searching (helps disambiguate)
+- old_string: text to replace (use \"\" to insert)
+- new_string: replacement text
 
-Prefer this tool for editing files the user is working on as it shows the latest buffer content.
-Make multiple small edits IN A SINGLE CALL rather than large block replacements.
+Prefer this tool for editing files the user is actively working on (it uses the latest buffer contents).
+Batch multiple small edits in a single call.
 
-Returns (with recommended actions):
-- \"Couldn't find '<text>' in line <n>\" - Recheck the text and try again, or break edit into smaller parts
-- \"All edits complete\" - Success, no further action needed
-- \"Edits NOT accepted by user\" - Provides the diff for unaccepted changes; consider a different approach or consult with the user
-    - There maybe comments by the user in the diff about why the edit was not accepted.
-The return also contains any new errors introduced after the edits."
+Returns:
+- \"All edits complete\" on success
+- \"Could not find ...\" if an edit didn\"t match
+- \"Edits NOT accepted by user\" if the user rejected some changes (includes a diff)
+Also appends any new Flycheck errors introduced by the edits (if available)."
                  :args (list '(:name "buffer-name"
                                      :type string
-                                     :description "The name of the buffer to edit")
+                                     :description "Buffer to edit")
                              `(:name "buffer-edits"
                                      :type array
                                      :items (:type object
                                                    :properties
                                                    (:line_number
-                                                    (:type integer :description "The line number where edit starts. It is useful for precise edits otherwise the whole buffer is searched" :optional t)
+                                                    (:type integer :description "Optional line hint (1-based) to disambiguate matches." :optional t)
                                                     :old_string
                                                     (:type string
-                                                           :description "Text to replace. Can be empty for pure insertions.")
+                                                           :description "Text to replace (\"\" = insert).")
                                                     :new_string
-                                                    (:type string :description "Text to insert instead of old-string.")))
-                                     :description "List of edits to apply"))
+                                                    (:type string :description "Replacement/insert text.")))
+                                     :description "Edits (apply in order)"))
                  :category "emacs"
                  :include t
                  :async t)
@@ -1612,11 +1612,9 @@ The return also contains any new errors introduced after the edits."
                  :category "emacs"
                  :include t)
 
-(gptel-make-tool :name "get_imenu"
+(gptel-make-tool :name "get_outline"
                  :function #'gptel-tool-get-imenu
-                 :description "Get the imenu listings for a buffer. Which is a list of important positions of a buffer.
-This could be places where all declarations are present for a buffer -- Global variables, structs, function definitions, etc.
-Good to understand relevant portions of the buffer without reading the full buffer"
+                 :description "Return a code outline (symbols/sections) for a buffer, with line numbers."
                  :args (list '(:name "buffer-name"
                                      :type string
                                      :description "The name of the buffer to get the imenu for."))
@@ -1658,7 +1656,7 @@ Good to understand relevant portions of the buffer without reading the full buff
 
 (gptel-make-tool :name "eval_elisp"
                  :function #'gptel-tool-eval-elisp
-                 :description "Evaluates an Emacs Lisp expression and returns the result. Use this to build and evaluate small Lisp programs for calculations, checking conditions, or querying Emacs state. For example: (length (buffer-list)) to count buffers, (buffer-modified-p (get-buffer \"foo.el\")) to check if a buffer is modified, or (+ 1 2 3) for calculations. IMPORTANT: This tool can execute arbitrary code and should be used with caution."
+                 :description "Evaluates an Emacs Lisp expression and returns the result. Use this to build and evaluate small Lisp programs for calculations, checking conditions, or querying Emacs state. For example: (+ 1 2 3) for calculations. IMPORTANT: This tool can execute arbitrary code and should be used with caution."
                  :args (list '(:name "elisp-form"
                                      :type string
                                      :description "The Emacs Lisp form to evaluate"))

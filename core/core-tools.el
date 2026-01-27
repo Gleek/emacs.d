@@ -659,12 +659,11 @@ To actually enable this, evaluate `+bongo-remove-headers'."
          ("C-c q c" . gptel)
          ("C-c q m" . gptel-menu))
   :config
-  (setq gptel-model 'gemini-2.5-flash)
+  (setq gptel-model 'gpt-5.2)
   (setq gptel-default-mode 'org-mode)
   (setq-default gptel-org-branching-context nil)
   (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "*** ")
   (setq gptel-api-key (secret-get openai-key))
-  (setq gptel-backend (gptel-make-gemini "Gemini" :key (secret-get gemini-key) :stream t))
   (require 'core-gptel-tools)
   (defun +gptel-notify(&rest _)
     (if (and gptel-tools-auto-pilot (not (frame-focus-state)))
@@ -700,19 +699,59 @@ To actually enable this, evaluate `+bongo-remove-headers'."
               deepseek-r1-distill-qwen-32b
               deepseek-r1-distill-llama-70b))
   (gptel-make-gh-copilot "Copilot")
+
+  (defun gptel-project-conventions ()
+    "System prompt is obtained from project conventions files.
+
+Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
+    (when-let* ((root (project-root (project-current))))
+      (let* ((candidates '("CONVENTIONS.md" "CLAUDE.md" "AGENTS.md"))
+             (file (seq-find (lambda (name)
+                               (file-readable-p (file-name-concat root name)))
+                             candidates)))
+        (if file
+            (with-temp-buffer
+              (insert-file-contents (file-name-concat root file))
+              (buffer-string))
+          ""))))
+
+
+  (defun gptel-default-prompt ()
+    "Return the default system prompt including project conventions and context."
+    (let* ((base "You are a large language model living in Emacs and a helpful assistant. Respond concisely.")
+           (conventions (when (fboundp 'gptel-project-conventions)
+                          (gptel-project-conventions)))
+           (root (when-let ((proj (project-current nil)))
+                   (project-root proj))))
+      (string-join
+       (delq nil
+             (list
+              base
+              (when (and (stringp conventions)
+                         (not (string-empty-p conventions)))
+                (concat "Conventions for this project:\n" conventions))
+              (format "visible buffers: %s"
+                      (if (fboundp 'gptel-tool-list-visible-buffers)
+                          (gptel-tool-list-visible-buffers)
+                        "(gptel-tool-list-visible-buffers unavailable)"))
+              (concat "Current date and time is: " (format-time-string "%Y-%m-%d %H:%M:%S"))
+              (concat "Current directory: " (or default-directory ""))
+              (concat "Current project: " (or root ""))))
+       "\n\n")))
+
+  (setf (alist-get 'default gptel-directives) #'gptel-default-prompt)
+
   (gptel-make-preset 'coder
     :description "Preset for coding tasks"
-    :backend "AWS"
-    :model 'claude-sonnet-4-20250514
+    :backend "ChatGPT"
+    :system 'default
+    :model 'gpt-5.2
     :tools
-    '("run_command"
-      "read_documentation" "get_imenu"
+    '("run_command" "get_outline"
       "list_errors" "edit_buffer" "list_visible_buffers"
-      "list_buffers" "list_project_files" "find_apropos" "find_definitions" "find_references"
-      "change_directory" "list_projects" "read_file"
-      "search_with_ripgrep" "list_directory" "make_directory" "open_file_on_line"
-      "create_file" "delete_file" "eval_elisp" "web_search" "web_fetch"
-      "remember" "list_tags" "get_tag" "search_memory"))
+      "list_project_files" "search_symbols" "find_definitions" "find_references"
+      "read_file" "search_with_ripgrep" "list_directory" "make_directory"
+      "create_file" "delete_file" "eval_elisp" "web_search" "web_fetch"))
   (gptel-make-preset 'architect
     :description "Preset for spec writer"
     :backend "ChatGPT"
