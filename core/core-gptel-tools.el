@@ -15,6 +15,8 @@
 ;;
 ;;; Code:
 
+(require 'subr-x)
+
 (require 'gptel)
 (require 'projectile nil t)  ;; Load projectile optionally
 (require 'flycheck nil t)    ;; Load flycheck optionally
@@ -333,7 +335,7 @@ Otherwise, position cursor at the specified LINE_NUMBER."
                    (projectile-project-p)
                    (projectile-project-name))
               (file-name-nondirectory (directory-file-name working-directory))))
-         (hash (substring (md5 command) 0 4)))
+         (hash (substring (md5 (concat command working-directory)) 0 7)))
     (format "gptel-tool-run-%s-%s" project-name hash)))
 
 (defun gptel-tool--run-command-poll (id callback command buffer proc attempts)
@@ -363,10 +365,12 @@ Otherwise, position cursor at the specified LINE_NUMBER."
                           bufname bufname)))))))
 
 (defun gptel-tool-run-command (callback command &optional working-directory)
+  (require 'eat)
   (let* ((dir (expand-file-name (or working-directory default-directory) default-directory))
          (id (gptel-tool--run-get-id command dir))
          buffer proc)
-    (let ((default-directory dir))
+    (let ((default-directory dir)
+          (eat-kill-buffer-on-exit nil))
       (setq buffer (eat-make id "/bin/bash" nil "-c" command)))
     (setq proc (get-buffer-process buffer))
     (gptel-tool--record-run-command-history command dir)
@@ -416,25 +420,29 @@ Otherwise, position cursor at the specified LINE_NUMBER."
 (defun gptel-tool-search-with-ripgrep (callback query files directory)
   "Search for QUERY in FILES within DIRECTORY using ripgrep and call CALLBACK with results."
   (let* ((search-dir (gptel-tool--get-search-directory directory))
-         (default-directory search-dir)
-         (output-buffer (generate-new-buffer "*gptel-ripgrep*"))
-         (cmd (gptel-tool--build-ripgrep-command query files))
-         (in-known-project (gptel-tool--in-known-project-p search-dir)))
-    (if (and (not (or in-known-project gptel-tools-auto-pilot))
-             (not (y-or-n-p
-                   (format "Directory %s is not in a known projects (%s). Run ripgrep anyway? "
-                           search-dir (length (projectile-relevant-known-projects))))))
-        (funcall callback
-                 (format "Search aborted: directory %s is not in known projects"
-                         search-dir))
-
-      (with-temp-message (format "Searching for: %s in %s buffer %s"
-                                 query search-dir output-buffer)
-        (make-process
-         :name "gptel-ripgrep"
-         :buffer output-buffer
-         :command (list shell-file-name shell-command-switch cmd)
-         :sentinel (gptel-tool--make-process-sentinel callback))))))
+         (expanded-search-dir (expand-file-name search-dir)))
+    (cond
+     ((not (file-directory-p expanded-search-dir))
+      (funcall callback (format "Error: Directory does not exist: %s" expanded-search-dir)))
+     (t
+      (let* ((default-directory expanded-search-dir)
+             (output-buffer (generate-new-buffer "*gptel-ripgrep*"))
+             (cmd (gptel-tool--build-ripgrep-command query files))
+             (in-known-project (gptel-tool--in-known-project-p expanded-search-dir)))
+        (if (and (not (or in-known-project gptel-tools-auto-pilot))
+                 (not (y-or-n-p
+                       (format "Directory %s is not in a known projects (%s). Run ripgrep anyway? "
+                               expanded-search-dir (length (projectile-relevant-known-projects))))))
+            (funcall callback
+                     (format "Search aborted: directory %s is not in known projects"
+                             expanded-search-dir))
+          (with-temp-message (format "Searching for: %s in %s buffer %s"
+                                     query expanded-search-dir output-buffer)
+            (make-process
+             :name "gptel-ripgrep"
+             :buffer output-buffer
+             :command (list shell-file-name shell-command-switch cmd)
+             :sentinel (gptel-tool--make-process-sentinel callback)))))))))
 
 
 (defun gptel-tool-replace-buffer (buffer_name content)
@@ -699,9 +707,9 @@ Assumes BUFFER is valid."
 Calls CALLBACK when complete. Verifies if all changes were accepted."
   (letrec ((cleanup-hook
             (lambda ()
+              (remove-hook 'ediff-quit-hook cleanup-hook)
               (let ((final-content (with-current-buffer temp-buffer
                                      (buffer-substring-no-properties (point-min) (point-max)))))
-                (remove-hook 'ediff-quit-hook cleanup-hook)
                 ;; First kill the temp buffer since we're done with it
                 (when (buffer-live-p temp-buffer)
                   (kill-buffer temp-buffer))
@@ -810,30 +818,40 @@ Shows ediff and calls CALLBACK when complete."
                                  (let ((ln-a (or (plist-get a :line_number) 0))
                                        (ln-b (or (plist-get b :line_number) 0)))
                                    (> ln-a ln-b)))))
-           (success t))
+           (success t)
+           (fail-msg nil))
       (with-current-buffer temp-buffer
         (dolist (edit sorted-edits)
-          (let ((line-number (or (plist-get edit :line_number) 0))
-                (old-string (plist-get edit :old_string))
-                (new-string (plist-get edit :new_string)))
-            (goto-char (point-min))
-            (forward-line (1- line-number))
-            (if (string= old-string "")
-                (progn
-                  (move-to-column 0)
-                  (insert new-string)
-                  (when (and (char-after) (= (char-after) ?\n))
-                    (insert "\n")))
-              (if (gptel-tool--smart-text-match old-string)
-                  (replace-match new-string t t)
-                (setq success nil)
-                (funcall callback (format "Could not find '%s' in line %d or anywhere else in the buffer" old-string line-number)))))))
-      (gptel-tool--append-new-errors
-       callback buffer
-       (lambda (cb)
-         (if gptel-tools-auto-pilot
-             (gptel-tool--replace-buffer cb buffer temp-buffer)
-           (gptel-tool--compare-and-patch cb buffer temp-buffer)))))))
+          (when success
+            (let ((line-number (or (plist-get edit :line_number) 0))
+                  (old-string (plist-get edit :old_string))
+                  (new-string (plist-get edit :new_string)))
+              (goto-char (point-min))
+              (forward-line (1- line-number))
+              (if (string= old-string "")
+                  (progn
+                    (move-to-column 0)
+                    (insert new-string)
+                    (when (and (char-after) (= (char-after) ?\n))
+                      (insert "\n")))
+                (if (gptel-tool--smart-text-match old-string)
+                    (replace-match new-string t t)
+                  ;; Fail fast: stop processing further edits and do not proceed to ediff.
+                  (setq success nil)
+                  (setq fail-msg
+                        (format "Could not find '%s' in line %d or anywhere else in the buffer. Please use read_file again to read relevant portions"
+                                old-string line-number))))))))
+      (if (not success)
+          (progn
+            (when (buffer-live-p temp-buffer)
+              (kill-buffer temp-buffer))
+            (funcall callback fail-msg))
+        (gptel-tool--append-new-errors
+         callback buffer
+         (lambda (cb)
+           (if gptel-tools-auto-pilot
+               (gptel-tool--replace-buffer cb buffer temp-buffer)
+             (gptel-tool--compare-and-patch cb buffer temp-buffer))))))))
 
 
 (defun gptel-tool-read-buffer-with-lines (buffer-name)
@@ -1102,6 +1120,7 @@ cleanup."
 Call TOOL-CB with the results as a string.  QUERY is the search string.
 COUNT is the number of results to return (default 5)."
   ;; No more than two active searches at one time
+  (require 'eww)
   (setq gptel-tool--web-search-active
         (cl-delete-if-not
          (lambda (buf) (and (buffer-live-p buf)
@@ -1189,6 +1208,7 @@ or extraction fails."
 Handles both HTML pages and PDF files:
 - For HTML: parses DOM and extracts readable content
 - For PDF: saves to temp file and uses pdftotext -layout to extract text"
+  (require 'eww)
   (gptel-tool--fetch-with-timeout
    url
    (lambda (cb)
