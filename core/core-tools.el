@@ -748,8 +748,8 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
     :model 'gpt-5.2
     :tools
     '("run_command" "get_outline"
-      "list_errors" "edit_buffer" "list_visible_buffers"
-      "list_project_files" "search_symbols" "find_definitions" "find_references"
+      "list_errors" "edit_buffer"
+      "list_project_files" "find_definitions" "find_references"
       "read_file" "search_with_ripgrep" "create_file"
       "eval_elisp" "web_search" "web_fetch"))
   (gptel-make-preset 'architect
