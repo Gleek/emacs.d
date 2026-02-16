@@ -537,6 +537,30 @@ Returns a formatted string with buffer metadata (buffer_name, buffer_directory, 
           default-directory)
       (format "Error: Buffer %s is not live." buffer))))
 
+(defun gptel--project-files-matching (pattern &optional project-root)
+  "Return a list of project files matching PATTERN.
+
+PATTERN is passed to `fd --full-path`.
+PROJECT-ROOT, when non-nil, is used as the project directory; otherwise
+uses `projectile-project-root` when available, falling back to
+`default-directory`.
+
+Returns a list of relative file paths (as printed by fd) or nil if PATTERN
+is nil/empty or if no matches were found."
+  (let* ((root (file-truename
+                (or project-root
+                    (when (fboundp 'projectile-project-root)
+                      (ignore-errors (projectile-project-root)))
+                    default-directory)))
+         (default-directory root))
+    (when (and pattern (stringp pattern) (not (string-empty-p pattern)))
+      (let* ((out (string-trim
+                   (shell-command-to-string
+                    (format "fd -t f --full-path %s"
+                            (shell-quote-argument pattern))))))
+        (unless (string-empty-p out)
+          (split-string out "\n" t))))))
+
 (defun gptel-tool-list-project-files (pattern)
   "List files in project that match PATTERN.
 PATTERN is a regular expression to filter files.
@@ -554,14 +578,7 @@ If PATTERN is nil/empty, return an empty listing (with directories)."
                          (ignore-errors (projectile-project-root))))
          (project-dir (file-truename (or project-root default-directory)))
          (current-dir (file-truename default-directory))
-         (default-directory project-dir)
-         (files (if (and pattern (not (string-empty-p pattern)))
-                    (split-string
-                     (string-trim
-                      (shell-command-to-string
-                       (format "fd -t f --full-path %s" (shell-quote-argument pattern))))
-                     "\n" t)
-                  nil)))
+         (files (gptel--project-files-matching pattern project-dir)))
     (concat
      "Project directory: " project-dir "\n"
      "Current directory: " current-dir "\n\n"
@@ -976,16 +993,18 @@ Returns the buffer object if found, or nil if no buffer is found."
           (car matching-buffers)))))
    ;; Case 6: No match, try searching project files
    (t
-    (when (and (fboundp 'gptel-tool-list-project-files)
+    (when (and (fboundp 'gptel--project-files-matching)
                (fboundp 'find-file-noselect))
-      (let* ((matches (gptel-tool-list-project-files buffer-name-or-path)))
-        (when (and matches (> (length matches) 0))
-          (let* ((file-to-open (car matches))
-                   (project-root (when (fboundp 'projectile-project-root) (projectile-project-root)))
-                   (full-path (if (and project-root (not (file-name-absolute-p file-to-open)))
-                                  (expand-file-name file-to-open project-root)
-                                file-to-open)))
-             (find-file-noselect full-path t))))))))
+      (let* ((matches (gptel--project-files-matching buffer-name-or-path))
+             (file-to-open (car-safe matches)))
+        (when (and file-to-open (stringp file-to-open))
+          (let* ((project-root (when (fboundp 'projectile-project-root)
+                                 (ignore-errors (projectile-project-root))))
+                 (full-path (if (and project-root
+                                     (not (file-name-absolute-p file-to-open)))
+                                (expand-file-name file-to-open project-root)
+                              file-to-open)))
+            (find-file-noselect full-path t))))))))
 
 (defun gptel-tool-git-log (callback &optional file-path count)
   "Get git log for the current project or FILE-PATH.
