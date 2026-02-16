@@ -535,7 +535,7 @@
 
   (defun +agenda-skip-errands-worktime()
     (let ((tags (org-get-tags)))
-      (when (and (member "errand" tags)
+      (when (and (or (member "errand" tags) (member "business" tags))
                  (let ((current-time (decode-time (current-time))))
                    (and (<= 1 (nth 6 current-time) 5) ; Monday to Friday
                         (<= 11 (nth 2 current-time) 17)))) ; 11 AM to 6 PM
@@ -649,7 +649,7 @@
   (org-edna-load))
 
 (use-package org-alert
-  :defer 5
+  :disabled t
   :config
   (setopt org-alert-notify-cutoff 5)
   (setopt org-alert-interval 150)
@@ -657,6 +657,13 @@
   (setopt org-alert-notification-title "Agenda")
   ;; TODO: alert for non scheduled entries as well: https://github.com/spegoraro/org-alert/issues/27
   (org-alert-enable))
+
+(use-package org-wild-notifier
+  :defer 5
+  :config
+  (setq org-wild-notifier-alert-time '(5))
+  (setq org-wild-notifier-keyword-whitelist nil)
+  (org-wild-notifier-mode t))
 
 
 (use-package calfw)
