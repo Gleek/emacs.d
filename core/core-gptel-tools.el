@@ -702,36 +702,76 @@ Assumes BUFFER is valid."
                   (forward-line -1)
                   (buffer-substring-no-properties start (point)))))))))))
 
+(defvar gptel-tool--ediff-cleanup-state nil
+  "State for GPTel ediff cleanup.
+
+A plist with keys:
+:callback :buffer :temp-buffer
+
+Only one active GPTel ediff session is supported at a time.")
+
+(defvar gptel-tool--ediff-hook-installed nil
+  "Non-nil if GPTel's ediff cleanup hook has been installed.")
+
+(defun gptel-tool--ediff-after-quit-cleanup ()
+  "Global ediff cleanup hook for GPTel.
+
+Uses `gptel-tool--ediff-cleanup-state` and then clears it."
+  (when-let* ((st gptel-tool--ediff-cleanup-state)
+              (callback (plist-get st :callback))
+              (buffer (plist-get st :buffer))
+              (temp-buffer (plist-get st :temp-buffer)))
+    ;; Clear first to avoid double cleanup.
+    (setq gptel-tool--ediff-cleanup-state nil)
+    (condition-case err
+        (let ((final-content (with-current-buffer temp-buffer
+                               (buffer-substring-no-properties
+                                (point-min) (point-max)))))
+          (when (buffer-live-p temp-buffer)
+            (kill-buffer temp-buffer))
+          (dolist (buf (buffer-list))
+            (when (and (buffer-live-p buf)
+                       (string-match-p "\\*ediff-\\|\\*Ediff" (buffer-name buf)))
+              (ignore-errors (kill-buffer buf))))
+          (funcall callback
+                   (if (string= (with-current-buffer buffer
+                                  (buffer-substring-no-properties
+                                   (point-min) (point-max)))
+                                final-content)
+                       "All edits complete"
+                     (concat
+                      "Edits NOT accepted by user. Here are the edits that were rejected by the user in diff format:\n"
+                      (gptel-tool--calculate-diff
+                       (with-current-buffer buffer
+                         (buffer-substring-no-properties
+                          (point-min) (point-max)))
+                       final-content)))))
+      (error
+       (funcall callback
+                (format "Error during ediff cleanup: %s"
+                        (error-message-string err)))))))
+
+(defun gptel-tool--ediff-install-cleanup-hook ()
+  "Install GPTel ediff cleanup hook once."
+  (unless gptel-tool--ediff-hook-installed
+    (setq gptel-tool--ediff-hook-installed t)
+    (add-hook 'ediff-quit-hook #'gptel-tool--ediff-after-quit-cleanup)
+    ;; Also run on suspend, otherwise hooks can pile up if ediff is suspended.
+    (add-hook 'ediff-suspend-hook #'gptel-tool--ediff-after-quit-cleanup)))
+
 (defun gptel-tool--compare-and-patch (callback buffer temp-buffer)
   "Run ediff between BUFFER and TEMP-BUFFER with cleanup hooks.
-Calls CALLBACK when complete. Verifies if all changes were accepted."
-  (letrec ((cleanup-hook
-            (lambda ()
-              (remove-hook 'ediff-quit-hook cleanup-hook)
-              (let ((final-content (with-current-buffer temp-buffer
-                                     (buffer-substring-no-properties (point-min) (point-max)))))
-                ;; First kill the temp buffer since we're done with it
-                (when (buffer-live-p temp-buffer)
-                  (kill-buffer temp-buffer))
-                ;; Then cleanup any ediff-related buffers
-                (dolist (buf (buffer-list))
-                  (when (and (buffer-live-p buf)
-                             (string-match-p "\\*ediff-\\|\\*Ediff" (buffer-name buf)))
-                    (ignore-errors (kill-buffer buf))))
-                (funcall callback
-                         (if (string= (with-current-buffer buffer
-                                        (buffer-substring-no-properties (point-min) (point-max)))
-                                      final-content)
-                             "All edits complete"
-                           (concat "Edits NOT accepted by user. Here are the edits that were rejected by the user in diff format:\n"
-                                   (gptel-tool--calculate-diff
-                                    (with-current-buffer buffer
-                                      (buffer-substring-no-properties (point-min) (point-max)))
-                                    final-content))))))))
-    (add-hook 'ediff-quit-hook cleanup-hook)
-    (ediff-buffers buffer temp-buffer)
-    (unless (frame-focus-state)
-      (alert "GPTel Diff is ready for review" :title "GPTel"))))
+Calls CALLBACK when complete. Verifies if all changes were accepted.
+
+Implementation note: we use a single global named hook function and store
+per-session state in `gptel-tool--ediff-cleanup-state`.  This avoids leaking
+per-session closures into ediff hooks across many runs."
+  (gptel-tool--ediff-install-cleanup-hook)
+  (setq gptel-tool--ediff-cleanup-state
+        (list :callback callback :buffer buffer :temp-buffer temp-buffer))
+  (ediff-buffers buffer temp-buffer)
+  (unless (frame-focus-state)
+    (alert "GPTel Diff is ready for review" :title "GPTel")))
 
 (defun gptel-tool--replace-buffer(callback buffer temp-buffer)
   "Replace BUFFER contents with TEMP-BUFFER contents and call CALLBACK."
