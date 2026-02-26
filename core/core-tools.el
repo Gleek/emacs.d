@@ -749,7 +749,7 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
     :tools
     '("run_command" "get_outline"
       "list_errors" "edit_buffer"
-      "list_project_files" "find_definitions" "find_references"
+      "list_project_files"
       "read_file" "search_with_ripgrep" "create_file"
       "eval_elisp" "web_search" "web_fetch"))
   (gptel-make-preset 'architect
@@ -862,6 +862,12 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
                             (message "Chat summarized successfully")))
                       (message "Response failed with status: %S" (prin1-to-string info))))))))
 
+
+(use-package claude-code-ide
+  :ensure (:fetcher github :repo "manzaltu/claude-code-ide.el")
+  :bind ("C-c q ." . claude-code-ide-menu)
+  :config
+  (claude-code-ide-emacs-tools-setup))
 
 (use-package aidermacs
   :bind ("C-c q a" . aidermacs-transient-menu)
