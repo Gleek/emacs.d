@@ -76,4 +76,8 @@ This function is called by `org-babel-execute-src-block'."
   :after plantuml-mode
   :hook (plantuml-mode . flycheck-plantuml-setup))
 
+(use-package graphviz-dot-mode
+  :config
+  (setq graphviz-dot-indent-width 4))
+
 (provide 'core-plantuml)
