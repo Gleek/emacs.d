@@ -657,7 +657,9 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :bind (("C-c q s" . gptel-send)
          ("C-c q r" . gptel-rewrite)
          ("C-c q c" . gptel)
-         ("C-c q m" . gptel-menu))
+         ("C-c q m" . gptel-menu)
+         (:map gptel-mode-map
+               ("C-M-<return>" . gptel-send)))
   :config
   (setq gptel-model 'gpt-5.2)
   (setq gptel-default-mode 'org-mode)
@@ -743,9 +745,9 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
 
   (gptel-make-preset 'coder
     :description "Preset for coding tasks"
-    :backend "ChatGPT"
+    :backend "Anthropic-OAuth"
     :system 'default
-    :model 'gpt-5.2
+    :model 'claude-opus-4-5-20251101
     :tools
     '("run_command" "get_outline"
       "list_errors" "edit_buffer"
@@ -862,6 +864,13 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
                             (message "Chat summarized successfully")))
                       (message "Response failed with status: %S" (prin1-to-string info))))))))
 
+(use-package gptel-anthropic-oauth
+  :after (gptel)
+  :demand t
+  :ensure (:fetcher github :repo "gleek/gptel-anthropic-oauth" :protocol ssh)
+  :config
+  (gptel-make-anthropic-oauth "Anthropic-OAuth" :stream t))
+
 
 (use-package claude-code-ide
   :ensure (:fetcher github :repo "manzaltu/claude-code-ide.el")
@@ -869,8 +878,15 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
   :config
   (claude-code-ide-emacs-tools-setup))
 
+
+(use-package agent-shell
+  :bind ("C-c q a" . agent-shell)
+  :config
+  (setq agent-shell-preferred-agent-config (agent-shell-anthropic-make-claude-code-config)))
+
 (use-package aidermacs
-  :bind ("C-c q a" . aidermacs-transient-menu)
+  :disabled t
+  ;; :bind ("C-c q a" . aidermacs-transient-menu)
   :ensure (:fetcher github :repo "MatthewZMD/aidermacs")
   :config
   ;; (setq aidermacs-default-model "anthropic/claude-3-5-sonnet-20241022")

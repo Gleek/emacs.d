@@ -89,4 +89,9 @@
 (use-package clojure-ts-mode)
 (use-package cider)
 
+
+(use-package kamailio-mode
+  :mode "kamailio\\(?:\\.cfg\\|\\.kcfg\\)\\'"
+  :ensure (:fetcher github :repo "kamailio/emacs-kamailio-syntax"))
+
 (provide 'core-misc)
