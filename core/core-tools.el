@@ -378,14 +378,7 @@ TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s
   (setq speed-type-gb-dir (concat CACHE-DIR "speed-type/")))
 
 
-(when IS-MAC
-  (use-package exec-path-from-shell
-    :demand
-    :config
-    ;; don't load interactive shell
-    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "GOPATH" "LC_ALL" "LANG"))
-    (setq exec-path-from-shell-arguments '("-l"))
-    (exec-path-from-shell-initialize)))
+
 
 (use-package system-packages
   :bind (("C-c P s" . system-packages-search)
@@ -845,7 +838,7 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
                              "The summary *MUST* include the important learnings and the course of the conversation.\n"
                              "The summaries *MUST NOT* include detailed code blocks!\n\n"
                              "The summaries *MUST NOT* include file contents that you read but only file / buffer names!\n\n"
-                             "The summaries *CAN* include specific line numbers in buffer and files that you referred to in the course of conversation!\n\n"
+                             "The summaries *SHOULD* include specific line numbers in buffer and files that you referred to in the course of conversation!\n\n"
                              "Phrase the summary with the USER in first person, telling the ASSISTANT about the conversation.\n"
                              "Write *as* the user.\n"
                              "The user should refer to the assistant as *you*.\n"

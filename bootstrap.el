@@ -111,6 +111,16 @@
 (add-to-list 'load-path (expand-file-name "packages/" user-emacs-directory))
 (add-to-list 'load-path (expand-file-name "core/" user-emacs-directory))
 
+
+(when IS-MAC
+  (use-package exec-path-from-shell
+    :demand
+    :config
+    ;; don't load interactive shell
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "GOPATH" "LC_ALL" "LANG"))
+    (setq exec-path-from-shell-arguments '("-l"))
+    (exec-path-from-shell-initialize)))
+
 (use-package gcmh
   ;; We need to init this post startup as we already set the GC to infinity in early-init.
   :hook (emacs-startup . gcmh-mode)

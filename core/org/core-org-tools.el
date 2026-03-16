@@ -165,8 +165,10 @@ everywhere that supports some decent formatting."
   ;; Support for plantuml
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((plantuml . t)
+                                 (sqlite . t)
                                  (emacs-lisp . t)
-                                 (shell . t)))
+                                 (shell . t)
+                                 (gnuplot . t)))
   (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
   (advice-add #'org-babel-execute:plantuml
               :override #'+plantuml-org-babel-execute:plantuml-a)
