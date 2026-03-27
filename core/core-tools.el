@@ -875,7 +875,22 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
 (use-package agent-shell
   :bind ("C-c q a" . agent-shell)
   :config
-  (setq agent-shell-preferred-agent-config (agent-shell-anthropic-make-claude-code-config)))
+  (setq agent-shell-prefer-session-resume nil) ; this is not recommended but I've yet to experience the slowness
+  (setq agent-shell-preferred-agent-config (agent-shell-anthropic-make-claude-code-config))
+  (advice-add 'shell-maker-welcome-message :override (lambda (&rest _) "")))
+
+(use-package agent-shell-attention
+  :ensure (:host github :repo "ultronozm/agent-shell-attention.el")
+  :after agent-shell
+  :demand
+  :config
+  (setopt agent-shell-attention-notify-function
+          (lambda (_buffer title body)
+            (alert body :title title :icon "nf-cod-bot")))
+  (setopt agent-shell-attention-render-function
+          #'agent-shell-attention-render-active)
+  (setopt agent-shell-attention-indicator-location 'global-mode-string)
+  (agent-shell-attention-mode))
 
 (use-package aidermacs
   :disabled t

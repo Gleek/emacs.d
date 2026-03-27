@@ -9,3 +9,4 @@ cache/
 /package-quickstart.el
 /eln-cache
 .aider*
+/.agent-shell/

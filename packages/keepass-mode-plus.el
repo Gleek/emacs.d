@@ -55,8 +55,6 @@
 
 (defun consult-keepass()
   (interactive)
-  (if (not (package-installed-p 'consult))
-      (error "Consult not installed"))
   (require 'consult)
   (consult-keepass-embark)
   (+keepass-copy-password
