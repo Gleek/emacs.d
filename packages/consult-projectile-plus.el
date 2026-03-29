@@ -36,7 +36,8 @@
     ("z" "affe-no-ignore" "find file with affe" 'affe-find-no-ignore)
     ("s" "rg" "search project with rg" 'consult-ripgrep)
     ("k" "kill" "kill all project buffers" 'projectile-kill-buffers)
-    ("K" "remove" "remove project from known projects" 'consult-projectile-remove-this-project)))
+    ("K" "remove" "remove project from known projects" 'consult-projectile-remove-this-project)
+    ("Q" "agent-shell" "open agent-shell at project root" 'agent-shell)))
 
 (defvar consult-projectile-embark-actions-prefix
   "consult-projectile-embark-action-")
