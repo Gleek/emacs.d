@@ -15,6 +15,13 @@
 (defvar +agenda-directory (concat +org-directory "gtd/"))
 
 
+(use-package quick-scratchpad
+  :ensure nil
+  :commands (quick-scratchpad-open)
+  :config
+  (setq quick-scratchpad-file (concat CACHE-DIR "scratchpad.org"))
+  (setq quick-scratchpad-font (concat default-font "-16")))
+
 (defun +capture-inbox()
   (interactive)
   (org-capture nil "i"))

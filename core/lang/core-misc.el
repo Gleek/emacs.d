@@ -94,4 +94,6 @@
   :mode "kamailio\\(?:\\.cfg\\|\\.kcfg\\)\\'"
   :ensure (:fetcher github :repo "kamailio/emacs-kamailio-syntax"))
 
+(use-package typst-ts-mode)
+
 (provide 'core-misc)
