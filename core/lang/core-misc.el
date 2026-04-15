@@ -95,5 +95,6 @@
   :ensure (:fetcher github :repo "kamailio/emacs-kamailio-syntax"))
 
 (use-package typst-ts-mode)
+(use-package rego-mode)
 
 (provide 'core-misc)

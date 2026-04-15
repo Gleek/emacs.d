@@ -24,6 +24,11 @@
 (defun consult-projectile-find-file-manually()
   (call-interactively 'find-file))
 
+(defun consult-projectile-new-agent-shell()
+  "Open a new agent-shell instance."
+  (let ((current-prefix-arg '(4)))
+    (call-interactively 'agent-shell)))
+
 (defvar consult-projectile-embark-actions
   '(("o" "default" "jump to project buffer or file" 'consult-projectile)
     ("f" "find-file" "jump to a project file" 'consult-projectile-find-file)
@@ -37,7 +42,7 @@
     ("s" "rg" "search project with rg" 'consult-ripgrep)
     ("k" "kill" "kill all project buffers" 'projectile-kill-buffers)
     ("K" "remove" "remove project from known projects" 'consult-projectile-remove-this-project)
-    ("Q" "agent-shell" "open agent-shell at project root" 'agent-shell)))
+    ("Q" "agent-shell" "open agent-shell at project root" 'consult-projectile-new-agent-shell)))
 
 (defvar consult-projectile-embark-actions-prefix
   "consult-projectile-embark-action-")
