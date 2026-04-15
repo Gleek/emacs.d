@@ -40,7 +40,7 @@
 
 
 (use-package vertico
-  :defer 1
+  :demand
   :bind (("C-c v" . vertico-repeat)
          (:map vertico-map
                ("<return>" . vertico-directory-enter)
@@ -195,6 +195,8 @@
 
 (use-package corfu
   :defer 1
+  :bind (:map corfu-map
+              ("RET" . nil))
   :config
   (global-corfu-mode t)
   (setq-default corfu-auto t
