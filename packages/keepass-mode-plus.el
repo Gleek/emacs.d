@@ -131,16 +131,14 @@
 ;;;###autoload
 (defun consult-keepass-embark()
   "Adds embark actions to the keepass entry"
-  (if (package-installed-p 'embark)
-      (eval-after-load 'embark
-        '(progn
-           (defvar-keymap embark-keepass-actions
-             :doc "Keymap for actions for keepass entry"
-             :parent embark-general-map
-             "p" #'+keepass-copy-password
-             "u" #'+keepass-copy-username
-             "o" #'+keepass-open-entry)
-           (add-to-list 'embark-keymap-alist '(keepass-entry . embark-keepass-actions))))))
-
+  (eval-after-load 'embark
+    '(progn
+       (defvar-keymap embark-keepass-actions
+         :doc "Keymap for actions for keepass entry"
+         :parent embark-general-map
+         "p" #'+keepass-copy-password
+         "u" #'+keepass-copy-username
+         "o" #'+keepass-open-entry)
+       (add-to-list 'embark-keymap-alist '(keepass-entry . embark-keepass-actions)))))
 (provide 'keepass-mode-plus)
 ;;; keepass-mode-plus.el ends here
