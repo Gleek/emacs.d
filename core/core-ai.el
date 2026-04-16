@@ -16,8 +16,9 @@
 
 (use-package gptel
   :commands (gptel gptel-send)
-  :bind (("C-c q s" . gptel-send)
-         ("C-c q r" . gptel-rewrite)
+  :bind (
+         ;; ("C-c q s" . gptel-send)
+         ;; ("C-c q r" . gptel-rewrite)
          ("C-c q c" . gptel)
          ("C-c q m" . gptel-menu)
          (:map gptel-mode-map
@@ -260,6 +261,51 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
           #'agent-shell-attention-render-active)
   (setopt agent-shell-attention-indicator-location 'global-mode-string)
   (agent-shell-attention-mode))
+
+(use-package agent-recall
+  :ensure (:fetcher github :repo "Marx-A00/agent-recall")
+  :after agent-shell
+  :hook (agent-shell-mode-hook . agent-recall-track-sessions)
+  :demand
+  :bind ("C-c q s" . agent-recall-search-live)
+  :config
+  (setq agent-recall-search-paths
+        (mapcar #'directory-file-name (projectile-relevant-known-projects)) ;; This is one time only for reindexing.
+        agent-recall-max-depth 1
+        agent-recall-search-function 'consult-ripgrep
+        agent-recall-browse-sort 'modified-desc))
+
+(use-package copilot
+  :ensure (:fetcher github :repo "copilot-emacs/copilot.el")
+  :commands (copilot-login copilot-diagnose)
+  :bind (;; ("C-c M-f" . copilot-complete)
+         :map copilot-completion-map
+         ("C-g" . 'copilot-clear-overlay)
+         ("M-p" . 'copilot-previous-completion)
+         ("M-n" . 'copilot-next-completion)
+         ("<backtab>" . 'copilot-accept-completion)
+         ("M-F" . 'copilot-accept-completion-by-word)
+         ("C-S-e" . 'copilot-accept-completion-by-line))
+  :hook ((prog-mode . copilot-mode)
+         ;; (text-mode . copilot-mode)
+         (conf-mode . copilot-mode))
+  :config
+  (setq copilot-install-dir (expand-file-name "copilot" CACHE-DIR))
+  (setq copilot-indent-offset-warning-disable t
+        copilot-max-char-warning-disable t
+        copilot-max-char 100000))
+
+
+(use-package copilot-chat
+  :bind (("C-c q o" . copilot-chat-display)
+         ("C-c q p" . copilot-chat-custom-prompt-selection))
+  :config
+  (setq copilot-chat-github-token-file (concat CACHE-DIR "copilot-chat/github-token")
+        copilot-chat-token-cache (concat CACHE-DIR "copilot-chat/token"))
+  (setq shell-maker-root-path CACHE-DIR)
+
+  (setopt copilot-chat-default-model "claude-3.7-sonnet")
+  (setopt copilot-chat-frontend 'shell-maker))
 
 (use-package aidermacs
   :disabled t

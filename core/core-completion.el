@@ -271,40 +271,4 @@
 
   (setq auto-insert-query nil))
 
-
-(use-package copilot
-  :ensure (:fetcher github :repo "copilot-emacs/copilot.el")
-  :commands (copilot-login copilot-diagnose)
-  :bind (;; ("C-c M-f" . copilot-complete)
-         :map copilot-completion-map
-         ("C-g" . 'copilot-clear-overlay)
-         ("M-p" . 'copilot-previous-completion)
-         ("M-n" . 'copilot-next-completion)
-         ("<backtab>" . 'copilot-accept-completion)
-         ("M-F" . 'copilot-accept-completion-by-word)
-         ("C-S-e" . 'copilot-accept-completion-by-line))
-  :hook ((prog-mode . copilot-mode)
-         ;; (text-mode . copilot-mode)
-         (conf-mode . copilot-mode))
-  :config
-  (setq copilot-install-dir (expand-file-name "copilot" CACHE-DIR))
-  (setq copilot-indent-offset-warning-disable t
-        copilot-max-char-warning-disable t
-        copilot-max-char 100000))
-
-
-(use-package copilot-chat
-  :bind (("C-c q o" . copilot-chat-display)
-         ("C-c q p" . copilot-chat-custom-prompt-selection))
-  :config
-  (setq copilot-chat-github-token-file (concat CACHE-DIR "copilot-chat/github-token")
-        copilot-chat-token-cache (concat CACHE-DIR "copilot-chat/token"))
-  (setq shell-maker-root-path CACHE-DIR)
-
-  (setopt copilot-chat-default-model "claude-3.7-sonnet")
-  (setopt copilot-chat-frontend 'shell-maker))
-
-
-
-
 (provide 'core-completion)
