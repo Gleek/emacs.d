@@ -211,9 +211,10 @@ DIRECTORY defaults to `default-directory'."
     (expand-file-name cwd-dashed "~/.claude/projects/")))
 
 (defun agent-shell-claude-code--delete-session-by-id (session-id)
-  "Delete the JSONL file and kill any buffer for SESSION-ID."
+  "Delete the JSONL file, transcript, and kill any buffer for SESSION-ID."
   (let* ((sessions-dir (agent-shell-claude-code--project-sessions-dir))
-         (jsonl-path (expand-file-name (concat session-id ".jsonl") sessions-dir)))
+         (jsonl-path (expand-file-name (concat session-id ".jsonl") sessions-dir))
+         transcript-path)
     (unless (file-exists-p jsonl-path)
       (user-error "Session file not found: %s" jsonl-path))
     (dolist (buf (buffer-list))
@@ -223,11 +224,39 @@ DIRECTORY defaults to `default-directory'."
                                (buffer-local-value 'agent-shell--state buf)
                                '(:session :id))))
           (when (equal buf-session-id session-id)
+            (setq transcript-path
+                  (buffer-local-value 'agent-shell--transcript-file buf))
             (with-current-buffer buf
               (agent-shell--clean-up))
             (kill-buffer buf)))))
     (delete-file jsonl-path)
+    (when (and transcript-path (file-exists-p transcript-path))
+      (delete-file transcript-path))
     (message "Deleted session %s" session-id)))
+
+;;;###autoload
+(defun agent-shell-claude-code-delete-this-session ()
+  "Delete the current session's JSONL file and kill the buffer."
+  (interactive)
+  (let* ((shell-buffer (if (derived-mode-p 'agent-shell-mode)
+                           (current-buffer)
+                         (or (agent-shell--current-shell)
+                             (user-error "Not in a shell"))))
+         (state (buffer-local-value 'agent-shell--state shell-buffer))
+         (session-id (map-nested-elt state '(:session :id))))
+    (unless session-id
+      (user-error "No active session"))
+    (let* ((jsonl-path (agent-shell-claude-code--session-jsonl-path shell-buffer))
+           (transcript-path (buffer-local-value 'agent-shell--transcript-file shell-buffer))
+           (turn-count (length (agent-shell-claude-code--parse-turns jsonl-path))))
+      (when (yes-or-no-p (format "Delete current session with %d turns?" turn-count))
+        (with-current-buffer shell-buffer
+          (agent-shell--clean-up))
+        (kill-buffer shell-buffer)
+        (delete-file jsonl-path)
+        (when (and transcript-path (file-exists-p transcript-path))
+          (delete-file transcript-path))
+        (message "Deleted session %s" session-id)))))
 
 ;;;###autoload
 (defun agent-shell-claude-code-delete-session ()
@@ -271,8 +300,13 @@ If the session is active in a buffer, that buffer is also killed."
                                        nil t))
            (selected (cdr (assoc selection session-choices)))
            (session-id (map-elt selected 'sessionId)))
-      (when (yes-or-no-p (format "Delete session %s?" session-id))
-        (agent-shell-claude-code--delete-session-by-id session-id)))))
+      (let* ((sessions-dir (agent-shell-claude-code--project-sessions-dir))
+             (jsonl-path (expand-file-name (concat session-id ".jsonl") sessions-dir))
+             (turn-count (if (file-exists-p jsonl-path)
+                             (length (agent-shell-claude-code--parse-turns jsonl-path))
+                           0)))
+        (when (yes-or-no-p (format "Delete session with %d turns?" turn-count))
+          (agent-shell-claude-code--delete-session-by-id session-id))))))
 
 (provide 'agent-shell-claude-code)
 ;;; agent-shell-claude-code.el ends here

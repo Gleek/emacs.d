@@ -250,6 +250,18 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
   (setq agent-shell-permission-responder-function
         #'agent-shell-permission-allow-always)
   (advice-add 'shell-maker-welcome-message :override (lambda (&rest _) ""))
+  (defun +agent-shell-self-insert-or-queue ()
+    "Insert character normally, or queue a request if the shell is busy."
+    (interactive)
+    (if (shell-maker-busy)
+        (let ((char (string last-command-event)))
+          (agent-shell-queue-request
+           (read-string (or (map-nested-elt (agent-shell--state) '(:agent-config :shell-prompt))
+                            "Enqueue request: ")
+                        char)))
+      (self-insert-command 1)))
+  (keymap-set agent-shell-mode-map "<remap> <self-insert-command>" #'+agent-shell-self-insert-or-queue)
+
   (define-advice agent-shell--initiate-new-session (:around (orig-fn &rest args) defer-new-session)
     "Show prompt immediately on first call, then pass through."
     (if (local-variable-p 'agent-shell--deferred-new-session-p)
