@@ -17,23 +17,8 @@
   (add-hook 'protobuf-mode-hook
             (function (lambda ()
                         (setq tab-width 2))))
-  (eval-after-load 'flycheck
-    '(flycheck-add-next-checker 'protobuf-protoc '(warning . protobuf-prototool)))
-  (defvar prototool-command)
-  (setq prototool-command "/usr/local/bin/prototool")
-  (defun prototool-format()
-    (interactive)
-    (message "Formatting proto file")
-    (shell-command (concat
-                    prototool-command
-                    " format"
-                    " -w "
-                    (buffer-file-name)))
-    (revert-buffer t t))
-  (defun prototool-format-after-save()
-    (interactive)
-    (when (eq major-mode 'protobuf-mode)
-      (prototool-format)))
+  (with-eval-after-load 'flycheck
+    (flycheck-buf-setup))
 
   (defun +proto-renumber()
     "Reunumber protos in these steps
@@ -86,9 +71,7 @@
             (forward-line -1)
             (goto-char (line-end-position))
             (delete-region (+ beg 2) (point))
-            (insert final-string)))))))
-  ;; (add-hook 'protobuf-mode
-  ;;         (lambda ()
-  ;;            (add-hook 'after-save-hook 'prototool-format-after-save nil t)))
-  ;; (add-hook 'after-save-hook 'prototool-format-after-save)
-  )
+            (insert final-string))))))))
+
+(use-package flycheck-buf
+  :ensure (:host github :repo "gleek/flycheck-buf"))
