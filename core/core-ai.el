@@ -247,7 +247,25 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
   :config
   (setq agent-shell-prefer-session-resume nil) ; this is not recommended but I've yet to experience the slowness
   (setq agent-shell-preferred-agent-config (agent-shell-anthropic-make-claude-code-config))
-  (advice-add 'shell-maker-welcome-message :override (lambda (&rest _) "")))
+  (setq agent-shell-permission-responder-function
+        #'agent-shell-permission-allow-always)
+  (advice-add 'shell-maker-welcome-message :override (lambda (&rest _) ""))
+  (define-advice agent-shell--initiate-new-session (:around (orig-fn &rest args) defer-new-session)
+    "Show prompt immediately on first call, then pass through."
+    (if (local-variable-p 'agent-shell--deferred-new-session-p)
+        (progn
+          (kill-local-variable 'agent-shell--deferred-new-session-p)
+          (when agent-shell-show-busy-indicator
+            (agent-shell-heartbeat-start
+             :heartbeat (map-elt agent-shell--state :heartbeat)))
+          (apply orig-fn args))
+      (setq-local agent-shell--deferred-new-session-p t)
+      (setq-local agent-shell-session-strategy 'new-deferred)
+      (agent-shell-heartbeat-stop
+       :heartbeat (map-elt agent-shell--state :heartbeat))
+      (shell-maker-finish-output :config shell-maker--config
+                                 :success nil)
+      (agent-shell--emit-event :event 'prompt-ready))))
 
 (use-package agent-shell-attention
   :ensure (:host github :repo "ultronozm/agent-shell-attention.el")
@@ -294,7 +312,6 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
   (setq copilot-indent-offset-warning-disable t
         copilot-max-char-warning-disable t
         copilot-max-char 100000))
-
 
 (use-package copilot-chat
   :bind (("C-c q o" . copilot-chat-display)
