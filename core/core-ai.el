@@ -246,14 +246,20 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
   :bind ("C-c q a" . agent-shell)
   :config
   (setq agent-shell-prefer-session-resume nil) ; this is not recommended but I've yet to experience the slowness
+  (setq agent-shell-busy-indicator-frames 'dots-block)
   (setq agent-shell-preferred-agent-config (agent-shell-anthropic-make-claude-code-config))
   (setq agent-shell-permission-responder-function
         #'agent-shell-permission-allow-always)
   (advice-add 'shell-maker-welcome-message :override (lambda (&rest _) ""))
+  (advice-add 'agent-shell-anthropic--claude-code-ascii-art :override (lambda (&rest _) ""))
+
+
   (defun +agent-shell-self-insert-or-queue ()
     "Insert character normally, or queue a request if the shell is busy."
     (interactive)
-    (if (shell-maker-busy)
+    (if (or (shell-maker-busy) ; currently replying
+            (and (not (eq agent-shell-session-strategy 'new-deferred))
+                 (not (map-nested-elt (agent-shell--state) '(:session :id))))) ; session not initialized
         (let ((char (string last-command-event)))
           (agent-shell-queue-request
            (read-string (or (map-nested-elt (agent-shell--state) '(:agent-config :shell-prompt))
@@ -278,6 +284,14 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
       (shell-maker-finish-output :config shell-maker--config
                                  :success nil)
       (agent-shell--emit-event :event 'prompt-ready))))
+
+(use-package agent-shell-tool-group
+  :ensure nil
+  :ensure (:fetcher github :repo "gleek/agent-shell-tool-group")
+  :after agent-shell
+  :demand
+  :config
+  (agent-shell-tool-group-mode))
 
 (use-package agent-shell-attention
   :ensure (:host github :repo "ultronozm/agent-shell-attention.el")
@@ -306,6 +320,7 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
         agent-recall-browse-sort 'modified-desc))
 
 (use-package copilot
+  :disabled t
   :ensure (:fetcher github :repo "copilot-emacs/copilot.el")
   :commands (copilot-login copilot-diagnose)
   :bind (;; ("C-c M-f" . copilot-complete)
