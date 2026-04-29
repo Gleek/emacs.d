@@ -35,6 +35,8 @@
   (setq jq-interactive-delay 0))
 
 (use-package consult-jq
+  :after (json-ts-mode)
+  :demand
   :bind (:map json-ts-mode-map ("C-z s" . consult-jq))
   :ensure (:fetcher github :repo "bigbuger/consult-jq")
   :config
