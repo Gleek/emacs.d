@@ -301,15 +301,19 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
 (use-package agent-recall
   :ensure (:fetcher github :repo "Marx-A00/agent-recall")
   :after agent-shell
-  :hook (agent-shell-mode-hook . agent-recall-track-sessions)
+  :hook (agent-shell-mode . agent-recall-track-sessions)
   :demand
-  :bind ("C-c q s" . agent-recall-search-live)
   :config
   (setq agent-recall-search-paths
         (mapcar #'directory-file-name (projectile-relevant-known-projects)) ;; This is one time only for reindexing.
         agent-recall-max-depth 1
         agent-recall-search-function 'consult-ripgrep
         agent-recall-browse-sort 'modified-desc))
+
+(use-package agent-recall-consult
+  :ensure nil
+  :after agent-recall
+  :bind ("C-c q s" . agent-recall-consult-search))
 
 (use-package copilot
   :disabled t
