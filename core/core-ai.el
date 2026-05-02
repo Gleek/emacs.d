@@ -246,7 +246,7 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
   :bind ("C-c q a" . agent-shell)
   :config
   (setq agent-shell-prefer-session-resume nil) ; this is not recommended but I've yet to experience the slowness
-  (setq agent-shell-busy-indicator-frames 'dots-block)
+  (setq agent-shell-busy-indicator-frames 'circle)
   (setq agent-shell-preferred-agent-config (agent-shell-anthropic-make-claude-code-config))
   (setq agent-shell-permission-responder-function
         #'agent-shell-permission-allow-always)
@@ -260,30 +260,22 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
     (if (or (shell-maker-busy) ; currently replying
             (and (not (eq agent-shell-session-strategy 'new-deferred))
                  (not (map-nested-elt (agent-shell--state) '(:session :id))))) ; session not initialized
-        (let ((char (string last-command-event)))
+        (let ((char (string last-command-event))
+              (shell-buffer (current-buffer)))
           (agent-shell-queue-request
-           (read-string (or (map-nested-elt (agent-shell--state) '(:agent-config :shell-prompt))
-                            "Enqueue request: ")
-                        char)))
+           (minibuffer-with-setup-hook
+               (lambda ()
+                 (agent-shell-completion--setup-minibuffer shell-buffer))
+             (read-string (or (map-nested-elt (agent-shell--state) '(:agent-config :shell-prompt))
+                              "Enqueue request: ")
+                          char))))
       (self-insert-command 1)))
-  (keymap-set agent-shell-mode-map "<remap> <self-insert-command>" #'+agent-shell-self-insert-or-queue)
+  (keymap-set agent-shell-mode-map "<remap> <self-insert-command>" #'+agent-shell-self-insert-or-queue))
 
-  (define-advice agent-shell--initiate-new-session (:around (orig-fn &rest args) defer-new-session)
-    "Show prompt immediately on first call, then pass through."
-    (if (local-variable-p 'agent-shell--deferred-new-session-p)
-        (progn
-          (kill-local-variable 'agent-shell--deferred-new-session-p)
-          (when agent-shell-show-busy-indicator
-            (agent-shell-heartbeat-start
-             :heartbeat (map-elt agent-shell--state :heartbeat)))
-          (apply orig-fn args))
-      (setq-local agent-shell--deferred-new-session-p t)
-      (setq-local agent-shell-session-strategy 'new-deferred)
-      (agent-shell-heartbeat-stop
-       :heartbeat (map-elt agent-shell--state :heartbeat))
-      (shell-maker-finish-output :config shell-maker--config
-                                 :success nil)
-      (agent-shell--emit-event :event 'prompt-ready))))
+(use-package agent-shell-claude-code
+  :ensure nil
+  :after agent-shell
+  :demand t)
 
 (use-package agent-shell-tool-group
   :ensure nil
