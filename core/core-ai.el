@@ -270,7 +270,25 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
                               "Enqueue request: ")
                           char))))
       (self-insert-command 1)))
-  (keymap-set agent-shell-mode-map "<remap> <self-insert-command>" #'+agent-shell-self-insert-or-queue))
+  (keymap-set agent-shell-mode-map "<remap> <self-insert-command>" #'+agent-shell-self-insert-or-queue)
+
+  (defvar +agent-shell-merge-pending-requests nil
+    "When non-nil, drain queued requests as one concatenated message.")
+
+  (defun +agent-shell-process-pending-request-merged (orig-fn &rest args)
+    "Around advice that submits all pending requests as a single message.
+When `+agent-shell-merge-pending-requests' is nil, defer to ORIG-FN."
+    (let ((pending (map-elt (agent-shell--state) :pending-requests)))
+      (if (and +agent-shell-merge-pending-requests pending)
+          (progn
+            (map-put! (agent-shell--state) :pending-requests nil)
+            (agent-shell--insert-to-shell-buffer
+             :text (mapconcat #'identity pending "\n\n")
+             :submit t
+             :no-focus t))
+        (apply orig-fn args))))
+  (advice-add 'agent-shell--process-pending-request :around
+              #'+agent-shell-process-pending-request-merged))
 
 (use-package agent-shell-claude-code
   :ensure nil
