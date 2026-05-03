@@ -316,6 +316,13 @@ When `+agent-shell-merge-pending-requests' is nil, defer to ORIG-FN."
   (setopt agent-shell-attention-indicator-location 'global-mode-string)
   (agent-shell-attention-mode))
 
+(use-package agent-shell-manager
+  :ensure (:host github :repo "jethrokuan/agent-shell-manager")
+  :after agent-shell
+  :demand
+  :bind (:map agent-shell-mode-map
+              ("C-z b" . agent-shell-manager-toggle)))
+
 (use-package agent-recall
   :ensure (:fetcher github :repo "Marx-A00/agent-recall")
   :after agent-shell
