@@ -21,6 +21,7 @@
 (declare-function agent-shell--start "agent-shell")
 (declare-function agent-shell--display-buffer "agent-shell")
 (declare-function agent-shell--current-shell "agent-shell")
+(declare-function agent-shell-reload "agent-shell")
 (declare-function map-elt "map")
 (declare-function map-nested-elt "map")
 
@@ -137,9 +138,6 @@ the session, so Claude loses all context after the rewind point."
                            (current-buffer)
                          (or (agent-shell--current-shell)
                              (user-error "Not in a shell"))))
-         (state (buffer-local-value 'agent-shell--state shell-buffer))
-         (session-id (map-nested-elt state '(:session :id)))
-         (config (map-elt state :agent-config))
          (jsonl-path (agent-shell-claude-code--session-jsonl-path shell-buffer))
          (turns (agent-shell-claude-code--parse-turns jsonl-path)))
     (unless (> (length turns) 1)
@@ -178,21 +176,13 @@ the session, so Claude loses all context after the rewind point."
                (format "Rewind session to before turn %d? (removes %d lines, backup created)"
                        (cl-position turn turns)
                        (- (length lines) (1- truncate-at))))
-          ;; Truncate
+          ;; Truncate JSONL on disk, then let agent-shell-reload
+          ;; restart the buffer/agent against the same session-id
+          ;; (it'll re-read the truncated JSONL via session/load).
           (agent-shell-claude-code--truncate-jsonl jsonl-path truncate-at)
-          ;; Kill current session
           (with-current-buffer shell-buffer
-            (agent-shell--clean-up))
-          (kill-buffer shell-buffer)
-          ;; Resume with session/load
-          (let ((new-buffer (agent-shell--start
-                             :config config
-                             :session-id session-id
-                             :session-strategy 'new
-                             :no-focus t
-                             :new-session t)))
-            (switch-to-buffer new-buffer)
-            (message "Session rewound. Backup at %s.bak" jsonl-path)))))))
+            (agent-shell-reload))
+          (message "Session rewound. Backup at %s.bak" jsonl-path))))))
 
 (declare-function agent-shell--session-choice-label "agent-shell")
 (declare-function agent-shell--session-selection-columns "agent-shell")
