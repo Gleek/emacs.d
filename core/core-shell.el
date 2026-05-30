@@ -201,6 +201,9 @@
             (lambda()
               (setq confirm-kill-processes nil))))
 
+(use-package ghostel)
+
+
 
 (use-package emacs :ensure nil
   :config
