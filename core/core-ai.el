@@ -295,13 +295,23 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
   :config
   (setq agent-shell-prefer-session-resume nil) ; this is not recommended but I've yet to experience the slowness
   (setq agent-shell-busy-indicator-frames 'circle)
-  (setq agent-shell-preferred-agent-config (agent-shell-anthropic-make-claude-code-config))
+  (setq agent-shell-preferred-agent-config
+        ;; (agent-shell-anthropic-make-claude-code-config)
+        (agent-shell-openai-make-codex-config)
+        )
   (setq agent-shell-permission-responder-function
         #'agent-shell-permission-allow-always)
   (advice-add 'shell-maker-welcome-message :override (lambda (&rest _) ""))
   (advice-add 'agent-shell-anthropic--claude-code-ascii-art :override (lambda (&rest _) ""))
+  (advice-add 'agent-shell-openai--codex-ascii-art :override (lambda (&rest _) ""))
 
-
+  (setq agent-shell-anthropic-claude-environment nil)
+      ;; (agent-shell-make-environment-variables
+      ;;  "ANTHROPIC_API_KEY" ""
+      ;;  "ANTHROPIC_BASE_URL" "https://openrouter.ai/api"
+      ;;  "ANTHROPIC_DEFAULT_HAIKU_MODEL" "openrouter/owl-alpha"
+      ;;  ;; "ANTHROPIC_DEFAULT_HAIKU_MODEL" "moonshotai/kimi-k2.6"
+      ;;  "ANTHROPIC_AUTH_TOKEN" (secret-get openrouter-key)))
   (defun +agent-shell-self-insert-or-queue ()
     "Insert character normally, or queue a request if the shell is busy."
     (interactive)
@@ -339,6 +349,11 @@ When `+agent-shell-merge-pending-requests' is nil, defer to ORIG-FN."
               #'+agent-shell-process-pending-request-merged))
 
 (use-package agent-shell-claude-code
+  :ensure nil
+  :after agent-shell
+  :demand t)
+
+(use-package agent-shell-codex
   :ensure nil
   :after agent-shell
   :demand t)
