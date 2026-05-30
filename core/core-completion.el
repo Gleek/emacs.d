@@ -1,46 +1,5 @@
-(use-package ivy
-  ;; :defer 1
-  :init
-  (setq ivy-sort-max-size 7500
-        ivy-height 17
-        ivy-wrap nil
-        ivy-fixed-height-minibuffer t
-        ivy-use-virtual-buffers nil
-        ivy-virtual-abbreviate 'full
-        ivy-read-action-function 'ivy-read-action-by-key
-        ivy-use-selectable-prompt t)
-
-  :config
-  ;; (ivy-mode t)
-  (eval-after-load '+popup
-    '(set-popup-rule! "^\\*ivy-occur" :size 0.35 :ttl 0 :quit nil))
-
-
-  ;; Ivy debounces all inputs when ivy-dynamic-exhibit-delay-ms is set to some value The following
-  ;; code snippet only debounces the ivy--exhibit if there is a change in input This helps in
-  ;; dynamic filtering by not debouncing any commands such as up and down arrow keys while at the
-  ;; same time running filter functions only if some actual filtering is required.
-  (defvar +ivy--queue-last-input nil)
-  (defun +ivy-queue-exhibit-a(f &rest args)
-    (if (equal +ivy--queue-last-input (ivy--input))
-        (ivy--exhibit)
-      (apply f args))
-    (setq +ivy--queue-last-input (ivy--input)))
-  (advice-add 'ivy--queue-exhibit :around #'+ivy-queue-exhibit-a)
-
-  ;; Force change line spacing in ivy. There's a bug which makes ivy
-  ;; hide few candidates if the spacing is made too large, but works
-  ;; fine for smaller values.
-
-  (defun +ivy-shrink-after-dispatching-a(f &rest a)
-    (unless mini-frame-mode
-      (apply f a)))
-  (advice-add 'ivy-shrink-after-dispatching :around #'+ivy-shrink-after-dispatching-a)
-  :diminish ivy-mode)
-
-
 (use-package vertico
-  :demand
+  :defer 0.1
   :bind (("C-c v" . vertico-repeat)
          (:map vertico-map
                ("<return>" . vertico-directory-enter)
