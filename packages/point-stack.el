@@ -137,11 +137,12 @@
 any navigation is made. This way, it can be used as a replacement
 for the global mark ring."
   (mapc (lambda (func)
-          (eval
-           `(defadvice ,func (around point-stack-push activate)
-              (point-stack-push)
-              ad-do-it)))
+          (advice-add func :around #'point-stack-push-a))
         point-stack-advised-functions))
+
+(defun point-stack-push-a (orig-fn &rest args)
+  (point-stack-push)
+  (apply orig-fn args))
 
 (provide 'point-stack)
 ;; (ad-deactivate 'xref--show-pos-in-buf)

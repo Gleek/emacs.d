@@ -73,7 +73,7 @@
 (global-set-key (kbd "M-<down>") 'move-line-down)
 (global-set-key (kbd "C-^") 'top-join-line)
 (global-set-key (kbd "M-^") 'delete-indentation)
-(global-set-key (kbd "C-c d") 'duplicate-current-line-or-region)
+(global-set-key (kbd "C-c d") 'duplicate-dwim)
 (global-set-key (kbd "C-`") 'pop-eshell)
 (global-set-key (kbd "<C-m> a") 'rename-all-occurences)
 (global-set-key (kbd "C-c t T") 'modus-themes-toggle)
@@ -163,17 +163,19 @@
 
 
 ;; Utility functions
-(defadvice kill-ring-save (before slick-copy activate compile)
+(defun slick-copy-a (&rest _)
   "When called interactively with no active region, copy a single line instead."
   (interactive (if mark-active (list (region-beginning) (region-end))
                  (message "Line copied") (list (line-beginning-position) (line-beginning-position 2)))))
+(advice-add 'kill-ring-save :before #'slick-copy-a)
 
-(defadvice kill-region (before slick-cut activate compile)
+(defun slick-cut-a (&rest _)
   "When called interactively with no active region, kill a single line instead."
   (interactive
    (if mark-active (list (region-beginning) (region-end))
      (list (line-beginning-position)
            (line-beginning-position 2)))))
+(advice-add 'kill-region :before #'slick-cut-a)
 
 
 (defun comment-or-uncomment-region-or-line ()
@@ -282,19 +284,6 @@
         (exchange-point-and-mark))
     (setq end (line-end-position))
     (cons beg end)))
-
-(defun duplicate-current-line-or-region ()
-  "Duplicates the current line or region.
-If there's no region, the current line will be duplicated.  However, if
-there's a region, all lines that region covers will be duplicated."
-  (interactive)
-  (pcase-let* ((origin (point))
-               (`(,beg . ,end) (get-positions-of-line-or-region))
-               (region (buffer-substring-no-properties beg end)))
-    (goto-char end)
-    (newline)
-    (insert region)
-    (setq end (point))))
 
 (defun pop-eshell()
   (interactive)

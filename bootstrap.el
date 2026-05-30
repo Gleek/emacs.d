@@ -139,5 +139,7 @@
   :config
   (gcmh-mode t))
 
+(use-package compat)
+
 (provide 'bootstrap)
 ;;; bootstrap.el ends here

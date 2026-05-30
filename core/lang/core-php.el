@@ -32,11 +32,12 @@
   ;; (add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
   (flycheck-add-mode 'php 'web-mode)
   ;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode)) ;; Using rjsx for that
-  (defadvice web-mode-highlight-part (around tweak-jsx activate)
+  (defun tweak-jsx-a (orig-fn &rest args)
     (if (equal web-mode-content-type "jsx")
         (let ((web-mode-enable-part-face nil))
-          ad-do-it)
-      ad-do-it)))
+          (apply orig-fn args))
+      (apply orig-fn args)))
+  (advice-add 'web-mode-highlight-part :around #'tweak-jsx-a))
 
 
 (use-package flycheck-phpstan

@@ -50,8 +50,9 @@
 (use-package robe
   :ensure t
   :config
-  (defadvice inf-ruby-console-auto (before activate-rvm-for-robe activate)
+  (defun activate-rvm-for-robe-a (&rest _)
     (rvm-activate-corresponding-ruby))
+  (advice-add 'inf-ruby-console-auto :before #'activate-rvm-for-robe-a)
   (add-hook 'ruby-mode-hook 'robe-mode)
   (eval-after-load 'company
     '(push 'company-robe company-backends)))

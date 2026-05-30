@@ -9,17 +9,19 @@
       (when (eq line-number-already-enabled nil)(display-line-numbers-mode -1)))))
 
 
-(defadvice kill-ring-save (before slick-copy activate compile)
+(defun slick-copy-a (&rest _)
   "When called interactively with no active region, copy a single line instead."
   (interactive (if mark-active (list (region-beginning) (region-end))
                  (message "Line copied") (list (line-beginning-position) (line-beginning-position 2)))))
+(advice-add 'kill-ring-save :before #'slick-copy-a)
 
-(defadvice kill-region (before slick-cut activate compile)
+(defun slick-cut-a (&rest _)
   "When called interactively with no active region, kill a single line instead."
   (interactive
    (if mark-active (list (region-beginning) (region-end))
      (list (line-beginning-position)
            (line-beginning-position 2)))))
+(advice-add 'kill-region :before #'slick-cut-a)
 
 ;; Avoid getting read only error with focus on minibuffer
 (setq minibuffer-prompt-properties '(read-only t intangible t cursor-intangible t face minibuffer-prompt))
@@ -129,7 +131,7 @@
 
   (buffer-terminator-mode 1))
 
-(defalias 'yes-or-no-p 'y-or-n-p)
+(setq use-short-answers t)
 (setq select-enable-clipboard t ;; Enabled emacs to use system clipboard
       select-enable-primary nil ;; Disable Copy on selection
       display-time-default-load-average nil
