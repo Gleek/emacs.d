@@ -283,9 +283,6 @@
                    (completing-read "Width" '("200" "160" "150" "100" "70") nil t)))
     (olivetti-reset-all-windows)))
 
-(use-package centered-window)
-
-
 (use-package mini-frame
   :bind ("C-c t m" . +toggle-mini-frame)
   :config
@@ -306,8 +303,7 @@
           (width . 0.80)))
   (setq mini-frame-ignore-functions '(y-or-n-p yes-or-no-p))
   (add-to-list 'mini-frame-ignore-commands 'completion-at-point)
-  (add-to-list 'mini-frame-ignore-commands 'git-gutter:revert-hunk)
-  (mini-frame-mode 1))
+  (add-to-list 'mini-frame-ignore-commands 'git-gutter:revert-hunk))
 
 (use-package treesit
   :ensure nil
