@@ -96,12 +96,9 @@
           which-key-custom-hide-popup-function #'which-key--hide-buffer-side-window
           which-key-custom-show-popup-function
           (lambda (act-popup-dim)
-            (cl-letf ((symbol-function (defun display-buffer-in-side-window (buffer alist)
-                                         (+popup-display-buffer-stacked-side-window-fn
-                                          buffer (append '((vslot . -9999)) alist)))))
-              ;; HACK Fix #2219 where the which-key popup would get cut off.
-              (setcar act-popup-dim (1+ (car act-popup-dim)))
-              (which-key--show-buffer-side-window act-popup-dim)))))
+            ;; HACK Fix #2219 where the which-key popup would get cut off.
+            (setcar act-popup-dim (1+ (car act-popup-dim)))
+            (which-key--show-buffer-side-window act-popup-dim))))
   ;; (which-key-setup-minibuffer)
   :diminish which-key-mode)
 

@@ -76,9 +76,8 @@
   (add-hook 'pdf-view-mode-hook
             (lambda ()
               (pdf-annot-update-highilight-color "#face50")))
-  (set-popup-rules!
-    '(("^\\*Outline*" :side right :size 40 :select nil)
-      ("\\(?:^\\*Contents\\|'s annots\\*$\\)" :ignore t)))
+  (+popup-rule "^\\*Outline*" :regexp t :align right :size 40)
+  (+popup-rule "\\(?:^\\*Contents\\|'s annots\\*$\\)" :regexp t :ignore t)
   (add-hook 'pdf-annot-list-mode-hook #'hide-mode-line-mode)
   (pdf-tools-install :no-query))
 

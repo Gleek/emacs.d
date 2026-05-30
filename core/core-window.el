@@ -1,3 +1,43 @@
+;;; core-window.el --- Window management -*- lexical-binding: t; -*-
+
+(require 'cl-lib)
+
+(defvar shackle-rules nil)
+(defvar popper-reference-buffers nil)
+(defvar +popper-escape-ignored-buffers nil)
+
+(defmacro +popup-rule (condition &rest plist)
+  "Register CONDITION as a Shackle rule and Popper reference.
+The PLIST syntax is Shackle's rule plist, plus local keys:
+:popper nil skips Popper registration.
+:escape nil keeps `escape-quit' from dismissing matching Popper buffers."
+  `(+window-popup-rule ,condition ',plist))
+
+(defun +window-popup-rule (condition plist)
+  "Register CONDITION using PLIST after Shackle and Popper load."
+  (let* ((popper-disabled (and (plist-member plist :popper)
+                               (not (plist-get plist :popper))))
+         (escape-disabled (and (plist-member plist :escape)
+                               (not (plist-get plist :escape))))
+         (ignore (plist-get plist :ignore))
+         (shackle-plist (cl-loop for (key value) on plist by #'cddr
+                                  unless (memq key '(:popper :escape))
+                                  append (list key value)))
+         (shackle-rule (cons condition shackle-plist)))
+    (with-eval-after-load 'shackle
+      (cl-pushnew shackle-rule shackle-rules :test #'equal))
+    (unless (or ignore popper-disabled)
+      (with-eval-after-load 'popper
+        (cl-pushnew condition popper-reference-buffers :test #'equal)
+        (when (fboundp 'popper--set-reference-vars)
+          (popper--set-reference-vars))
+        (when (and (bound-and-true-p popper-mode)
+                   (fboundp 'popper--update-popups))
+          (popper--update-popups))))
+    (when escape-disabled
+      (with-eval-after-load 'popper
+        (cl-pushnew condition +popper-escape-ignored-buffers :test #'equal)))))
+
 (defun vsplit-last-buffer (prefix &optional size)
   "Split the window vertically and display the previous buffer."
   (interactive "p")
@@ -46,12 +86,55 @@
          ("C-<up>"    . windmove-up)
          ("C-<down>"  . windmove-down)))
 
-;; Courtesy: Doom emacs
-(use-package +popup :ensure nil
-  :commands (set-popup-rule! set-popup-rules!)
-  :bind ("C-c w p" . +popup/buffer)
-  :config (setq +popup-margin-width nil)
-  (+popup-mode t))
+(use-package shackle
+  :demand t
+  :config
+  (setq shackle-rules nil
+        popper-reference-buffers nil)
+  (+popup-rule "^\\*Completions" :regexp t :ignore t)
+  (+popup-rule "^\\*Local variables\\*$" :regexp t :align below :size 0.25)
+  (+popup-rule "^\\*\\(?:[Cc]ompil\\(?:ation\\|e-Log\\)\\|Messages\\)" :regexp t :align below :size 0.3)
+  (+popup-rule "^\\*\\(?:Wo\\)?Man " :regexp t :align below :size 0.45 :select t)
+  (+popup-rule "^\\*wclock" :regexp t :align below :size 0.4 :select t)
+  (+popup-rule "^\\*Customize" :regexp t :align right :size 0.5 :select t :escape nil)
+  (+popup-rule "^\\*info\\*$" :regexp t :align right :size 0.45 :select t)
+  (+popup-rule "^\\*Warnings" :regexp t :align below :size 0.25)
+  (+popup-rule "^\\*Backtrace" :regexp t :align below :size 0.4 :escape nil)
+  (+popup-rule "^\\*Async Shell Command*" :regexp t :align below :size 0.4)
+  (+popup-rule "^\\*CPU-Profiler-Report " :regexp t :align below :size 0.4 :escape nil)
+  (+popup-rule "^\\*Memory-Profiler-Report " :regexp t :align below :size 0.4 :escape nil)
+  (+popup-rule "^\\*Process List\\*" :regexp t :align below :size 0.25 :select t)
+  (+popup-rule "^\\*\\(?:Proced\\|timer-list\\|Process List\\|Abbrevs\\|Output\\|Occur\\|unsent mail\\)\\*" :regexp t :ignore t)
+  (shackle-mode 1))
+
+(use-package popper
+  :demand t
+  :bind (("C-c w p" . popper-toggle)
+         ("C-c w P" . popper-cycle))
+  :init
+  (defvar +popper-escape-ignored-buffers nil
+    "Popup buffers that `escape-quit' should not dismiss.")
+
+  (defun +popper-escape-ignored-buffer-p (buffer)
+    (cl-some (lambda (regexp)
+               (string-match-p regexp (buffer-name buffer)))
+             +popper-escape-ignored-buffers))
+
+  (defun +popper-close-on-escape-h ()
+    "Dismiss the latest Popper popup from `escape-hook'."
+    (when (and (bound-and-true-p popper-mode)
+               (boundp 'popper-open-popup-alist)
+               popper-open-popup-alist)
+      (let ((buffer (cdar popper-open-popup-alist)))
+        (when (and (buffer-live-p buffer)
+                   (not (+popper-escape-ignored-buffer-p buffer)))
+          (popper-toggle)
+          t))))
+  :config
+  ;; Shackle owns placement; Popper owns popup state/toggling.
+  (setq popper-display-control nil)
+  (popper-mode 1)
+  (add-hook 'escape-hook #'+popper-close-on-escape-h 'append))
 
 (use-package winner
   :ensure nil

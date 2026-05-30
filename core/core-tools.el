@@ -273,7 +273,7 @@ TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s
 (when IS-MAC
   (use-package osx-dictionary
     :config
-    (set-popup-rule! "^\\*osx-dictionary\\*" :size 0.4 :quit t)
+    (+popup-rule "^\\*osx-dictionary\\*" :regexp t :align below :size 0.4)
     :bind (("C-c s D" . osx-dictionary-search-input))))
 
 
@@ -290,7 +290,9 @@ TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s
   (global-set-key [remap describe-command]  #'helpful-command)
   (global-set-key [remap describe-variable] #'helpful-variable)
   (global-set-key [remap describe-key]      #'helpful-key)
-  (global-set-key [remap describe-symbol]   #'helpful-symbol))
+  (global-set-key [remap describe-symbol]   #'helpful-symbol)
+  :config
+  (+popup-rule "^\\*[Hh]elp" :regexp t :align below :size 0.35 :select t))
 
 
 (use-package async
@@ -306,8 +308,8 @@ TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s
                                    ("C-c C-v" . restclient-http-send-current)
                                    ("C-c n n" . nil)))
   :config
-  (set-popup-rule! "^\\*HTTP Response" :size 0.4 :quit 'other)
-  (set-popup-rule! "^\\*Restclient Info" :size 0.4 :quit 'other)
+  (+popup-rule "^\\*HTTP Response" :regexp t :align below :size 0.4)
+  (+popup-rule "^\\*Restclient Info" :regexp t :align below :size 0.4)
   (add-hook 'restclient-mode-hook
             (lambda()
               (setq imenu-generic-expression '((nil "^[A-Z]+\s+.+" 0)))))
@@ -387,7 +389,7 @@ TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s
          ("C-c P U" . system-packages-update)
          ("C-c P l" . system-packages-list-installed-packages))
   :config
-  (set-popup-rule! "^\\*system-packages\\*" :size 0.4 :quit 'other))
+  (+popup-rule "^\\*system-packages\\*" :regexp t :align below :size 0.4))
 
 (use-package bongo
   :bind (("C-c b s" . bongo-seek)
@@ -544,6 +546,8 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :ensure nil
   :bind ("C-*" . calc)
   :config
+  (+popup-rule "^\\*Calc" :regexp t :align below :size 0.4 :select t :escape nil)
+
   ;; TODO: fixme error("Eager macro-expansion failure: %S" (void-variable ))
   ;; (defmath tzconv(dt tz &optional tz2)
   ;;   ;; if only tz is present assume that the dt is in local timezone and convert to tz
@@ -642,9 +646,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   ;;         (apply orig-fun args))
   ;;     (spacious-padding-mode 1)))
 
-  (set-popup-rule! "^ \\*salah-times\\*" :select nil :size '+popup-shrink-to-fit))
-
-
+  (+popup-rule "^ \\*salah-times\\*" :regexp t :align below :size 0.15))
 
 
 (when IS-MAC

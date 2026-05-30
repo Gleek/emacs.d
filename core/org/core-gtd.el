@@ -679,7 +679,7 @@
   :commands (+open-calendar)
   :bind (:map cfw:calendar-mode-map ("?" . +calendar/show-keys))
   :config
-  (set-popup-rule! "^\\*cfw:details\\*$")
+  (+popup-rule "^\\*cfw:details\\*$" :regexp t :align below)
   (setq cfw:org-overwrite-default-keybinding t)
   (defun +calendar/show-keys()
     (interactive)
@@ -763,7 +763,7 @@
                 ("VA" . +org-show-archivable)
                 ("VV" . org-ql-view))))
   :config
-  (set-popup-rule! "^\\*Org QL View:"  :slot -1 :vslot -1 :size 0.5 :ttl 0)
+  (+popup-rule "^\\*Org QL View:" :regexp t :align below :size 0.5)
   ;; (add-to-list 'org-ql-views
   ;;              (list "Projects overview"
   ;;                    :buffer-files #'org-agenda-files

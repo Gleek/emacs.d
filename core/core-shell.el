@@ -98,8 +98,7 @@
   ;; For `eat-eshell-visual-command-mode'.
   (add-hook 'eshell-load-hook #'eat-eshell-visual-command-mode)
 
-  (require '+popup)
-  (set-popup-rule! "^\\*.*eat\\*" :size 0.4 :quit nil :select t))
+  (+popup-rule "^\\*.*eat\\*" :regexp t :align below :size 0.4 :select t :escape nil))
 
 (use-package eshell
   :init
@@ -107,7 +106,7 @@
   :ensure nil
   :bind ((:map eshell-hist-mode-map ("M-r" . consult-history)))
   :config
-  (set-popup-rule! "^\\*eshell" :ignore t)
+  (+popup-rule "^\\*eshell" :regexp t :ignore t)
   (setq eshell-banner-message ""
         eshell-scroll-to-bottom-on-input 'all
         eshell-scroll-to-bottom-on-output 'all

@@ -19,8 +19,7 @@
 
   (setq dired-listing-switches
         "-AGFhlv --group-directories-first --time-style=long-iso")
-  (set-popup-rule! "^\\*image-dired"
-    :slot 20 :size 0.8 :select t :quit nil :ttl 0)
+  (+popup-rule "^\\*image-dired" :regexp t :align below :size 0.8 :select t :escape nil)
   (setq image-dired-dir (concat CACHE-DIR "image-dired/")
         image-dired-db-file (concat image-dired-dir "db.el")
         image-dired-gallery-dir (concat image-dired-dir "gallery/")

@@ -345,6 +345,7 @@ https://emacs.stackexchange.com/a/12124/2144"
   :bind (:map undo-tree-map
               ("M-_" . nil))
   :config
+  (+popup-rule "^ \\*undo-tree\\*" :regexp t :align left :size 20 :select t)
   ;; Quiting undo tree resets undo-tree-visualizer-diff value.
   ;; This masks it so that it can’t be changed
   (defun +undo-tree-visualizer-quit(f &rest args)

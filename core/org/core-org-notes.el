@@ -256,11 +256,10 @@ the capture popup."
   (require 'org-roam-protocol)
   ;; (add-hook 'find-file-hook 'open-org-roam)
   (add-hook 'org-mode-hook '+do-org-roam-bindings)
-  (set-popup-rules!
-    `((,(regexp-quote org-roam-buffer) ; persistent org-roam buffer
-       :side right :width .33 :height .5 :ttl nil :modeline nil :quit nil :slot 1)
-      ("^\\*org-roam: " ; node dedicated org-roam buffer
-       :side right :width .33 :height .5 :ttl nil :modeline nil :quit nil :slot 2)))
+  (+popup-rule (regexp-quote org-roam-buffer)
+                       :regexp t :align right :size 0.33 :escape nil)
+  (+popup-rule "^\\*org-roam: "
+                       :regexp t :align right :size 0.33 :escape nil)
 
 
   (setq org-roam-preview-function #'+roam-preview-fetcher)

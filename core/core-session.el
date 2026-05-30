@@ -25,8 +25,7 @@
   :init
   :bind ("<f6>" . persistent-scratch-quick-open)
   :config
-  (eval-after-load '+popup
-    '(set-popup-rule! "\\^*scratch:" :vslot -4 :autosave t :size 0.35 :select t :quit nil :ttl nil :modeline t))
+  (+popup-rule "\\^*scratch:" :regexp t :align below :size 0.35 :select t :escape nil)
   (setq persistent-scratch-save-file (concat CACHE-DIR ".persistent-scratch"))
   ;; (persistent-scratch-restore)
   ;; (persistent-scratch-setup-default)

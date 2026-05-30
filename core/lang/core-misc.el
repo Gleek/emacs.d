@@ -30,7 +30,7 @@
   :after json-ts-mode
   :bind ((:map json-ts-mode-map ("C-c C-s" . counsel-jq)))
   :config
-  (set-popup-rule! "^\\*jq-json*\\$" :size 0.35 :ttl 0 :quit nil))
+  (+popup-rule "^\\*jq-json*\\$" :regexp t :align below :size 0.35 :escape nil))
 
 ;; npm install -g quicktype
 (use-package quick-type

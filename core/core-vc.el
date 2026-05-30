@@ -132,7 +132,7 @@
 
   (add-hook 'find-file-hook 'vc-gutter-init-maybe)
   :config
-  (set-popup-rule! "^\\*git-gutter" :select nil :size '+popup-shrink-to-fit)
+  (+popup-rule "^\\*git-gutter" :regexp t :align below :size 0.25)
 
   (require 'git-gutter-fringe)
   ;; places the git gutter outside the margins.
@@ -178,7 +178,7 @@
   ;; :hook (find-file . diff-hl-mode)
   :config
   ;; Courtesy: Doom Emacs
-  (set-popup-rule! "^\\*diff-hl" :select nil :size '+popup-shrink-to-fit)
+  (+popup-rule "^\\*diff-hl" :regexp t :align below :size 0.25)
   (setq vc-git-diff-switches '("--histogram"))
   (setq diff-hl-flydiff-delay 0.5)
   (setq diff-hl-show-staged-changes nil)

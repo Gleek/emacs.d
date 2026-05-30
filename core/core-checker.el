@@ -164,9 +164,8 @@
   ;; (setq flycheck-buffer-switch-check-intermediate-buffers nil)
   (setq flycheck-display-errors-delay 0.9)
 
-  (set-popup-rules!
-    '(("^\\*Flycheck error messages\\*" :select nil)
-      ("^\\*Flycheck errors\\*" :size 0.25)))
+  (+popup-rule "^\\*Flycheck error messages\\*" :regexp t :align below)
+  (+popup-rule "^\\*Flycheck errors\\*" :regexp t :align below :size 0.25)
 
   ;; Courtesy - Doom Emacs
   (setq flycheck-indication-mode 'right-fringe)

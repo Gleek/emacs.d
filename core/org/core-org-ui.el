@@ -128,7 +128,7 @@ Useful to checking the link under point."
 
   ;; Courtesy: doom emacs (popup/+hacks.el)
   (defun +popup--supress-delete-other-windows-a (origin-fn &rest args)
-    (if +popup-mode
+    (if (bound-and-true-p popper-mode)
         (cl-letf (((symbol-function #'delete-other-windows) #'ignore)
                   ((symbol-function #'delete-window)        #'ignore))
           (apply origin-fn args))
@@ -143,7 +143,7 @@ Useful to checking the link under point."
 
   ;; Ensure todo, agenda, and other minor popups are delegated to the popup system.
   (defun +popup--org-pop-to-buffer-a(orig-fn buf &optional norecord)
-    (if +popup-mode
+    (if (bound-and-true-p popper-mode)
         (pop-to-buffer buf nil norecord)
       (funcall orig-fn buf norecord)))
 
@@ -160,15 +160,14 @@ Useful to checking the link under point."
       (apply orig-fn args)))
   (advice-add #'org-src-switch-to-buffer :around #'+popup--org-src-switch-to-buffer-a)
 
-  (set-popup-rules!
-    '(("^\\*Org Links" :slot -1 :vslot -1 :size 2 :ttl 0)
-      ("^ ?\\*\\(?:Agenda Com\\|Calendar\\|Org Export Dispatcher\\)"
-       :slot -1 :vslot -1 :size #'+popup-shrink-to-fit :ttl 0)
-      ("^\\*Org \\(?:Select\\|Attach\\)" :slot -1 :vslot -2 :ttl 0 :size 0.25)
-      ("^\\*Org Agenda"     :ignore t)
-      ("^\\*Org Src"        :size 0.4  :quit nil :select t :autosave t :modeline t :ttl nil)
-      ("^\\*Org-Babel")
-      ("^CAPTURE-.*\\.org$" :size 0.25 :quit nil :select t :autosave t))))
+  (+popup-rule "^\\*Org Links" :regexp t :align below :size 2)
+  (+popup-rule "^ ?\\*\\(?:Agenda Com\\|Calendar\\|Org Export Dispatcher\\)"
+                       :regexp t :align below :size 0.25)
+  (+popup-rule "^\\*Org \\(?:Select\\|Attach\\)" :regexp t :align below :size 0.25)
+  (+popup-rule "^\\*Org Agenda" :regexp t :ignore t)
+  (+popup-rule "^\\*Org Src" :regexp t :align below :size 0.4 :select t :escape nil)
+  (+popup-rule "^\\*Org-Babel" :regexp t :align below)
+  (+popup-rule "^CAPTURE-.*\\.org$" :regexp t :align below :size 0.25 :select t :escape nil))
 
 (use-package org-modern
   :hook ((org-mode . org-modern-mode)

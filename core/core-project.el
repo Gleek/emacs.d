@@ -74,8 +74,6 @@ Repeated invocations toggle between the two most recently open buffers."
   :ensure nil
   :bind ("C-x C-b" . ibuffer)
   :config
-  ;; Courtesy doom
-  ;; (set-popup-rule! "^\\*Ibuffer\\*$" :ignore t)
   (setq ibuffer-show-empty-filter-groups nil
         ibuffer-filter-group-name-face '(:inherit (success bold))
         ibuffer-formats
@@ -216,8 +214,7 @@ Repeated invocations toggle between the two most recently open buffers."
   ;; (setq lsp-signature-function 'lsp-signature-posframe)
 
   ;; (setq lsp-disabled-clients '(intelephense))
-  (eval-after-load '+popup
-    '(set-popup-rule! "^\\*lsp-help" :size 0.35 :ttl 0 :quit t))
+  (+popup-rule "^\\*lsp-help" :regexp t :align below :size 0.35)
   (setq-default lsp-enable-imenu t)
   (setq lsp-enable-file-watchers nil
         lsp-enable-folding nil

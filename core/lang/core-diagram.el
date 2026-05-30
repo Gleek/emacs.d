@@ -67,8 +67,7 @@ This function is called by `org-babel-execute-src-block'."
   (setq plantuml-jar-path (concat RES-DIR "plantuml.jar")
         org-plantuml-jar-path plantuml-jar-path)
   :config
-  (eval-after-load '+popup
-    '(set-popup-rule! "^\\*PLANTUML" :size 0.4 :select nil :ttl 0 :side 'right))
+  (+popup-rule "^\\*PLANTUML" :regexp t :align right :size 0.4)
 
   (setq plantuml-default-exec-mode 'executable))
 
