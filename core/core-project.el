@@ -229,6 +229,7 @@ Repeated invocations toggle between the two most recently open buffers."
         lsp-enable-symbol-highlighting nil
         lsp-keep-workspace-alive nil
         lsp-enable-links nil
+        lsp-enable-imenu nil                ; Imenu from tree sitter modes seems better and lsp imenu jumps to internal symbols instead of function
         lsp-enable-dap-auto-configure nil ; temporary issue with dap https://github.com/emacs-lsp/dap-mode/issues/825
         ;; lsp-enable-on-type-formatting nil
         ;; lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols)
