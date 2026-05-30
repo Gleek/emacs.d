@@ -895,9 +895,23 @@ Shows ediff and calls CALLBACK when complete."
                     (replace-match new-string t t)
                   ;; Fail fast: stop processing further edits and do not proceed to ediff.
                   (setq success nil)
-                  (setq fail-msg
-                        (format "Could not find '%s' in line %d or anywhere else in the buffer. Please use read_file again to read relevant portions"
-                                old-string line-number))))))))
+                  (let ((base-msg                (format "Could not find '%s' in line %d or anywhere else in the buffer. Please use read_file again to read relevant portions or try smaller edits"
+                                                         old-string line-number))
+                        (setq fail-msg base-msg)
+                        ;; Add diff context if line number was provided and valid
+                        (when (and line-number (> line-number 0))
+                          (let* ((old-lines (split-string old-string "\n"))
+                                 (line-count (length old-lines))
+                                 (start-pos (point))
+                                 (end-pos (progn
+                                            (forward-line line-count)
+                                            (min (point) (point-max)))))
+                            (let* ((buffer-snippet (buffer-substring-no-properties start-pos end-pos))
+                                   (diff (gptel-tool--calculate-diff old-string buffer-snippet)))
+                              (setq fail-msg
+                                    (concat base-msg
+                                            (format "\n\nDiff of old_string vs buffer content at lines %d-%d:\n%s"
+                                                    line-number (+ line-number line-count -1) diff))))))))))))))
       (if (not success)
           (progn
             (when (buffer-live-p temp-buffer)
@@ -952,11 +966,11 @@ Returns the buffer object if found, or nil if no buffer is found."
   (cond
    ;; Case 1: Already a buffer object
    ((bufferp (get-buffer buffer-name-or-path))
-     (get-buffer buffer-name-or-path))
+    (get-buffer buffer-name-or-path))
 
    ;; Case 2: Nil or empty string
    ((not (and buffer-name-or-path (stringp buffer-name-or-path)))
-     nil)
+    nil)
 
    ;; ;; Case 3: Exact buffer name match
    ;; ((get-buffer buffer-name-or-path))
@@ -964,7 +978,7 @@ Returns the buffer object if found, or nil if no buffer is found."
    ;; Case 4: Might be a file path
    ((and (string-match-p "/" buffer-name-or-path)
          (file-exists-p buffer-name-or-path))
-     (find-file-noselect buffer-name-or-path t))
+    (find-file-noselect buffer-name-or-path t))
 
    ;; Case 5: Try to find matching buffers
    ((let* ((name-regexp (regexp-quote buffer-name-or-path))
@@ -979,7 +993,7 @@ Returns the buffer object if found, or nil if no buffer is found."
                           (string-match-p name-regexp (buffer-name buf)))
                         (buffer-list))))
       (if (= (length matching-buffers) 1)
-           (car matching-buffers)
+          (car matching-buffers)
         (if (fboundp 'projectile-project-root)
             (let* ((project-root (projectile-project-root))
                    (project-buffers
@@ -988,8 +1002,8 @@ Returns the buffer object if found, or nil if no buffer is found."
                                     (projectile-project-buffer-p buf project-root)))
                                 matching-buffers)))
               (if (= (length project-buffers) 1)
-                   (car project-buffers)
-                 (car matching-buffers)))
+                  (car project-buffers)
+                (car matching-buffers)))
           (car matching-buffers)))))
    ;; Case 6: No match, try searching project files
    (t
@@ -1089,7 +1103,7 @@ Returns a formatted string with error type, line, column, and message."
                (line-count (line-number-at-pos (point-max)))
                (encoding (coding-system-plist buffer-file-coding-system))
                (project-root (and (fboundp 'projectile-project-root)
-                                 (projectile-project-root))))
+                                  (projectile-project-root))))
           (format "Buffer: %s\nFile: %s\nVisible: %s\nSize: %d bytes\nLines: %d\nEncoding: %s\nMajor Mode: %s\nProject: %s\nSaved: %s \nDefault Directory: %s"
                   (buffer-name)
                   (or buf-file "none")
@@ -1099,8 +1113,8 @@ Returns a formatted string with error type, line, column, and message."
                   (or (plist-get encoding :name) "unknown")
                   major-mode
                   (or project-root "none")
-                   (if (buffer-modified-p) "No" "Yes")
-                   default-directory))))))
+                  (if (buffer-modified-p) "No" "Yes")
+                  default-directory))))))
 
 (defun gptel-tool-eval-elisp (elisp-form)
   "Evaluate ELISP-FORM and return the result as a string."
@@ -1183,7 +1197,7 @@ COUNT is the number of results to return (default 5)."
   (setq gptel-tool--web-search-active
         (cl-delete-if-not
          (lambda (buf) (and (buffer-live-p buf)
-                       (process-live-p (get-buffer-process buf))))
+                            (process-live-p (get-buffer-process buf))))
          gptel-tool--web-search-active))
   (if (>= (length gptel-tool--web-search-active) 2)
       (progn (message "Web search: waiting for turn")
@@ -1240,7 +1254,7 @@ Returns t if Content-Type header indicates PDF, nil otherwise."
   (re-search-forward "^Content-Type:.*application/pdf" nil t))
 
 (defun gptel-tool--save-pdf-to-temp ()
-   "Save PDF content from current buffer to a temporary file.
+  "Save PDF content from current buffer to a temporary file.
 Returns the path to the temporary file."
   (let ((temp-file (make-temp-file "gptel-pdf-" nil ".pdf")))
     (goto-char url-http-end-of-headers)
@@ -1336,16 +1350,16 @@ Handles both HTML pages and PDF files:
                  :function #'gptel-tool-read-unified
                  :description "Read the contents of a buffer or file (by name or path). Optionally read only a line range (1-based). Output is capped at 5000 lines. Returns basic metadata (buffer/file identity, directory/project when available, total lines, returned range) followed by the content."
                  :args (list '(:name "name-or-path"
-                                    :type string
-                                    :description "Buffer name or file path")
-                               '(:name "start-line"
-                                    :type integer
-                                    :optional t
-                                    :description "Start line (optional)")
-                               '(:name "end-line"
-                                    :type integer
-                                    :optional t
-                                    :description "End line (optional)"))
+                                     :type string
+                                     :description "Buffer name or file path")
+                             '(:name "start-line"
+                                     :type integer
+                                     :optional t
+                                     :description "Start line (optional)")
+                             '(:name "end-line"
+                                     :type integer
+                                     :optional t
+                                     :description "End line (optional)"))
                  :category "emacs"
                  :include t)
 
@@ -1494,8 +1508,8 @@ Handles both HTML pages and PDF files:
                                       " If user refers to the current project assume you're in the right project "
                                       " and use list_project_files instead to get files directly if needed.")
                  :args (list '(:name "pattern"
-                                    :type string
-                                    :description "Optional regexp to filter projects. Empty returns all. Case-insensitive." :optional t))
+                                     :type string
+                                     :description "Optional regexp to filter projects. Empty returns all. Case-insensitive." :optional t))
                  :category "emacs"
                  :confirm t
                  :include t)
@@ -1622,8 +1636,8 @@ Handles both HTML pages and PDF files:
                  :function #'gptel-tool-list-buffers
                  :description "List current Emacs buffers. Accepts an optional case-insensitive regex pattern to filter buffer names."
                  :args (list '(:name "pattern"
-                                    :type string
-                                    :description "Optional regexp to filter buffer names. Empty returns all. Case-insensitive." :optional t))
+                                     :type string
+                                     :description "Optional regexp to filter buffer names. Empty returns all. Case-insensitive." :optional t))
                  :category "emacs"
                  :confirm t
                  :include t)
@@ -1728,8 +1742,8 @@ Also appends any new Flycheck errors introduced by the edits (if available)."
                  :function #'gptel-tool-buffer-details
                  :description "Get detailed information about a buffer including its name, associated file, visibility status, size, line count, encoding, major mode, project status, and whether it has been saved. Useful for debugging or getting a complete overview of a buffer's state."
                  :args (list '(:name "buffer-name"
-                             :type string
-                             :description "The name of the buffer to get details for"))
+                                     :type string
+                                     :description "The name of the buffer to get details for"))
                  :category "emacs"
                  :include t)
 

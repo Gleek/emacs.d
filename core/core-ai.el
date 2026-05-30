@@ -22,8 +22,29 @@
          ("C-c q c" . gptel)
          ("C-c q m" . gptel-menu)
          (:map gptel-mode-map
-               ("C-M-<return>" . gptel-send)))
+               ("C-M-<return>" . gptel-send)
+               ("C-c C-c" . +gptel-abort-if-running)))
   :config
+  (defun +gptel-abort-if-running ()
+    "Abort gptel request if one is running in the current buffer.
+If no request is active and current mode is derived from `org-mode',
+call `org-ctrl-c-ctrl-c' instead."
+    (interactive)
+    (if-let* ((buf (current-buffer))
+               (proc-attrs
+                (cl-find-if
+                 (lambda (entry)
+                   (eq (thread-first (cadr entry)
+                                 (gptel-fsm-info)
+                                 (plist-get :buffer))
+                       buf))
+                 gptel--request-alist)))
+        (gptel-abort buf)
+      ;; No active request: fall back to org-ctrl-c-ctrl-c if in org-mode
+      (if (derived-mode-p 'org-mode)
+          (org-ctrl-c-ctrl-c)
+        (message "No active gptel request in %S" (buffer-name buf)))))
+
   (setq gptel-model 'claude-opus-4-5-20251101)
   (setq gptel-default-mode 'org-mode)
   (setq-default gptel-org-branching-context nil)
@@ -42,6 +63,16 @@
               mistralai/Mixtral-8x7B-Instruct-v0.1
               codellama/CodeLlama-13b-Instruct-hf
               codellama/CodeLlama-34b-Instruct-hf))
+  (gptel-make-openai "OpenRouter"
+  :host "openrouter.ai"
+  :endpoint "/api/v1/chat/completions"
+  :stream t
+  :key (secret-get openrouter-key)
+  :models '(tencent/hy3-preview
+            moonshotai/kimi-k2.6
+            openrouter/owl-alpha
+            inclusionai/ring-2.6-1t:free))
+
   (gptel-make-gemini "Gemini Grounded"
     :stream t
     :key (secret-get gemini-key)
@@ -106,6 +137,11 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
 
   (setf (alist-get 'default gptel-directives) #'gptel-default-prompt)
 
+  (use-package gptel-agent
+    :demand
+    :config
+    (gptel-agent-update))
+
   (gptel-make-preset 'coder
     :description "Preset for coding tasks"
     :backend "Anthropic-OAuth"
@@ -116,7 +152,10 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
       "list_errors" "edit_buffer"
       "list_project_files"
       "read_file" "search_with_ripgrep" "create_file"
-      "eval_elisp" "web_search" "web_fetch"))
+      "eval_elisp" "web_search" "web_fetch"
+      ;; Add gptel-agent tools you want available:
+      "TodoWrite" "Agent"
+      ))
   (gptel-make-preset 'architect
     :description "Preset for spec writer"
     :backend "ChatGPT"
@@ -215,21 +254,30 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
                              "Start the summary with \"I asked you...\"\n\n")
         :system  "Summarize this LLM conversation transcript. Follow the summarization instructions at the bottom very carefully."
         :callback (lambda (response info)
-                    (if response
-                        (with-current-buffer orig-buffer
-                          (let ((inhibit-read-only t))
-                            (save-excursion
-                              (goto-char (point-min))
-                              (delete-region (point-min) (point-max))
-                              (insert "*** I spoke to you previously about a number of things.\n\n" response)
-                              (fill-region (point-min) (point-max))
-                              (goto-char (point-min)))
-                            (message "Chat summarized successfully")))
-                      (message "Response failed with status: %S" (prin1-to-string info))))))))
+                    (cond
+                     ;; Skip reasoning content chunks (cons cells with 'reasoning car)
+                     ((and (consp response) (eq (car response) 'reasoning)))
+                     ;; Handle successful string response
+                     ((stringp response)
+                      (with-current-buffer orig-buffer
+                        (let ((inhibit-read-only t))
+                          (save-excursion
+                            (goto-char (point-min))
+                            (delete-region (point-min) (point-max))
+                            (insert "*** I spoke to you previously about a number of things.\n\n" response)
+                            (fill-region (point-min) (point-max))
+                            (goto-char (point-min)))
+                          (message "Chat summarized successfully"))))
+                     ;; Handle other cases (abort, error, non-string responses)
+                     (t
+                      (message "Summarization failed: %S"
+                               (if response
+                                   (prin1-to-string response)
+                                 (plist-get info :status))))))))))
 
 (use-package gptel-anthropic-oauth
   :after (gptel)
-  :demand t
+  ;; :demand t
   :ensure (:fetcher github :repo "gleek/gptel-anthropic-oauth" :protocol ssh)
   :config
   (gptel-make-anthropic-oauth "Anthropic-OAuth" :stream t))
