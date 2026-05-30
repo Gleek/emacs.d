@@ -35,6 +35,7 @@
 ;; Bootstrap `use-package'
 
 (setq use-package-enable-imenu-support t)
+(setq use-package-compute-statistics t)
 (eval-when-compile
   (require 'use-package))
 (require 'bind-key)
@@ -92,19 +93,30 @@
   ;; Enable use-package :ensure support for Elpaca.
   (elpaca-use-package-mode))
 
+(with-eval-after-load 'use-package
+  (advice-add 'use-package-statistics-convert :override
+              (lambda (package)
+                (let ((statistics (gethash package use-package-statistics)))
+                  (list package
+                        (vector
+                         (if (symbolp package) (symbol-name package) package)
+                         (use-package-statistics-status statistics)
+                         (format-time-string
+                          "%H:%M:%S.%6N"
+                          (use-package-statistics-last-event statistics))
+                         (format "%.2f"
+                                 (use-package-statistics-time statistics))))))))
+
 (use-package emacs
   :ensure nil
   :bind ("C-c a p" . elpaca-manager))
 
 ;; (use-package use-package-ensure-system-package)
-(use-package benchmark-init
-  :disabled
-  ;; :demand
-  :hook (after-init . benchmark-init/activate)
-  :config
-  ;; To disable collection of benchmark data after init is done.
-  ;; (add-hook 'after-init-hook 'benchmark-init/deactivate)
-  )
+;; (use-package benchmark-init
+;;   :demand t
+;;   :config
+;;   (benchmark-init/activate)
+;;   (add-hook 'window-setup-hook #'benchmark-init/deactivate))
 
 (setq custom-file (concat CACHE-DIR "custom.el"))
 ;; (load custom-file)
