@@ -118,8 +118,8 @@
   :bind (("C-M-v" . sow-scroll-other-window)
          ("C-S-M-v". sow-scroll-other-window-down)))
 
-(use-package combobulate
-  :ensure (:fetcher github :repo "mickeynp/combobulate"))
+;; (use-package combobulate
+;;   :ensure (:fetcher github :repo "mickeynp/combobulate"))
 
 (use-package hideshow
   :ensure hydra
@@ -209,9 +209,6 @@
     (interactive "e")
     (mouse-set-point e)
     (call-interactively 'origami-toggle-node)))
-
-(use-package imenu-anywhere :ensure t)
-
 
 
 (provide 'core-navigation)
