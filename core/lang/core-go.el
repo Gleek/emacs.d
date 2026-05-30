@@ -7,7 +7,6 @@
 ;;  go install golang.org/x/tools/cmd/godoc@latest
 ;;  go install golang.org/x/tools/cmd/goimports@latest
 ;;  go install golang.org/x/tools/cmd/gorename@latest
-;;  DEPRECATED: go get -u golang.org/x/tools/cmd/guru
 ;;  go install github.com/vburenin/ifacemaker@latest
 ;;
 ;; https://golangci-lint.run/usage/install/#local-installation
@@ -146,8 +145,7 @@ Call with prefix arg to create a new buffer with the interface definition."
   :config
   ;; (setq dap-go-debug-program `("node" ,(concat dap-go-debug-path "/extension/dist/debugAdapter.js")))
   (setq gofmt-command "goimports")
-  (add-hook 'before-save-hook '+gofmt-before-save)
-  (set-popup-rule! "^\\*go-guru-output\\*" :size 0.4 :quit t))
+  (add-hook 'before-save-hook '+gofmt-before-save))
 
 
 (use-package gorepl-mode

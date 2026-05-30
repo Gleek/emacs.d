@@ -37,9 +37,8 @@
   :commands quicktype
   :ensure nil)
 
-(use-package less-css-mode)
+;; (use-package less-css-mode)
 (use-package rainbow-mode :diminish "🌈")
-
 
 (use-package rust-mode
   :init

@@ -21,6 +21,7 @@
 
 (use-package lsp-pyright
   :ensure t
+  :disabled t
   :custom (lsp-pyright-langserver-command "basedpyright")
   :hook ((python-mode python-ts-mode) . +init-lsp-pyright)
   :config
@@ -28,6 +29,17 @@
     (require 'lsp)
     (require 'lsp-pyright)
     (lsp-deferred)))
+
+(use-package lsp-pyrefly
+  :ensure (:fetcher github :repo "SunskyXH/lsp-pyrefly")
+  :custom (lsp-disabled-clients '(pylsp pyls))
+  :hook ((python-mode python-ts-mode) . +init-lsp-pyrefly)
+  :config
+  (defun +init-lsp-pyrefly()
+    (require 'lsp)
+    (require 'lsp-pyrefly)
+    (lsp-deferred)))
+
 
 (provide 'core-python)
 ;;; core-python.el ends here
