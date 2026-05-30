@@ -1,7 +1,8 @@
 (use-package shell-pop
   :ensure t
-  :bind (("C-`" . +shellpop-eshell)
-         ("C-~" . +shellpop-vterm)
+  :bind (
+         ;; ("C-`" . +shellpop-eshell)
+         ;; ("C-~" . +shellpop-vterm)
          ("C-c t v" . +shellpop-vterm))
   :config
   (defun shell-pop--cd-to-cwd-vterm(cwd)
@@ -200,7 +201,10 @@
             (lambda()
               (setq confirm-kill-processes nil))))
 
-(use-package ghostel)
+(use-package ghostel
+  :bind (("C-c p x" . ghostel-project))
+  :config
+  (+popup-rule "^\\*.*ghostel" :regexp t :align below :size 0.40 :select t :popup t :escape nil))
 
 
 

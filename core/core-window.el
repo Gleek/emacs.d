@@ -78,6 +78,7 @@ The PLIST syntax is Shackle's rule plist, plus local keys:
          ("C-x 3"   . hsplit-last-buffer)
          ("C-c w r" . rotate-windows)
          ("C-c w T" . tear-off-window)
+         ("C-x K"   . kill-buffer-and-window)
          ("C-x 4 f" . find-file-other-window)))
 
 (use-package windmove :ensure nil
@@ -87,7 +88,7 @@ The PLIST syntax is Shackle's rule plist, plus local keys:
          ("C-<down>"  . windmove-down)))
 
 (use-package shackle
-  :demand t
+  :defer 0.1
   :config
   (setq shackle-rules nil
         popper-reference-buffers nil)
@@ -108,13 +109,22 @@ The PLIST syntax is Shackle's rule plist, plus local keys:
   (shackle-mode 1))
 
 (use-package popper
-  :demand t
-  :bind (("C-c w p" . popper-toggle)
+  :defer 0.1
+  :bind (("C-`" . popper-toggle)
+         ("C-M-`" . popper-cycle)
+         ("C-x k" . +popper-kill-current-buffer)
+         ("C-c w p" . popper-toggle)
          ("C-c w P" . popper-cycle))
-  :init
+  :config
+  (setq popper-group-function #'popper-group-by-projectile)
+  ;; Shackle owns placement; Popper owns popup state/toggling.
+  (setq popper-display-control nil)
+  (popper-mode 1)
+  (popper-echo-mode 1)
+
+
   (defvar +popper-escape-ignored-buffers nil
     "Popup buffers that `escape-quit' should not dismiss.")
-
   (defun +popper-escape-ignored-buffer-p (buffer)
     (cl-some (lambda (regexp)
                (string-match-p regexp (buffer-name buffer)))
@@ -130,14 +140,24 @@ The PLIST syntax is Shackle's rule plist, plus local keys:
                    (not (+popper-escape-ignored-buffer-p buffer)))
           (popper-toggle)
           t))))
-  :config
-  ;; Shackle owns placement; Popper owns popup state/toggling.
-  (setq popper-display-control nil)
-  (popper-mode 1)
+
+  (defun +popper-kill-current-buffer ()
+    "Kill current buffer, closing its Popper popup window when applicable."
+    (interactive)
+    (call-interactively
+     (if (and (bound-and-true-p popper-mode)
+              (boundp 'popper-open-popup-alist)
+              (eq (cdr (assq (selected-window) popper-open-popup-alist))
+                  (current-buffer)))
+         #'kill-buffer-and-window
+       #'kill-current-buffer)))
+
+
   (add-hook 'escape-hook #'+popper-close-on-escape-h 'append))
 
 (use-package winner
   :ensure nil
+  :defer 1
   :config (winner-mode t)
   :bind (("C-c w /" . winner-undo)
          ("C-c w ?" . winner-redo)))

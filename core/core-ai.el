@@ -293,6 +293,7 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
 (use-package agent-shell
   :bind ("C-c q a" . agent-shell)
   :config
+  (+popup-rule "^Codex agent" :regexp t :align right :size 0.4 :select t :escape nil)
   (setq agent-shell-prefer-session-resume nil) ; this is not recommended but I've yet to experience the slowness
   (setq agent-shell-busy-indicator-frames 'circle)
   (setq agent-shell-preferred-agent-config
