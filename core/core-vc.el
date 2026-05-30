@@ -7,6 +7,8 @@
   :init
   (setq magit-define-global-key-bindings nil)
   :config
+  (setq magit-diff-fontify-hunk t) ;; Too slow currently but I do some custom optimisations
+  (setq magit-diff-specify-hunk-foreground nil)
   (defun magit-remove-git-lock-file ()
     "Remove git's index lock file, if it exists."
     (interactive)
