@@ -325,31 +325,18 @@ https://emacs.stackexchange.com/a/12124/2144"
 ;;   :init
 ;;   (global-set-key [remap kill-ring-save] 'easy-kill))
 
-(use-package smartparens
+(use-package electric
+  :ensure nil
   :defer 1
-  :ensure t
   :config
-  (smartparens-global-mode t)
-  ;; (add-hook 'prog-mode-hook 'smartparens-mode)
-  ;; (add-hook 'org-mode-hook 'smartparens-mode)
-  (require 'smartparens-config)
-  (setq sp-highlight-pair-overlay nil
-        sp-highlight-wrap-overlay nil
-        sp-highlight-wrap-tag-overlay nil)
-  ;; https://github.com/Fuco1/smartparens/issues/80 get reindent on curly brackets.
-  (dolist (mode '(prog-mode))
-    (sp-local-pair mode "{" nil :post-handlers
-                   '((radian-enter-and-indent-sexp "RET")
-                     (radian-enter-and-indent-sexp "<return>"))))
-  (defun radian-enter-and-indent-sexp (&rest _ignored)
-    "Open a new brace or bracket expression, with relevant newlines and indent. "
-    (newline)
-    (indent-according-to-mode)
-    (forward-line -1)
-    (indent-according-to-mode))
-  :bind (("M-[" . sp-backward-unwrap-sexp)
-         ("M-]" . sp-unwrap-sexp))
-  :diminish smartparens-mode)
+  (electric-pair-mode 1))
+
+(use-package puni
+  :ensure t
+  :defer 1
+  :bind (("M-[" . puni-splice))
+  :diminish puni-mode)
+
 
 (use-package undo-tree
   :disabled t ; Trying out vundo and undo-fu for sometime
