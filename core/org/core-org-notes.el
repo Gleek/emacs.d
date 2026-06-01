@@ -286,7 +286,8 @@ the capture popup."
   :after org
   :demand t
   :bind (:map org-mode-map
-              ("<mouse-4>" . +excalidraw-draw))
+              ("<mouse-4>" . +excalidraw-draw)
+              ("C-z d" . +excalidraw-draw))
   :ensure (:fetcher github :repo "gleek/org-excalidraw") ; Maintain my own fork since the original has bugs and not updated.
   :commands (+excalidraw-draw)
   :config

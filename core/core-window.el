@@ -113,10 +113,10 @@ The PLIST syntax is Shackle's rule plist, plus local keys:
   :bind (("C-`" . popper-toggle)
          ("C-M-`" . popper-cycle)
          ("C-x k" . +popper-kill-current-buffer)
-         ("C-c w p" . popper-toggle)
-         ("C-c w P" . popper-cycle))
+         ("C-c w p" . popper-toggle-type))
   :config
-  (setq popper-group-function #'popper-group-by-projectile)
+  (with-eval-after-load 'projectile
+    (setq popper-group-function #'popper-group-by-projectile))
   ;; Shackle owns placement; Popper owns popup state/toggling.
   (setq popper-display-control nil)
   (popper-mode 1)

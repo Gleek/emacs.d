@@ -1,4 +1,3 @@
-(require 'popup)
 (defvar default-browser "default")
 (defun +browse-url(url)
   (if (and (string= default-browser "xwidget")

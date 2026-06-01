@@ -26,6 +26,16 @@
   (push '("--" . "—") prettify-symbols-alist)
   (prettify-symbols-mode))
 
+(defun org-electric-pair()
+  ;; Add markup characters to the local pairs list
+  (setq-local electric-pair-pairs (append '((?* . ?*)
+                                            (?/ . ?/)
+                                            (?~ . ?~)
+                                            (?= . ?=))
+                                          electric-pair-pairs))
+  ;; Ensure they pair even inside text/words
+  (setq-local electric-pair-text-pairs electric-pair-pairs))
+
 (defun echo-area-tooltips ()
   "Show tooltips in the echo area automatically for current buffer.
 Useful to checking the link under point."
@@ -50,6 +60,7 @@ Useful to checking the link under point."
   (add-hook 'org-mode-hook 'org-beautify-chars)
   (add-hook 'org-mode-hook #'echo-area-tooltips)
   (add-hook 'org-mode-hook 'visual-line-mode)
+  (add-hook 'org-mode-hook #'org-electric-pair)
   ;; (add-hook 'org-mode-hook 'toggle-truncate-lines)
   (add-hook 'org-mode-hook 'variable-pitch-for-notes)
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
