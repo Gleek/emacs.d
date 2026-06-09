@@ -294,11 +294,12 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
   :bind ("C-c q a" . agent-shell)
   :config
   (+popup-rule "^Codex agent" :regexp t :align right :size 0.4 :select t :escape nil)
+  (+popup-rule "^Claude agent" :regexp t :align right :size 0.4 :select t :escape nil)
   (setq agent-shell-prefer-session-resume nil) ; this is not recommended but I've yet to experience the slowness
   (setq agent-shell-busy-indicator-frames 'circle)
   (setq agent-shell-preferred-agent-config
-        ;; (agent-shell-anthropic-make-claude-code-config)
-        (agent-shell-openai-make-codex-config)
+        (agent-shell-anthropic-make-claude-code-config)
+        ;; (agent-shell-openai-make-codex-config)
         )
   (setq agent-shell-permission-responder-function
         #'agent-shell-permission-allow-always)

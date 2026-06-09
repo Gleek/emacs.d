@@ -361,13 +361,13 @@
     (call-interactively #'org-agenda-refile)
     (transient-quit-one))
 
-  (transient-define-prefix +bulk-process-entry-menu ()
-    "Transient menu for processing a single org entry."
-    ["Actions"
-     ("t" "Set Tags" +bulk-process-entry-set-tags)
-     ("p" "Set Priority" +bulk-process-entry-set-priority)
-     ("RET" "Refile and continue" +bulk-process-entry-refile)
-     ("q" "Skip entry" transient-quit-one)])
+  ;; (transient-define-prefix +bulk-process-entry-menu ()
+  ;;   "Transient menu for processing a single org entry."
+  ;;   ["Actions"
+  ;;    ("t" "Set Tags" +bulk-process-entry-set-tags)
+  ;;    ("p" "Set Priority" +bulk-process-entry-set-priority)
+  ;;    ("RET" "Refile and continue" +bulk-process-entry-refile)
+  ;;    ("q" "Skip entry" transient-quit-one)])
 
   (defun +bulk-process-entries-v2 ()
     "Process marked entries in agenda with transient menu."

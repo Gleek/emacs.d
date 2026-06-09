@@ -171,11 +171,10 @@ Useful to checking the link under point."
       (apply orig-fn args)))
   (advice-add #'org-src-switch-to-buffer :around #'+popup--org-src-switch-to-buffer-a)
 
-  (+popup-rule "^\\*Org Links" :regexp t :align below :size 2)
+  (+popup-rule "^\\*Org Links" :regexp t :align below :size 0.2)
   (+popup-rule "^ ?\\*\\(?:Agenda Com\\|Calendar\\|Org Export Dispatcher\\)"
                        :regexp t :align below :size 0.25)
   (+popup-rule "^\\*Org \\(?:Select\\|Attach\\)" :regexp t :align below :size 0.25)
-  (+popup-rule "^\\*Org Agenda" :regexp t :ignore t)
   (+popup-rule "^\\*Org Src" :regexp t :align below :size 0.4 :select t :escape nil)
   (+popup-rule "^\\*Org-Babel" :regexp t :align below)
   (+popup-rule "^CAPTURE-.*\\.org$" :regexp t :align below :size 0.25 :select t :escape nil))

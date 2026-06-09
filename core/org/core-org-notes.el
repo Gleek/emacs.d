@@ -292,6 +292,7 @@ the capture popup."
   :commands (+excalidraw-draw)
   :config
   (defvar +excalidraw-initialized nil)
+  (setq org-excalidraw-export-format "png")
   (defun +excalidraw-draw()
     (interactive)
     (if (not +excalidraw-initialized)
