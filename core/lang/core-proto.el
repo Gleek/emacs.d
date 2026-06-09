@@ -17,6 +17,23 @@
   (add-hook 'protobuf-mode-hook
             (function (lambda ()
                         (setq tab-width 2))))
+
+  (defun +proto-buf-set-lint-root ()
+    "Point `flycheck-buf-lint-root' at the buf workspace/module root.
+buf refuses to lint a file via its own directory when that directory
+is inside a module (e.g. a v1 workspace with `buf.work.yaml'); it must
+run from the workspace root and filter with `--path'.  Prefer the
+`buf.work.yaml' directory, falling back to the top-level `buf.yaml',
+then to the projectile project root."
+    (when buffer-file-name
+      (let ((root (or (locate-dominating-file buffer-file-name "buf.work.yaml")
+                      (locate-dominating-file buffer-file-name "buf.yaml")
+                      (and (fboundp 'projectile-project-root)
+                           (projectile-project-root)))))
+        (when root
+          (setq-local flycheck-buf-lint-root (expand-file-name root))))))
+  (add-hook 'protobuf-mode-hook #'+proto-buf-set-lint-root)
+
   (with-eval-after-load 'flycheck
     (flycheck-buf-setup))
 
