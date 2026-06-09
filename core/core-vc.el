@@ -3,7 +3,8 @@
   :bind (("C-x m" . magit-status)
          ("C-c g b" . magit-blame-addition)
          ("C-c g f" . magit-diff-buffer-file)
-         ("C-c g l" . magit-log-buffer-file))
+         ("C-c g l" . magit-log-buffer-file)
+         ("C-c g P" . +magit-pull-request))
   :init
   (setq magit-define-global-key-bindings nil)
   :config
@@ -14,6 +15,39 @@
     (interactive)
     (let ((base (magit-toplevel)))
       (delete-file (concat base "/.git/index.lock"))))
+
+  (defun +git-remote-github-parts (remote)
+    "Return (OWNER . REPO) parsed from the URL of git REMOTE."
+    (let ((url (or (magit-get "remote" remote "url")
+                   (user-error "Remote %S has no URL" remote))))
+      (if (string-match "[:/]\\([^/]+\\)/\\([^/]+?\\)\\(?:\\.git\\)?/?\\'" url)
+          (cons (match-string 1 url) (match-string 2 url))
+        (user-error "Cannot parse owner/repo from remote URL: %s" url))))
+
+  (defun +magit-pull-request ()
+    "Open the GitHub PR comparison for the current branch in a browser.
+The PR base is the upstream branch (@{upstream}, set via
+`branch.<name>.merge'/`remote'); the head is the push branch
+(@{push}, set via `push.default'/`remote.pushDefault'/
+`branch.<name>.pushRemote').  Handles fork workflows where the
+two live on different remotes."
+    (interactive)
+    (let* ((upstream (or (magit-get-upstream-branch)
+                         (user-error "No upstream branch is configured")))
+           (push (or (magit-get-push-branch)
+                     (user-error "No push branch is configured")))
+           (base-parts (magit-split-branch-name upstream))
+           (head-parts (magit-split-branch-name push))
+           (base-repo (+git-remote-github-parts (car base-parts)))
+           (head-repo (+git-remote-github-parts (car head-parts)))
+           (base-branch (cdr base-parts))
+           ;; Cross-fork comparisons need an "owner:branch" head ref.
+           (head-ref (if (equal (car base-repo) (car head-repo))
+                         (cdr head-parts)
+                       (format "%s:%s" (car head-repo) (cdr head-parts)))))
+      (browse-url
+       (format "https://github.com/%s/%s/compare/%s...%s?expand=1"
+               (car base-repo) (cdr base-repo) base-branch head-ref))))
 
   (setq magit-refresh-status-buffer nil)
   (setq magit-auto-revert-mode nil)
