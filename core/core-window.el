@@ -113,7 +113,7 @@ The PLIST syntax is Shackle's rule plist, plus local keys:
   :bind (("C-`" . popper-toggle)
          ("C-M-`" . popper-cycle)
          ("C-x k" . +popper-kill-current-buffer)
-         ("C-c w p" . popper-toggle-type))
+         ("C-c w p" . +popper-toggle-type))
   :config
   (with-eval-after-load 'projectile
     (setq popper-group-function #'popper-group-by-projectile))
@@ -140,6 +140,22 @@ The PLIST syntax is Shackle's rule plist, plus local keys:
                    (not (+popper-escape-ignored-buffer-p buffer)))
           (popper-toggle)
           t))))
+
+  (defun +popper-toggle-type (&optional buffer)
+    "Toggle popup status of BUFFER without moving its window when raising.
+
+`popper-raise-popup' re-displays the buffer via `pop-to-buffer',
+which makes Shackle snap it back to its popup slot."
+    (interactive)
+    (let* ((buf (get-buffer (or buffer (current-buffer))))
+           (status (buffer-local-value 'popper-popup-status buf)))
+      (pcase status
+        ((or 'popup 'user-popup)
+         (with-current-buffer buf
+           (setq popper-popup-status (if (popper-popup-p buf) 'raised nil))
+           (setq mode-line-format (default-value 'mode-line-format)))
+         (popper--update-popups))
+        (_ (popper-lower-to-popup buf)))))
 
   (defun +popper-kill-current-buffer ()
     "Kill current buffer, closing its Popper popup window when applicable."
