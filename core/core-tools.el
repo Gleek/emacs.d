@@ -619,25 +619,15 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :bind ("C-c x a z" . +sync-remote-start)
   :ensure nil)
 
-(use-package salahtimes
-  :ensure nil
-  :bind ("C-c a s" . salah-times)
-  :commands (salah-times)
+(use-package awqat
+  :ensure (:fetcher github :repo "zkry/awqat")
+  :bind ("C-c a s" . awqat-times-for-day)
   :config
-  (setq salah-city (secret-get city))
-  (setq salah-country (secret-get country))
-  (setq salah-school (secret-get salah-school))
-  (setq salah-next-days 2)
-  ;; (advice-remove 'salah-times--render #'+salah-times--disable-padding)
-  ;; (defun +salah-times--disable-padding (orig-fun &rest args)
-  ;;   (unwind-protect
-  ;;       (progn
-  ;;         (spacious-padding-mode -1)
-  ;;         (apply orig-fun args))
-  ;;     (spacious-padding-mode 1)))
-
-  (+popup-rule "^ \\*salah-times\\*" :regexp t :align below :size 0.15))
-
+  (setq calendar-latitude  (nth 0 (secret-get current-location))
+        calendar-longitude (nth 1 (secret-get current-location)))
+  (setq awqat-asr-hanafi t)
+  (setq awqat-prayer-safety-offsets '(0.0 0.0 0.0 0.0 0.0 0.0))
+  (awqat-set-preset-karachi-university-of-islamic-sciences))
 
 (when IS-MAC
   (defun play-sound-mac(sound)
