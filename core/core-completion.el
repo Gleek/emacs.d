@@ -13,9 +13,9 @@
                ("C-c C-o" . embark-export)))
   :hook (minibuffer-setup . vertico-repeat-save)
   :config
-  (require 'embark)
   (vertico-mode t)
   (vertico-multiform-mode t) ; M-{B(uffer) F(lat) G(rid) R(everse) U(nobtrusive) V(ertical)}'
+  (require 'embark)
   (setq vertico-resize nil
         vertico-count 15)
   ;; (setq vertico-multiform-commands nil)
@@ -35,8 +35,11 @@
                 ("C-<tab>" . embark-act-with-completing-read)
                 ("C-<return>" . embark-dwim-noquit)))
   :config
+  (with-eval-after-load 'vertico
+    (add-to-list 'vertico-multiform-categories '(embark-keybinding grid)))
+  ;; (setq prefix-help-command #'embark-prefix-help-command) ; Which key replacement
   (+popup-rule "^\\*Embark Export:" :regexp t :align below :size 0.35 :escape nil)
-  (setq embark-help-key "?")
+  (setq embark-help-key "?")   ;; Press ? to switch to completing read mode for longer lists
   (setq embark-quit-after-action
         '((consult-projectile-embark-action-remove . nil)
           (t . t)))
@@ -65,14 +68,11 @@
   (define-key +embark-buffer-keymap "B" #'consult-project-buffer)
   (define-key +embark-buffer-keymap "f" #'find-file)
 
-  (define-key embark-file-map "R" #'open-with-dragger)
   (define-key embark-file-map "L" #'copy-file-link-for-org)
   (add-to-list 'embark-become-keymaps '+embark-buffer-keymap))
 
 (use-package embark-consult
-  :defer 1
-  :hook
-  (embark-collect-mode . consult-preview-at-point-mode))
+  :defer 1)
 
 
 (use-package consult
@@ -85,6 +85,7 @@
          ("M-g M-g" . consult-goto-line)
          ("M-y"     . consult-yank-pop)
          ("C-x c i" . consult-imenu)
+         ("M-g i" . consult-imenu)
          ("C-M-s"   . consult-line)
          ("C-M-S-s" . consult-line-multi)
          (:map minibuffer-local-map
@@ -117,8 +118,8 @@
     (when (string-suffix-p "~" pattern)
       `(orderless-flex . ,(substring pattern 0 -1))))
 
-  (defun orderless-first-initialism (pattern index _total)
-    (if (= index 0) 'orderless-initialism))
+  ;; (defun orderless-first-initialism (pattern index _total)
+  ;;   (if (= index 0) 'orderless-initialism))
 
   (defun orderless-without-if-bang (pattern _index _total)
     (cond
@@ -180,18 +181,6 @@
   (with-eval-after-load 'savehist
     (add-to-list 'savehist-additional-variables 'corfu-history)))
 
-
-(use-package yasnippet-capf
-  :after (corfu)
-  :demand t
-  :config
-  (defun +yasnippet-capf()
-    (add-hook 'completion-at-point-functions #'yasnippet-capf 30 t))
-  (setq yasnippet-capf-max-search-distance 20)
-  (add-hook 'yas-minor-mode-hook #'+yasnippet-capf)
-  (add-to-list 'completion-at-point-functions #'yasnippet-capf))
-
-
 (use-package nerd-icons-corfu
   :after (corfu)
   :demand t
@@ -207,6 +196,16 @@
   (setq yas-snippet-dirs `(,yasnippet-snippets-dir))
   (yas-global-mode 1)
   :diminish (yas-minor-mode . "Ⓨ"))
+
+(use-package yasnippet-capf
+  :after (corfu)
+  :demand t
+  :config
+  (defun +yasnippet-capf()
+    (add-hook 'completion-at-point-functions #'yasnippet-capf 30 t))
+  (setq yasnippet-capf-max-search-distance 20)
+  (add-hook 'yas-minor-mode-hook #'+yasnippet-capf)
+  (add-to-list 'completion-at-point-functions #'yasnippet-capf))
 
 (use-package autoinsert
   :ensure nil

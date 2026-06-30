@@ -1,50 +1,5 @@
 ;;; core-util.el ---                                  -*- lexical-binding: t; -*-
 
-(defmacro keep-region (command)
-  "Wrap command in code that saves and restores the region"
-  (letrec ((command-name (symbol-name command))
-           (advice-name (intern (concat command-name "-keep-region-a"))))
-    `(progn
-       (defun ,advice-name (orig-fn &rest args)
-         (let ((deactivate-mark nil)
-               (transient-mark-mode transient-mark-mode))
-           (save-excursion
-             (apply orig-fn args))))
-       (advice-add ',command :around #',advice-name))))
-
-(defun nshuffle (sequence)
-  "Knuth shuffle for a list"
-  (loop for i from (length sequence) downto 2
-        do (rotatef (elt sequence (random i))
-                    (elt sequence (1- i))))
-  sequence)
-
-(defun return-false(&rest _)
-  "Return nil no matter what the inputs here.
-Useful to override functions to become empty"
-  nil)
-
-(defun return-true(&rest _)
-  "Return t no matter what the inputs here.
-Useful to override functions to become empty"
-  t)
-
-
-(defun string-length<(str1 str2)
-  "Retuns non-nil if STR1 is less in length than STR2."
-  (< (length str1) (length str2)))
-
-
-(defun random-alnum (&optional length)
-  (let ((times (or length 1))
-        (random ""))
-    (setq-local random "")
-    (dotimes (_ times)
-      (setq random (concat random (let* ((alnum "abcdefghijklmnopqrstuvwxyz0123456789")
-                                         (i (% (abs (random)) (length alnum))))
-                                    (substring alnum i (1+ i))))))
-    random))
-
 (defun inhibit-message-a(orig-fun &rest args)
   (let ((inhibit-message t))
     (apply orig-fun args)))
@@ -105,29 +60,6 @@ This checks if the variable is set."
          (width (nth 2 geometry))
          (height (nth 3 geometry)))
     (list width height)))
-
-(defun get-active-monitor-resolution ()
-  "Get the resolution of the currently active monitor."
-  (let* ((frame-pos (frame-position))
-         (frame-x (car frame-pos))
-         (frame-y (cdr frame-pos))
-         (monitors (display-monitor-attributes-list))
-         (active-monitor (seq-find (lambda (monitor)
-                                     (let* ((geometry (alist-get 'geometry monitor))
-                                            (x (nth 0 geometry))
-                                            (y (nth 1 geometry))
-                                            (width (nth 2 geometry))
-                                            (height (nth 3 geometry)))
-                                       (and (>= frame-x x)
-                                            (< frame-x (+ x width))
-                                            (>= frame-y y)
-                                            (< frame-y (+ y height)))))
-                                   monitors))
-         (geometry (alist-get 'geometry active-monitor))
-         (width (nth 2 geometry))
-         (height (nth 3 geometry)))
-    (list width height)))
-
 
 (provide 'core-util)
 ;;; core-util ends here

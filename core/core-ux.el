@@ -138,6 +138,7 @@
       apropos-do-all t
       use-dialog-box nil
       ring-bell-function 'ignore
+      vc-follow-symlinks t
       mouse-yank-at-point t
       require-final-newline t
       ;; scrolling
@@ -153,7 +154,7 @@
 (setq enable-recursive-minibuffers t)
 (minibuffer-depth-indicate-mode t)
 
-(use-package page-break-lines :diminish page-break-lines-mode)
+(use-package page-break-lines :defer 5 :config (page-break-lines-mode))
 (add-hook 'after-save-hook
           'executable-make-buffer-file-executable-if-script-p)
 

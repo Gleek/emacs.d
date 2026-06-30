@@ -62,16 +62,6 @@
   (let ((sort-fold-case t))
     (call-interactively 'sort-lines)))
 
-(defun open-with-dragger(file)
-  (interactive "f")
-  ;; Utility to drag and drop files to outside world
-  ;; Details: https://github.com/gleek/dragger
-  (start-process-shell-command "dragger" nil (concat "dragger " file)))
-
-(defun open-this-with-dragger()
-  (interactive)
-  (open-with-dragger (buffer-file-name)))
-
 (defun remind (time message)
   "Set a reminder to notify after TIME with MESSAGE.
 TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s, 5m, 1h)"

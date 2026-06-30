@@ -48,13 +48,6 @@
           (activity-watch--call)))))
   (advice-add 'activity-watch--save :override 'active-watch--save-override))
 
-(use-package explain-pause-mode
-  :disabled t
-  :ensure nil
-  :bind ("<f12>" . explain-pause-top)
-  :config
-  (explain-pause-mode))
-
 (use-package profiler
   :ensure nil
   :bind (("<C-f12>" . profiler-start)

@@ -19,7 +19,7 @@
   :init
   (setq avy-background t)
   ;; :chords ("jk" . avy-goto-word-or-subword-1)
-  :bind* (("C-\"". avy-goto-word-or-subword-1)
+  :bind (("C-\"". avy-goto-word-or-subword-1)
           ("C-'" . avy-goto-char-timer)))
 
 
@@ -34,7 +34,6 @@
                ("C-M-s" . consult-line)
                ("C-o" . consult-line)))
   :config
-  ;; Make it a bit more swiper like. Since I'm used to it now
   (setq search-highlight t)
   (setq search-whitespace-regexp ".*?")
   (setq isearch-lax-whitespace t)
@@ -45,13 +44,6 @@
   (setq lazy-count-suffix-format " (%s/%s)")
   (setq isearch-yank-on-move 'shift)
   (setq isearch-allow-scroll 'unlimited))
-
-(use-package swiper
-  :bind (;; ("C-M-s" . swiper)
-         :map swiper-map
-         ("C-c m" . swiper-mc)))
-
-;; (use-package ace-isearch)
 
 (use-package affe
   :bind* ("s-o" . affe-find-no-ignore)
@@ -178,37 +170,5 @@
     (interactive "e")
     (mouse-set-point e)
     (treesit-fold-toggle)))
-
-(use-package origami
-  :disabled t
-  :after hydra
-  ;; :hook (prog-mode . origami-mode)
-  :bind (:map origami-mode-map
-              ("C-{" . hydra-folding/body)
-              ("<S-mouse-1>" . +mouse-origami-toggle))
-  :config
-  (defhydra hydra-folding (:color red)
-    "
-  _o_pen node    _n_ext fold       toggle _f_orward  _s_how current only
-  _c_lose node   _p_revious fold   toggle _a_ll      undo _/_
-  redo _?_      _R_eset
-  "
-    ("o" origami-open-node)
-    ("c" origami-close-node)
-    ("n" origami-next-fold)
-    ("p" origami-previous-fold)
-    ("f" origami-forward-toggle-node)
-    ("a" origami-toggle-all-nodes)
-    ("s" origami-show-only-node)
-    ("<tab>" origami-recursively-toggle-node)
-    ("/" origami-undo)
-    ("?" origami-redo)
-    ("R" origami-reset))
-
-  (defun +mouse-origami-toggle(e)
-    (interactive "e")
-    (mouse-set-point e)
-    (call-interactively 'origami-toggle-node)))
-
 
 (provide 'core-navigation)

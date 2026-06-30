@@ -254,25 +254,15 @@ Demotes all errors over the max level to the max level."
         (setcar ret (+ (car ret) x-offset))
         (setcdr ret (+ (cdr ret) y-offset))
         ret))
-    (defun +flycheck-posframe-hide()
-      (if (flycheck-posframe-hidehandler nil)
-          (posframe-hide flycheck-posframe-buffer)))
-    (add-hook 'post-command-hook #'+flycheck-posframe-hide)
+    ;; (defun +flycheck-posframe-hide()
+    ;;   (if (flycheck-posframe-hidehandler nil)
+    ;;       (posframe-hide flycheck-posframe-buffer)))
+    ;; (add-hook 'post-command-hook #'+flycheck-posframe-hide)
     ;; (flycheck-posframe-configure-pretty-defaults)
     (setq flycheck-posframe-warning-prefix "⚠ "
           flycheck-posframe-info-prefix "··· "
           flycheck-posframe-prefix "··· "
           flycheck-posframe-error-prefix "✕ "
           flycheck-posframe-position 'point-flycheck-custom)))
-
-(use-package flycheck-popup-tip
-  :disabled t
-  :hook (flycheck-mode . flycheck-popup-tip-mode))
-
-;; (use-package flymake :ensure nil)
-;; (use-package flymake-diagnostic-at-point
-;;   :after flymake
-;;   :init
-;;   (add-hook 'flymake-mode-hook #'flymake-diagnostic-at-point-mode))
 
 (provide 'core-checker)

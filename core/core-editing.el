@@ -87,10 +87,6 @@ Position the cursor at its beginning, according to the current mode."
     (comment-or-uncomment-region beg end)
     (forward-line)))
 
-
-
-
-
 (defun hex-region (start end)
   "urlencode the region between START and END in current buffer."
   (interactive "r")
@@ -103,15 +99,12 @@ Position the cursor at its beginning, according to the current mode."
 
 
 (defun unescape-region (start end)
-  "Unescape special characters in the region between START and END."
+  "Unescape backslash sequences in the region between START and END."
   (interactive "r")
-  (let ((text (buffer-substring start end)))
+  (let ((unescaped (car (read-from-string
+                         (format "\"%s\"" (buffer-substring-no-properties start end))))))
     (delete-region start end)
-    (insert (format "(insert \"%s\")" text))
-    (save-excursion (eval-last-sexp nil))
-    (backward-kill-sexp)))
-
-
+    (insert unescaped)))
 
 (defun sudo-edit (&optional arg)
   "Edit currently visited file as root.
@@ -142,18 +135,12 @@ buffer is not visiting a file."
 If there's no region, the current line will be duplicated.  However, if
 there's a region, all lines that region covers will be duplicated."
   (interactive "p")
-  (pcase-let* ((origin (point))
-               (`(,beg . ,end) (get-positions-of-line-or-region))
-               (region (buffer-substring-no-properties beg end)))
+  (pcase-let* ((`(,beg . ,end) (get-positions-of-line-or-region))
+               (text (buffer-substring-no-properties beg end)))
     (comment-or-uncomment-region beg end)
-    (setq end (line-end-position))
-    (-dotimes arg
-      (lambda (n)
-        (goto-char end)
-        (newline)
-        (insert region)
-        (setq end (point))))
-    (goto-char (+ origin (* (length region) arg) arg))))
+    (goto-char (line-end-position))
+    (dotimes (_ arg)
+      (insert "\n" text))))
 
 (defun html2org-clipboard ()
   "Convert clipboard contents from HTML to Org and then paste (yank).
@@ -313,13 +300,13 @@ https://emacs.stackexchange.com/a/12124/2144"
 (use-package er/expand-region
   :ensure expand-region
   :init (setq shift-select-mode nil)
-  :bind (("C-=" . er/expand-region)
-         ("C-c SPC d" . er/mark-defun)
-         ("C-c SPC f" . er/mark-paragraph)
-         ("C-c SPC '" . er/mark-inside-quotes)
-         ("C-c SPC (" . er/mark-inside-pairs)
+  :bind (("C-="         . er/expand-region)
+         ("C-c SPC d"   . er/mark-defun)
+         ("C-c SPC f"   . er/mark-paragraph)
+         ("C-c SPC '"   . er/mark-inside-quotes)
+         ("C-c SPC ("   . er/mark-inside-pairs)
          ("C-c SPC SPC" . er/expand-region)
-         ("C-+" . er/contract-region)))
+         ("C-+"         . er/contract-region)))
 
 ;; (use-package easy-kill
 ;;   :init
@@ -393,8 +380,8 @@ https://emacs.stackexchange.com/a/12124/2144"
     :keymap (let ((map (make-sparse-keymap)))
               (define-key map [remap undo] #'undo-fu-only-undo)
               (define-key map [remap undo-redo] #'undo-fu-only-redo)
-              (define-key map (kbd "C-_")     #'undo-fu-only-undo)
-              (define-key map (kbd "M-_")     #'undo-fu-only-redo)
+              ;; (define-key map (kbd "C-_")     #'undo-fu-only-undo)
+              ;; (define-key map (kbd "M-_")     #'undo-fu-only-redo)
               (define-key map (kbd "C-M-_")   #'undo-fu-only-redo-all)
               (define-key map (kbd "C-x r u") #'undo-fu-session-save)
               (define-key map (kbd "C-x r U") #'undo-fu-session-recover)

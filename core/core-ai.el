@@ -295,7 +295,7 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
   :config
   (+popup-rule "^Codex agent" :regexp t :align right :size 0.4 :select t :escape nil)
   (+popup-rule "^Claude agent" :regexp t :align right :size 0.4 :select t :escape nil)
-  (setq agent-shell-prefer-session-resume nil) ; this is not recommended but I've yet to experience the slowness
+  (setq agent-shell-session-restore-verbosity 'full)
   (setq agent-shell-busy-indicator-frames 'circle)
   (setq agent-shell-preferred-agent-config
         (agent-shell-anthropic-make-claude-code-config)
@@ -426,16 +426,6 @@ When `+agent-shell-merge-pending-requests' is nil, defer to ORIG-FN."
         copilot-max-char-warning-disable t
         copilot-max-char 100000))
 
-(use-package copilot-chat
-  :bind (("C-c q o" . copilot-chat-display)
-         ("C-c q p" . copilot-chat-custom-prompt-selection))
-  :config
-  (setq copilot-chat-github-token-file (concat CACHE-DIR "copilot-chat/github-token")
-        copilot-chat-token-cache (concat CACHE-DIR "copilot-chat/token"))
-  (setq shell-maker-root-path CACHE-DIR)
-
-  (setopt copilot-chat-default-model "claude-3.7-sonnet")
-  (setopt copilot-chat-frontend 'shell-maker))
 
 (use-package aidermacs
   :disabled t

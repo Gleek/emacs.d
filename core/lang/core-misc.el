@@ -8,6 +8,27 @@
 
 (use-package lua-mode)
 (use-package dockerfile-mode)
+(use-package docker-ts-mode
+  :ensure nil
+  :init
+  (add-to-list 'treesit-load-name-override-list
+               '(dockerfile "libtree-sitter-containerfile" "tree_sitter_containerfile"))
+  :config
+  (add-hook 'dockerfile-ts-mode-hook
+          (lambda ()
+            (setq-local treesit-font-lock-settings
+                        (append treesit-font-lock-settings
+                                (treesit-font-lock-rules
+                                 :language 'dockerfile
+                                 :feature 'variable
+                                 '((variable) @font-lock-variable-use-face))))
+            (setq-local treesit-font-lock-feature-list
+                        '((comment)
+                          (keyword string variable)
+                          (image-spec number)
+                          (bracket delimiter error operator)))
+            (treesit-font-lock-recompute-features))))
+
 (use-package docker-compose-mode)
 (use-package terraform-mode)
 
@@ -77,6 +98,14 @@
     (spell-fu-mode -1))
   (add-hook 'yaml-ts-mode-hook #'+disable-spell-fu)
   (add-hook 'yaml-ts-mode-hook #'flycheck-mode))
+
+(use-package yaml-pro
+  :bind (:map yaml-pro-mode-map
+              ("M-<up>" . yaml-pro-ts-move-subtree-up)
+              ("M-<down>" . yaml-pro-ts-move-subtree-down)
+              ("C-z p" . yaml-pro-copy-node-path-at-point))
+  :hook yaml-ts-mode)
+
 
 (use-package feature-mode
   :bind (:map feature-mode-map

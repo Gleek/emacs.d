@@ -66,6 +66,7 @@
           (buffer-list))
     t)
   (add-hook 'enable-theme-functions #'+pdf-reload-all-buff)
+  (add-hook 'pdf-view-mode-hook #'pdf-view-roll-minor-mode)
 
   ;; (remove-hook 'pdf-view-mode-hook
   ;;           (add-hook 'kill-buffer-hook #'pdf-cleanup-windows-h nil t))
@@ -77,7 +78,7 @@
             (lambda ()
               (pdf-annot-update-highilight-color "#face50")))
   (+popup-rule "^\\*Outline*" :regexp t :align right :size 40)
-  (+popup-rule "\\(?:^\\*Contents\\|'s annots\\*$\\)" :regexp t :ignore t)
+  ;; (+popup-rule "\\(?:^\\*Contents\\|'s annots\\*$\\)" :regexp t :ignore t)
   (add-hook 'pdf-annot-list-mode-hook #'hide-mode-line-mode)
   (pdf-tools-install :no-query))
 

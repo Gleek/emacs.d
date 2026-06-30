@@ -77,7 +77,7 @@
   (set-fontset-font
    t 'symbol (font-spec :family "Apple Color Emoji") nil)
   (add-to-list
-   'default-frame-alist'(ns-transparent-titlebar . t))
+   'default-frame-alist '(ns-transparent-titlebar . t))
   (use-package ns-auto-titlebar
     :defer 5
     :ensure t
@@ -100,8 +100,7 @@
   (solaire-global-mode t))
 
 (use-package hide-mode-line
-  :bind ("C-c t M" . hide-mode-line-mode)
-  :ensure (:wait t))
+  :bind ("C-c t M" . hide-mode-line-mode))
 
 (use-package nerd-icons :ensure (:wait t))
 
@@ -148,12 +147,6 @@
   (+apply-theme +theme-type)
   (add-hook 'ns-system-appearance-change-functions #'+apply-theme))
 
-(use-package spacious-padding
-  :disabled t
-  :demand t
-  :config
-  (spacious-padding-mode t))
-
 (use-package doom-modeline
   ;; :hook (after-init . doom-modeline-mode)
   :init
@@ -167,7 +160,6 @@
   (setq doom-modeline-enable-word-count nil)
   (setq doom-modeline-buffer-encoding nil)
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project))
-
 
 (use-package emacs
   :ensure nil
@@ -256,11 +248,6 @@
   :config
   (setq +doom-dashboard-banner-dir RES-DIR))
 
-
-;; (use-package doom-dashboard
-;;   :ensure (:fetcher github :repo "gleek/doom-dashboard"))
-
-
 (use-package olivetti
   :init
   (setq-default olivetti-body-width 130)
@@ -326,15 +313,6 @@
   :config
   (setq treesit-auto-install 'prompt)
   (global-treesit-auto-mode))
-
-;; (use-package tree-sitter
-;;   :ensure tree-sitter
-;;   :ensure tree-sitter-langs
-;;   :defer 2
-;;   :config
-;;   ;; (require 'tree-sitter-langs)
-;;   ;; (global-tree-sitter-mode)
-;;   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 
 (use-package hl-todo
   :hook ((prog-mode yaml-mode) . hl-todo-mode)

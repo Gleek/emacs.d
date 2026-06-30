@@ -417,12 +417,8 @@
     "Remove mouse face in the current buffer."
     (remove-text-properties (point-min) (point-max) '(mouse-face t)))
 
-  (defun disable-solaire()
-    (setq-local solaire-mode-real-buffer-fn #'return-true))
-
   (add-hook 'org-agenda-finalize-hook #'remove-mouse-face)
   (add-hook 'org-agenda-finalize-hook #'hl-line-mode)
-  ;; (add-hook 'org-agenda-finalize-hook #'disable-solaire)
   ;; (add-hook 'org-agenda-finalize-hook #'org-agenda-log-mode-colorize-block)
 
 
@@ -545,7 +541,7 @@
       (when (and (or (member "errand" tags) (member "business" tags))
                  (let ((current-time (decode-time (current-time))))
                    (and (<= 1 (nth 6 current-time) 5) ; Monday to Friday
-                        (<= 11 (nth 2 current-time) 17)))) ; 11 AM to 6 PM
+                        (<= 10 (nth 2 current-time) 17)))) ; 11 AM to 6 PM
         (save-excursion (or (outline-next-heading) (point-max))))))
 
   (defun org-timestamp-has-repeater-p (timestamp-str)

@@ -52,11 +52,6 @@
   :bind (:map dired-mode-map
               ("P" . peep-dired)))
 
-(use-package dired-posframe
-  :disabled t
-  :bind (:map dired-mode-map
-              ("p" . dired-posframe-show)))
-
 
 (use-package diredfl
   :hook (dired-mode . diredfl-mode))
@@ -82,6 +77,7 @@
   :hook (dired-mode . dired-omit-mode)
   :bind (:map dired-mode-map
               ("//" . dired-toggle-omit))
+  :after dired
   :demand t
   :ensure nil
   :config

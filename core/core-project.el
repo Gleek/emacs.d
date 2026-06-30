@@ -1,11 +1,3 @@
-(defvar +quick-switch-buffer-hook nil)
-(defun switch-to-previous-buffer ()
-  "Switch to previously open buffer.
-Repeated invocations toggle between the two most recently open buffers."
-  (interactive)
-  (switch-to-buffer (other-buffer (current-buffer) 1))
-  (run-hook-with-args-until-success '+quick-switch-buffer-hook))
-
 (defun delete-file-and-buffer ()
   "Kill the current buffer and deletes the file it is visiting."
   (interactive)
@@ -19,7 +11,6 @@ Repeated invocations toggle between the two most recently open buffers."
           (kill-buffer))))))
 
 (use-package projectile
-  :ensure projectile
   :init
   (setq projectile-cache-file (concat CACHE-DIR "projectile.cache"))
   (setq projectile-known-projects-file (concat CACHE-DIR "projectile-bookmarks.eld"))
@@ -42,14 +33,6 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-c p k" . projectile-kill-buffers)
          ("C-c p c" . projectile-compile-project)
          ("C-c p s" . projectile-save-project-buffers)))
-
-;; (use-package "+projectile-find-file"
-;;   :ensure nil
-;;   :bind* (("s-o" . +projectile-find-file-dynamic)
-;;           ("s-p" . +projectile-find-file-dynamic))
-;;   :config
-
-;;   (advice-add 'counsel-projectile-find-file :override '+projectile-find-file-dynamic))
 
 (use-package consult-projectile
   :bind*
@@ -106,8 +89,6 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package ibuffer-vc
   :hook (ibuffer . ibuffer-vc-set-filter-groups-by-vc-root))
 
-
-(use-package ag :ensure t )
 (use-package rg)
 
 (use-package dumb-jump
@@ -119,7 +100,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq dumb-jump-rg-cmd "rg")
   (setq dumb-jump-max-find-time 5)
   (setq dumb-jump-force-searcher 'rg)
-  (setq dumb-jump-selector 'ivy))
+  (setq dumb-jump-selector 'completing-read))
 
 
 (use-package wgrep
@@ -196,10 +177,10 @@ Repeated invocations toggle between the two most recently open buffers."
   :commands lsp
   :bind ((:map lsp-mode-map
                ("C-c p r" . lsp-rename)
+               ("M-s h ." . lsp-toggle-symbol-highlight)
                ("M-'" . lsp-goto-implementation)))
   :init
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
-
   (setq lsp-server-install-dir (concat CACHE-DIR "lsp/"))
   (setq lsp-session-file (concat CACHE-DIR ".lsp-session-v1"))
   :config
@@ -207,11 +188,11 @@ Repeated invocations toggle between the two most recently open buffers."
     (setf (lsp--client-priority (gethash server lsp-clients)) priority))
   ;; (company-backend-for-hook 'lsp-mode-hook '((company-capf :with company-yasnippet)))
   (setq lsp-modeline-code-actions-segments '(name icon))
+  (lsp-dired-mode t)
   ;; (setq lsp-signature-function 'lsp-signature-posframe)
 
   ;; (setq lsp-disabled-clients '(intelephense))
   (+popup-rule "^\\*lsp-help" :regexp t :align below :size 0.35)
-  (setq-default lsp-enable-imenu t)
   (setq lsp-enable-file-watchers nil
         lsp-enable-folding nil
         lsp-headerline-breadcrumb-icons-enable nil
@@ -230,9 +211,6 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq lsp-enable-indentation nil
         lsp-enable-on-type-formatting nil))
 
-;; (use-package lsp-ivy
-;;   :after lsp-mode
-;;   :bind (:map lsp-mode-map ("M-<return>" . lsp-ivy-workspace-symbol)))
 (use-package consult-lsp
   :after lsp-mode
   :bind (:map lsp-mode-map ("M-<return>" . consult-lsp-symbols)))
@@ -241,9 +219,6 @@ Repeated invocations toggle between the two most recently open buffers."
   :init
   (setq lsp-keymap-prefix "C-c l")
   :hook (lsp-mode . lsp-ui-mode)
-  :bind (:map lsp-mode-map
-              ("C-c t u" . lsp-ui-mode))
-  :ensure t
   :config
 
   (setq lsp-ui-doc-max-height 8
@@ -266,7 +241,6 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq uniquify-separator "/")
   (setq uniquify-after-kill-buffer-p t)
   (setq uniquify-ignore-buffers-re "^\\*"))
-
 
 (defun copy-current-line-position-to-clipboard ()
   "Copy current line in file to clipboard as '</path/to/file>::<line-number>'."
