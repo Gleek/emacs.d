@@ -70,7 +70,7 @@ two live on different remotes."
 
 (use-package ediff
   :ensure nil
-  :bind (("C-c g s" . ediff-current-file)
+  :bind (("C-c g s" . +ediff-current-file)
          ("C-c g B" . ediff-buffers-dwim))
   :config
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
@@ -81,6 +81,12 @@ two live on different remotes."
   (defvar +ediff-last-windows nil)
   (defun +store-pre-ediff-winconfig ()
     (setq +ediff-last-windows (current-window-configuration)))
+
+  (defun +ediff-current-file()
+    "`ediff-current-file' but without checking for autosave"
+    (interactive)
+    (let ((buffer-auto-save-file-name nil))
+      (ediff-current-file)))
 
   (defun +restore-pre-ediff-winconfig ()
     (set-window-configuration +ediff-last-windows))
