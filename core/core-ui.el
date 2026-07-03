@@ -159,7 +159,8 @@
   (setq doom-modeline-lsp nil)
   (setq doom-modeline-enable-word-count nil)
   (setq doom-modeline-buffer-encoding nil)
-  (setq doom-modeline-buffer-file-name-style 'truncate-with-project))
+  (setq doom-modeline-buffer-file-name-style 'relative-from-project)
+  (setq doom-modeline-buffer-file-true-name t))
 
 (use-package emacs
   :ensure nil
