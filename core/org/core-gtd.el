@@ -172,6 +172,7 @@
   (add-hook 'org-after-todo-state-change-hook 'org-entry-delegated-hook)
   (add-hook 'org-clock-in-hook #'post-org-clock-in 'append)
   (add-hook 'org-clock-out-hook #'post-org-clock-out 'append)
+  (setq org-clock-out-remove-zero-time-clocks t)
   (setq org-bookmark-names-plist nil)
   (setq org-archive-location (concat +org-directory "archive.org::* From %s")
         org-log-done 'time
@@ -770,6 +771,14 @@
   ;;                    :sort '(todo date priority)
   ;;                    :super-groups '((:auto-parent t))
   ;;                    :title "Projects overview"))
+  (defun org-clock-in-any ()
+    "Select any agenda entry via `org-ql' and clock into it.
+Clocks out of any running clock first.  Does not move point or windows."
+    (interactive)
+    (require 'org-clock)
+    (when (org-clocking-p) (org-clock-out))
+    (org-with-point-at (org-ql-completing-read (org-agenda-files))
+      (org-clock-in)))
   (defun org-ql-find-agenda()
     (interactive)
     (inhibit-message-a 'org-ql-find org-agenda-files))
@@ -852,23 +861,6 @@ TODO: Add checkbox based on todo state. If in todo show [ ] if done show [X] in 
       (dolist (element elements)
         (insert "- " (funcall formatter-fn element) "\n"))
       (delete-char -1))))
-
-
-
-(use-package org-mru-clock
-  :commands (org-quick-clock-in)
-  :bind ("s-c" . org-quick-clock-in)
-  :config
-  (defun org-quick-clock-in()
-    "Start a new clock but clock out any running clock first"
-    (interactive)
-    (if (org-clocking-p) (org-clock-out))
-    (org-mru-clock-in))
-  (setq org-mru-clock-how-many 100)
-  (setq org-mru-clock-keep-formatting t)
-  (setq org-mru-clock-persist-file (concat CACHE-DIR "org-mru-clock")))
-
-
 
 (use-package org-burnup
   :load-path "packages/org-burnup.el"

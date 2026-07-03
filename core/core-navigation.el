@@ -110,8 +110,9 @@
   :bind (("C-M-v" . sow-scroll-other-window)
          ("C-S-M-v". sow-scroll-other-window-down)))
 
-;; (use-package combobulate
-;;   :ensure (:fetcher github :repo "mickeynp/combobulate"))
+(use-package combobulate
+  :hook (prog-mode . combobulate-mode)
+  :ensure (:fetcher github :repo "mickeynp/combobulate"))
 
 (use-package hideshow
   :ensure hydra
