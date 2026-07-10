@@ -23,6 +23,18 @@
 (defvar keepass-password-file (expand-file-name "keepass.kbdx" "~")
   "Location of the password file to quickly jump on it")
 
+(defun +keepass-revert-buffer (&rest _ignored)
+  "Refresh the current KeePass buffer after its database changes on disk."
+  (set-visited-file-modtime)
+  (keepass-mode-open)
+  (set-buffer-modified-p nil))
+
+(defun +keepass-mode-setup-revert ()
+  "Use a KeePass-aware revert function in the current buffer."
+  (setq-local revert-buffer-function #'+keepass-revert-buffer))
+
+(add-hook 'keepass-mode-hook #'+keepass-mode-setup-revert)
+
 (defun keepass-quick-switch()
   (interactive)
   ;; From core-secrets
@@ -111,22 +123,31 @@
           (message "Keepass password reset done")))))
 
 (defun +keepass-verify-password(password)
-  (let ((buff (get-file-buffer keepass-password-file)))
-    (if buff
-        (with-current-buffer buff
-          (if (string-match-p "Invalid credentials" (shell-command-to-string (keepass-mode-command "" "db-info")))
-              nil
-            t)))))
+  (let ((old-password keepass-mode-password))
+    (unwind-protect
+        (progn
+          (setq-local keepass-mode-password password)
+          (not (string-match-p
+                "Invalid credentials"
+                (shell-command-to-string (keepass-mode-command "" "db-info")))))
+      (setq-local keepass-mode-password old-password))))
+
+(defun +keepass-ask-valid-password(orig-fn &rest args)
+  "Ask for a KeePass password using ORIG-FN and reject invalid credentials."
+  (let ((password (apply orig-fn args)))
+    (if (+keepass-verify-password password)
+      password
+      (setq-local keepass-mode-password "")
+      (user-error "Invalid password"))))
+
+(unless (advice-member-p #'+keepass-ask-valid-password 'keepass-mode-ask-password)
+  (advice-add 'keepass-mode-ask-password :around #'+keepass-ask-valid-password))
 
 (defun +keepass-set-password()
   (let ((buff (get-file-buffer keepass-password-file)))
     (if buff
         (with-current-buffer buff
-          (setq-local keepass-mode-password (keepass-mode-ask-password))
-          (if (not (+keepass-verify-password keepass-mode-password))
-              (progn
-                (setq-local keepass-mode-password "")
-                (error "Invalid password")))))))
+          (setq-local keepass-mode-password (keepass-mode-ask-password))))))
 
 ;;;###autoload
 (defun consult-keepass-embark()

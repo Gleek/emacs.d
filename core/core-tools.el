@@ -478,6 +478,9 @@ To actually enable this, evaluate `+bongo-remove-headers'."
 (use-package keepass-mode)
 (use-package keepass-mode-plus
   :ensure nil
+  ;; Load the validation advice before `keepass-mode' handles the first file.
+  :after keepass-mode
+  :demand t
   :bind (("C-c s p" . keepass-quick-switch)
          (:map keepass-mode-map
                ("s" . +keepass-search)))
