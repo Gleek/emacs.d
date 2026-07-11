@@ -7,9 +7,106 @@
          ("C-c g P" . +magit-pull-request))
   :init
   (setq magit-define-global-key-bindings nil)
+  (setq magit-diff-specify-hunk-foreground nil)
   :config
   (setq magit-diff-fontify-hunk t) ;; Too slow currently but I do some custom optimisations
-  (setq magit-diff-specify-hunk-foreground nil)
+  (setq magit-diff-refine-hunk t)
+
+  (defcustom +magit-diff-refine-max-pair-chars 30000
+    "Maximum combined characters in a changed pair to refine.
+This limits pathological fine-diff work without rejecting a large hunk
+made up of many small delete+insert pairs.  Nil means no limit."
+    :type '(choice (const :tag "No limit" nil)
+                   integer)
+    :group 'magit-diff)
+
+  (defcustom +magit-diff-refine-max-pair-line-ratio 2.0
+    "Maximum line-count ratio between the sides of a changed pair.
+For example, 2.0 skips refinement when one side has more than twice as
+many lines as the other.  This avoids misleading word matches between
+structurally different replacements.  Nil means no limit."
+    :type '(choice (const :tag "No limit" nil)
+                   number)
+    :group 'magit-diff)
+
+  (defun +magit-diff-refine--poor-pair-p (beg1 end1 beg2 end2)
+    "Return non-nil when a changed pair is a poor refinement candidate.
+BEG1..END1 and BEG2..END2 are the deleted and inserted regions passed
+by `diff--refine-hunk' to `smerge-refine-regions'."
+    (let ((lines1 (count-lines beg1 end1))
+          (lines2 (count-lines beg2 end2))
+          (chars1 (- end1 beg1))
+          (chars2 (- end2 beg2)))
+      (or (and +magit-diff-refine-max-pair-chars
+               (> (+ chars1 chars2)
+                  +magit-diff-refine-max-pair-chars))
+          (and +magit-diff-refine-max-pair-line-ratio
+               (> (max (/ (float lines1) (max lines2 1))
+                       (/ (float lines2) (max lines1 1)))
+                  +magit-diff-refine-max-pair-line-ratio)))))
+
+  (defun +magit-diff-refine--remove-syntax-overlays (beg end)
+    (dolist (ov (overlays-in beg end))
+      (when (+magit-diff-refine--syntax-overlay-p ov)
+        (delete-overlay ov))))
+
+  (defun +magit-diff-refine--font-lock-face-p (face)
+    (cond
+     ((symbolp face)
+      (string-prefix-p "font-lock-" (symbol-name face)))
+     ((consp face)
+      (catch 'found
+        (dolist (part face)
+          (when (+magit-diff-refine--font-lock-face-p part)
+            (throw 'found t)))))))
+
+  (defun +magit-diff-refine--syntax-overlay-p (ov)
+    (and (not (overlay-get ov 'diff-mode))
+         (or (overlay-get ov '+magit-diff-hunk-syntax)
+             (+magit-diff-refine--font-lock-face-p
+              (overlay-get ov 'face)))))
+
+  (defun +magit-diff-refine--remove-refined-syntax-overlays (beg end)
+    (dolist (ov (overlays-in beg end))
+      (when (eq (overlay-get ov 'diff-mode) 'fine)
+        (+magit-diff-refine--remove-syntax-overlays
+         (overlay-start ov)
+         (overlay-end ov)))))
+
+  (defun +magit-diff-tag-hunk-syntax-overlays-a (fn &rest args)
+    (let ((syntax-buffer (current-buffer))
+          (make-overlay-fn (symbol-function 'make-overlay)))
+      (cl-letf (((symbol-function 'make-overlay)
+                 (lambda (&rest overlay-args)
+                   (let ((ov (apply make-overlay-fn overlay-args)))
+                     (when (eq (overlay-buffer ov) syntax-buffer)
+                       (overlay-put ov '+magit-diff-hunk-syntax t))
+                     ov))))
+        (prog1 (apply fn args)
+          (+magit-diff-refine--remove-refined-syntax-overlays
+           (point-min) (point-max))))))
+
+  (defun +magit-diff-refine-pair-limit-a
+      (fn beg1 end1 beg2 end2 props-c &optional preproc props-r props-a)
+    (if (and (eq preproc #'diff-refine-preproc)
+             (+magit-diff-refine--poor-pair-p beg1 end1 beg2 end2))
+        nil
+      (prog1 (funcall fn beg1 end1 beg2 end2 props-c preproc props-r props-a)
+        (when (eq preproc #'diff-refine-preproc)
+          (+magit-diff-refine--remove-refined-syntax-overlays beg1 end1)
+          (+magit-diff-refine--remove-refined-syntax-overlays beg2 end2)))))
+
+  (with-eval-after-load 'smerge-mode
+    (advice-remove #'smerge-refine-regions
+                   #'+magit-diff-refine-pair-limit-a)
+    (advice-add #'smerge-refine-regions
+                :around #'+magit-diff-refine-pair-limit-a))
+
+  (advice-remove #'magit-diff--update-hunk-syntax
+                 #'+magit-diff-tag-hunk-syntax-overlays-a)
+  (advice-add #'magit-diff--update-hunk-syntax
+              :around #'+magit-diff-tag-hunk-syntax-overlays-a)
+
   (defun magit-remove-git-lock-file ()
     "Remove git's index lock file, if it exists."
     (interactive)
@@ -52,8 +149,8 @@ two live on different remotes."
   (setq magit-refresh-status-buffer nil)
   (setq magit-auto-revert-mode nil)
   (setq magit-save-repository-buffers nil)
+  (setq magit-repository-directories "~/Development/")
 
-  (setq magit-diff-refine-hunk t)
 
   (setopt magit-format-file-function #'magit-format-file-nerd-icons)
 
