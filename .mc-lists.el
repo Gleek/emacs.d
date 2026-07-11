@@ -3,9 +3,12 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        +agent-shell-self-insert-or-queue
         +org-increase-number-at-point
         +org-yank
         LaTeX-babel-insert-hyphen
+        agent-shell-next-item
+        agent-shell-quote-region
         backward-up-list
         beginning-of-buffer
         beginning-of-defun
@@ -23,6 +26,7 @@
         camel-to-snake
         change-number-at-point
         comment-or-uncomment-region-or-line
+        consult-yank-pop
         copilot-accept-completion
         counsel-yank-pop
         default-indent-new-line
@@ -60,6 +64,7 @@
         kill-region
         kill-visual-line
         kmacro-start-macro-or-insert-counter
+        magit-copy-buffer-revision
         mark-sexp
         markdown-electric-backquote
         markdown-exdent-or-delete
@@ -93,6 +98,7 @@
         orgtbl-hijacker-command-102
         orgtbl-hijacker-command-109
         orgtbl-self-insert-command
+        puni-splice
         reactivate-mark
         rectangle-backward-char
         rectangle-previous-line
@@ -133,8 +139,10 @@
 (setq mc/cmds-to-run-once
       '(
         +shellpop-vterm
+        avy-goto-char-timer
         company-complete
         company-complete-selection
+        consult-buffer
         copilot-accept-completion-by-line
         counsel-M-x
         god-local-mode

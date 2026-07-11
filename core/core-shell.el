@@ -83,10 +83,6 @@
 (use-package eat
   :after (shell-pop) ; have to load after eshell but since by usual entry point to eshell is shell-pop, this is fine.
   :demand t
-  :bind (;; ("C-~" . eat-project-or-default)
-         (:map eat-mode-map
-               (("C-`" . bury-buffer)
-                ("C-~" . bury-buffer))))
   :config
   (defun eat-project-or-default()
     (interactive)

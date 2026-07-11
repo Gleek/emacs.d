@@ -13,6 +13,41 @@ The PLIST syntax is Shackle's rule plist, plus local keys:
 :escape nil keeps `escape-quit' from dismissing matching Popper buffers."
   `(+window-popup-rule ,condition ',plist))
 
+(defun +popup-rule-remove (condition)
+  "Remove popup rule CONDITION from Shackle and Popper state."
+  (with-eval-after-load 'shackle
+    (setq shackle-rules
+          (cl-remove-if
+           (lambda (rule) (equal (car rule) condition))
+           shackle-rules)))
+  (with-eval-after-load 'popper
+    (setq popper-reference-buffers
+          (remove condition popper-reference-buffers)
+          +popper-escape-ignored-buffers
+          (remove condition +popper-escape-ignored-buffers)
+          popper-open-popup-alist
+          (cl-remove-if (lambda (win-buf)
+                          (string-match-p condition (buffer-name (cdr win-buf))))
+                        popper-open-popup-alist)
+          popper-buried-popup-alist
+          (mapcar (lambda (group)
+                    (cons (car group)
+                          (cl-remove-if
+                           (lambda (win-buf)
+                             (string-match-p condition (buffer-name (cdr win-buf))))
+                           (cdr group))))
+                  popper-buried-popup-alist))
+    (dolist (buffer (buffer-list))
+      (when (string-match-p condition (buffer-name buffer))
+        (with-current-buffer buffer
+          (setq popper-popup-status nil)
+          (setq mode-line-format (default-value 'mode-line-format)))))
+    (when (fboundp 'popper--set-reference-vars)
+      (popper--set-reference-vars))
+    (when (and (bound-and-true-p popper-mode)
+               (fboundp 'popper--update-popups))
+      (popper--update-popups))))
+
 (defun +window-popup-rule (condition plist)
   "Register CONDITION using PLIST after Shackle and Popper load."
   (let* ((popper-disabled (and (plist-member plist :popper)
@@ -110,7 +145,7 @@ The PLIST syntax is Shackle's rule plist, plus local keys:
 
 (use-package popper
   :defer 0.1
-  :bind (("C-`" . popper-toggle)
+  :bind (("C-`" . +popper-toggle-current-or-latest)
          ("C-M-`" . popper-cycle)
          ("C-x k" . +popper-kill-current-buffer)
          ("C-c w p" . +popper-toggle-type))
@@ -130,11 +165,52 @@ The PLIST syntax is Shackle's rule plist, plus local keys:
                (string-match-p regexp (buffer-name buffer)))
              +popper-escape-ignored-buffers))
 
+  (defun +popper-close-current ()
+    "Close the selected popup window and register its buffer as buried."
+    (when-let* ((entry (assq (selected-window) popper-open-popup-alist))
+                (win (car entry))
+                (buf (cdr entry)))
+      (let ((group (when popper-group-function
+                     (with-current-buffer buf
+                       (funcall popper-group-function)))))
+        (unless (cl-member buf
+                           (cdr (assoc group popper-buried-popup-alist))
+                           :key #'cdr)
+          (push (cons nil buf)
+                (alist-get group popper-buried-popup-alist nil nil #'equal))))
+      (setq popper-open-popup-alist
+            (delq entry popper-open-popup-alist))
+      (with-selected-window win
+        (popper--delete-popup win))
+      t))
+
+  (defun +popper-toggle-current-or-latest (&optional arg)
+    "Toggle the selected popup, otherwise fall back to `popper-toggle'.
+
+This keeps the plain toggle local when point is inside a popup.  Outside a popup,
+it preserves Popper's regular latest-popup toggle behavior."
+    (interactive "p")
+    (unless (and (not (memq arg '(4 16)))
+                 (bound-and-true-p popper-mode)
+                 (boundp 'popper-open-popup-alist)
+                 (+popper-close-current))
+      (popper-toggle arg)))
+
   (defun +popper-close-on-escape-h ()
     "Dismiss the latest Popper popup from `escape-hook'."
     (when (and (bound-and-true-p popper-mode)
                (boundp 'popper-open-popup-alist)
                popper-open-popup-alist)
+      (setq popper-open-popup-alist
+            (cl-remove-if-not
+             (lambda (win-buf)
+               (let ((buffer (cdr win-buf)))
+                 (and (buffer-live-p buffer)
+                      (with-current-buffer buffer
+                        (or (memq popper-popup-status '(popup user-popup))
+                            (and (not (eq popper-popup-status 'raised))
+                                 (popper-popup-p buffer)))))))
+             popper-open-popup-alist))
       (let ((buffer (cdar popper-open-popup-alist)))
         (when (and (buffer-live-p buffer)
                    (not (+popper-escape-ignored-buffer-p buffer)))

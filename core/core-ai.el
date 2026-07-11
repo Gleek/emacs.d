@@ -293,8 +293,8 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
 (use-package agent-shell
   :bind ("C-c q a" . agent-shell)
   :config
-  (+popup-rule "^Codex agent" :regexp t :align right :size 0.4 :select t :escape nil)
-  (+popup-rule "^Claude agent" :regexp t :align right :size 0.4 :select t :escape nil)
+  ;; (+popup-rule "^Codex agent" :regexp t :align right :size 0.4 :select t :escape nil)
+  ;; (+popup-rule "^Claude agent" :regexp t :align right :size 0.4 :select t :escape nil)
   (setq agent-shell-session-restore-verbosity 'full)
   (setq agent-shell-busy-indicator-frames 'circle)
   (setq agent-shell-preferred-agent-config
@@ -385,8 +385,11 @@ When `+agent-shell-merge-pending-requests' is nil, defer to ORIG-FN."
   :ensure (:host github :repo "jethrokuan/agent-shell-manager")
   :after agent-shell
   :demand
-  :bind (:map agent-shell-mode-map
-              ("C-z b" . agent-shell-manager-toggle)))
+  :bind (("C-c q b" . agent-shell-manager-toggle)
+         (:map agent-shell-mode-map
+               ("C-z b" . agent-shell-manager-toggle)))
+  :config
+  (+popup-rule "^\\*Agent-Shell Buffers\\*" :regexp t :align below :size 0.4))
 
 (use-package agent-recall
   :ensure (:fetcher github :repo "Marx-A00/agent-recall")
