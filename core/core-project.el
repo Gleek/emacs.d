@@ -17,15 +17,25 @@
   :config
   (setq projectile-project-search-path'("~/Development/"))
   (setq projectile-ignored-projects'("~/"))
-  (defun +copy-project-file-name(arg)
-    ;; Copy file name relative to the project. But expanded if arg is passed.
+  (defun +copy-project-file-name (arg)
+    "Copy the current file's name relative to its project.
+In a Dired buffer, use the file or directory at point.
+With prefix ARG, copy the absolute file name instead."
     (interactive "P")
-    (let ((filename (if arg
-                        buffer-file-name
-                      (file-relative-name buffer-file-name (projectile-project-root)))))
-      (when filename
-        (kill-new filename)
-        (message "Copied project file name '%s' to the clipboard." filename))))
+    (let* ((file (if (derived-mode-p 'dired-mode)
+                     (dired-get-file-for-visit)
+                   buffer-file-name))
+           (_ (unless file
+                (user-error "Current buffer is not visiting a file")))
+           (filename
+            (if arg
+                file
+              (let ((project-root (projectile-project-root)))
+                (unless project-root
+                  (user-error "Current file is not in a project"))
+                (file-relative-name file project-root)))))
+      (kill-new filename)
+      (message "Copied project file name '%s' to the clipboard." filename)))
   ;; (projectile-load-known-projects)
   (setq projectile-mode-line-prefix "")
   (projectile-mode 1)
