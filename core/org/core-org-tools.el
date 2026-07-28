@@ -12,7 +12,6 @@
 ;;; Code:
 
 (require 'mod-number nil t)
-
 (defun org-formatted-copy (arg)
   "Export region to HTML, and copy it to the clipboard.
 Earlier used a textutil implementation to convert html to rtf
@@ -37,31 +36,6 @@ everywhere that supports some decent formatting."
         (shell-command (format "pbcopy-html --type=%s %s" export-type (shell-quote-argument html)))
         (kill-buffer buf)))))
 
-
-(defun org-formatted-paste()
-  "Clipboard content in html is converted to org using pandoc and inserted to the buffer."
-  (interactive)
-  ;; pbpaste-html is generated using the trick at https://stackoverflow.com/a/36109230
-  (shell-command "pbpaste-html | pandoc -f html -t org" (current-buffer)))
-
-(defun +org-yank(arg)
-  "Yanks image or text in the buffer"
-  (interactive "P")
-  (unless arg
-    (let* ((is-image (and IS-MAC
-                          (eq (call-process "pngpaste" nil nil nil "-b") 0)))
-           (is-html (and IS-MAC
-                         (not is-image)
-                         (eq (call-process "pbpaste-html") 0))))
-
-      (if is-image
-          (progn
-            (require 'org-download)
-            (+org-download-clipboard nil))
-        (if is-html
-            (org-formatted-paste)
-          (org-yank nil)))))
-  (if arg (org-yank nil)))
 
 (defun anonymous-pomodoro(&optional arg)
   "Start a 25 minute work or 5 min rest timer based on the prefix arg.
@@ -117,6 +91,20 @@ everywhere that supports some decent formatting."
       (org-shiftcontroldown n)
     (change-number-at-point (- n))))
 
+(use-package org-smart-yank
+  :after org
+  :demand t
+  :ensure (:fetcher github :repo "gleek/org-smart-yank")
+  :bind* (:map org-mode-map
+               ("C-y" . org-smart-yank))
+  :config
+  (setq org-smart-yank-image-directory
+        (lambda ()
+          (if (file-in-directory-p (or buffer-file-name default-directory)
+                                   +roam-directory)
+              (expand-file-name "resource" +roam-directory)
+            (expand-file-name "assets" +org-directory))))
+  (org-smart-yank-start-pandoc-server))
 
 (use-package org
   :bind (("C-c o e" . org-export-dispatch)
@@ -128,8 +116,6 @@ everywhere that supports some decent formatting."
          ("C-S-<up>" . +org-increase-number-at-point)
          ("C-S-<down>" . +org-decrease-number-at-point)
          ("C-<tab>" . nil))
-  :bind* (:map org-mode-map
-               ("C-y" . +org-yank))
   :ensure nil
   :config
   (setq org-version (if (string= org-version "")
