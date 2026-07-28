@@ -111,7 +111,8 @@
          ("C-S-M-v". sow-scroll-other-window-down)))
 
 (use-package combobulate
-  :hook (prog-mode . combobulate-mode)
+  :bind (:map combobulate-key-map
+              ("C-c o c" . nil))
   :ensure (:fetcher github :repo "mickeynp/combobulate"))
 
 (use-package hideshow
