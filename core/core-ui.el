@@ -160,7 +160,16 @@
   (setq doom-modeline-enable-word-count nil)
   (setq doom-modeline-buffer-encoding nil)
   (setq doom-modeline-buffer-file-name-style 'relative-from-project)
-  (setq doom-modeline-buffer-file-true-name t))
+  (setq doom-modeline-buffer-file-true-name t)
+
+  (defun +doom-modeline-update-shell-maker-buffer-name (buffer &rest _)
+    (with-current-buffer buffer
+      (doom-modeline-update-buffer-file-name)
+      (force-mode-line-update)))
+
+  (with-eval-after-load 'shell-maker
+    (advice-add #'shell-maker-set-buffer-name
+                :after #'+doom-modeline-update-shell-maker-buffer-name)))
 
 (use-package emacs
   :ensure nil

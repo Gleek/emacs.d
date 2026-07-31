@@ -291,12 +291,16 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
 
 
 (use-package agent-shell
-  :bind ("C-c q a" . agent-shell)
+  :bind (("C-c q a" . agent-shell)
+         (:map agent-shell-mode-map
+               ("C-z r" . agent-shell-rename-buffer)))
   :config
+  (require 'projectile)
   ;; (+popup-rule "^Codex agent" :regexp t :align right :size 0.4 :select t :escape nil)
   ;; (+popup-rule "^Claude agent" :regexp t :align right :size 0.4 :select t :escape nil)
   (setq agent-shell-session-restore-verbosity 'full)
   (setq agent-shell-busy-indicator-frames 'circle)
+
   (setq agent-shell-preferred-agent-config
         (agent-shell-anthropic-make-claude-code-config)
         ;; (agent-shell-openai-make-codex-config)
@@ -361,6 +365,7 @@ When `+agent-shell-merge-pending-requests' is nil, defer to ORIG-FN."
   :demand t)
 
 (use-package agent-shell-tool-group
+  :disabled t
   :ensure nil
   :ensure (:fetcher github :repo "gleek/agent-shell-tool-group")
   :after agent-shell
