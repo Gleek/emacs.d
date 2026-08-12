@@ -13,7 +13,7 @@
 (setq frame-resize-pixelwise t)
 
 ;; Font/Themes
-(defvar default-font "Iosevka Term")
+(defvar default-font "Zed Mono")
 (set-frame-font (concat default-font " 14") 'keepsize t)
 ;; (set-face-font 'variable-pitch "Baskerville 15")
 ;; (set-face-font 'variable-pitch "ETBembo 17")

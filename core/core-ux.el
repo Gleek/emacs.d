@@ -65,7 +65,7 @@
   :defer 5
   :init
   (setq scroll-conservatively 99
-        scroll-margin 0)
+        scroll-margin 1)
   :config
   (ultra-scroll-mode 1))
 
