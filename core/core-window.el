@@ -146,7 +146,7 @@ The PLIST syntax is Shackle's rule plist, plus local keys:
 (use-package popper
   :defer 0.1
   :bind (("C-`" . +popper-toggle-current-or-latest)
-         ("C-M-`" . popper-cycle)
+         ("C-M-`" . +popper-select)
          ("C-x k" . +popper-kill-current-buffer)
          ("C-c w p" . +popper-toggle-type))
   :config
@@ -195,6 +195,26 @@ it preserves Popper's regular latest-popup toggle behavior."
                  (boundp 'popper-open-popup-alist)
                  (+popper-close-current))
       (popper-toggle arg)))
+
+  (defun +popper-select ()
+    "Select any known popup buffer with Consult preview."
+    (interactive)
+    (let* ((entries (append popper-open-popup-alist
+                            (cl-loop for (_ . popups) in popper-buried-popup-alist
+                                     append popups)))
+           (buffers (delete-dups
+                     (mapcar #'buffer-name
+                             (cl-remove-if-not #'buffer-live-p
+                                               (mapcar #'cdr entries)))))
+           (buffer (consult--read buffers
+                                  :prompt "Popup: "
+                                  :require-match t
+                                  :state (consult--buffer-preview))))
+      (when popper-open-popup-alist
+        (popper-close-latest))
+      (display-buffer buffer)
+      (with-current-buffer buffer
+        (run-hooks 'popper-open-popup-hook))))
 
   (defun +popper-close-on-escape-h ()
     "Dismiss the latest Popper popup from `escape-hook'."
