@@ -17,7 +17,7 @@
 (use-package pyimport)
 (use-package py-isort)
 (use-package uv-mode
-  :hook (python-ts-mode))
+  :hook (python-ts-mode . uv-mode-set))
 
 (use-package lsp-pyright
   :ensure t
