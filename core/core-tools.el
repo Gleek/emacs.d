@@ -479,8 +479,6 @@ To actually enable this, evaluate `+bongo-remove-headers'."
 (use-package keepass-mode-plus
   :ensure nil
   ;; Load the validation advice before `keepass-mode' handles the first file.
-  :after keepass-mode
-  :demand t
   :bind (("C-c s p" . keepass-quick-switch)
          (:map keepass-mode-map
                ("s" . +keepass-search)))
@@ -534,6 +532,10 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :diminish
   :bind (:map proced-mode-map
               ("/" . proced-narrow)))
+
+(use-package qalc
+  :commands (qalc-completing-read)
+  :ensure (:fetcher github :repo "gleek/qalc.el"))
 
 (use-package calc
   :ensure nil
