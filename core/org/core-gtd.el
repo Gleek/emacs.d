@@ -707,7 +707,6 @@
   :config
   (setq org-timegrid-org-capture-file
         (concat +agenda-directory "inbox.org"))
-  (setq org-timegrid-cursor-step-minutes 60)
   (setq org-timegrid-org-tag-color-alist
         '(("work"     . indigo)
           ("business" . lime)
@@ -717,6 +716,10 @@
           ("errand"   . cyan)))
   (add-hook 'org-timegrid-org-after-create-hook
             #'add-property-with-date-captured))
+
+(use-package org-timegrid-isearch
+  :ensure nil
+  :after org-timegrid)
 
 (use-package org-timegrid-agenda
   :ensure nil
