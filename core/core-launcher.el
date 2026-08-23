@@ -274,7 +274,7 @@ Primarily used in the +launch-default-launcher to change the min-value for all t
 
   (defvar consult-omni-web-searches-entries
     '(("DuckDuckGo" . "https://duckduckgo.com/?q=%s")
-      ("Google" . "https://www.google.com/search?q=%s")
+      ("Google AI" . "https://www.google.com/search?udm=50&source=searchlabs&q=%s")
       ("devdocs.io" . "https://devdocs.io/#q=%s")
       ("Youtube" . "https://www.youtube.com/results?search_query=%s"))
     "List of fixed entries and their associated functions.")
@@ -526,11 +526,11 @@ property.  Without it, Org actions run in the launcher minibuffer."
                               :require-match t
                               :face 'consult-omni-engine-title-face
                               :request (lambda (input &rest _)
-                                         (pcase-let ((`(,query . _)
-                                                      (consult-omni--split-command input)))
-                                           (when-let ((command (qalc-command query)))
-                                             (consult-omni--async-builder
-                                              query (butlast command)))))
+                                         (when-let ((command (qalc-command input)))
+                                           (cons command
+                                                 (cdr
+                                                  (consult--default-regexp-compiler
+                                                   input 'basic t)))))
                               :valid-input (lambda (input)
                                              (cond
                                               ((string-prefix-p "=" input)

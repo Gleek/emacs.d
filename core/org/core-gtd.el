@@ -589,13 +589,17 @@
 
   (setq org-agenda-custom-commands
         `((" " "Agenda"
-           ((agenda ""
-                    ((org-agenda-span 'day)
-                     (org-deadline-warning-days 30)))
-            (alltodo ""
+           ((alltodo ""
                      ((org-agenda-overriding-header "To Refile")
                       (org-agenda-files '(,(concat +agenda-directory "inbox.org")
                                           ,(concat +agenda-directory "inbox_phone.org")))))
+            (agenda ""
+                    ((org-agenda-span 'day)
+                     (org-deadline-warning-days 30)
+                     (org-agenda-use-time-grid nil)
+                     (org-agenda-skip-timestamp-if-done t)
+                     (org-agenda-overriding-header "")
+                     (org-agenda-format-date (lambda (_date) ""))))
             (todo "DOING"
                   ((org-agenda-overriding-header "In Progress")
                    (org-agenda-files '(,(concat +agenda-directory "someday.org")
@@ -670,42 +674,6 @@
   (org-wild-notifier-mode t))
 
 
-(use-package calfw)
-(use-package calfw-org
-  :ensure calfw calfw-org
-  :commands (+open-calendar)
-  :bind (:map cfw:calendar-mode-map ("?" . +calendar/show-keys))
-  :config
-  (+popup-rule "^\\*cfw:details\\*$" :regexp t :align below)
-  (setq cfw:org-overwrite-default-keybinding t)
-  (defun +calendar/show-keys()
-    (interactive)
-    (which-key-show-full-keymap 'cfw:calendar-mode-map))
-  (defun +open-calendar()
-    (interactive)
-    (cfw:open-calendar-buffer
-     ;; :custom-map cfw:my-cal-map
-     :contents-sources
-     (list
-      (cfw:org-create-source (doom-color 'fg)))))
-  ;; Courtesy: fuxialexander
-  (setq cfw:face-item-separator-color nil
-        cfw:render-line-breaker 'cfw:render-line-breaker-none
-        cfw:fchar-junction ?╋
-        cfw:fchar-vertical-line ?┃
-        cfw:fchar-horizontal-line ?━
-        cfw:fchar-left-junction ?┣
-        cfw:fchar-right-junction ?┫
-        cfw:fchar-top-junction ?┯
-        cfw:fchar-top-left-corner ?┏
-        cfw:fchar-top-right-corner ?┓)
-  (setq cfw:display-calendar-holidays nil))
-
-(use-package calfw-blocks
-  :after (calfw)
-  :demand t
-  :ensure (:fetcher github :repo "ml729/calfw-blocks"))
-
 (use-package org-timeline
   :ensure nil
   :commands (org-timeline-insert-timeline)
@@ -730,22 +698,34 @@
 
 
 
-(use-package org-timeblock
-  :after (org-agenda)
-  :demand t
-  :bind (("C-c a c" . org-timeblock)
-         (:map org-agenda-mode-map
-               (("C" . org-timeblock)))
-         (:map org-timeblock-mode-map
-               (("c" . +capture-inbox))))
+(use-package org-timegrid
+  :ensure (:fetcher github :repo "gleek/org-timegrid")
+  :commands (org-timegrid-week)
+  :bind (("C-c a c" . org-timegrid-week)
+         (:map org-timegrid-mode-map
+               ("s" . org-save-all-org-buffers)))
   :config
-  (setq org-timeblock-tag-colors
-        '(("errand" . org-timeblock-blue)
-          ("work" . org-timeblock-magenta)
-          ("meeting" . org-timeblock-red)))
-  (setq org-timeblock-inbox-file (concat +agenda-directory "inbox.org"))
-  (setq org-timeblock-files org-agenda-files)
-  (setq org-timeblock-show-future-repeats t))
+  (setq org-timegrid-org-capture-file
+        (concat +agenda-directory "inbox.org"))
+  (setq org-timegrid-cursor-step-minutes 60)
+  (setq org-timegrid-org-tag-color-alist
+        '(("work"     . indigo)
+          ("business" . lime)
+          ("reading"  . green)
+          ("tooling"  . green)
+          ("video"    . yellow)
+          ("errand"   . cyan)))
+  (add-hook 'org-timegrid-org-after-create-hook
+            #'add-property-with-date-captured))
+
+(use-package org-timegrid-agenda
+  :ensure nil
+  :after org-agenda
+  :demand t
+  :config
+  (setq org-timegrid-agenda-insert-after "To Refile")
+  (setq org-timegrid-agenda-separator nil)
+  (org-timegrid-agenda-mode 1))
 
 
 
@@ -861,6 +841,8 @@ TODO: Add checkbox based on todo state. If in todo show [ ] if done show [X] in 
       (dolist (element elements)
         (insert "- " (funcall formatter-fn element) "\n"))
       (delete-char -1))))
+
+
 
 (use-package org-burnup
   :load-path "packages/org-burnup.el"
