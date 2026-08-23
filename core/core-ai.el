@@ -300,11 +300,20 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
   ;; (+popup-rule "^Claude agent" :regexp t :align right :size 0.4 :select t :escape nil)
   (setq agent-shell-session-restore-verbosity 'full)
   (setq agent-shell-busy-indicator-frames 'circle)
+  (setq agent-shell-chat-mode-enabled t)
 
   (setq agent-shell-preferred-agent-config
-        (agent-shell-anthropic-make-claude-code-config)
-        ;; (agent-shell-openai-make-codex-config)
+        ;; (agent-shell-anthropic-make-claude-code-config)
+        (agent-shell-openai-make-codex-config)
         )
+  ;; (setq agent-shell-tool-use-group-expand-by-default nil)
+  ;; (setq agent-shell-markdown-file-display-action
+  ;;     '((display-buffer-use-some-window)
+  ;;       (inhibit-same-window . t)))
+  (setq agent-shell-file-display-action
+        '(display-buffer-pop-up-window))
+  (setq agent-shell-activity-group-expand-by-default 'latest)
+
   (setq agent-shell-permission-responder-function
         #'agent-shell-permission-allow-always)
   (advice-add 'shell-maker-welcome-message :override (lambda (&rest _) ""))
@@ -326,33 +335,30 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
                  (not (map-nested-elt (agent-shell--state) '(:session :id))))) ; session not initialized
         (let ((char (string last-command-event))
               (shell-buffer (current-buffer)))
-          (agent-shell-queue-request
-           (minibuffer-with-setup-hook
-               (lambda ()
-                 (agent-shell-completion--setup-minibuffer shell-buffer))
-             (read-string (or (map-nested-elt (agent-shell--state) '(:agent-config :shell-prompt))
-                              "Enqueue request: ")
-                          char))))
+          (with-current-buffer shell-buffer
+            (agent-shell-prompt-queue
+             (agent-shell--prompt-queue-read :initial char))))
       (self-insert-command 1)))
   (keymap-set agent-shell-mode-map "<remap> <self-insert-command>" #'+agent-shell-self-insert-or-queue)
 
   (defvar +agent-shell-merge-pending-requests nil
     "When non-nil, drain queued requests as one concatenated message.")
+  (setq +agent-shell-merge-pending-requests t)
 
-  (defun +agent-shell-process-pending-request-merged (orig-fn &rest args)
-    "Around advice that submits all pending requests as a single message.
+  (defun +agent-shell-process-pending-prompt-merged (orig-fn &rest args)
+    "Around advice that submits all pending prompts as a single message.
 When `+agent-shell-merge-pending-requests' is nil, defer to ORIG-FN."
-    (let ((pending (map-elt (agent-shell--state) :pending-requests)))
+    (let ((pending (map-elt (agent-shell--state) :pending-prompts)))
       (if (and +agent-shell-merge-pending-requests pending)
           (progn
-            (map-put! (agent-shell--state) :pending-requests nil)
+            (map-put! (agent-shell--state) :pending-prompts nil)
             (agent-shell--insert-to-shell-buffer
              :text (mapconcat #'identity pending "\n\n")
              :submit t
              :no-focus t))
         (apply orig-fn args))))
-  (advice-add 'agent-shell--process-pending-request :around
-              #'+agent-shell-process-pending-request-merged))
+  (advice-add 'agent-shell--prompt-queue-process-next :around
+              #'+agent-shell-process-pending-prompt-merged))
 
 (use-package agent-shell-claude-code
   :ensure nil
@@ -382,19 +388,17 @@ When `+agent-shell-merge-pending-requests' is nil, defer to ORIG-FN."
           (lambda (_buffer title body)
             (alert body :title title :icon "nf-cod-bot")))
   (setopt agent-shell-attention-render-function
-          #'agent-shell-attention-render-active)
+          #'agent-shell-attention-render-pending)
   (setopt agent-shell-attention-indicator-location 'global-mode-string)
   (agent-shell-attention-mode))
 
-(use-package agent-shell-manager
-  :ensure (:host github :repo "jethrokuan/agent-shell-manager")
+(use-package agent-shell-consult
+  :ensure (:host github :repo "Gleek/agent-shell-consult")
   :after agent-shell
   :demand
-  :bind (("C-c q b" . agent-shell-manager-toggle)
+  :bind (("C-c q b" . agent-shell-consult)
          (:map agent-shell-mode-map
-               ("C-z b" . agent-shell-manager-toggle)))
-  :config
-  (+popup-rule "^\\*Agent-Shell Buffers\\*" :regexp t :align below :size 0.4))
+               ("C-z b" . agent-shell-consult))))
 
 (use-package agent-recall
   :ensure (:fetcher github :repo "Marx-A00/agent-recall")
