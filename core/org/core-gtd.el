@@ -261,31 +261,37 @@
     (interactive)
     (+agenda-item-to-worklog "lifelog.org"))
 
+  (defun +org-item-to-worklog (marker &optional file)
+    "Push the Org entry at MARKER to FILE with an ID link."
+    (unless (and (markerp marker) (marker-buffer marker))
+      (user-error "The Org source entry is no longer available"))
+    (setq file (or file "worklog.org"))
+    (with-current-buffer (marker-buffer marker)
+      (save-excursion
+        (goto-char marker)
+        (org-back-to-heading t)
+        (org-id-get-create)
+        (let ((link (org-store-link nil)))
+          (with-current-buffer
+              (find-file-noselect (concat +agenda-directory file))
+            (+org-insert-date-tree)
+            (goto-char (point-max))
+            (insert (format "- [ ] %s\n" link))
+            (org-update-statistics-cookies nil)
+            (message "Pushed %s to %s"
+                     (string-trim-right
+                      (replace-regexp-in-string
+                       "\\[\\[id:[^\]]+\\]\\[" "" link)
+                      "\]\]")
+                     file))))))
+
   (defun +agenda-item-to-worklog (&optional file)
-    "Copies the link to the current item inside agenda and pushes it to worklog.org with a link."
+    "Push the current agenda entry to FILE."
     (interactive)
-    (unless file
-      (setq file "worklog.org"))
-    (let* ((marker (or (org-get-at-bol 'org-marker)
-                       (org-agenda-error)))
-           (buffer (marker-buffer marker))
-           (pos (marker-position marker)))
-      (with-current-buffer buffer
-        (save-excursion
-          (goto-char pos)
-          (org-id-get-create)
-          (let ((l (org-store-link nil)))
-            (with-current-buffer (find-file-noselect (concat +agenda-directory file))
-              (+org-insert-date-tree)
-              (goto-char (point-max))
-              (insert (format "- [ ] %s\n" l))
-              (org-update-statistics-cookies nil)
-              (message "Pushed %s to %s"
-                       ;; Remove the id: link format and only keep the formatted description
-                       (string-trim-right
-                        (replace-regexp-in-string "\\[\\[id:[^\]]+\\]\\[" "" l)
-                        "\]\]")
-                       file)))))))
+    (+org-item-to-worklog
+     (or (org-get-at-bol 'org-marker)
+         (org-agenda-error))
+     file))
 
   ;; Courtesy: https://emacs.stackexchange.com/a/59883
   (defun org-agenda-bulk-mark-regexp-category (regexp)
@@ -545,6 +551,30 @@
                         (<= 10 (nth 2 current-time) 17)))) ; 11 AM to 6 PM
         (save-excursion (or (outline-next-heading) (point-max))))))
 
+  (defun +org-entry-has-timed-timestamp-p ()
+    "Return non-nil if the current entry has an active timed timestamp."
+    (save-excursion
+      (org-back-to-heading t)
+      (let ((next-heading (save-excursion
+                            (or (outline-next-heading) (point-max)))))
+        (catch 'timed
+          (while (re-search-forward org-ts-regexp-both next-heading t)
+            (let ((timestamp (match-string-no-properties 0)))
+              (when (and (string-prefix-p "<" timestamp)
+                         (string-match-p
+                          "[0-9]\\{1,2\\}:[0-9]\\{2\\}"
+                          timestamp))
+                (throw 'timed t))))))))
+
+  (defun +agenda-day-skip ()
+    "Skip day-agenda entries unless agenda skips are disabled."
+    (unless +agenda-disable-skips
+      (save-excursion
+        (org-back-to-heading t)
+        (when (or (org-entry-is-done-p)
+                  (+org-entry-has-timed-timestamp-p))
+          (or (outline-next-heading) (point-max))))))
+
   (defun org-timestamp-has-repeater-p (timestamp-str)
     "Check if TIMESTAMP-STR contains a repeater."
     (and (string-match-p (concat "\\(" org-ts-regexp "\\)") timestamp-str)
@@ -597,7 +627,7 @@
                     ((org-agenda-span 'day)
                      (org-deadline-warning-days 30)
                      (org-agenda-use-time-grid nil)
-                     (org-agenda-skip-timestamp-if-done t)
+                     (org-agenda-skip-function '(+agenda-day-skip))
                      (org-agenda-overriding-header "")
                      (org-agenda-format-date (lambda (_date) ""))))
             (todo "DOING"
@@ -697,6 +727,22 @@
   (set-face-attribute 'org-timeline-block nil :inherit 'highlight :background nil))
 
 
+
+(defun +org-timegrid-item-to-worklog (&optional file)
+  "Push the selected time-grid block to FILE."
+  (interactive)
+  (+org-item-to-worklog (org-timegrid-org-selected-marker) file))
+
+(defun +org-timegrid-item-to-lifelog ()
+  "Push the selected time-grid block to the life log."
+  (interactive)
+  (+org-timegrid-item-to-worklog "lifelog.org"))
+
+(with-eval-after-load 'org-timegrid
+  (keymap-set org-timegrid-mode-map
+              "W" #'+org-timegrid-item-to-worklog)
+  (keymap-set org-timegrid-mode-map
+              "L" #'+org-timegrid-item-to-lifelog))
 
 (use-package org-timegrid
   :ensure (:fetcher github :repo "gleek/org-timegrid")
