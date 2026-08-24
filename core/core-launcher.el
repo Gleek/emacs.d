@@ -47,8 +47,13 @@
     (top-level))
 
   (defun +launcher-minibuffer-setup ()
-    "Install launcher-specific bindings in the current minibuffer."
+    "Apply launcher-specific UI and bindings to the current minibuffer."
     (when +launcher-active
+      ;; Solaire dims non-file buffers, but a frame's internal border keeps
+      ;; the frame's default background.  Avoid a two-tone launcher by making
+      ;; its minibuffer use the same default face as the surrounding frame.
+      (when (bound-and-true-p solaire-mode)
+        (solaire-mode -1))
       ;; `abort-recursive-edit' only leaves the innermost Embark prompt.
       ;; `top-level' unwinds Embark and the outer Consult launcher together.
       (local-set-key (kbd "C-g") #'+launcher-quit)))
