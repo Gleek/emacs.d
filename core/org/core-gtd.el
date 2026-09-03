@@ -704,6 +704,14 @@
   (org-wild-notifier-mode t))
 
 
+(use-package org-upcoming-modeline
+  :ensure (:fetcher github :repo "Gleek/org-upcoming-modeline")
+  :defer 5
+  :config
+  (setopt org-upcoming-modeline-show-running t)
+  (org-upcoming-modeline-mode t))
+
+
 (use-package org-timeline
   :ensure nil
   :commands (org-timeline-insert-timeline)
@@ -728,6 +736,15 @@
 
 
 
+(defun +org-timegrid-toggle-repeaters ()
+  "Toggle repeating Org timestamps and refresh the calendar."
+  (interactive)
+  (setq org-timegrid-org-show-repeaters
+        (not org-timegrid-org-show-repeaters))
+  (org-timegrid--refresh-data)
+  (message "Repeating calendar entries %s"
+           (if org-timegrid-org-show-repeaters "shown" "hidden")))
+
 (defun +org-timegrid-item-to-worklog (&optional file)
   "Push the selected time-grid block to FILE."
   (interactive)
@@ -738,34 +755,32 @@
   (interactive)
   (+org-timegrid-item-to-worklog "lifelog.org"))
 
-(with-eval-after-load 'org-timegrid
-  (keymap-set org-timegrid-mode-map
-              "W" #'+org-timegrid-item-to-worklog)
-  (keymap-set org-timegrid-mode-map
-              "L" #'+org-timegrid-item-to-lifelog))
-
 (use-package org-timegrid
-  :ensure (:fetcher github :repo "gleek/org-timegrid")
+  :ensure (:fetcher github :repo "Gleek/org-timegrid")
   :commands (org-timegrid-week)
   :bind (("C-c a c" . org-timegrid-week)
-         (:map org-timegrid-mode-map
-               ("s" . org-save-all-org-buffers)))
+         :map org-timegrid-mode-map
+         ("s" . org-save-all-org-buffers)
+         ("T" . +org-timegrid-toggle-repeaters)
+         ("W" . +org-timegrid-item-to-worklog)
+         ("L" . +org-timegrid-item-to-lifelog))
   :config
   (setq org-timegrid-org-capture-file
-        (concat +agenda-directory "inbox.org"))
+        (concat +agenda-directory "inbox.org")
+        org-timegrid-org-capture-template
+        '(:target file :template "* %{title}\n%{time-range}\n%?")
+        org-timegrid-org-auto-save t
+        org-timegrid-org-show-repeaters nil)
   (setq org-timegrid-org-tag-color-alist
         '(("work"     . indigo)
           ("business" . lime)
           ("reading"  . green)
           ("tooling"  . green)
           ("video"    . yellow)
+          ("travel"    . "#808080")
           ("errand"   . cyan)))
   (add-hook 'org-timegrid-org-after-create-hook
             #'add-property-with-date-captured))
-
-(use-package org-timegrid-isearch
-  :ensure nil
-  :after org-timegrid)
 
 (use-package org-timegrid-agenda
   :ensure nil
