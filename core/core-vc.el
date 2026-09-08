@@ -351,16 +351,17 @@ two live on different remotes."
 
 (use-package gitignore-templates)
 
-(use-package consult-gh
-  :config
-  (setopt consult-gh-default-clone-directory "~/Development/")
-  (setopt consult-gh-repo-maxnum 200))
+(when (executable-find "gh")
+  (use-package consult-gh
+    :config
+    (setopt consult-gh-default-clone-directory "~/Development/")
+    (setopt consult-gh-repo-maxnum 200))
 
-(use-package consult-gh-embark
-  :demand t
-  :after consult-gh
-  :config
-  (consult-gh-embark-mode +1))
+  (use-package consult-gh-embark
+    :demand t
+    :after consult-gh
+    :config
+    (consult-gh-embark-mode +1)))
 
 (use-package vc
   :ensure nil
@@ -389,4 +390,14 @@ two live on different remotes."
       vc-make-backup-files t
       backup-directory-alist `(("" . ,(concat CACHE-DIR "backups/per-save")))
       browse-url-browser-function 'browse-url-default-browser)
+
+(when IS-ANDROID
+  ;; Shared storage has a FUSE SELinux label that cannot be applied to files
+  ;; in Emacs's private backup directory.
+  (defun +android-strip-backup-selinux-context (args)
+    (setf (nth 3 args)
+          (assq-delete-all 'selinux-context (nth 3 args)))
+    args)
+  (advice-add 'backup-buffer-copy :filter-args
+              #'+android-strip-backup-selinux-context))
 (provide 'core-vc)

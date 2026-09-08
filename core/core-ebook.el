@@ -9,6 +9,7 @@
 
 
 (use-package pdf-tools
+  :if (not IS-ANDROID)
   :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
   :magic ("%PDF" . pdf-view-mode)
   :bind (:map pdf-view-mode-map

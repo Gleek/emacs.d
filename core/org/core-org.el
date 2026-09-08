@@ -10,7 +10,10 @@
 ;; Main file that loads all org-files
 
 ;;; Code:
-(defvar +org-directory "~/Dropbox/org-files/")
+(defvar +org-directory
+  (if IS-ANDROID
+      "/storage/emulated/0/Org files/"
+    "~/Dropbox/org-files/"))
 (use-package org)
 (use-package "org/core-org-tools.el" :demand t :ensure nil)
 (use-package "org/core-org-ui.el" :demand t :ensure nil)

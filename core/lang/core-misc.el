@@ -29,7 +29,8 @@
                           (bracket delimiter error operator)))
             (treesit-font-lock-recompute-features))))
 
-(use-package docker-compose-mode)
+(use-package docker-compose-mode
+  :ensure (:type git :fetcher github :repo "meqif/docker-compose-mode" :inherit nil))
 (use-package terraform-mode)
 
 (use-package json-mode

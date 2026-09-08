@@ -422,7 +422,10 @@ https://emacs.stackexchange.com/a/12124/2144"
       (remove-hook 'post-command-hook #'vundo-live-diff-post-command t)))
 
   (add-hook 'vundo-mode-hook (lambda () (vundo-live-diff-mode t)))
-  (set-face-attribute 'vundo-default nil :font "FiraCode Nerd Font Mono" :family "FiraCode Nerd Font")
+  (when (find-font (font-spec :name "FiraCode Nerd Font Mono"))
+    (set-face-attribute 'vundo-default nil
+                        :font "FiraCode Nerd Font Mono"
+                        :family "FiraCode Nerd Font"))
   (setq vundo-glyph-alist vundo-unicode-symbols
         vundo-compact-display t))
 

@@ -105,8 +105,8 @@
 
 (defvar mxm--timer)
 (defun mxm--start-timer()
-  (setq mxm--timer (run-with-timer 600 t
-                                   'mx-metrics-save))
+  (setq mxm--timer (run-with-timer 600 600
+                                   #'mx-metrics-save))
   (add-hook 'kill-emacs-hook 'mx-metrics-save))
 
 

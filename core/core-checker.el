@@ -1,4 +1,5 @@
 (use-package spell-fu
+  :if (executable-find "aspell")
   :hook (text-mode . spell-fu-mode)
   :init
   (setq spell-fu-directory (concat CACHE-DIR "spell-fu"))

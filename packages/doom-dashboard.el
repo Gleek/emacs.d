@@ -58,6 +58,9 @@ Possible values:
     ("Open agenda"
      :icon (nerd-icons-octicon "nf-oct-calendar" :face 'doom-dashboard-menu-title)
      :action +switch-to-agenda)
+    ("Open calendar"
+     :icon (nerd-icons-octicon "nf-oct-clock" :face 'doom-dashboard-menu-title)
+     :action org-timegrid-week)
     ;; ("Recent files"
     ;;  :icon (nerd-icons-octicon "nf-oct-file-text" :face 'doom-dashboard-menu-title)
     ;;  :action counsel-recentf)

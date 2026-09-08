@@ -11,7 +11,6 @@
 (blink-cursor-mode -1)
 (setq frame-inhibit-implied-resize t)
 (setq frame-resize-pixelwise t)
-
 ;; Font/Themes
 (defvar default-font "Zed Mono")
 (set-frame-font (concat default-font " 14") 'keepsize t)
@@ -21,9 +20,11 @@
 ;; (if IS-MAC
 ;;     (set-face-attribute 'variable-pitch nil :family "Cusvenir Next" :height 1.2)
 ;;   (set-face-attribute 'variable-pitch nil :family "Helvetica" :height 1.1))
-(set-face-attribute 'variable-pitch nil :family "Roboto Mono" :height 1.0)
+(set-face-attribute 'variable-pitch nil
+                    :family (if IS-ANDROID "sans" "Roboto Mono") :height 1.0)
 (set-face-attribute 'fixed-pitch nil :family default-font :height 1.0)
-(set-fontset-font t 'arabic "KFGQPC Uthmanic Script Hafs 25")
+(unless IS-ANDROID
+  (set-fontset-font t 'arabic "Noto Nastaliq Urdu 25"))
 
 (defun +italic-comments(&rest _)
   (set-face-attribute 'font-lock-comment-face nil :inherit 'italic))

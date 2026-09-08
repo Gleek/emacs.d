@@ -1,6 +1,12 @@
+;;; early-init.el --- Early startup settings -*- lexical-binding: t; -*-
+
 ;; gcc/libgccjit toolchain is missing emutls_w; skip subr trampoline native
 ;; compilation so advice-add on C primitives (require, load) does not error.
 (setq native-comp-enable-subr-trampolines nil)
+
+(when (eq system-type 'android)
+  ;; These files intentionally retain dynamic binding.
+  (add-to-list 'warning-suppress-types '(files missing-lexbind-cookie)))
 
 (setq package-enable-at-startup nil)
 ;;       package-quickstart t

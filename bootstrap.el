@@ -16,7 +16,13 @@
 (defconst RES-DIR   (expand-file-name "resources/" user-emacs-directory))
 (defconst IS-MAC    (eq system-type 'darwin))
 (defconst IS-LINUX  (eq system-type 'gnu/linux))
+(defconst IS-ANDROID (eq system-type 'android))
 (defconst IS-TERM   (not (display-graphic-p)))
+
+(when IS-ANDROID
+  (let ((termux-bin "/data/data/com.termux/files/usr/bin"))
+    (setenv "PATH" (concat termux-bin path-separator (getenv "PATH")))
+    (add-to-list 'exec-path termux-bin)))
 
 (setq gc-cons-threshold 8000000) ;; collect garbage after about 100 MB
 ;; (run-with-idle-timer 2 t (lambda () (garbage-collect)))
@@ -39,6 +45,25 @@
 (eval-when-compile
   (require 'use-package))
 (require 'bind-key)
+
+;; Emacs 31 rejects string package names during eager macro expansion.  Keep
+;; the existing path-style declarations portable without changing desktop.
+(when IS-ANDROID
+  (add-to-list 'load-path (expand-file-name "core/lang/" user-emacs-directory))
+  (add-to-list 'load-path (expand-file-name "core/org/" user-emacs-directory))
+  (defvar +android-use-package-function (cdr (symbol-function 'use-package)))
+  (defun +android-use-package (name &rest args)
+    (if (and (stringp name) (string-match-p "/" name))
+        (apply +android-use-package-function
+               (intern (file-name-base name))
+               :no-require t
+               :init `(load ,name nil nil)
+               args)
+      (apply +android-use-package-function
+             (if (stringp name) (intern name) name)
+             args)))
+  (defalias 'use-package (cons 'macro #'+android-use-package)))
+
 (setq use-package-always-ensure t)
 (setq use-package-always-defer t)
 ;; (use-package diminish)
@@ -52,6 +77,11 @@
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-sources-directory (expand-file-name "sources/" elpaca-directory))
+(when IS-ANDROID
+  ;; Keep bundled Org from loading before the Elpaca installation.
+  (let ((org-build (expand-file-name "org/" elpaca-builds-directory)))
+    (when (file-directory-p org-build)
+      (add-to-list 'load-path org-build))))
 (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
                               :ref nil :depth 1 :inherit ignore
                               :files (:defaults "elpaca-test.el" (:exclude "extensions"))

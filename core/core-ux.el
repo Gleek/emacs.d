@@ -37,6 +37,13 @@
   :bind (([remap goto-line] . goto-line-with-feedback)
          ([remap keyboard-quit] . escape-quit)))
 
+(use-package touch-screen
+  :if IS-ANDROID
+  :ensure nil
+  :demand t
+  :config
+  (setq touch-screen-display-keyboard t))
+
 ;; Find my cursor
 (use-package beacon
   :disabled

@@ -104,7 +104,8 @@ everywhere that supports some decent formatting."
                                    +roam-directory)
               (expand-file-name "resource" +roam-directory)
             (expand-file-name "assets" +org-directory))))
-  (org-smart-yank-start-pandoc-server))
+  (when (executable-find "pandoc")
+    (org-smart-yank-start-pandoc-server)))
 
 (use-package org
   :bind (("C-c o e" . org-export-dispatch)
@@ -119,7 +120,7 @@ everywhere that supports some decent formatting."
   :ensure nil
   :config
   (setq org-version (if (string= org-version "")
-                        (let ((org-full-dir (file-name-directory (locate-library "org"))))p
+                        (let ((org-full-dir (file-name-directory (locate-library "org"))))
                              (save-match-data
                                (and (string-match "-\\([0-9.]+\\)/" org-full-dir)) (match-string 1 org-full-dir)))
                       org-version))
@@ -186,27 +187,28 @@ otherwise, do nothing."
   (setq-default org-download-image-dir (concat +roam-directory "resource/downloads"))
   (when IS-MAC (setq org-download-screenshot-method "screencapture -i %s")))
 
-(use-package ox-pandoc
-  :demand t
-  :after (ox)
-  :config
-  (defun org-pandoc-export-to-custom (&optional a s v b e)
-    "Export to custom."
-    (interactive)
-    (let* ((format (intern (read-string "Enter the export format: ")))
-           (options-var (intern (format "org-pandoc-options-for-%s" format)))
-           (options (if (boundp options-var) (symbol-value options-var) nil)))
-      (org-pandoc-export format a s v b e t)))
-  (defun org-pandoc-export-to-custom-and-open (&optional a s v b e)
-    "Export to custom and open."
-    (interactive)
-    (let* ((format (intern (read-string "Enter the export format: ")))
-           (options-var (intern (format "org-pandoc-options-for-%s" format))))
-      (unless (boundp options-var)
-        (set options-var nil))
-      (org-pandoc-export format a s v b e 0)))
-  (add-to-list 'org-pandoc-menu-entry '(?. "to custom" org-pandoc-export-to-custom))
-  (add-to-list 'org-pandoc-menu-entry '(?, "to custom and open" org-pandoc-export-to-custom-and-open)))
+(when (executable-find "pandoc")
+  (use-package ox-pandoc
+    :demand t
+    :after (ox)
+    :config
+    (defun org-pandoc-export-to-custom (&optional a s v b e)
+      "Export to custom."
+      (interactive)
+      (let* ((format (intern (read-string "Enter the export format: ")))
+             (options-var (intern (format "org-pandoc-options-for-%s" format)))
+             (options (if (boundp options-var) (symbol-value options-var) nil)))
+        (org-pandoc-export format a s v b e t)))
+    (defun org-pandoc-export-to-custom-and-open (&optional a s v b e)
+      "Export to custom and open."
+      (interactive)
+      (let* ((format (intern (read-string "Enter the export format: ")))
+             (options-var (intern (format "org-pandoc-options-for-%s" format))))
+        (unless (boundp options-var)
+          (set options-var nil))
+        (org-pandoc-export format a s v b e 0)))
+    (add-to-list 'org-pandoc-menu-entry '(?. "to custom" org-pandoc-export-to-custom))
+    (add-to-list 'org-pandoc-menu-entry '(?, "to custom and open" org-pandoc-export-to-custom-and-open))))
 
 
 (use-package org-web-tools)
@@ -360,6 +362,7 @@ otherwise, do nothing."
   (setq org-pomodoro-start-sound (concat RES-DIR "bell.wav")))
 
 (use-package org-pdftools
+  :if (not IS-ANDROID)
   :hook (org-mode . org-pdftools-setup-link))
 
 (use-package org-re-reveal
