@@ -528,16 +528,16 @@
         nil)))
 
   (defun +agenda-skip-if-parent-blocked ()
-    "Skip items if their parent is in WAITING or BLOCKED state.
-   Does not skip if the item has no parent or is itself in WAITING or BLOCKED state."
-    (let ((parent-state nil)
-          (current-state (org-get-todo-state)))
+    "Skip items if their parent is waiting, blocked, or done.
+Does not skip items without a parent."
+    (let (parent-state)
       (save-excursion
         (when (org-up-heading-safe)  ; Returns nil if there's no parent
           (setq parent-state (org-get-todo-state))))
       (if parent-state
-          ;; If there's a parent, skip if parent is WAITING or BLOCKED
-          (when (member parent-state '("WAITING" "BLOCKED"))
+          ;; Skip children of inactive or completed parents.
+          (when (or (member parent-state '("WAITING" "BLOCKED"))
+                    (member parent-state org-done-keywords))
             (org-end-of-subtree t))
         ;; If there's no parent, don't skip
         nil)))
