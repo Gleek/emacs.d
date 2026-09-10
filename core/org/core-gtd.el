@@ -701,6 +701,10 @@
   :config
   (setq org-wild-notifier-alert-time '(5))
   (setq org-wild-notifier-keyword-whitelist nil)
+  (defun +org-wild-notifier-play-sound (&rest _)
+    (play-sound-file (concat RES-DIR "calendar-notification.wav")))
+  (advice-add 'org-wild-notifier--notify :after
+              #'+org-wild-notifier-play-sound)
   (org-wild-notifier-mode t))
 
 
@@ -709,6 +713,7 @@
   :defer 5
   :config
   (setopt org-upcoming-modeline-show-running t)
+  (setq org-upcoming-modeline-keep-late 600)
   (org-upcoming-modeline-mode t))
 
 
@@ -770,7 +775,8 @@
         org-timegrid-org-capture-template
         '(:target file :template "* %{title}\n%{time-range}\n%?")
         org-timegrid-org-auto-save t
-        org-timegrid-org-show-repeaters nil)
+        org-timegrid-org-show-repeaters nil
+        org-timegrid-org-exclude-todo-states '("CANCELLED"))
   (setq org-timegrid-org-tag-color-alist
         '(("work"     . indigo)
           ("business" . lime)

@@ -386,11 +386,42 @@ When `+agent-shell-merge-pending-requests' is nil, defer to ORIG-FN."
   :config
   (setopt agent-shell-attention-notify-function
           (lambda (_buffer title body)
-            (alert body :title title :icon "nf-cod-bot")))
+            (alert body :title title :icon "nf-cod-bot")
+            (play-sound-file (concat RES-DIR "agent-attention.wav"))))
   (setopt agent-shell-attention-render-function
           #'agent-shell-attention-render-pending)
   (setopt agent-shell-attention-indicator-location 'global-mode-string)
   (agent-shell-attention-mode))
+
+(use-package agent-shell-links
+  :ensure (:host github :repo "ultronozm/agent-shell-links.el")
+  :after agent-shell
+  :demand
+  :bind (:map agent-shell-mode-map
+              ("C-z l" . +agent-shell-copy-link))
+  :config
+  (agent-shell-links-bookmark-setup)
+  (with-eval-after-load 'ol
+    (org-link-set-parameters
+     "agent-shell"
+     :follow #'agent-shell-links-org-follow
+     :store #'agent-shell-links-org-store))
+
+  (defun +agent-shell-copy-link ()
+    "Copy an Org link to the current agent-shell session."
+    (interactive)
+    (require 'ol)
+    (let* ((session (or (agent-shell-links--current-session)
+                        (user-error "No active agent-shell session")))
+           (target (agent-shell-links--build
+                    (plist-get session :session-id)
+                    (plist-get session :identifier)
+                    (plist-get session :dir)))
+           (link (org-link-make-string
+                  (concat "agent-shell:" target)
+                  (agent-shell-links--description session))))
+      (kill-new link)
+      (message "Copied %s" link))))
 
 (use-package agent-shell-consult
   :ensure (:host github :repo "Gleek/agent-shell-consult")
