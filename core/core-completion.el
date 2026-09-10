@@ -96,6 +96,11 @@
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
   (setq consult-narrow-key "<")
+  ;; Courtesy: James Cherti
+  (setq consult-async-input-debounce 0.05
+      consult-async-input-throttle 0.1
+      consult-async-refresh-delay 0.05)
+
   (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
   (advice-add #'register-preview :override #'consult-register-window)
