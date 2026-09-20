@@ -137,7 +137,7 @@ for PACKAGE in ${PACKAGES[@]+"${PACKAGES[@]}"}; do
   # Android build directories link to their source trees. Remove stale bytecode
   # so the synchronized Lisp is used immediately on the next start.
   adb -s "$DEVICE" shell \
-    "run-as org.gnu.emacs sh -c 'if test -d files/.emacs.d/elpaca/builds/$PACKAGE; then find files/.emacs.d/elpaca/builds/$PACKAGE -name \"*.elc\" -delete; fi'"
+    "run-as org.gnu.emacs sh -c 'for d in files/.emacs.d/elpaca/builds*/\"$PACKAGE\"; do test -d \"\$d\" && find \"\$d\" -name \"*.elc\" -delete; done'"
 done
 
 if $RESTART; then
