@@ -699,7 +699,7 @@ Does not skip items without a parent."
 (use-package org-wild-notifier
   :defer 5
   :config
-  (setq org-wild-notifier-alert-time '(5))
+  (setq org-wild-notifier-alert-time '(5 0))
   (setq org-wild-notifier-keyword-whitelist nil)
   (defun +org-wild-notifier-play-sound (&rest _)
     (play-sound-file (concat RES-DIR "calendar-notification.wav")))
@@ -774,17 +774,20 @@ Does not skip items without a parent."
         (concat +agenda-directory "inbox.org")
         org-timegrid-org-capture-template
         '(:target file :template "* %{title}\n%{time-range}\n%?")
-        org-timegrid-org-auto-save t
-        org-timegrid-org-show-repeaters nil
-        org-timegrid-org-exclude-todo-states '("CANCELLED"))
+        org-timegrid-org-auto-save nil
+        org-timegrid-start-hour 5
+        org-timegrid-org-show-repeaters nil)
   (setq org-timegrid-org-tag-color-alist
-        '(("work"     . indigo)
-          ("business" . lime)
-          ("reading"  . green)
-          ("tooling"  . green)
-          ("video"    . yellow)
-          ("travel"    . "#808080")
-          ("errand"   . cyan)))
+        '(("work"          . indigo)
+          ("business"      . lime)
+          ("reading"       . green)
+          ("tooling"       . green)
+          ("entertainment" . yellow)
+          ("family"        . red)
+          ("travel"        . "#808080")
+          ("errand"        . cyan)))
+  (+popup-rule org-timegrid-buffer-name
+               :same t :select t :popper nil)
   (add-hook 'org-timegrid-org-after-create-hook
             #'add-property-with-date-captured))
 
