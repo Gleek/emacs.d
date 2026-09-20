@@ -283,13 +283,12 @@ the capture popup."
         org-roam-ui-open-on-start t))
 
 (use-package org-excalidraw
-  :after org
-  :demand t
   :bind (:map org-mode-map
               ("<mouse-4>" . +excalidraw-draw)
               ("C-z d" . +excalidraw-draw))
   :ensure (:fetcher github :repo "gleek/org-excalidraw") ; Maintain my own fork since the original has bugs and not updated.
   :commands (+excalidraw-draw)
+  :hook (org-mode . org-excalidraw-initialize)
   :config
   (defvar +excalidraw-initialized nil)
   (setq org-excalidraw-export-format "png")
