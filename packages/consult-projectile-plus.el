@@ -29,6 +29,15 @@
   (let ((current-prefix-arg '(4)))
     (call-interactively 'agent-shell)))
 
+(cl-defun consult-projectile-embark-with-project-directory
+    (&rest args &key run target type &allow-other-keys)
+  "Run an Embark action from the selected projectile project."
+  (let ((default-directory
+         (if (eq type 'consult-projectile-project)
+             (file-name-as-directory (expand-file-name target))
+           default-directory)))
+    (apply run args)))
+
 (defvar consult-projectile-embark-actions
   '(("o" "default" "jump to project buffer or file" 'consult-projectile)
     ("f" "find-file" "jump to a project file" 'consult-projectile-find-file)
@@ -77,6 +86,10 @@
 (defun consult-projectile-plus-init()
   (consult-projectile-init-defuns)
   (consult-projectile-plus-bind-actions)
+  (if-let ((hooks (assq :always embark-around-action-hooks)))
+      (cl-pushnew #'consult-projectile-embark-with-project-directory (cdr hooks))
+    (push '(:always consult-projectile-embark-with-project-directory)
+          embark-around-action-hooks))
   (add-to-list 'embark-post-action-hooks
                '(consult-projectile-embark-action-remove embark--restart)))
 
