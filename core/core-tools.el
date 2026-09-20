@@ -648,6 +648,10 @@ To actually enable this, evaluate `+bongo-remove-headers'."
                    "afplay" (plist-get (cdr sound) :file)))
   (advice-add 'play-sound :override 'play-sound-mac))
 
+(when IS-ANDROID
+  (advice-add 'play-sound :override 'ignore))
+
+
 (use-package emacs
   :ensure nil
   :init
