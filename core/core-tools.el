@@ -391,7 +391,9 @@ TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s
          ("C-c b R" . +bongo-playlist-random-toggle)
          ("C-c b r" . bongo-play-random)
          ("C-c b p" . bongo-play-previous)
-         ("C-c b SPC" . bongo-pause/resume))
+         ("C-c b SPC" . bongo-pause/resume)
+         (:map bongo-dired-library-mode-map
+               ("e" . +bongo-dired-append-enqueue-and-next)))
   :config
   ;; Courtesy: Protesilaos
   (defun +bongo-playlist-reset ()
@@ -428,6 +430,12 @@ the currently playing track."
     (when (bongo-playlist-buffer-p)
       (bongo-stop)
       (bongo-erase-buffer)))
+  (defun +bongo-dired-append-enqueue-and-next (&optional n maybe-display-playlist)
+    "Append the Dired track at point to the playlist, then move down."
+    (interactive (list (prefix-numeric-value current-prefix-arg)
+                       'maybe-display-playlist))
+    (bongo-dired-append-enqueue-lines n maybe-display-playlist)
+    (dired-next-line 1))
   (setq bongo-default-directory "~/Music")
   (setq bongo-prefer-library-buffers nil)
   (setq bongo-mark-played-tracks t)
