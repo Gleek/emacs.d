@@ -301,6 +301,8 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
   (setq agent-shell-session-restore-verbosity 'full)
   (setq agent-shell-busy-indicator-frames 'circle)
   (setq agent-shell-chat-mode-enabled t)
+  (setq agent-shell-persistent-prompt t)
+  (setq agent-shell-openai-default-session-mode-id "agent-full-access")
 
   (setq agent-shell-preferred-agent-config
         ;; (agent-shell-anthropic-make-claude-code-config)
@@ -314,33 +316,35 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
         '(display-buffer-pop-up-window))
   (setq agent-shell-activity-group-expand-by-default 'latest)
 
+
+
   (setq agent-shell-permission-responder-function
         #'agent-shell-permission-allow-always)
-  (advice-add 'shell-maker-welcome-message :override (lambda (&rest _) ""))
-  (advice-add 'agent-shell-anthropic--claude-code-ascii-art :override (lambda (&rest _) ""))
-  (advice-add 'agent-shell-openai--codex-ascii-art :override (lambda (&rest _) ""))
+  (setq agent-shell-show-welcome-message nil)
 
   (setq agent-shell-anthropic-claude-environment nil)
+  (setq agent-shell-header-style 'text)
+
+  (defun +agent-shell-pad-text-header (header)
+    "Add vertical padding to agent-shell's text HEADER."
+    (if (and header (eq agent-shell-header-style 'text))
+        (concat
+         (propertize " " 'display
+                     '(space :width 0 :height 1.4 :ascent 72))
+         header)
+      header))
+
+  (unless (advice-member-p #'+agent-shell-pad-text-header
+                           'agent-shell--render-header-model)
+    (advice-add 'agent-shell--render-header-model
+                :filter-return #'+agent-shell-pad-text-header))
+
       ;; (agent-shell-make-environment-variables
       ;;  "ANTHROPIC_API_KEY" ""
       ;;  "ANTHROPIC_BASE_URL" "https://openrouter.ai/api"
       ;;  "ANTHROPIC_DEFAULT_HAIKU_MODEL" "openrouter/owl-alpha"
       ;;  ;; "ANTHROPIC_DEFAULT_HAIKU_MODEL" "moonshotai/kimi-k2.6"
       ;;  "ANTHROPIC_AUTH_TOKEN" (secret-get openrouter-key)))
-  (defun +agent-shell-self-insert-or-queue ()
-    "Insert character normally, or queue a request if the shell is busy."
-    (interactive)
-    (if (or (shell-maker-busy) ; currently replying
-            (and (not (eq agent-shell-session-strategy 'new-deferred))
-                 (not (map-nested-elt (agent-shell--state) '(:session :id))))) ; session not initialized
-        (let ((char (string last-command-event))
-              (shell-buffer (current-buffer)))
-          (with-current-buffer shell-buffer
-            (agent-shell-prompt-queue
-             (agent-shell--prompt-queue-read :initial char))))
-      (self-insert-command 1)))
-  (keymap-set agent-shell-mode-map "<remap> <self-insert-command>" #'+agent-shell-self-insert-or-queue)
-
   (defvar +agent-shell-merge-pending-requests nil
     "When non-nil, drain queued requests as one concatenated message.")
   (setq +agent-shell-merge-pending-requests t)
