@@ -64,11 +64,16 @@
       (read-only-mode t)
       (pop-to-buffer mx-metric-buffer))))
 
-(defun mx-metrics-save()
+(defun mx-metrics-save ()
   (interactive)
-  (unless (file-exists-p mx-metrics-file)
-      (make-empty-file mx-metrics-file))
-  (write-region (format "%S" mx-metrics-table) nil mx-metrics-file))
+  (let ((temp-file (make-nearby-temp-file mx-metrics-file)))
+    (unwind-protect
+        (progn
+          (with-temp-file temp-file
+            (prin1 mx-metrics-table (current-buffer)))
+          (rename-file temp-file mx-metrics-file t))
+      (when (file-exists-p temp-file)
+        (delete-file temp-file)))))
 
 (defun read-extended-command-a(f &rest args)
   (let (out)

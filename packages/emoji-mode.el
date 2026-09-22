@@ -24,7 +24,7 @@
      ((eq char-downcase ?h) '("🏠" "🚁" "🐴"))    ; House, Helicopter, Horse
      ((eq char-downcase ?i) '("🍦" "💉" "🪳" "🧊"))    ; Ice Cream, Ice
      ((eq char-downcase ?j) '("🧃" "🪼" "🧥" "🃏"))        ; Juice
-     ((eq char-downcase ?k) '("🥝" "🐨" "🔑" "🪁" ))    ; Kiwi, Koala, Key
+     ((eq char-downcase ?k) '("🥝" "🐨" "🔑" "🪁" "🦘"))    ; Kiwi, Koala, Key
      ((eq char-downcase ?l) '("🍋" "🦁" "🍭" ))    ; Lemon, Lion, Lollipop
      ((eq char-downcase ?m) '("🥭" "🐒"  "🌙" "🦟" "🐁"))    ; Mango, Monkey, Moon
      ((eq char-downcase ?n) '("🥜" "🌃" "👃" "💅"))        ; Nut, Night
