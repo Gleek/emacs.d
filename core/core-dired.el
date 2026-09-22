@@ -1,6 +1,6 @@
 (use-package dired
   :ensure nil
-  :defer 2
+  :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump)
          (:map dired-mode-map
                ("f" . nil)))

@@ -80,14 +80,14 @@
   (add-to-list
    'default-frame-alist '(ns-transparent-titlebar . t))
   (use-package ns-auto-titlebar
-    :defer 5
+    :demand t
     :ensure t
     :config
     (ns-auto-titlebar-mode)))
 
 
 (use-package ligature
-  :defer 1
+  :demand t
   :config
   (ligature-set-ligatures 't '("<---" "<--"  "<<-" "<-" "->" "-->" "--->" "<->" "<-->" "<--->" "<---->" "<!--"
                                "<==" "<===" "<=" "=>" "=>>" "==>" "===>" ">=" "<=>" "<==>" "<===>" "<====>" "<!---"
@@ -320,7 +320,7 @@
   (setq treesit-font-lock-level 4))
 
 (use-package treesit-auto
-  :defer 2
+  :demand t
   :config
   (setq treesit-auto-install 'prompt)
   (global-treesit-auto-mode))

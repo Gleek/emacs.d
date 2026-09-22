@@ -73,7 +73,7 @@
 
 (use-package point-stack
   :ensure nil
-  :defer 2
+  :demand t
   :bind (("s-[" . point-stack-pop)
          ("s-]" . point-stack-forward-stack-pop)
          ("s-SPC" . consult-point-stack))
@@ -111,9 +111,11 @@
          ("C-S-M-v". sow-scroll-other-window-down)))
 
 (use-package combobulate
-  :bind (:map combobulate-key-map
-              ("C-c o c" . nil))
-  :ensure (:fetcher github :repo "mickeynp/combobulate"))
+  :commands combobulate-mode
+  :config
+  (define-key combobulate-key-map (kbd "C-c o c") nil)
+  ;; Its generated autoload file eagerly requires every Combobulate module.
+  :ensure (:fetcher github :repo "mickeynp/combobulate" :autoloads nil))
 
 (use-package hideshow
   :ensure hydra

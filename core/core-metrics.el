@@ -11,23 +11,6 @@
 
 ;;; Code:
 
-(use-package keyfreq
-  :init
-  (setq keyfreq-file (expand-file-name "keyfreq" CACHE-DIR))
-  (setq keyfreq-file-lock (expand-file-name "keyfreq.lock" CACHE-DIR))
-  :defer 2
-  :config
-  (keyfreq-mode 1)
-  (keyfreq-autosave-mode 1)
-  (setq keyfreq-excluded-commands
-        '(self-insert-command
-          org-self-insert-command
-          next-line
-          previous-line
-          mwheel-scroll
-          lsp-ui-doc--handle-mouse-movement)))
-
-
 ;; Requires https://activitywatch.net/
 ;; brew install activitywatch
 (use-package activity-watch-mode
@@ -57,12 +40,15 @@
 
 (use-package mx-metrics
   :ensure nil
-  :defer 2
+  :demand t
   :config
   (setq mx-metrics-file (expand-file-name "mx-metrics" CACHE-DIR))
   (mx-metrics-mode t))
 
-(use-package esup)
+(use-package esup
+  :init
+  ;; ESUP 0.7.1 cannot safely descend into Emacs 30 byte-compiled files.
+  (setq esup-depth 0))
 
 (provide 'core-metrics)
 ;;; core-metrics.el ends here

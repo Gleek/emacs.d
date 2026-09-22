@@ -177,10 +177,9 @@ With prefix ARG, copy the absolute file name instead."
   :bind (:map lsp-mode-map ("C-c p e" . lsp-treemacs-errors-list)))
 
 (use-package treemacs-nerd-icons
-  :init (with-eval-after-load  'lsp-treemacs)
-  (require 'treemacs-nerd-icons)
+  :after treemacs
   :config
-  (treemacs-load-theme "nerd-icons"))
+  (treemacs-nerd-icons-config))
 
 (use-package lsp-mode
   :hook ((js-mode js2-mode js3-mode js-ts-mode rjsx-mode go-mode rust-mode php-mode go-ts-mode php-ts-mode feature-mode ruby-ts-mode) . lsp-deferred)

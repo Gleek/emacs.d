@@ -1,5 +1,5 @@
 (use-package vertico
-  :defer 0.1
+  :demand t
   :bind (("C-c v" . vertico-repeat)
          (:map vertico-map
                ("<return>" . vertico-directory-enter)
@@ -15,7 +15,6 @@
   :config
   (vertico-mode t)
   (vertico-multiform-mode t) ; M-{B(uffer) F(lat) G(rid) R(everse) U(nobtrusive) V(ertical)}'
-  (require 'embark)
   (setq vertico-resize nil
         vertico-count 15)
   ;; (setq vertico-multiform-commands nil)
@@ -72,7 +71,7 @@
   (add-to-list 'embark-become-keymaps '+embark-buffer-keymap))
 
 (use-package embark-consult
-  :defer 1)
+  :after (embark consult))
 
 
 (use-package consult
@@ -108,7 +107,7 @@
 
 
 (use-package marginalia
-  :defer 1
+  :demand t
   :config
   (marginalia-mode))
 
@@ -137,7 +136,7 @@
                                       orderless-without-if-bang)))
 
 (use-package nerd-icons-completion
-  :defer 1
+  :after marginalia
   :config
   (nerd-icons-completion-mode t)
   (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
@@ -159,15 +158,13 @@
 
 
 (use-package corfu
-  :defer 1
+  :hook ((prog-mode text-mode comint-mode) . corfu-mode)
   :bind (:map corfu-map
               ("RET" . nil))
   :config
-  (global-corfu-mode t)
   (setq-default corfu-auto t
                 corfu-auto-delay 0.04
                 corfu-auto-prefix 2
-                global-corfu-modes '((not erc-mode help-mode vterm-mode) t)
                 corfu-preselect 'valid
                 corfu-count 3
                 corfu-max-width 120
@@ -195,11 +192,10 @@
 
 (use-package yasnippet
   :ensure yasnippet
-  :defer 5
+  :hook ((prog-mode text-mode) . yas-minor-mode)
   :config
   (setq yasnippet-snippets-dir (expand-file-name "snippets" user-emacs-directory))
   (setq yas-snippet-dirs `(,yasnippet-snippets-dir))
-  (yas-global-mode 1)
   :diminish (yas-minor-mode . "Ⓨ"))
 
 (use-package yasnippet-capf
@@ -214,7 +210,7 @@
 
 (use-package autoinsert
   :ensure nil
-  :defer 5
+  :demand t
   :config
   (defun +autoinsert-yas-expand()
     "Replace text in yasnippet template."

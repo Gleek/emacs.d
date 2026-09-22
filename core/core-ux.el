@@ -69,7 +69,7 @@
          ("C-<wheel-up>" . nil)
          ("C-M-<wheel-down>" . nil)
          ("C-M-<wheel-up>" . nil)) ; ultra scroll does lazy wheel scroll and if I press C it scales everything
-  :defer 5
+  :demand t
   :init
   (setq scroll-conservatively 99
         scroll-margin 1)
@@ -92,7 +92,7 @@
 
 
 (use-package which-key
-  :defer 1
+  :demand t
   :config
   (which-key-mode 1)
   ;; Courtesy: doom emacs
@@ -161,7 +161,8 @@
 (setq enable-recursive-minibuffers t)
 (minibuffer-depth-indicate-mode t)
 
-(use-package page-break-lines :defer 5 :config (page-break-lines-mode))
+(use-package page-break-lines
+  :hook ((prog-mode text-mode) . page-break-lines-mode))
 (add-hook 'after-save-hook
           'executable-make-buffer-file-executable-if-script-p)
 

@@ -164,16 +164,14 @@ https://emacs.stackexchange.com/a/12124/2144"
          ("C-x C-r" . sudo-edit)))
 
 (use-package selected
-  :defer 1
+  :hook ((prog-mode text-mode) . selected-minor-mode)
   :diminish selected-minor-mode
   :bind (:map selected-keymap
               ("d" . downcase-region)
               ("u" . upcase-region)
               ("r" . reverse-region)
               ;; ("s" . sort-lines)
-              ("x" . eval-region))
-  :config
-  (selected-global-mode 1))
+              ("x" . eval-region)))
 
 (use-package move-text
   :bind (("M-<up>" . move-text-up)
@@ -209,7 +207,6 @@ https://emacs.stackexchange.com/a/12124/2144"
   ;; C-' to only show places where cursor is. Again to unhide
   ;; RET to switch from rrm to multiple cursors
   :ensure t
-  :after selected
   :config
   (define-key mc/keymap (kbd "C-s") #'phi-search)
   (define-key mc/keymap (kbd "C-r") #'phi-search-backward)
@@ -314,13 +311,13 @@ https://emacs.stackexchange.com/a/12124/2144"
 
 (use-package electric
   :ensure nil
-  :defer 1
+  :demand t
   :config
   (electric-pair-mode 1))
 
 (use-package puni
   :ensure t
-  :defer 1
+  :commands puni-splice
   :bind (("M-[" . puni-splice))
   :diminish puni-mode)
 
@@ -369,7 +366,7 @@ https://emacs.stackexchange.com/a/12124/2144"
 
 
 (use-package undo-fu
-  :defer 1
+  :demand t
   :config
   (setq undo-limit 400000           ; 400kb (default is 160kb)
         undo-strong-limit 3000000   ; 3mb   (default is 240kb)
@@ -432,7 +429,7 @@ https://emacs.stackexchange.com/a/12124/2144"
 
 (use-package so-long
   :ensure nil
-  :defer 1
+  :demand t
   :config
   (setq so-long-threshold 10000)
   ;; Add some font locking

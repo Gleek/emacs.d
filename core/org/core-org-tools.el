@@ -189,7 +189,6 @@ otherwise, do nothing."
 
 (when (executable-find "pandoc")
   (use-package ox-pandoc
-    :demand t
     :after (ox)
     :config
     (defun org-pandoc-export-to-custom (&optional a s v b e)
@@ -367,7 +366,6 @@ otherwise, do nothing."
 
 (use-package org-re-reveal
   :after org
-  :demand t
   :commands (+org-re-reveal-run)
   :bind (:map org-mode-map
               ("C-z p o" . +org-re-reveal-run))

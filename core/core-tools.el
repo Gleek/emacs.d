@@ -344,9 +344,8 @@ TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s
 
 (use-package verb
   :after org
-  :demand t
-  :config
-  (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
+  :bind (:map org-mode-map
+              ("C-c C-r" . verb-command-map)))
 
 
 (use-package speed-type
@@ -627,7 +626,7 @@ To actually enable this, evaluate `+bongo-remove-headers'."
   :commands (epaint))
 
 (use-package +sync-remote
-  :defer 2
+  :commands +sync-remote-start
   ;; Need to load early so that the custom variables can be marked safe to be used in .dir-locals.
   :bind ("C-c x a z" . +sync-remote-start)
   :ensure nil)

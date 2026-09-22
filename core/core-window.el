@@ -123,7 +123,7 @@ The PLIST syntax is Shackle's rule plist, plus local keys:
          ("C-<down>"  . windmove-down)))
 
 (use-package shackle
-  :defer 0.1
+  :demand t
   :config
   (setq shackle-rules nil
         popper-reference-buffers nil)
@@ -144,7 +144,7 @@ The PLIST syntax is Shackle's rule plist, plus local keys:
   (shackle-mode 1))
 
 (use-package popper
-  :defer 0.1
+  :demand t
   :bind (("C-`" . +popper-toggle-current-or-latest)
          ("C-M-`" . +popper-select)
          ("C-x k" . +popper-kill-current-buffer)
@@ -269,7 +269,7 @@ which makes Shackle snap it back to its popup slot."
 
 (use-package winner
   :ensure nil
-  :defer 1
+  :demand t
   :config (winner-mode t)
   :bind (("C-c w /" . winner-undo)
          ("C-c w ?" . winner-redo)))

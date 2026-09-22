@@ -369,7 +369,7 @@ two live on different remotes."
 
 (use-package autorevert
   :ensure nil
-  :defer 1
+  :demand t
   :bind ("s-u" . revert-buffer)
   :config
   (setq auto-revert-verbose t ; let us know when it happens

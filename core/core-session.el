@@ -33,7 +33,7 @@
 
 (use-package server
   :ensure nil
-  :defer 1
+  :demand t
   :config
   (unless (server-running-p)
     (server-start))
@@ -41,7 +41,7 @@
 
 (use-package saveplace
   :ensure nil
-  :defer 1
+  :demand t
   :config
   (setq save-place-file (concat CACHE-DIR "places"))
   (save-place-mode 1)

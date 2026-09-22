@@ -190,7 +190,19 @@
 
 (use-package org-protocol
   :ensure nil
-  :defer 2
+  :init
+  (defun +org-protocol-load-on-request (orig files client &rest args)
+    "Load Org Protocol only when FILES contains an org-protocol URL."
+    (if (seq-some (lambda (file)
+                    (string-match-p "org-protocol:" (car file)))
+                  files)
+        (progn
+          (advice-remove 'server-visit-files #'+org-protocol-load-on-request)
+          (require 'org-protocol)
+          (apply #'org--protocol-detect-protocol-server
+                 orig files client args))
+      (apply orig files client args)))
+  (advice-add 'server-visit-files :around #'+org-protocol-load-on-request)
   :config
   (add-to-list 'org-protocol-protocol-alist
                '("org-id" :protocol "org-id"
@@ -697,7 +709,19 @@ Does not skip items without a parent."
   (org-alert-enable))
 
 (use-package org-wild-notifier
-  :defer 5
+  :commands org-wild-notifier-mode
+  :hook ((org-mode org-agenda-mode) . +org-enable-background-features)
+  :init
+  (defun +org-enable-background-features ()
+    "Enable agenda-backed background features after first entering Org."
+    (remove-hook 'org-mode-hook #'+org-enable-background-features)
+    (remove-hook 'org-agenda-mode-hook #'+org-enable-background-features)
+    ;; Let the current Org or agenda buffer finish initializing before either
+    ;; feature scans all agenda files.
+    (run-at-time 0 nil
+                 (lambda ()
+                   (org-wild-notifier-mode 1)
+                   (org-upcoming-modeline-mode 1))))
   :config
   (setq org-wild-notifier-alert-time '(5 0))
   (setq org-wild-notifier-keyword-whitelist nil)
@@ -709,12 +733,12 @@ Does not skip items without a parent."
 
 
 (use-package org-upcoming-modeline
-  :ensure (:fetcher github :repo "Gleek/org-upcoming-modeline")
-  :defer 5
+  :ensure (:fetcher github :repo "unhammer/org-upcoming-modeline")
+  :commands org-upcoming-modeline-mode
   :config
-  (setopt org-upcoming-modeline-show-running t)
-  (setq org-upcoming-modeline-keep-late 600)
-  (org-upcoming-modeline-mode t))
+  (setopt org-upcoming-modeline-only-show-soon t
+          org-upcoming-modeline-show-running t)
+  (setq org-upcoming-modeline-keep-late 600))
 
 
 (use-package org-timeline
@@ -804,7 +828,6 @@ Does not skip items without a parent."
 
 (use-package org-ql
   :after (org org-agenda)
-  :demand t
   :commands (+org-archive-archivable +org-show-archivable +org-show-pending org-dblock-write:org-ql-list)
   :bind (("C-c o G" . org-ql-find-agenda)
          (:map org-agenda-mode-map

@@ -11,7 +11,7 @@
 
 ;;; Code:
 
-(setq debug-on-error t)
+(setq debug-on-error nil)
 (defconst CACHE-DIR (expand-file-name "cache/" user-emacs-directory))
 (defconst RES-DIR   (expand-file-name "resources/" user-emacs-directory))
 (defconst IS-MAC    (eq system-type 'darwin))
