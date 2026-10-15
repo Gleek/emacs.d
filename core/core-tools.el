@@ -188,53 +188,82 @@ TIME is a string consisting of a number followed by 's', 'm', or 'h'. (e.g., 10s
         (find-file png-file))
       (eimp-mogrify-image mogrify-args)))
 
-  (defun eimp-crop-mouse(event)
-    ;; FIXME: co-ordinates and mouse position don't match
+  (defun +eimp-crop-coordinate (coordinate displayed original)
+    "Map COORDINATE to ORIGINAL pixels, snapping near DISPLAYED edges."
+    (cond ((<= coordinate 5) 0)
+          ((>= coordinate (- displayed 5)) original)
+          (t (round (* coordinate (/ (float original) displayed))))))
+
+  (defun +eimp-crop-frame-coordinates (position)
+    "Return frame coordinates for POSITION, including fringes and frame edges."
+    (let ((window (posn-window position))
+          (xy (posn-x-y position)))
+      (if (not (windowp window))
+          xy
+        (if (memq (posn-area position) '(left-fringe right-fringe))
+            (cons (+ (car xy) (car (window-pixel-edges window)))
+                  (+ (cdr xy) (cadr (window-inside-pixel-edges window))))
+          (eimp-frame-relative-coordinates position)))))
+
+  (defun eimp-crop-mouse (event)
+    "Crop to the rectangle selected by Shift-dragging EVENT.
+Drag between any two opposite corners of the area to keep."
     (interactive "e")
-    (let* ((window (posn-window (event-start event)))
-           (event-start (event-start event))
-           end
-           message-log-max
-           image-size image-width image-height
-           width-ratio height-ratio ratio
-           dx dy dx-dy x-y start-x-y)
+    (let* ((start (event-start event))
+           (window (posn-window start))
+           (anchor (posn-object-x-y start)))
+      (unless (posn-image start)
+        (user-error "No image at mouse"))
       (mouse-set-point event)
-      ;; Image at or just before point
       (unless (eimp-get-display-property)
         (backward-char))
-      (cond
-       ((not (posn-image event-start))
-        (message "No image at mouse"))
-       (t
-        (setq image-size (image-size (eimp-get-image) t)
-              image-width (car image-size)
-              image-height (cdr image-size))
-        (setq start-x-y (eimp-frame-relative-coordinates event-start)
-              dx-dy (posn-object-x-y event-start))
-        (setq start-x-y (cons (- (car start-x-y) (car dx-dy))
-                              (- (cdr start-x-y) (cdr dx-dy))))
+      (let* ((spec (eimp-get-image))
+             (original (image-size
+                        (create-image (eimp-get-image-data)
+                                      (plist-get (cdr spec) :type) t :scale 1)
+                        t))
+             (displayed (posn-object-width-height start))
+             (origin (eimp-frame-relative-coordinates start))
+             (x1 (+eimp-crop-coordinate (car anchor) (car displayed) (car original)))
+             (y1 (+eimp-crop-coordinate (cdr anchor) (cdr displayed) (cdr original)))
+             (message-log-max nil)
+             x2 y2 width height same-frame)
+        (setq origin (cons (- (car origin) (car anchor))
+                           (- (cdr origin) (cdr anchor))))
+        (message "Crop anchor: (%d, %d); drag to the opposite corner" x1 y1)
         (track-mouse
-          (while (progn
-                   (setq event (read-event))
-                   (or (mouse-movement-p event)
-                       (memq (car-safe event) '(switch-frame select-window))))
-
-            (if (memq (car-safe event) '(switch-frame select-window))
-                nil
-              (setq end (event-end event))
-              (if (numberp (posn-point end))
-                  (progn
-                    (setq x-y (eimp-frame-relative-coordinates end)
-                          dx (- (car x-y) (car start-x-y))
-                          dy (- (cdr x-y) (cdr start-x-y))))
-                (setq dx -1 dy -1))
-              (if (or (< dx 0) (< dy 0))
-                  (message "Not cropping image")
-                (message "Cropping image from %dx%d to %dx%d"
-                         image-width image-height dx dy)))))
-        (when (and (> dx 0) (> dy 0))
+          (while
+              (progn
+                (setq event (read-event)
+                      same-frame
+                      (let ((target (posn-window (event-end event))))
+                        (eq (if (windowp target) (window-frame target) target)
+                            (window-frame window))))
+                (when (and (or (mouse-movement-p event)
+                               (memq (event-basic-type event) '(mouse-1 drag-mouse-1)))
+                           same-frame)
+                  (let* ((position (event-end event))
+                         (end (if (equal (posn-image position) (posn-image start))
+                                  (posn-object-x-y position)
+                                (let ((xy (+eimp-crop-frame-coordinates position)))
+                                  (cons (- (car xy) (car origin))
+                                        (- (cdr xy) (cdr origin)))))))
+                    (setq x2 (+eimp-crop-coordinate (car end) (car displayed) (car original))
+                          y2 (+eimp-crop-coordinate (cdr end) (cdr displayed) (cdr original))
+                          width (abs (- x2 x1))
+                          height (abs (- y2 y1)))
+                    (message "Crop: (%d, %d) to (%d, %d), %d x %d pixels"
+                             (min x1 x2) (min y1 y2)
+                             (max x1 x2) (max y1 y2) width height)))
+                (or (mouse-movement-p event)
+                    (memq (car-safe event) '(switch-frame select-window))))))
+        (when (and (memq (event-basic-type event) '(mouse-1 drag-mouse-1))
+                   same-frame
+                   width height (> width 0) (> height 0))
           (eimp-mogrify-image
-           `("-crop" ,(concat (format "%dx%d+%d+%d" image-width image-height dx dy))))))))))
+           (list "-crop" (format "%dx%d+%d+%d"
+                                 width height (min x1 x2) (min y1 y2))
+                 "+repage")))))))
 
 
 (use-package transient
