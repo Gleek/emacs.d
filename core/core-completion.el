@@ -95,6 +95,17 @@
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
   (setq consult-narrow-key "<")
+  (defun +consult-skip-encrypted-pdf-preview-a (fn file)
+    "Do not preview encrypted PDF FILE with Consult."
+    (if (and (string-match-p "\\.[pP][dD][fF]\\'" file)
+             (require 'pdf-info nil t)
+             (unwind-protect
+                 (ignore-errors (pdf-info-encrypted-p file))
+               (ignore-errors (pdf-info-close file))))
+        nil
+      (funcall fn file)))
+  (advice-add 'consult--find-file-temporarily
+              :around #'+consult-skip-encrypted-pdf-preview-a)
   ;; Courtesy: James Cherti
   (setq consult-async-input-debounce 0.05
       consult-async-input-throttle 0.1

@@ -23,6 +23,17 @@
               ("m" . pdf-view-midnight-minor-mode)
               ("t" . pdf-annot-add-text-annotation))
   :config
+  (defun +pdf-kill-buffer-on-decryption-failure-a (fn &rest args)
+    "Discard a half-initialized PDF buffer when decryption is aborted."
+    (condition-case err
+        (apply fn args)
+      ((quit error)
+       (let ((buffer (current-buffer)))
+         (set-buffer-modified-p nil)
+         (kill-buffer buffer))
+       (signal (car err) (cdr err)))))
+  (advice-add 'pdf-view-decrypt-document
+              :around #'+pdf-kill-buffer-on-decryption-failure-a)
   (defvar pdf-annot-highlight-colors '(("blue" . "#40e0d0") ("yellow" . "#face50") ("red" . "#ff69b4")))
   (defun pdf-annot-choose-highlight-color()
     (interactive)
