@@ -273,6 +273,12 @@ the capture popup."
   (setq org-roam-graph-viewer (lambda(file) (display-buffer (find-file-noselect file))))
   (setq org-roam-graph-extra-config '(("rankdir" . "LR"))))
 
+(use-package roam-inline
+  :ensure (:host github :repo "Gleek/roam-inline")
+  :hook (org-mode . roam-inline-auto-enable)
+  :config
+  (setq-default roam-inline-show-unlinked t))
+
 (use-package org-roam-ui
   :after org-roam
   :commands (org-roam-ui-mode)
