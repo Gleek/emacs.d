@@ -560,7 +560,7 @@ Does not skip items without a parent."
       (when (and (or (member "errand" tags) (member "business" tags))
                  (let ((current-time (decode-time (current-time))))
                    (and (<= 1 (nth 6 current-time) 5) ; Monday to Friday
-                        (<= 10 (nth 2 current-time) 17)))) ; 11 AM to 6 PM
+                        (<= 10 (nth 2 current-time) 16)))) ; 11 AM to 5 PM
         (save-excursion (or (outline-next-heading) (point-max))))))
 
   (defun +org-entry-has-timed-timestamp-p ()
@@ -800,7 +800,9 @@ Does not skip items without a parent."
         '(:target file :template "* %{title}\n%{time-range}\n%?")
         org-timegrid-org-auto-save nil
         org-timegrid-start-hour 5
-        org-timegrid-org-show-repeaters nil)
+        org-timegrid-range-alignment 'center
+        org-timegrid-org-show-repeaters t
+        org-timegrid-org-repeater-history t)
   (setq org-timegrid-org-tag-color-alist
         '(("work"          . indigo)
           ("business"      . lime)
@@ -945,6 +947,12 @@ TODO: Add checkbox based on todo state. If in todo show [ ] if done show [X] in 
   :ensure (gnuplot)
   :after org
   :demand t)
+
+(use-package org-time-analytics
+  :ensure (:fetcher github :repo "Gleek/org-time-analytics")
+  :after org-ql
+  :commands (org-time-analytics-report)
+  :bind ("C-c o n" . org-time-analytics-report))
 
 
 
