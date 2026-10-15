@@ -288,23 +288,15 @@ the capture popup."
         org-roam-ui-update-on-save t
         org-roam-ui-open-on-start t))
 
-(use-package org-excalidraw
+(use-package excalimacs
+  :ensure (:host github :repo "Gleek/excalimacs"
+           :files (:defaults "dist"))
   :bind (:map org-mode-map
-              ("<mouse-4>" . +excalidraw-draw)
-              ("C-z d" . +excalidraw-draw))
-  :ensure (:fetcher github :repo "gleek/org-excalidraw") ; Maintain my own fork since the original has bugs and not updated.
-  :commands (+excalidraw-draw)
-  :hook (org-mode . org-excalidraw-initialize)
-  :config
-  (defvar +excalidraw-initialized nil)
-  (setq org-excalidraw-export-format "png")
-  (defun +excalidraw-draw()
-    (interactive)
-    (if (not +excalidraw-initialized)
-        (org-excalidraw-initialize))
-    (setq +excalidraw-initialized t)
-    (org-excalidraw-create-drawing))
-  (setq org-excalidraw-directory (concat +roam-directory "resource/excalidraw")))
+              ("<mouse-4>" . excalimacs-create-drawing)
+              ("C-z d" . excalimacs-create-drawing))
+  :hook (org-mode . excalimacs-minor-mode)
+  :custom
+  (excalimacs-directory (concat +roam-directory "resource/excalidraw")))
 
 (provide 'core-org-notes)
 ;;; core-org-notes.el ends here
