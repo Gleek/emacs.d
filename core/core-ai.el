@@ -291,6 +291,7 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
 
 
 (use-package agent-shell
+  :commands (agent-shell-anthropic-start-claude-code agent-shell-openai-start-codex)
   :bind (("C-c q a" . agent-shell)
          (:map agent-shell-mode-map
                ("C-z r" . agent-shell-rename-buffer)))
@@ -299,9 +300,52 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
   ;; (+popup-rule "^Codex agent" :regexp t :align right :size 0.4 :select t :escape nil)
   ;; (+popup-rule "^Claude agent" :regexp t :align right :size 0.4 :select t :escape nil)
   (setq agent-shell-session-restore-verbosity 'full)
-  (setq agent-shell-busy-indicator-frames 'circle)
+  (setq agent-shell-session-strategy 'prompt)
+
+  (defun +agent-shell-open-link-externally (original url)
+    "Open local URL externally with a prefix argument, otherwise call ORIGINAL.
+For example, C-u RET on an HTML link opens it in the default browser."
+    (if-let* ((_ current-prefix-arg)
+              (parsed (agent-shell-markdown--parse-local-link url)))
+        (agent-shell-markdown--open-externally (map-elt parsed :file))
+      (funcall original url)))
+
+  (advice-add 'agent-shell-markdown--open-link :around
+              #'+agent-shell-open-link-externally)
+
+  (defun +agent-shell-fork-name (original &rest args)
+    "Call ORIGINAL with ARGS, naming the fork after its parent buffer."
+    (let* ((parent-name (buffer-name (agent-shell--current-shell)))
+           (agent-shell-buffer-name-format
+            (lambda (_agent _project)
+              (concat parent-name " (fork)"))))
+      (apply original args)))
+
+  (advice-add 'agent-shell-fork :around #'+agent-shell-fork-name)
+
+  (defun +agent-shell-resume ()
+    "Choose an agent session to resume."
+    (interactive)
+    (agent-shell--start
+     :config (or (agent-shell--auto-preferred-config)
+                 (agent-shell-select-config))
+     :session-strategy 'prompt
+     :new-session t))
+
+  (setq agent-shell-busy-indicator-frames
+        (mapcar (lambda (phase)
+                  (mapconcat (lambda (column)
+                               (string (aref "▁▂▃▄▅▆▇█"
+                                             (round (* 3.5
+                                                       (+ 1 (sin (* 2 float-pi
+                                                                    (+ (/ column 8.0)
+                                                                       (/ phase 16.0))))))))))
+                             (number-sequence 0 7) ""))
+                (number-sequence 0 15)))
+  (setq agent-shell-prompt-busy-frames
+        ["⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏"])
   (setq agent-shell-chat-mode-enabled t)
-  (setq agent-shell-persistent-prompt t)
+  (setq agent-shell-persistent-prompt-enabled t)
   (setq agent-shell-openai-default-session-mode-id "agent-full-access")
 
   (setq agent-shell-preferred-agent-config
@@ -334,35 +378,17 @@ Looks for CONVENTIONS.md, then CLAUDE.md, then AGENTS.md at the project root."
          header)
       header))
 
-  (unless (advice-member-p #'+agent-shell-pad-text-header
-                           'agent-shell--render-header-model)
-    (advice-add 'agent-shell--render-header-model
-                :filter-return #'+agent-shell-pad-text-header))
-
       ;; (agent-shell-make-environment-variables
       ;;  "ANTHROPIC_API_KEY" ""
       ;;  "ANTHROPIC_BASE_URL" "https://openrouter.ai/api"
       ;;  "ANTHROPIC_DEFAULT_HAIKU_MODEL" "openrouter/owl-alpha"
       ;;  ;; "ANTHROPIC_DEFAULT_HAIKU_MODEL" "moonshotai/kimi-k2.6"
       ;;  "ANTHROPIC_AUTH_TOKEN" (secret-get openrouter-key)))
-  (defvar +agent-shell-merge-pending-requests nil
-    "When non-nil, drain queued requests as one concatenated message.")
-  (setq +agent-shell-merge-pending-requests t)
 
-  (defun +agent-shell-process-pending-prompt-merged (orig-fn &rest args)
-    "Around advice that submits all pending prompts as a single message.
-When `+agent-shell-merge-pending-requests' is nil, defer to ORIG-FN."
-    (let ((pending (map-elt (agent-shell--state) :pending-prompts)))
-      (if (and +agent-shell-merge-pending-requests pending)
-          (progn
-            (map-put! (agent-shell--state) :pending-prompts nil)
-            (agent-shell--insert-to-shell-buffer
-             :text (mapconcat #'identity pending "\n\n")
-             :submit t
-             :no-focus t))
-        (apply orig-fn args))))
-  (advice-add 'agent-shell--prompt-queue-process-next :around
-              #'+agent-shell-process-pending-prompt-merged))
+  (unless (advice-member-p #'+agent-shell-pad-text-header
+                           'agent-shell--render-header-model)
+    (advice-add 'agent-shell--render-header-model
+                :filter-return #'+agent-shell-pad-text-header)))
 
 (use-package agent-shell-claude-code
   :ensure nil
@@ -429,14 +455,12 @@ When `+agent-shell-merge-pending-requests' is nil, defer to ORIG-FN."
 
 (use-package agent-shell-consult
   :ensure (:host github :repo "Gleek/agent-shell-consult")
-  :after agent-shell
-  :demand
   :bind (("C-c q b" . agent-shell-consult)
          (:map agent-shell-mode-map
                ("C-z b" . agent-shell-consult))))
 
 (use-package agent-recall
-  :ensure (:fetcher github :repo "Marx-A00/agent-recall")
+  :ensure (:fetcher github :repo "Gleek/agent-recall")
   :after agent-shell
   :hook (agent-shell-mode . agent-recall-track-sessions)
   :demand
